@@ -19,6 +19,7 @@ import {
   SPANBIX_SITE,
   breadcrumbLd,
 } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 import useSEO from '@/hooks/useSEO';
 
 /**
@@ -85,7 +86,7 @@ function CourseCard({ track, index }) {
       transition={{ duration: 0.5, delay: (index % 4) * 0.05 }}
     >
       <Link
-        to={`/spanbix/career-paths/${track.code}`}
+        to={withSpanbixBase(`/career-paths/${track.code}`)}
         className="group flex flex-col h-full rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
         style={{
           backgroundColor: '#ffffff',

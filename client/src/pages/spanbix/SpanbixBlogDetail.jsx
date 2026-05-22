@@ -6,6 +6,7 @@ import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import { getPublicBlogDetail } from '@/api/public';
 import useSEO from '@/hooks/useSEO';
 import { SPANBIX_SITE, SPANBIX_BRAND, blogPostingLd, breadcrumbLd } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 import { trackBlogView } from '@/lib/analytics';
 import { attachInternalLinkClickListener } from '@/lib/internalLinkTracker';
 
@@ -38,7 +39,7 @@ export default function SpanbixBlogDetail() {
         if (cancelled) return;
         const blog = res?.data?.data?.blog || null;
         setState({ loading: false, blog, error: null });
-        if (blog) trackBlogView(slug, `/spanbix/blog/${slug}`);
+        if (blog) trackBlogView(slug, withSpanbixBase(`/blog/${slug}`));
         if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' });
       })
       .catch((err) => {
@@ -80,7 +81,7 @@ export default function SpanbixBlogDetail() {
       <section className="relative pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden">
         <div className="relative max-w-3xl mx-auto px-6 md:px-8">
           <Link
-            to="/spanbix/blog"
+            to={withSpanbixBase('/blog')}
             className="inline-flex items-center gap-1.5 text-[12px] font-semibold font-sora transition-colors"
             style={{ color: SPANBIX_BRAND.textMuted }}
           >
@@ -108,7 +109,7 @@ export default function SpanbixBlogDetail() {
                   : 'We could not load this article right now.'}
               </p>
               <Link
-                to="/spanbix/blog"
+                to={withSpanbixBase('/blog')}
                 className="mt-6 inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold font-sora text-white"
                 style={{ backgroundColor: SPANBIX_BRAND.navy }}
               >
@@ -217,7 +218,7 @@ export default function SpanbixBlogDetail() {
                   30-minute career consultation. No sales pressure.
                 </p>
                 <Link
-                  to="/spanbix/contact"
+                  to={withSpanbixBase('/contact')}
                   className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[13px] font-semibold font-sora text-white transition-all hover:brightness-110 shadow-[0_18px_40px_-12px_rgba(39,100,228,0.6)]"
                   style={{ backgroundColor: SPANBIX_BRAND.accent }}
                 >

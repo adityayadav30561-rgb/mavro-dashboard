@@ -8,6 +8,54 @@ This document is the operational source of truth for the Spanbix Vercel deploy. 
 
 ---
 
+## 0. Build target switching (Phase 5.4 — Option B2)
+
+Multiple frontend deploys ship from the **same source tree** via the `VITE_BUILD_TARGET` env var:
+
+| Target | Entry HTML | Entry JS | Routing tree | Output |
+|---|---|---|---|---|
+| `full` (default) | `index.html` | `src/main.jsx` | `App.jsx` — every public site under `/spanbix/*` `/hrms/*` `/tickets/*` + admin routes | `dist/index.html` |
+| `spanbix` | `index.spanbix.html` | `src/entries/spanbix.jsx` | `SpanbixApp.jsx` — Spanbix routes at root (`/`, `/courses`, `/blog`, etc.) | `dist/index.html` (auto-promoted by Vite plugin) |
+| `hrms` (reserved) | `index.hrms.html` | `src/entries/hrms.jsx` | future `HrmsApp.jsx` | `dist/index.html` |
+| `tickets` (reserved) | `index.tickets.html` | `src/entries/tickets.jsx` | future `TicketsApp.jsx` | `dist/index.html` |
+
+How it works:
+1. `vite.config.js` reads `process.env.VITE_BUILD_TARGET` at build time.
+2. Selects the matching `index.<target>.html` as the rollup entry.
+3. `define` block bakes the target into the bundle so `lib/routeBase.js → withSpanbixBase()` returns the correct prefix (`''` for standalone, `/spanbix` for full).
+4. A `closeBundle` plugin promotes `dist/index.<target>.html` to `dist/index.html` after build so Vercel serves it as the default document.
+5. `manualChunks` excludes admin-only deps (Recharts, Quill, Radix) from standalone Spanbix builds because `SpanbixApp.jsx` never imports them.
+
+**Local test commands:**
+```bash
+# Standalone Spanbix dev server (routes at /)
+cd client
+npm run dev:spanbix
+# → http://localhost:5173/  → SpanbixLanding
+# → http://localhost:5173/blog → SpanbixBlogList
+
+# Full Mavro Console dev server (existing behaviour, Spanbix at /spanbix/*)
+npm run dev
+
+# Build standalone Spanbix
+npm run build:spanbix
+# → dist/index.html (Spanbix-only) + assets/* (no Recharts, no Quill, no Radix)
+
+# Build full Mavro Console
+npm run build:full
+
+# Quick output inspection
+ls -la dist/
+```
+
+**One-time setup:** install `cross-env` if not already present (added to `devDependencies`):
+```bash
+cd client
+npm install
+```
+
+---
+
 ## 1. Deployment-readiness summary
 
 The Mavro frontend can now be deployed to Vercel as a public-only Spanbix property while still powered by the existing Express + MongoDB backend.
@@ -160,14 +208,19 @@ When you are ready to deploy:
 ### Prep (one-time)
 
 1. Pick a backend host (Render, Railway, Fly, or self-hosted). Confirm it serves `https://<host>/api/health` with a 200.
-2. In Vercel: create a new project, point to this repo, set the **Root Directory** to `client/`.
-3. Vercel Build Settings:
-   - Framework Preset: `Vite` (auto-detected)
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-   - Install Command: `npm install`
-4. Vercel Environment Variables: `VITE_API_BASE_URL=https://<your-backend-host>` for Production + Preview.
-5. Edit `client/vercel.json`: replace both `placeholder-backend.example.com` occurrences with your real backend host.
+2. In Vercel: create **one project per public property** (Option B2 architecture). All projects point at this same repo, all use `client/` as the Root Directory.
+3. Per-project Vercel Build Settings:
+   - **Spanbix project (`spanbix.vercel.app` / spanbix.com):**
+     - Framework Preset: `Vite`
+     - Build Command: `npm run build:spanbix`  (or set `VITE_BUILD_TARGET=spanbix` env var + use default `npm run build` via vercel.json)
+     - Output Directory: `dist`
+     - Install Command: `npm install`
+   - **HRMS / Tickets projects:** future — same pattern with `build:hrms` / `build:tickets`.
+   - **Mavro Console project (`dashboard.mavro.com`):** Build Command `npm run build:full`.
+4. Vercel Environment Variables per project:
+   - `VITE_API_BASE_URL=https://<your-backend-host>` (Production + Preview)
+   - `VITE_BUILD_TARGET=spanbix` (or `full` / `hrms` / `tickets` depending on project)
+5. Edit `client/vercel.json`: replace both `placeholder-backend.example.com` occurrences with your real backend host. The committed `vercel.json` already points the build at `npm run build:spanbix` — if you also use this repo for a Mavro Console deploy, that project should override the Build Command in its Vercel settings (project-level setting wins over `vercel.json` when both define one).
 
 ### Backend prep
 

@@ -1,40 +1,41 @@
 import { Link } from 'react-router-dom';
 import { Linkedin, ArrowUpRight } from 'lucide-react';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 const columns = [
   {
     label: 'Platform',
     links: [
-      { label: 'Courses', to: '/spanbix/courses' },
-      { label: 'Career Paths', to: '/spanbix/career-paths' },
-      { label: 'Certifications', to: '/spanbix/courses#certifications' },
-      { label: 'Demo Classes', to: '/spanbix/demo-classes' },
+      { label: 'Courses', to: withSpanbixBase('/courses') },
+      { label: 'Career Paths', to: withSpanbixBase('/career-paths') },
+      { label: 'Certifications', to: withSpanbixBase('/courses#certifications') },
+      { label: 'Demo Classes', to: withSpanbixBase('/demo-classes') },
     ],
   },
   {
     label: 'Company',
     links: [
-      { label: 'About', to: '/spanbix/about' },
-      { label: 'Placements', to: '/spanbix/placements' },
-      { label: 'Campus Programs', to: '/spanbix/campus-programs' },
-      { label: 'Contact', to: '/spanbix/contact' },
+      { label: 'About', to: withSpanbixBase('/about') },
+      { label: 'Placements', to: withSpanbixBase('/placements') },
+      { label: 'Campus Programs', to: withSpanbixBase('/campus-programs') },
+      { label: 'Contact', to: withSpanbixBase('/contact') },
     ],
   },
   {
     label: 'Resources',
     links: [
-      { label: 'Blog', to: '/spanbix/blog' },
-      { label: 'Career Guides', to: '/spanbix/blog?category=guides' },
-      { label: 'FAQs', to: '/spanbix/about#faqs' },
+      { label: 'Blog', to: withSpanbixBase('/blog') },
+      { label: 'Career Guides', to: withSpanbixBase('/blog?category=guides') },
+      { label: 'FAQs', to: withSpanbixBase('/about#faqs') },
     ],
   },
   {
     label: 'Legal',
     links: [
-      { label: 'Privacy Policy', to: '/spanbix/about#privacy' },
-      { label: 'Terms', to: '/spanbix/about#terms' },
-      { label: 'Refund Policy', to: '/spanbix/about#refunds' },
+      { label: 'Privacy Policy', to: withSpanbixBase('/about#privacy') },
+      { label: 'Terms', to: withSpanbixBase('/about#terms') },
+      { label: 'Refund Policy', to: withSpanbixBase('/about#refunds') },
     ],
   },
 ];
@@ -46,7 +47,7 @@ export default function Footer() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12">
           {/* Brand block */}
           <div className="lg:col-span-4">
-            <Link to="/spanbix" className="inline-flex items-center gap-2.5">
+            <Link to={withSpanbixBase('/')} className="inline-flex items-center gap-2.5">
               <div
                 className="w-10 h-10 rounded-lg flex items-center justify-center font-serif text-[20px] leading-none"
                 style={{ backgroundColor: SPANBIX_BRAND.accent }}

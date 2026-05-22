@@ -5,7 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:spanbix": "cross-env VITE_BUILD_TARGET=spanbix vite",
     "build": "vite build",
+    "build:full": "cross-env VITE_BUILD_TARGET=full vite build",
+    "build:spanbix": "cross-env VITE_BUILD_TARGET=spanbix vite build",
+    "build:hrms": "cross-env VITE_BUILD_TARGET=hrms vite build",
+    "build:tickets": "cross-env VITE_BUILD_TARGET=tickets vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -38,6 +43,7 @@
     "@tailwindcss/typography": "^0.5.14",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
     "vite": "^5.4.0"

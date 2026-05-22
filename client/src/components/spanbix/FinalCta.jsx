@@ -4,6 +4,7 @@ import { ArrowRight, PlayCircle, Compass } from 'lucide-react';
 import Section from './Section';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
 import { trackCtaClick } from '@/lib/analytics';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 export default function FinalCta() {
   return (
@@ -23,7 +24,7 @@ export default function FinalCta() {
         className="flex flex-col sm:flex-row items-center justify-center gap-3 font-sora"
       >
         <Link
-          to="/spanbix/contact"
+          to={withSpanbixBase('/contact')}
           onClick={() => trackCtaClick('Book Consultation', { location: 'final-cta' })}
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-md text-[14.5px] font-semibold transition-all hover:brightness-110 shadow-[0_18px_40px_-12px_rgba(39,100,228,0.6)] w-full sm:w-auto"
           style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}
@@ -32,7 +33,7 @@ export default function FinalCta() {
           <ArrowRight size={15} />
         </Link>
         <Link
-          to="/spanbix/career-paths"
+          to={withSpanbixBase('/career-paths')}
           onClick={() => trackCtaClick('Explore Programs', { location: 'final-cta' })}
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-md text-[14.5px] font-semibold border border-white/20 text-white hover:bg-white/[0.06] hover:border-white/35 transition-all w-full sm:w-auto"
         >
@@ -40,7 +41,7 @@ export default function FinalCta() {
           Explore Programs
         </Link>
         <Link
-          to="/spanbix/demo-classes"
+          to={withSpanbixBase('/demo-classes')}
           onClick={() => trackCtaClick('Join Demo Session', { location: 'final-cta' })}
           className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-md text-[14.5px] font-semibold text-white/85 hover:text-white transition-all w-full sm:w-auto"
         >

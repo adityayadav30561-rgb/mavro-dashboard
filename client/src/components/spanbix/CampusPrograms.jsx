@@ -12,6 +12,7 @@ import {
 import Section from './Section';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
 import { trackCtaClick } from '@/lib/analytics';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 const features = [
   {
@@ -107,7 +108,7 @@ export default function CampusPrograms() {
           </p>
         </div>
         <Link
-          to="/spanbix/campus-programs"
+          to={withSpanbixBase('/campus-programs')}
           onClick={() => trackCtaClick('Partner With Spanbix', { location: 'campus-section' })}
           className="inline-flex items-center gap-2 px-6 py-3.5 rounded-md text-[14px] font-semibold font-sora transition-all hover:brightness-110 whitespace-nowrap"
           style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}

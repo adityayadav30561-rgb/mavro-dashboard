@@ -173,21 +173,39 @@ app.get(
 );
 
 // ===================================
-// Serve Frontend in Production
+// Serve Frontend in Production (optional — backend-only deploys skip this)
 // ===================================
-if (config.env === 'production') {
+// In the original co-hosted Mavro topology, Express serves the React build
+// at /. In a backend-only deploy (e.g. Render hosting the API, Vercel hosting
+// Spanbix), `client/dist/` doesn't exist on disk — trying to sendFile() it
+// returns ENOENT on every non-API request.
+//
+// We resolve this at boot:
+//   1. If SERVE_CLIENT=false is set → skip static serving entirely.
+//   2. Otherwise auto-detect — only mount static + SPA fallback when
+//      client/dist/index.html actually exists on disk.
+// Either branch leaves /api, /sitemap, /robots, /api/health untouched.
+if (config.env === 'production' && process.env.SERVE_CLIENT !== 'false') {
+  const fs = require('fs');
   const clientDist = path.join(__dirname, '..', 'client', 'dist');
-  app.use(express.static(clientDist, {
-    maxAge: '30d',
-    immutable: true,
-  }));
-  // SPA fallback — serve index.html for all non-API routes
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
-      return next();
-    }
-    res.sendFile(path.join(clientDist, 'index.html'));
-  });
+  const indexHtml = path.join(clientDist, 'index.html');
+
+  if (fs.existsSync(indexHtml)) {
+    app.use(express.static(clientDist, {
+      maxAge: '30d',
+      immutable: true,
+    }));
+    // SPA fallback — serve index.html for all non-API routes
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/') || req.path.startsWith('/sitemap') || req.path.startsWith('/robots')) {
+        return next();
+      }
+      res.sendFile(indexHtml);
+    });
+    console.log(`📦 Serving React build from ${clientDist}`);
+  } else {
+    console.log('ℹ️  client/dist/index.html not found — backend-only mode (frontend hosted elsewhere)');
+  }
 }
 
 // ===================================

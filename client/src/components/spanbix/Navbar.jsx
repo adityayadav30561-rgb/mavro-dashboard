@@ -5,15 +5,18 @@ import { ArrowRight, ChevronDown, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trackCtaClick } from '@/lib/analytics';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 
+// Build-target aware so the same Navbar works under /spanbix/* (full Mavro
+// Console) and under / (standalone Spanbix deploy).
 const navLinks = [
-  { label: 'Courses', to: '/spanbix/courses' },
-  { label: 'Career Paths', to: '/spanbix/career-paths' },
-  { label: 'Campus Programs', to: '/spanbix/campus-programs' },
-  { label: 'Placements', to: '/spanbix/placements' },
-  { label: 'Blog', to: '/spanbix/blog' },
-  { label: 'About', to: '/spanbix/about' },
-  { label: 'Contact', to: '/spanbix/contact' },
+  { label: 'Courses', to: withSpanbixBase('/courses') },
+  { label: 'Career Paths', to: withSpanbixBase('/career-paths') },
+  { label: 'Campus Programs', to: withSpanbixBase('/campus-programs') },
+  { label: 'Placements', to: withSpanbixBase('/placements') },
+  { label: 'Blog', to: withSpanbixBase('/blog') },
+  { label: 'About', to: withSpanbixBase('/about') },
+  { label: 'Contact', to: withSpanbixBase('/contact') },
 ];
 
 export default function Navbar() {
@@ -44,7 +47,7 @@ export default function Navbar() {
       style={{ backgroundColor: SPANBIX_BRAND.navy }}
     >
       <div className="max-w-7xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between gap-6">
-        <Link to="/spanbix" className="flex items-center gap-2.5 group">
+        <Link to={withSpanbixBase('/')} className="flex items-center gap-2.5 group">
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center font-serif text-[18px] leading-none"
             style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}
@@ -77,7 +80,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <Link
-            to="/spanbix/contact"
+            to={withSpanbixBase('/contact')}
             onClick={() => trackCtaClick('Book Career Consultation', { location: 'navbar' })}
             className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold font-sora text-white transition-all hover:brightness-110"
             style={{ backgroundColor: SPANBIX_BRAND.accent }}
@@ -116,7 +119,7 @@ export default function Navbar() {
                 </Link>
               ))}
               <Link
-                to="/spanbix/contact"
+                to={withSpanbixBase('/contact')}
                 onClick={() => trackCtaClick('Book Career Consultation', { location: 'navbar-mobile' })}
                 className="mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md text-[13px] font-semibold text-white"
                 style={{ backgroundColor: SPANBIX_BRAND.accent }}

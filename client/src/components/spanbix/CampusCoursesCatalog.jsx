@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Section from './Section';
 import { SPANBIX_BRAND, SPANBIX_CAREER_PATHS } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 /**
  * Campus-context course catalog. Same 4 SAP tracks surfaced from the consumer
@@ -68,7 +69,7 @@ export default function CampusCoursesCatalog() {
           </div>
         </div>
         <Link
-          to="/spanbix/contact"
+          to={withSpanbixBase('/contact')}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-md text-[13.5px] font-semibold font-sora text-white transition-all hover:brightness-110 whitespace-nowrap"
           style={{ backgroundColor: SPANBIX_BRAND.navy }}
         >
@@ -90,7 +91,7 @@ function CampusTrackCard({ track, index }) {
       transition={{ duration: 0.5, delay: (index % 4) * 0.06 }}
     >
       <Link
-        to={`/spanbix/career-paths/${track.code}?mode=campus`}
+        to={withSpanbixBase(`/career-paths/${track.code}?mode=campus`)}
         className="group flex flex-col h-full rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
         style={{
           backgroundColor: '#ffffff',

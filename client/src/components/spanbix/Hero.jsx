@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, PlayCircle, EyeOff, TrendingUp, Briefcase, Sparkles } from 'lucide-react';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
 import { trackCtaClick } from '@/lib/analytics';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 const stats = [
   { value: '40,000+', label: 'SAP roles unfilled every year in India', icon: Briefcase },
@@ -89,7 +90,7 @@ export default function Hero() {
               className="mt-9 flex flex-wrap items-center gap-3 font-sora"
             >
               <Link
-                to="/spanbix/career-paths"
+                to={withSpanbixBase('/career-paths')}
                 onClick={() => trackCtaClick('Explore Career Paths', { location: 'hero' })}
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-md text-[14.5px] font-semibold transition-all hover:brightness-110 shadow-[0_18px_40px_-12px_rgba(39,100,228,0.6)]"
                 style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}
@@ -98,7 +99,7 @@ export default function Hero() {
                 <ArrowRight size={15} />
               </Link>
               <Link
-                to="/spanbix/demo-classes"
+                to={withSpanbixBase('/demo-classes')}
                 onClick={() => trackCtaClick('Watch Free Demo', { location: 'hero' })}
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-md text-[14.5px] font-semibold border border-white/20 text-white/90 hover:bg-white/[0.06] hover:border-white/35 transition-all"
               >

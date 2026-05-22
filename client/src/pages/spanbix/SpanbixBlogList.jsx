@@ -7,6 +7,7 @@ import PageHero from '@/components/spanbix/PageHero';
 import { getPublicBlogs } from '@/api/public';
 import useSEO from '@/hooks/useSEO';
 import { SPANBIX_SITE, SPANBIX_BRAND, blogListLd, breadcrumbLd } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 function formatDate(iso) {
   try {
@@ -143,7 +144,7 @@ export default function SpanbixBlogList() {
                     boxShadow: '0 1px 2px rgba(16,44,86,0.04), 0 10px 28px -16px rgba(16,44,86,0.10)',
                   }}
                 >
-                  <Link to={`/spanbix/blog/${b.slug}`}>
+                  <Link to={withSpanbixBase(`/blog/${b.slug}`)}>
                     <div
                       className="aspect-[16/9] relative overflow-hidden"
                       style={{ backgroundColor: 'rgba(39,100,228,0.08)' }}

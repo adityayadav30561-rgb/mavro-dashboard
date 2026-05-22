@@ -27,6 +27,7 @@ import {
   breadcrumbLd,
   courseLd,
 } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 import { cn } from '@/lib/utils';
 import { trackCtaClick } from '@/lib/analytics';
 
@@ -93,7 +94,7 @@ export default function SpanbixCourseDetail() {
   });
 
   if (!track) {
-    return <Navigate to="/spanbix/career-paths" replace />;
+    return <Navigate to={withSpanbixBase('/career-paths')} replace />;
   }
 
   const timeline = mode === 'individual' ? track.individualTimeline : track.campusTimeline;
@@ -123,7 +124,7 @@ export default function SpanbixCourseDetail() {
         <div className="relative max-w-7xl mx-auto px-6 md:px-8 pt-20 md:pt-24 pb-16 md:pb-20">
           {/* Breadcrumb */}
           <Link
-            to="/spanbix/career-paths"
+            to={withSpanbixBase('/career-paths')}
             className="inline-flex items-center gap-1.5 text-[12.5px] font-sora transition-colors"
             style={{ color: 'rgba(255,255,255,0.78)' }}
           >
@@ -494,7 +495,7 @@ function EnrolmentPanel({ track, mode }) {
               </ul>
 
               <Link
-                to="/spanbix/contact"
+                to={withSpanbixBase('/contact')}
                 onClick={() => trackCtaClick(`Enrol ${track.name}`, { location: 'course-detail' })}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-md text-[14px] font-semibold font-sora text-white transition-all hover:brightness-110 shadow-[0_14px_30px_-12px_rgba(39,100,228,0.55)]"
                 style={{ backgroundColor: SPANBIX_BRAND.accent }}
@@ -503,7 +504,7 @@ function EnrolmentPanel({ track, mode }) {
                 <ArrowUpRight size={14} />
               </Link>
               <Link
-                to="/spanbix/contact"
+                to={withSpanbixBase('/contact')}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-md text-[14px] font-semibold font-sora transition-all"
                 style={{
                   border: `1.5px solid ${SPANBIX_BRAND.accent}`,
@@ -563,7 +564,7 @@ function EnrolmentPanel({ track, mode }) {
               </ul>
 
               <Link
-                to="/spanbix/campus-programs"
+                to={withSpanbixBase('/campus-programs')}
                 onClick={() => trackCtaClick(`Talk to Campus ${track.name}`, { location: 'course-detail' })}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-md text-[14px] font-semibold font-sora text-white transition-all hover:brightness-110 shadow-[0_14px_30px_-12px_rgba(39,100,228,0.55)]"
                 style={{ backgroundColor: SPANBIX_BRAND.accent }}
@@ -572,7 +573,7 @@ function EnrolmentPanel({ track, mode }) {
                 <ArrowUpRight size={14} />
               </Link>
               <Link
-                to="/spanbix/campus-programs"
+                to={withSpanbixBase('/campus-programs')}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-md text-[14px] font-semibold font-sora transition-all"
                 style={{
                   border: `1.5px solid ${SPANBIX_BRAND.accent}`,

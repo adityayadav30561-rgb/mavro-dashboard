@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, TrendingUp, Building2 } from 'lucide-react';
 import Section from './Section';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 // Note: these are illustrative until live placement data is wired in via the
 // Mavro backend. The component is structured so each entry maps to a future
@@ -123,7 +124,7 @@ export default function SuccessStories() {
 
       <div className="mt-12 flex justify-center">
         <Link
-          to="/spanbix/placements"
+          to={withSpanbixBase('/placements')}
           className="inline-flex items-center gap-2 px-6 py-3 rounded-md text-[14px] font-semibold font-sora transition-all hover:brightness-110"
           style={{ backgroundColor: SPANBIX_BRAND.navy, color: '#fff' }}
         >

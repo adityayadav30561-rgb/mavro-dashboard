@@ -8,6 +8,7 @@ import {
   SPANBIX_CAREER_PATHS,
   SPANBIX_CAMPUS_PROGRAM,
 } from '@/lib/spanbixSeo';
+import { withSpanbixBase } from '@/lib/routeBase';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -57,7 +58,7 @@ export default function CareerPaths() {
           Not sure which program is best for you?
         </p>
         <Link
-          to="/spanbix/contact"
+          to={withSpanbixBase('/contact')}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md text-[13px] font-semibold font-sora transition-all hover:brightness-110 text-white whitespace-nowrap"
           style={{ backgroundColor: SPANBIX_BRAND.navy }}
         >
@@ -193,7 +194,7 @@ function TrackCard({ track }) {
 
         {/* CTA */}
         <Link
-          to={`/spanbix/career-paths/${track.code}`}
+          to={withSpanbixBase(`/career-paths/${track.code}`)}
           className="group/cta mt-7 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13.5px] font-semibold font-sora transition-all"
           style={{
             border: `1.5px solid ${SPANBIX_BRAND.accent}`,
@@ -295,7 +296,7 @@ function CampusCard() {
           </div>
 
           <Link
-            to="/spanbix/campus-programs"
+            to={withSpanbixBase('/campus-programs')}
             className="group/cta mt-8 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-[13.5px] font-semibold font-sora transition-all"
             style={{
               border: `1.5px solid ${SPANBIX_BRAND.accent}`,

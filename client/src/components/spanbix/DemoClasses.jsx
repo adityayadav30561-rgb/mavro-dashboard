@@ -4,6 +4,7 @@ import { PlayCircle, Clock, ArrowRight, Mic, BookOpen } from 'lucide-react';
 import Section from './Section';
 import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
 import { trackCtaClick } from '@/lib/analytics';
+import { withSpanbixBase } from '@/lib/routeBase';
 
 const previews = [
   {
@@ -118,7 +119,7 @@ export default function DemoClasses() {
           </div>
         </div>
         <Link
-          to="/spanbix/demo-classes"
+          to={withSpanbixBase('/demo-classes')}
           onClick={() => trackCtaClick('Access Free Demo Classes', { location: 'demo-section' })}
           className="inline-flex items-center gap-2 px-5 py-3 rounded-md text-[14px] font-semibold font-sora transition-all hover:brightness-110 whitespace-nowrap"
           style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}
