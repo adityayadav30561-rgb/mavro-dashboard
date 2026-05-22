@@ -49,18 +49,15 @@ export default function Navbar() {
       )}
       style={{ backgroundColor: SPANBIX_BRAND.navy }}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-8 h-16 flex items-center justify-between gap-6">
-        <Link to={withSpanbixBase('/')} className="flex items-center gap-2.5 group">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center font-serif text-[18px] leading-none"
-            style={{ backgroundColor: SPANBIX_BRAND.accent, color: '#fff' }}
-          >
-            S
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="font-serif text-[19px] tracking-tight text-white">Spanbix</span>
-            <span className="text-[9px] font-sora uppercase tracking-[0.22em] text-white/55">Career Infrastructure</span>
-          </div>
+      <div className="max-w-7xl mx-auto px-6 md:px-8 h-[116px] flex items-center justify-between gap-6">
+        <Link to={withSpanbixBase('/')} className="flex items-center group" aria-label="Spanbix — home">
+          {/* Navy navbar background → white wordmark variant */}
+          <img
+            src="/spanbix/spanbix-white.png"
+            alt="Spanbix"
+            className="h-28 w-auto select-none"
+            draggable={false}
+          />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 font-sora">

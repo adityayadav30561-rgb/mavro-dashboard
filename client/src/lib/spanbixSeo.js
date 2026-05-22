@@ -12,7 +12,7 @@ export const SPANBIX_SITE = {
   description:
     'Spanbix is India\'s premier enterprise career learning platform — purpose-built to bridge the gap between commerce, management, and humanities graduates and the country\'s highest-paying SAP and enterprise technology roles. Structured SAP curriculum, institutional campus partnerships, placement-ready training, and certification under one product roof.',
   url: 'https://spanbix.com',
-  logo: 'https://spanbix.com/logo.png',
+  logo: 'https://spanbix.com/spanbix/spanbix-blue.png',
   twitter: '@spanbix',
   keywords: [
     'SAP training India',

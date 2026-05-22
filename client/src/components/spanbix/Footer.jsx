@@ -47,19 +47,14 @@ export default function Footer() {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12">
           {/* Brand block */}
           <div className="lg:col-span-4">
-            <Link to={withSpanbixBase('/')} className="inline-flex items-center gap-2.5">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center font-serif text-[20px] leading-none"
-                style={{ backgroundColor: SPANBIX_BRAND.accent }}
-              >
-                S
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="font-serif text-[22px] tracking-tight">Spanbix</span>
-                <span className="text-[10px] font-sora uppercase tracking-[0.22em] text-white/55">
-                  Career Infrastructure
-                </span>
-              </div>
+            <Link to={withSpanbixBase('/')} className="inline-flex items-center" aria-label="Spanbix — home">
+              {/* Navy footer background → white wordmark variant */}
+              <img
+                src="/spanbix/spanbix-white.png"
+                alt="Spanbix"
+                className="h-40 w-auto select-none"
+                draggable={false}
+              />
             </Link>
             <p className="mt-5 text-[13.5px] font-sora text-white/70 max-w-sm leading-relaxed">
               Career transformation infrastructure for the SAP and enterprise technology economy —
