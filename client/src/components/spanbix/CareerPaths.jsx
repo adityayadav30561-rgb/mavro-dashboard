@@ -84,7 +84,7 @@ function PillSwitcher({ tab, setTab }) {
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className="relative px-5 sm:px-7 py-2.5 sm:py-3 rounded-full text-[12.5px] sm:text-[14px] font-semibold font-sora transition-colors focus:outline-none"
+              className="relative px-3.5 sm:px-5 md:px-7 py-2 sm:py-2.5 md:py-3 rounded-full text-[11.5px] sm:text-[12.5px] md:text-[14px] font-semibold font-sora transition-colors focus:outline-none"
               style={{ color: active ? SPANBIX_BRAND.navy : 'rgba(255,255,255,0.78)' }}
             >
               {active && (

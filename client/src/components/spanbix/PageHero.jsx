@@ -25,7 +25,7 @@ export default function PageHero({ eyebrow, title, subtitle, children }) {
           backgroundSize: '64px 64px',
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-14 md:pb-20">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 lg:pt-28 pb-10 sm:pb-14 md:pb-20">
         {eyebrow && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -47,7 +47,7 @@ export default function PageHero({ eyebrow, title, subtitle, children }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
-            className="mt-4 font-serif text-[2.4rem] sm:text-[3rem] lg:text-[3.5rem] leading-[1.07] tracking-[-0.012em] max-w-4xl text-white"
+            className="mt-3 sm:mt-4 font-serif text-[1.9rem] sm:text-[2.4rem] md:text-[2.8rem] lg:text-[3.5rem] leading-[1.08] sm:leading-[1.07] tracking-[-0.012em] max-w-4xl text-white"
           >
             {title}
           </motion.h1>
@@ -57,7 +57,7 @@ export default function PageHero({ eyebrow, title, subtitle, children }) {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.12 }}
-            className="mt-5 max-w-2xl text-[16px] md:text-[17.5px] leading-relaxed font-sora"
+            className="mt-4 sm:mt-5 max-w-2xl text-[14.5px] sm:text-[16px] md:text-[17.5px] leading-relaxed font-sora"
             style={{ color: 'rgba(255,255,255,0.9)' }}
           >
             {subtitle}

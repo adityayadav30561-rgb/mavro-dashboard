@@ -54,7 +54,7 @@ export default function Section({
   return (
     <section
       id={id}
-      className={cn('relative py-20 md:py-28 overflow-hidden', className)}
+      className={cn('relative py-14 sm:py-20 md:py-28 overflow-hidden', className)}
       style={{ backgroundColor: t.bg, color: isNavy ? '#fff' : SPANBIX_BRAND.textDark }}
     >
       {/* Subtle decorative bg pattern — different per tone, no motion */}
@@ -80,7 +80,7 @@ export default function Section({
         />
       )}
 
-      <div className={cn('relative max-w-7xl mx-auto px-6 md:px-8', containerClassName)}>
+      <div className={cn('relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8', containerClassName)}>
         {(caption || title || subtitle) && (
           <motion.div
             initial={{ opacity: 0, y: 14 }}
@@ -88,7 +88,7 @@ export default function Section({
             viewport={{ once: true, margin: '-60px' }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
             className={cn(
-              'mb-12 md:mb-16 max-w-3xl',
+              'mb-9 sm:mb-12 md:mb-16 max-w-3xl',
               align === 'center' && 'mx-auto text-center'
             )}
           >
@@ -114,7 +114,7 @@ export default function Section({
             )}
             {title && (
               <h2
-                className="font-serif text-[2.25rem] md:text-[3rem] tracking-[-0.015em] leading-[1.08]"
+                className="font-serif text-[1.7rem] sm:text-[2.25rem] md:text-[3rem] tracking-[-0.015em] leading-[1.1] sm:leading-[1.08]"
                 style={{ color: t.title }}
               >
                 {title}
@@ -122,7 +122,7 @@ export default function Section({
             )}
             {subtitle && (
               <p
-                className="mt-5 text-[15.5px] md:text-[17px] leading-relaxed font-sora"
+                className="mt-4 sm:mt-5 text-[14.5px] sm:text-[15.5px] md:text-[17px] leading-relaxed font-sora"
                 style={{ color: t.subtitle }}
               >
                 {subtitle}

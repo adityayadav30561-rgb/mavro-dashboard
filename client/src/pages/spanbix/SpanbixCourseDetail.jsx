@@ -121,7 +121,7 @@ export default function SpanbixCourseDetail() {
           }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-6 md:px-8 pt-20 md:pt-24 pb-16 md:pb-20">
+        <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 pb-12 sm:pb-16 md:pb-20">
           {/* Breadcrumb */}
           <Link
             to={withSpanbixBase('/career-paths')}
@@ -160,7 +160,7 @@ export default function SpanbixCourseDetail() {
               </div>
 
               <h1
-                className="mt-5 font-serif text-[2.4rem] sm:text-[3rem] lg:text-[3.4rem] leading-[1.06] tracking-[-0.012em] text-white"
+                className="mt-4 sm:mt-5 font-serif text-[1.85rem] sm:text-[2.4rem] md:text-[2.8rem] lg:text-[3.4rem] leading-[1.08] sm:leading-[1.06] tracking-[-0.012em] text-white"
               >
                 {track.name} ·{' '}
                 <span
@@ -175,7 +175,7 @@ export default function SpanbixCourseDetail() {
                 </span>
               </h1>
               <p
-                className="mt-5 text-[16px] md:text-[17.5px] leading-relaxed font-sora max-w-2xl"
+                className="mt-4 sm:mt-5 text-[14.5px] sm:text-[16px] md:text-[17.5px] leading-relaxed font-sora max-w-2xl"
                 style={{ color: 'rgba(255,255,255,0.9)' }}
               >
                 {track.summary}
@@ -606,7 +606,7 @@ function ModeSwitcher({ mode, setMode, track }) {
           Choose your enrolment path
         </p>
         <h2
-          className="mt-3 font-serif text-[24px] md:text-[30px] tracking-tight leading-snug max-w-2xl"
+          className="mt-3 font-serif text-[20px] sm:text-[24px] md:text-[30px] tracking-tight leading-snug max-w-2xl"
           style={{ color: SPANBIX_BRAND.navy }}
         >
           Studying as an individual or bringing {track.name} into your college?
@@ -626,7 +626,7 @@ function ModeSwitcher({ mode, setMode, track }) {
                 key={opt.key}
                 type="button"
                 onClick={() => setMode(opt.key)}
-                className="relative px-6 sm:px-8 py-2.5 sm:py-3 rounded-full text-[12.5px] sm:text-[14px] font-semibold font-sora transition-colors focus:outline-none"
+                className="relative px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3 rounded-full text-[11.5px] sm:text-[12.5px] md:text-[14px] font-semibold font-sora transition-colors focus:outline-none"
                 style={{ color: active ? SPANBIX_BRAND.navy : 'rgba(255,255,255,0.78)' }}
               >
                 {active && (

@@ -35,7 +35,7 @@ export default function SpanbixLayout({ children }) {
       style={{ backgroundColor: '#ffffff' }}
     >
       <Navbar />
-      <main className="relative z-10 pt-[116px]">{children}</main>
+      <main className="relative z-10 pt-16 sm:pt-20 md:pt-24 lg:pt-[116px]">{children}</main>
       <Footer />
     </div>
   );

@@ -49,13 +49,16 @@ export default function Navbar() {
       )}
       style={{ backgroundColor: SPANBIX_BRAND.navy }}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-8 h-[116px] flex items-center justify-between gap-6">
+      {/* Navbar height ramps with viewport so the brand logo stays legible on
+          mobile without crushing layout. Keep `h-*` and the logo `h-*` below
+          in lockstep — and update SpanbixLayout `pt-*` to match. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 sm:h-20 md:h-24 lg:h-[116px] flex items-center justify-between gap-3 sm:gap-6">
         <Link to={withSpanbixBase('/')} className="flex items-center group" aria-label="Spanbix — home">
           {/* Navy navbar background → white wordmark variant */}
           <img
             src="/spanbix/spanbix-white.png"
             alt="Spanbix"
-            className="h-28 w-auto select-none"
+            className="h-12 sm:h-16 md:h-20 lg:h-28 w-auto select-none"
             draggable={false}
           />
         </Link>
@@ -79,10 +82,12 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* Desktop CTA. Stays hidden under md so the navbar doesn't crowd
+              the mobile/tablet layout (CTA reappears inside the hamburger menu). */}
           <Link
             to={withSpanbixBase('/contact')}
             onClick={() => trackCtaClick('Book Career Consultation', { location: 'navbar' })}
-            className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-md text-[13px] font-semibold font-sora text-white transition-all hover:brightness-110"
+            className="hidden md:inline-flex items-center gap-1.5 px-3 lg:px-4 py-2 rounded-md text-[12px] lg:text-[13px] font-semibold font-sora text-white transition-all hover:brightness-110 whitespace-nowrap"
             style={{ backgroundColor: SPANBIX_BRAND.accent }}
           >
             Book Career Consultation
@@ -93,7 +98,7 @@ export default function Navbar() {
             className="lg:hidden p-2 rounded-md text-white/80 hover:text-white hover:bg-white/[0.06]"
             aria-label="Menu"
           >
-            {open ? <X size={18} /> : <Menu size={18} />}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>

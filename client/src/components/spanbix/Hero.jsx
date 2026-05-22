@@ -32,8 +32,8 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-6 md:px-8 pt-28 md:pt-36 pb-20 md:pb-28">
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-12 sm:pt-16 md:pt-24 lg:pt-36 pb-16 sm:pb-20 md:pb-28">
+        <div className="grid lg:grid-cols-12 gap-10 sm:gap-12 lg:gap-16 items-center">
           {/* Left: editorial headline + CTAs + stats */}
           <div className="lg:col-span-7">
             <motion.div
@@ -54,7 +54,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-6 font-serif text-[2.75rem] sm:text-[3.4rem] lg:text-[4.1rem] leading-[1.04] tracking-[-0.015em] text-white"
+              className="mt-5 sm:mt-6 font-serif text-[2.1rem] sm:text-[2.75rem] md:text-[3.2rem] lg:text-[4.1rem] leading-[1.06] sm:leading-[1.04] tracking-[-0.015em] text-white"
             >
               There are 40,000 SAP jobs waiting.{' '}
               <span
@@ -74,7 +74,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.12 }}
-              className="mt-6 max-w-2xl text-[17px] md:text-[18.5px] leading-relaxed font-sora"
+              className="mt-4 sm:mt-6 max-w-2xl text-[15px] sm:text-[17px] md:text-[18.5px] leading-relaxed font-sora"
               style={{ color: 'rgba(255,255,255,0.9)' }}
             >
               Spanbix trains BBA, BCom, MBA, and engineering graduates for the SAP roles that

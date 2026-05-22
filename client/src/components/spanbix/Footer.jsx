@@ -43,16 +43,16 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="relative" style={{ backgroundColor: SPANBIX_BRAND.navy, color: '#fff' }}>
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-20">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-12">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
+        <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12">
           {/* Brand block */}
-          <div className="lg:col-span-4">
+          <div className="col-span-2 lg:col-span-4">
             <Link to={withSpanbixBase('/')} className="inline-flex items-center" aria-label="Spanbix — home">
               {/* Navy footer background → white wordmark variant */}
               <img
                 src="/spanbix/spanbix-white.png"
                 alt="Spanbix"
-                className="h-40 w-auto select-none"
+                className="h-20 sm:h-28 md:h-32 lg:h-40 w-auto select-none"
                 draggable={false}
               />
             </Link>
@@ -73,7 +73,7 @@ export default function Footer() {
 
           {/* Link columns */}
           {columns.map((col) => (
-            <div key={col.label} className="lg:col-span-2">
+            <div key={col.label} className="col-span-1 lg:col-span-2">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55 mb-4 font-sora">
                 {col.label}
               </p>
