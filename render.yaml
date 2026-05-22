@@ -1,0 +1,31 @@
+# Render.com Blueprint
+# Deploy: Connect GitHub repo → Render auto-detects this file
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: mavro-admin-api
+    runtime: node
+    region: oregon
+    plan: starter # $7/month — upgrade to "standard" for production
+    buildCommand: npm install && npm run build:client
+    startCommand: node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false # Set manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true # Auto-generate a random value
+      - key: JWT_EXPIRE
+        value: 1d
+      - key: CORS_ORIGIN
+        sync: false # Set manually: https://mavro-admin-api.onrender.com
+      - key: ADMIN_EMAIL
+        value: admin@mavro.com
+      - key: ADMIN_PASSWORD
+        sync: false # Set manually
+    healthCheckPath: /api/health
+    autoDeploy: true

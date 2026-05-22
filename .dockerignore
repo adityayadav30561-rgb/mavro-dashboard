@@ -1,0 +1,12 @@
+node_modules
+client/node_modules
+.env
+.env.production
+.env.local
+.git
+.gitignore
+logs
+*.md
+.vscode
+.idea
+coverage

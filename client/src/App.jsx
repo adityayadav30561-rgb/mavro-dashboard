@@ -1,0 +1,133 @@
+import { Suspense, lazy } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext';
+
+// ════════════════════════════════════════════════════════════════════════════
+// PUBLIC ROUTES — eager-imported.
+// ────────────────────────────────────────────────────────────────────────────
+// These are the primary user-facing surfaces (HRMS, Tickets, Spanbix marketing
+// sites). They render on first paint for visitors landing from search engines
+// / social / paid acquisition, so the bundle for these routes is shipped in
+// the initial JS payload. No Suspense wait, no flash of loading state.
+// ════════════════════════════════════════════════════════════════════════════
+import HrmsLanding from './pages/hrms/HrmsLanding';
+import HrmsBlogList from './pages/hrms/HrmsBlogList';
+import HrmsBlogDetail from './pages/hrms/HrmsBlogDetail';
+import TicketsLanding from './pages/tickets/TicketsLanding';
+import TicketsBlogList from './pages/tickets/TicketsBlogList';
+import TicketsBlogDetail from './pages/tickets/TicketsBlogDetail';
+import SpanbixLanding from './pages/spanbix/SpanbixLanding';
+import SpanbixCourses from './pages/spanbix/SpanbixCourses';
+import SpanbixCareerPaths from './pages/spanbix/SpanbixCareerPaths';
+import SpanbixCourseDetail from './pages/spanbix/SpanbixCourseDetail';
+import SpanbixCampusPrograms from './pages/spanbix/SpanbixCampusPrograms';
+import SpanbixPlacements from './pages/spanbix/SpanbixPlacements';
+import SpanbixDemoClasses from './pages/spanbix/SpanbixDemoClasses';
+import SpanbixAbout from './pages/spanbix/SpanbixAbout';
+import SpanbixContact from './pages/spanbix/SpanbixContact';
+import SpanbixBlogList from './pages/spanbix/SpanbixBlogList';
+import SpanbixBlogDetail from './pages/spanbix/SpanbixBlogDetail';
+import NotFound from './pages/NotFound';
+
+// ════════════════════════════════════════════════════════════════════════════
+// ADMIN ROUTES — code-split via React.lazy.
+// ────────────────────────────────────────────────────────────────────────────
+// The dashboard (BlogForm with React-Quill, Recharts-heavy Analytics, the
+// editorial Calendar, SEO Engine, etc.) is large. None of it is needed for
+// public visitors. Lazy-loading isolates the admin bundle into its own
+// chunks so a Vercel-deployed public-only build can ship a much smaller
+// initial JS payload. Admin users pay one short Suspense fallback the first
+// time they hit `/login` or any protected route.
+// ════════════════════════════════════════════════════════════════════════════
+const Login = lazy(() => import('./pages/Login'));
+const DashboardLayout = lazy(() => import('./components/layout/DashboardLayout'));
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const BlogList = lazy(() => import('./pages/blogs/BlogList'));
+const BlogForm = lazy(() => import('./pages/blogs/BlogForm'));
+const LeadList = lazy(() => import('./pages/leads/LeadList'));
+const WebsiteList = lazy(() => import('./pages/websites/WebsiteList'));
+const SeoEngine = lazy(() => import('./pages/SeoEngine'));
+const Analytics = lazy(() => import('./pages/Analytics'));
+const Calendar = lazy(() => import('./pages/Calendar'));
+const PremiumTestDashboard = lazy(() => import('./pages/PremiumTestDashboard'));
+
+// Lightweight Suspense fallback for the lazy admin chunks. Matches the
+// AuthContext's loading spinner so the visual is consistent.
+function AdminFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
+
+export default function App() {
+  const { user } = useAuth();
+
+  return (
+    <Routes>
+      {/* ──────── Public HRMS marketing site ──────── */}
+      <Route path="/hrms" element={<HrmsLanding />} />
+      <Route path="/hrms/blog" element={<HrmsBlogList />} />
+      <Route path="/hrms/blog/:slug" element={<HrmsBlogDetail />} />
+
+      {/* ──────── Public Ticket Management marketing site ──────── */}
+      <Route path="/tickets" element={<TicketsLanding />} />
+      <Route path="/tickets/blog" element={<TicketsBlogList />} />
+      <Route path="/tickets/blog/:slug" element={<TicketsBlogDetail />} />
+
+      {/* ──────── Public Spanbix marketing site (Phase 5) ──────── */}
+      <Route path="/spanbix" element={<SpanbixLanding />} />
+      <Route path="/spanbix/courses" element={<SpanbixCourses />} />
+      <Route path="/spanbix/career-paths" element={<SpanbixCareerPaths />} />
+      <Route path="/spanbix/career-paths/:code" element={<SpanbixCourseDetail />} />
+      <Route path="/spanbix/campus-programs" element={<SpanbixCampusPrograms />} />
+      <Route path="/spanbix/placements" element={<SpanbixPlacements />} />
+      <Route path="/spanbix/demo-classes" element={<SpanbixDemoClasses />} />
+      <Route path="/spanbix/about" element={<SpanbixAbout />} />
+      <Route path="/spanbix/contact" element={<SpanbixContact />} />
+      <Route path="/spanbix/blog" element={<SpanbixBlogList />} />
+      <Route path="/spanbix/blog/:slug" element={<SpanbixBlogDetail />} />
+
+      {/* ──────── Admin surfaces (code-split, lazy-loaded) ──────── */}
+      <Route
+        path="/login"
+        element={
+          <Suspense fallback={<AdminFallback />}>
+            {user ? <Navigate to="/" replace /> : <Login />}
+          </Suspense>
+        }
+      />
+      <Route
+        path="/test-ui"
+        element={
+          <Suspense fallback={<AdminFallback />}>
+            <PremiumTestDashboard />
+          </Suspense>
+        }
+      />
+      <Route
+        element={
+          <Suspense fallback={<AdminFallback />}>
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          </Suspense>
+        }
+      >
+        <Route index element={<Suspense fallback={<AdminFallback />}><Dashboard /></Suspense>} />
+        <Route path="blogs" element={<Suspense fallback={<AdminFallback />}><BlogList /></Suspense>} />
+        <Route path="blogs/new" element={<Suspense fallback={<AdminFallback />}><BlogForm /></Suspense>} />
+        <Route path="blogs/:id/edit" element={<Suspense fallback={<AdminFallback />}><BlogForm /></Suspense>} />
+        <Route path="leads" element={<Suspense fallback={<AdminFallback />}><LeadList /></Suspense>} />
+        <Route path="websites" element={<Suspense fallback={<AdminFallback />}><WebsiteList /></Suspense>} />
+        <Route path="seo" element={<Suspense fallback={<AdminFallback />}><SeoEngine /></Suspense>} />
+        <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />
+        <Route path="calendar" element={<Suspense fallback={<AdminFallback />}><Calendar /></Suspense>} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
