@@ -35,13 +35,16 @@ export default function Navbar() {
     setOpen(false);
   }, [location.pathname]);
 
+  // Header is intentionally NOT animated on mount. A slide-in animation on the
+  // fixed top bar causes a visible white gap between the navbar and the first
+  // section on every refresh (navbar starts at y:-16, page bg shows through
+  // the 16px sliver during the 500ms transition). Industry-standard navbars
+  // are static — only state-driven transitions (scroll shadow, mobile menu)
+  // animate. The shadow + mobile-menu animations below stay.
   return (
-    <motion.header
-      initial={{ y: -16, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    <header
       className={cn(
-        'fixed top-0 inset-x-0 z-50 transition-all duration-300',
+        'fixed top-0 inset-x-0 z-50 transition-shadow duration-300',
         scrolled ? 'shadow-[0_8px_24px_-12px_rgba(16,44,86,0.45)]' : ''
       )}
       style={{ backgroundColor: SPANBIX_BRAND.navy }}
@@ -131,6 +134,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }
