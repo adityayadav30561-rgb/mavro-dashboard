@@ -40,21 +40,23 @@ export default function Hero() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-[0.24em] font-sora text-white"
+              className="inline-flex items-center gap-1.5 sm:gap-2 max-w-full px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[9.5px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] sm:tracking-[0.24em] font-sora text-white"
               style={{
                 backgroundColor: 'rgba(39,100,228,0.28)',
                 border: '1px solid rgba(147,197,253,0.55)',
               }}
             >
-              <Sparkles size={11} />
-              SAP Careers · Commerce + Engineering Graduates
+              <Sparkles size={11} className="shrink-0" />
+              <span className="whitespace-normal break-words leading-tight">
+                SAP Careers · Commerce + Engineering Graduates
+              </span>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-5 sm:mt-6 font-serif text-[2.1rem] sm:text-[2.75rem] md:text-[3.2rem] lg:text-[4.1rem] leading-[1.06] sm:leading-[1.04] tracking-[-0.015em] text-white"
+              className="mt-5 sm:mt-6 font-serif text-[1.65rem] sm:text-[2.5rem] md:text-[3.2rem] lg:text-[4.1rem] leading-[1.1] sm:leading-[1.05] tracking-[-0.015em] text-white break-words"
             >
               There are 40,000 SAP jobs waiting.{' '}
               <span
