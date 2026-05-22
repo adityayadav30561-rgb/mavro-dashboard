@@ -1,8 +1,15 @@
 # Spanbix on Vercel — Frontend Deployment Readiness
 
-**Status:** Architecture prepared, NOT yet deployed.
-**Phase:** 5.3 — public-isolation hardening + Vercel readiness.
+**Status:** Spanbix LIVE on Vercel; backend LIVE on Render; multi-property build-target architecture active.
+**Phase:** 5.5 — full responsive sweep complete + Hero mobile fix applied.
 **Scope:** frontend only. Backend hosting unchanged. No SSR, no Next.js migration.
+
+## Critical gotchas observed during real deploys (read this first)
+
+1. **NEVER set `cleanUrls: true` in `vercel.json`** — it makes Vercel try `/<path>.html` before SPA-fallback rewrites fire, returning 404 on every deep-link refresh. Vite emits a single `dist/index.html`; cleanUrls expects per-route HTML files that don't exist.
+2. **NEVER use aggressive Vite `manualChunks` that separate React from its peer libraries** (framer-motion, react-hot-toast, etc.). Module-init order across non-direct deps isn't guaranteed → libraries calling `React.createContext(...)` at module load crash with `Cannot read properties of undefined (reading 'createContext')`. Letting Rollup auto-split keeps React co-located with peers in the same chunk.
+3. **Render backend-only deploys need `SERVE_CLIENT=false` env var** (or rely on the auto-detect in `src/app.js`). Without the gate, Express tries `client/dist/index.html` which doesn't exist on Render → ENOENT crash on `/`. The fixed `app.js` skips the static-serve block when the file isn't present.
+4. **`devTargetHtmlPlugin` middleware in `vite.config.js` is mandatory for `dev:spanbix`** — Vite's dev server reads `<root>/index.html` regardless of `rollupOptions.input`, so without the middleware the dev server still serves the full Mavro Console even when `VITE_BUILD_TARGET=spanbix`.
 
 This document is the operational source of truth for the Spanbix Vercel deploy. Read it before any future deploy or rollback.
 
@@ -204,6 +211,16 @@ For now, ship the SPA on Vercel. Revisit when organic traffic justifies the SSR 
 ## 8. Production deployment recommendations
 
 When you are ready to deploy:
+
+## Current live deployment
+
+- **Frontend:** `spanbix.vercel.app` (custom domain `spanbix.com` reserved for cutover)
+- **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas)
+- **Build target:** `VITE_BUILD_TARGET=spanbix` → standalone Spanbix-only bundle
+- **API origin:** `VITE_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env)
+- **CORS:** Render `CORS_ORIGIN` includes both the Vercel domain and localhost dev
+
+---
 
 ### Prep (one-time)
 

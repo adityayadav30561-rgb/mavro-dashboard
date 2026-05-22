@@ -58,7 +58,10 @@ custombackend/
 │       ├── paginate.js
 │       └── debugAnalytics.js    # one-off diagnostic CLI
 └── client/                      # frontend (React + Vite)
-    ├── vite.config.js           # /api /sitemap /robots proxy
+    ├── vite.config.js           # build-target switch (VITE_BUILD_TARGET) + devTargetHtmlPlugin + dev proxy
+    ├── vercel.json               # Phase 5.4 — SPA fallback (negative-lookahead) + sitemap/robots backend proxy + cache + security headers
+    ├── index.spanbix.html        # Phase 5.4 — standalone Spanbix entry HTML (promoted to index.html at build by closeBundle plugin)
+    ├── .env.example              # VITE_API_BASE_URL + VITE_BUILD_TARGET contract
     ├── tailwind.config.js
     ├── index.html               # no-flash theme bootstrap
     └── src/
@@ -154,6 +157,17 @@ custombackend/
         │       ├── Certifications.jsx         # 4 credential pillars
         │       ├── FinalCta.jsx               # closing navy CTA section
         │       └── ContactForm.jsx            # multi-audience lead form (formId: 'spanbix-contact')
+        ├── SpanbixApp.jsx                   # Phase 5.4 standalone-Spanbix routing tree (root-mounted)
+        ├── entries/
+        │   └── spanbix.jsx                  # Phase 5.4 standalone entry — BrowserRouter + ThemeProvider + Toaster only
+        ├── lib/
+        │   ├── apiBase.js                   # Phase 5.3 apiPath() — VITE_API_BASE_URL resolution
+        │   ├── routeBase.js                 # Phase 5.4 withSpanbixBase() — build-target-aware URL prefix
+        │   └── spanbixSeo.js                # Spanbix SEO + brand tokens + JSON-LD builders + 4-track catalog
+        ├── public/
+        │   └── spanbix/
+        │       ├── spanbix-white.png        # navy-bg variant (Navbar + Footer)
+        │       └── spanbix-blue.png         # light-bg variant (favicon + OG + JSON-LD)
         ├── components/blog-editor/    # Editor Cockpit primitives
         │   ├── LiveSeoEngine.js       # pure live audit wrapper around seoHealth
         │   ├── SeoAssistantPanel.jsx  # sticky right-side cockpit composer

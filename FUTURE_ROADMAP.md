@@ -168,6 +168,44 @@
 
 ## Phase 4 — AI-Augmented SEO
 
+### 5.5 Spanbix responsive sweep + Hero mobile-breakage fix ✅ COMPLETE
+- ✅ **Navbar fully responsive** — container `h-16 sm:h-20 md:h-24 lg:h-[116px]`; logo `h-12 sm:h-16 md:h-20 lg:h-28`; CTA hidden under md (folds into hamburger panel); horizontal padding + gap scale with viewport.
+- ✅ **`SpanbixLayout` main offset** matched at every breakpoint: `pt-16 sm:pt-20 md:pt-24 lg:pt-[116px]` so the hero never tucks under the navbar.
+- ✅ **Hero responsive** — eyebrow pill now wraps inside `max-w-full` with smaller mobile font + tighter tracking + `whitespace-normal break-words leading-tight` inner span; h1 ramped `text-[1.65rem] sm:text-[2.5rem] md:text-[3.2rem] lg:text-[4.1rem]` with `break-words` safety net; body paragraph `text-[15px] sm:text-[17px] md:text-[18.5px]`.
+- ✅ **`PageHero`** subpage banner same treatment — `text-[1.9rem] sm:text-[2.4rem] md:text-[2.8rem] lg:text-[3.5rem]`, padded `pt-10 sm:pt-16 md:pt-24 lg:pt-28`.
+- ✅ **`Section` primitive** drives every section's responsive rhythm: `py-14 sm:py-20 md:py-28`, h2 ramps `text-[1.7rem] sm:text-[2.25rem] md:text-[3rem]`, subtitle `14.5/15.5/17px`. Single source of truth — all 13 homepage sections inherit automatically.
+- ✅ **Footer responsive** — grid flips `grid-cols-2 lg:grid-cols-12`; brand block spans both mobile cols (`col-span-2 lg:col-span-4`); link columns 2-up on mobile (`col-span-1 lg:col-span-2`); logo ramps `h-20 sm:h-28 md:h-32 lg:h-40`.
+- ✅ **`SpanbixCourseDetail`** hero text + pill switcher + meta row all responsive: pills `px-4 sm:px-6 md:px-8 py-2 sm:py-2.5 md:py-3`, text ramps across xs→lg.
+- ✅ **`CareerPaths` pill switcher** (homepage) — same responsive pill tightening.
+- ✅ Manually verified: 320px / 375px / 414px / 768px / 1024px / 1280px / 1920px — every route renders cleanly, no horizontal scroll, no clipped CTAs, no logo too-big-on-mobile.
+
+### 5.4 Option B2 architecture — independent per-tenant build targets ✅ COMPLETE
+- ✅ **`VITE_BUILD_TARGET`** env var drives entry selection at build time. Supported values: `full` (default — Mavro Console + every public site), `spanbix` (standalone Spanbix routes at root), reserved `hrms` + `tickets`.
+- ✅ **`client/src/lib/routeBase.js`** — `withSpanbixBase()` / `withHrmsBase()` / `withTicketsBase()` / `getBuildTarget()` / `isStandaloneSpanbix()`. Build-time read of `VITE_BUILD_TARGET` resolves to `''` for standalone or `/spanbix` for full. Same component code works under both build targets via this helper.
+- ✅ **`client/src/SpanbixApp.jsx`** — Spanbix-only routing tree, root-mounted (`/`, `/courses`, `/career-paths/:code`, `/blog/:slug`, etc.). Includes legacy `/spanbix/*` Navigate redirect so inbound links from the Mavro Console era still resolve.
+- ✅ **`client/src/entries/spanbix.jsx`** — standalone entry with `BrowserRouter` + `ThemeProvider` + `Toaster` ONLY. Deliberately omits `AuthProvider` + `TenantProvider` + every admin context — net effect: a Vercel deploy of this entry pulls in zero admin chunks.
+- ✅ **`client/index.spanbix.html`** — Spanbix-specific `<title>`, meta description, OG / Twitter defaults, theme-color, font preloads, favicon links, script src `/src/entries/spanbix.jsx`.
+- ✅ **`vite.config.js` build-target switching** — reads `process.env.VITE_BUILD_TARGET`, picks the matching `index.<target>.html` as rollup input, `define` block bakes the target into the bundle so `routeBase.js` resolves the right prefix, `closeBundle` plugin promotes `dist/index.<target>.html` → `dist/index.html` so Vercel serves it as default.
+- ✅ **`devTargetHtmlPlugin`** — dev-server middleware intercepts every HTML request and substitutes `index.spanbix.html` content (still piped through `transformIndexHtml` so HMR + React plugin work). Without this, `npm run dev:spanbix` would still serve the full Mavro Console because Vite reads `<root>/index.html` by default at dev time.
+- ✅ **Per-target npm scripts** in `client/package.json`: `dev:spanbix`, `build:full`, `build:spanbix`, `build:hrms`, `build:tickets`. `cross-env` added as devDependency.
+- ✅ **All Spanbix Link `to=` references refactored** to use `withSpanbixBase()` — 11 components + 4 page files. `Navigate to=` redirects and `trackBlogView` paths too. Same components transparently produce `/spanbix/blog` (full build) or `/blog` (standalone).
+- ✅ **Brand logo wired** — `client/public/spanbix/spanbix-white.png` + `spanbix-blue.png`. Navbar + Footer use white variant (navy bg); favicon + OG / Twitter image + Schema.org JSON-LD use blue variant.
+- ✅ **Spanbix-default theme is LIGHT** — `ThemeContext` reads `VITE_BUILD_TARGET` and defaults to light when target is `spanbix` (Cyber Editorial dark stays default for `full`).
+- ✅ Verified: `npm run build:spanbix` ships 0 bytes of Recharts / Quill / Radix (grep against `dist/assets/*.js` confirms `0` matches for those packages); React + framer + react-hot-toast all co-located in the entry chunk to prevent the `createContext` race that earlier manual chunking introduced.
+
+### 5.3.1 Production-stability fixes ✅ COMPLETE
+- ✅ **`vite.config.js` — manual chunks removed** → resolved the `Cannot read properties of undefined (reading 'createContext')` crash. Aggressive vendor-chunk splitting put React in `vendor-react` while libraries like `framer-motion` that call `React.createContext(...)` at module-init time were forced into `vendor-motion`; chunk execution order across non-direct deps is not guaranteed, so React could be undefined when motion's top-level code ran. Letting Rollup auto-split co-locates React with every React-peer in one chunk → no race.
+- ✅ **`vercel.json` SPA-fallback fix** — dropped `cleanUrls: true` (was making Vercel try `/career-paths.html` before the rewrite catch-all → 404 on every deep-link refresh) and `trailingSlash: false` (default fine). Replaced placeholder backend URL with the real Render host. Added root-level `/sitemap.xml` + `/robots.txt` proxy rewrites pointing at `mavro-dashboard.onrender.com/sitemap/spanbix.xml` + `/robots/spanbix.txt` so SEO crawlers fetching the apex hit the backend correctly. SPA fallback uses negative-lookahead regex `/((?!assets/|favicon\.ico|sitemap\.xml|robots\.txt).*)` so `/assets/*`, favicon, and SEO files keep their real responses.
+- ✅ **Navbar mount animation removed** — `motion.header` with `initial={{ y: -16, opacity: 0 }}` caused a visible white sliver between navbar and first section on every refresh. Replaced with a plain `<header>`. Mobile-menu + scroll-shadow transitions still animate (state-driven, correct UX).
+- ✅ **Backend `src/app.js` static-serve gate** — production block now skips `express.static(client/dist)` + SPA fallback when `client/dist/index.html` doesn't exist (Render backend-only deploy) OR when `SERVE_CLIENT=false`. Eliminates the ENOENT crash on `/` for backend-only hosts. Logs which branch ran at boot.
+
+### 5.3 Spanbix Vercel deployment readiness ✅ COMPLETE
+- ✅ **`client/src/lib/apiBase.js`** — single source of truth for API origin. `apiPath('/api/x')` returns relative `/api/x` in dev / co-hosted prod, or absolute `<VITE_API_BASE_URL>/api/x` for independent Vercel deploys.
+- ✅ All 4 channels wired through it: `api/axios.js`, `api/public.js`, `api/seo.js` (sitemap rootApi), `lib/analytics.js` (raw `sendBeacon`).
+- ✅ **Admin routes lazy-loaded** in `App.jsx` via `React.lazy` + `Suspense`. Login, DashboardLayout, ProtectedRoute, BlogList, BlogForm, LeadList, WebsiteList, SeoEngine, Analytics, Calendar, PremiumTestDashboard — none ship in the public-bundle initial payload.
+- ✅ `client/vercel.json` (initial version), `client/.env.example`, `DEPLOYMENT.md` written.
+- ✅ Provider-tree audit: `AuthProvider` only fetches `/api/auth/me` when token exists; `TenantProvider` only fetches `/api/websites` when user is set. Public visitors trigger zero auth/tenant requests.
+
 ### 5.2 Spanbix full admin parity + auto-bootstrap ✅ COMPLETE
 - ✅ **Auto-bootstrap on backend boot** — `seedSpanbix.js` refactored to export `upsertSpanbixTenant({ silent })`; CLI runner gated by `require.main === module`. `server.js` calls the upsert after `connectDB()` so the Spanbix `Website` row materializes (and refreshes content fields) on every backend restart.
 - ✅ **Observable bootstrap logging** — `silent: true` only suppresses the per-field snapshot. Status (success / failure) ALWAYS prints to stdout/stderr — one `✅ [bootstrap]` line on success, full `❌ [bootstrap]` + Mongoose per-field error trace on failure. Silent-but-failing bootstraps eliminated.

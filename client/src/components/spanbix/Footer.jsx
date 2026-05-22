@@ -43,7 +43,7 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="relative" style={{ backgroundColor: SPANBIX_BRAND.navy, color: '#fff' }}>
-      <div className="max-w-7xl mx-auto px-5 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
+      <div className="max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
         <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12">
           {/* Brand block */}
           <div className="col-span-2 lg:col-span-4">

@@ -32,10 +32,13 @@ export default function Hero() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-12 sm:pt-16 md:pt-24 lg:pt-36 pb-16 sm:pb-20 md:pb-28">
+      <div className="relative max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8 pt-12 sm:pt-16 md:pt-24 lg:pt-36 pb-16 sm:pb-20 md:pb-28">
         <div className="grid lg:grid-cols-12 gap-10 sm:gap-12 lg:gap-16 items-center">
-          {/* Left: editorial headline + CTAs + stats */}
-          <div className="lg:col-span-7">
+          {/* `min-w-0` is critical on grid children that hold long-text content:
+              CSS Grid's default `min-width: auto` lets children expand to their
+              intrinsic content width, defeating `overflow-x-hidden` on the
+              parent. min-w-0 forces the child to honor the grid track width. */}
+          <div className="lg:col-span-7 min-w-0">
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
@@ -56,7 +59,16 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-5 sm:mt-6 font-serif text-[1.65rem] sm:text-[2.5rem] md:text-[3.2rem] lg:text-[4.1rem] leading-[1.1] sm:leading-[1.05] tracking-[-0.015em] text-white break-words"
+              // Mobile base uses Tailwind core token `text-2xl` (24px) — guaranteed
+              // in the production bundle even if JIT arbitrary classes get tree-shaken.
+              // Inline style sets the strongest word-break hints as a final safety net
+              // so the headline never clips at 320–414px viewports.
+              className="mt-5 sm:mt-6 font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-[1.15] sm:leading-[1.08] tracking-[-0.015em] text-white max-w-full"
+              style={{
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+                hyphens: 'auto',
+              }}
             >
               There are 40,000 SAP jobs waiting.{' '}
               <span
@@ -76,8 +88,8 @@ export default function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.12 }}
-              className="mt-4 sm:mt-6 max-w-2xl text-[15px] sm:text-[17px] md:text-[18.5px] leading-relaxed font-sora"
-              style={{ color: 'rgba(255,255,255,0.9)' }}
+              className="mt-4 sm:mt-6 max-w-full sm:max-w-2xl text-sm sm:text-base md:text-lg leading-relaxed font-sora"
+              style={{ color: 'rgba(255,255,255,0.9)', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
             >
               Spanbix trains BBA, BCom, MBA, and engineering graduates for the SAP roles that
               actually pay — through working-consultant mentorship, hands-on S/4HANA sandbox
@@ -114,14 +126,14 @@ export default function Hero() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.28 }}
-              className="mt-12 grid grid-cols-3 gap-4 sm:gap-6 max-w-2xl"
+              className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 max-w-full sm:max-w-2xl min-w-0"
             >
               {stats.map((s) => {
                 const Icon = s.icon;
                 return (
                   <div
                     key={s.label}
-                    className="relative p-4 rounded-xl backdrop-blur-sm overflow-hidden text-white"
+                    className="relative p-3 sm:p-4 rounded-xl backdrop-blur-sm overflow-hidden text-white min-w-0"
                     style={{
                       backgroundColor: 'rgba(255,255,255,0.07)',
                       border: '1px solid rgba(147,197,253,0.22)',
@@ -129,16 +141,20 @@ export default function Hero() {
                   >
                     <span
                       aria-hidden
-                      className="absolute top-0 left-0 h-[3px] w-10 rounded-r-full"
+                      className="absolute top-0 left-0 h-[3px] w-8 sm:w-10 rounded-r-full"
                       style={{ backgroundColor: '#60a5fa' }}
                     />
-                    <Icon size={16} style={{ color: '#93c5fd' }} />
-                    <p className="mt-3 font-mono text-[20px] sm:text-[22px] font-semibold tracking-tight">
+                    <Icon size={14} className="sm:hidden" style={{ color: '#93c5fd' }} />
+                    <Icon size={16} className="hidden sm:block" style={{ color: '#93c5fd' }} />
+                    <p
+                      className="mt-2 sm:mt-3 font-mono text-base sm:text-xl md:text-2xl font-semibold tracking-tight"
+                      style={{ wordBreak: 'break-word' }}
+                    >
                       {s.value}
                     </p>
                     <p
-                      className="mt-1 text-[11.5px] font-sora leading-snug"
-                      style={{ color: 'rgba(255,255,255,0.82)' }}
+                      className="mt-1 text-[10.5px] sm:text-[11.5px] font-sora leading-snug"
+                      style={{ color: 'rgba(255,255,255,0.82)', wordBreak: 'break-word' }}
                     >
                       {s.label}
                     </p>
@@ -149,7 +165,7 @@ export default function Hero() {
           </div>
 
           {/* Right: enterprise dashboard preview composition */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 min-w-0 w-full">
             <DashboardPreview />
           </div>
         </div>
@@ -168,21 +184,21 @@ function DashboardPreview() {
     >
       {/* Primary panel: career path snapshot */}
       <div
-        className="relative rounded-2xl p-6 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)] text-white"
+        className="relative rounded-2xl p-4 sm:p-6 backdrop-blur-xl shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55)] text-white w-full min-w-0 overflow-hidden"
         style={{
           backgroundColor: 'rgba(255,255,255,0.08)',
           border: '1px solid rgba(147,197,253,0.22)',
         }}
       >
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0">
             <p
               className="text-[10px] font-semibold uppercase tracking-[0.24em] font-sora"
               style={{ color: 'rgba(255,255,255,0.72)' }}
             >
               Active Cohort
             </p>
-            <p className="mt-1 font-serif text-[19px]">SAP FICO · Consultant Track</p>
+            <p className="mt-1 font-serif text-base sm:text-[19px] truncate">SAP FICO · Consultant Track</p>
           </div>
           <span
             className="text-[10px] font-semibold uppercase tracking-[0.18em] px-2.5 py-1 rounded-full font-sora"
@@ -215,7 +231,7 @@ function DashboardPreview() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-3 gap-2 sm:gap-3 min-w-0">
           {[
             { label: 'Modules', value: '24' },
             { label: 'Mentors', value: '6' },
@@ -223,12 +239,12 @@ function DashboardPreview() {
           ].map((m) => (
             <div
               key={m.label}
-              className="p-3 rounded-lg"
+              className="p-2 sm:p-3 rounded-lg min-w-0 overflow-hidden"
               style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(147,197,253,0.20)' }}
             >
-              <p className="font-mono text-[18px] font-semibold tracking-tight text-white">{m.value}</p>
+              <p className="font-mono text-base sm:text-[18px] font-semibold tracking-tight text-white">{m.value}</p>
               <p
-                className="text-[10.5px] font-sora uppercase tracking-[0.16em] mt-0.5"
+                className="text-[9.5px] sm:text-[10.5px] font-sora uppercase tracking-[0.12em] sm:tracking-[0.16em] mt-0.5 truncate"
                 style={{ color: 'rgba(255,255,255,0.72)' }}
               >
                 {m.label}
@@ -244,9 +260,9 @@ function DashboardPreview() {
           >
             Next session
           </p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center font-serif text-[16px] text-white"
+              className="w-10 h-10 shrink-0 rounded-lg flex items-center justify-center font-serif text-[16px] text-white"
               style={{ backgroundColor: 'rgba(96,165,250,0.35)' }}
             >
               AP
@@ -256,7 +272,7 @@ function DashboardPreview() {
                 Asset Accounting in S/4HANA — Live workshop
               </p>
               <p
-                className="text-[11px] font-sora mt-0.5"
+                className="text-[11px] font-sora mt-0.5 truncate"
                 style={{ color: 'rgba(255,255,255,0.72)' }}
               >
                 Mentor: Aman Patil · Senior SAP Consultant

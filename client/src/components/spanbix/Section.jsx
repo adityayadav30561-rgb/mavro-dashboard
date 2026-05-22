@@ -80,7 +80,12 @@ export default function Section({
         />
       )}
 
-      <div className={cn('relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8', containerClassName)}>
+      {/* Consistent horizontal padding across every Spanbix section.
+          `px-6` on mobile (was px-5) gives 24px each side — visible breathing
+          room against the viewport edge that survives at 320–414px widths.
+          `min-w-0` prevents any text-heavy descendant from forcing the
+          container past the viewport. */}
+      <div className={cn('relative max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8', containerClassName)}>
         {(caption || title || subtitle) && (
           <motion.div
             initial={{ opacity: 0, y: 14 }}

@@ -25,7 +25,7 @@ export default function PageHero({ eyebrow, title, subtitle, children }) {
           backgroundSize: '64px 64px',
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 lg:pt-28 pb-10 sm:pb-14 md:pb-20">
+      <div className="relative max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 lg:pt-28 pb-10 sm:pb-14 md:pb-20">
         {eyebrow && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}

@@ -121,7 +121,7 @@ export default function SpanbixCourseDetail() {
           }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 pb-12 sm:pb-16 md:pb-20">
+        <div className="relative max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8 pt-10 sm:pt-16 md:pt-24 pb-12 sm:pb-16 md:pb-20">
           {/* Breadcrumb */}
           <Link
             to={withSpanbixBase('/career-paths')}

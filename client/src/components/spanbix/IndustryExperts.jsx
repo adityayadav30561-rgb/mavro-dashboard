@@ -129,9 +129,12 @@ export default function IndustryExperts() {
         </div>
 
         {/* Scroller */}
+        {/* Scroll rail stays inside the Section's container padding. Adding
+            `pr-6` so the last card has a visible 24px gutter past it on mobile
+            (signals "more to scroll" without bleeding into viewport edge). */}
         <div
           ref={scrollerRef}
-          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-6 px-6 md:mx-0 md:px-0"
+          className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 pr-6 sm:pr-0"
           style={{ scrollbarWidth: 'none' }}
         >
           {FACULTY.map((f, i) => (
