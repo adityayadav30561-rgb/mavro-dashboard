@@ -3,20 +3,32 @@
   "buildCommand": "npm run build:spanbix",
   "outputDirectory": "dist",
   "framework": "vite",
+
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://mavro-dashboard.onrender.com/sitemap/spanbix.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://mavro-dashboard.onrender.com/robots/spanbix.txt"
+    },
+
+    {
       "source": "/sitemap/:path*",
-      "destination": "https://placeholder-backend.example.com/sitemap/:path*"
+      "destination": "https://mavro-dashboard.onrender.com/sitemap/:path*"
     },
     {
       "source": "/robots/:path*",
-      "destination": "https://placeholder-backend.example.com/robots/:path*"
+      "destination": "https://mavro-dashboard.onrender.com/robots/:path*"
     },
+
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|favicon\\.ico|sitemap\\.xml|robots\\.txt).*)",
       "destination": "/index.html"
     }
   ],
+
   "headers": [
     {
       "source": "/(.*)",
@@ -46,7 +58,5 @@
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
