@@ -154,23 +154,20 @@ export default defineConfig(({ mode }) => {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash][extname]',
-          manualChunks(id) {
-            if (!id.includes('node_modules')) return;
-            // React + Router stay in the framework chunk shared by every route.
-            if (id.match(/[\\/]node_modules[\\/](react|react-dom|react-router-dom|scheduler)[\\/]/)) {
-              return 'vendor-react';
-            }
-            // Framer Motion is used by public + admin surfaces.
-            if (id.includes('framer-motion')) return 'vendor-motion';
-            // Recharts is admin-only (analytics dashboards). Excluded from
-            // Spanbix builds entirely because SpanbixApp doesn't import it.
-            if (id.includes('recharts') || id.includes('d3-')) return 'vendor-charts';
-            // React-Quill is editor-only — excluded from Spanbix builds.
-            if (id.includes('react-quill-new') || id.includes('quill')) return 'vendor-editor';
-            // Radix UI primitives — admin-heavy. Excluded from Spanbix builds.
-            if (id.includes('@radix-ui')) return 'vendor-radix';
-            return 'vendor';
-          },
+          // Default Rollup code-splitting. We previously had aggressive manual
+          // chunking (vendor-react / vendor-motion / vendor-charts / etc.)
+          // which produced the "Cannot read properties of undefined (reading
+          // 'createContext')" runtime crash in production: libraries like
+          // framer-motion evaluate `React.createContext(...)` at module-init
+          // time, and when they live in a separate chunk from React itself,
+          // module execution order is not guaranteed — React can be `undefined`
+          // when motion's chunk runs. Letting Rollup auto-split keeps every
+          // React peer co-located with React in the same chunk, eliminating
+          // the race. The trade-off (one big vendor chunk vs. several smaller
+          // ones) is acceptable; admin-only deps (Recharts, Quill, Radix) are
+          // already absent from the Spanbix build because SpanbixApp.jsx
+          // never imports them. Admin lazy-load splits in App.jsx still isolate
+          // admin routes from the public bundle in the `full` target.
         },
       },
     },

@@ -2,11 +2,21 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext(null);
 
+// Spanbix is a premium light-mode-first brand (cream + navy). The full Mavro
+// Console remains dark-first (Cyber Editorial). We pick the default by
+// build target so each property gets the visual identity its brand intends —
+// before the React tree renders, before any flash.
+const DEFAULT_DARK = import.meta.env.VITE_BUILD_TARGET !== 'spanbix';
+
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
-    const saved = localStorage.getItem('mavro_theme');
-    if (saved) return saved === 'dark';
-    return true; // Dark-first: Cyber Editorial Console
+    try {
+      const saved = localStorage.getItem('mavro_theme');
+      if (saved) return saved === 'dark';
+    } catch {
+      // localStorage unavailable (private mode, embedded contexts) — fall through.
+    }
+    return DEFAULT_DARK;
   });
 
   useEffect(() => {
