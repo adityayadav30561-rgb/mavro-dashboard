@@ -12,8 +12,8 @@ export default function SpanbixCourses() {
   useSEO({
     title: `Courses — ${SPANBIX_SITE.name}`,
     description:
-      "Explore Spanbix's SAP and ERP course catalog — structured functional + technical tracks built around the modules with the deepest hiring pipelines in India.",
-    keywords: ['SAP courses', 'SAP training', 'SAP FICO course', 'SAP MM course', 'SAP ABAP', 'ERP careers'],
+      "Explore Spanbix's ERP course catalog — four SAP-led tracks (FICO, MM, SD, ABAP) with live mentorship, hands-on configuration, and a complimentary personality development module.",
+    keywords: ['ERP courses', 'SAP training', 'SAP FICO course', 'SAP MM course', 'SAP ABAP', 'ERP careers'],
     canonical: `${SPANBIX_SITE.url}/courses`,
     ogImage: SPANBIX_SITE.logo,
     jsonLd: [
@@ -30,12 +30,12 @@ export default function SpanbixCourses() {
     <SpanbixLayout>
       <PageHero
         eyebrow="The Spanbix Catalog"
-        title={<>Four SAP tracks. <em>One outcome</em> — placed.</>}
-        subtitle="We don't run a 47-course catalog. We run the SAP modules with the deepest hiring pipelines in India — each track works as a self-paced individual program for solo learners, or as a campus cohort tied to your college's placement calendar."
+        title={<>Four programs. Two ways to learn. <em>One outcome</em> — placed.</>}
+        subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP. Each runs as a self-paced individual program or as a campus cohort. Every course includes a complimentary personality development module."
         meta={[
-          { value: '4', label: 'Active SAP tracks' },
-          { value: '₹14.2L', label: 'Median placed CTC' },
-          { value: '142+', label: 'Placements last 12 months' },
+          { value: '4', label: 'Active ERP tracks' },
+          { value: '3 mo', label: 'Course duration' },
+          { value: 'Live', label: 'Mentor-led + recorded' },
         ]}
       />
       <Tracks />

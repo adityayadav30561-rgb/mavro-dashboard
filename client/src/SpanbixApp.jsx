@@ -21,7 +21,6 @@ import SpanbixCourses from './pages/spanbix/SpanbixCourses';
 import SpanbixCareerPaths from './pages/spanbix/SpanbixCareerPaths';
 import SpanbixCourseDetail from './pages/spanbix/SpanbixCourseDetail';
 import SpanbixCampusPrograms from './pages/spanbix/SpanbixCampusPrograms';
-import SpanbixPlacements from './pages/spanbix/SpanbixPlacements';
 import SpanbixAbout from './pages/spanbix/SpanbixAbout';
 import SpanbixContact from './pages/spanbix/SpanbixContact';
 import SpanbixBlogList from './pages/spanbix/SpanbixBlogList';
@@ -40,7 +39,6 @@ export default function SpanbixApp() {
       <Route path="/career-paths" element={<SpanbixCareerPaths />} />
       <Route path="/career-paths/:code" element={<SpanbixCourseDetail />} />
       <Route path="/campus-programs" element={<SpanbixCampusPrograms />} />
-      <Route path="/placements" element={<SpanbixPlacements />} />
       <Route path="/about" element={<SpanbixAbout />} />
       <Route path="/contact" element={<SpanbixContact />} />
       <Route path="/blog" element={<SpanbixBlogList />} />

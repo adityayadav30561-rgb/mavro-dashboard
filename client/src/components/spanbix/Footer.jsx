@@ -18,7 +18,6 @@ const COLUMNS = [
     label: 'Company',
     links: [
       { label: 'About', to: withSpanbixBase('/about') },
-      { label: 'Placements', to: withSpanbixBase('/placements') },
       { label: 'Campus Programs', to: withSpanbixBase('/campus-programs') },
       { label: 'Contact', to: withSpanbixBase('/contact') },
     ],
@@ -53,29 +52,21 @@ export default function Footer() {
           style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', alignItems: 'start' }}
         >
           <div style={{ gridColumn: 'span 2', minWidth: 0 }}>
-            <Link to={withSpanbixBase('/')} className="inline-flex items-center gap-2.5" aria-label="Spanbix — home">
-              <span
-                className="grid place-items-center"
-                aria-hidden
-                style={{
-                  width: 36, height: 36, borderRadius: 8,
-                  background: 'linear-gradient(135deg, #fff 0%, #cfe1ff 100%)',
-                  color: '#102c56',
-                  fontFamily: '"Instrument Serif", "DM Serif Display", Georgia, serif',
-                  fontSize: 22, fontStyle: 'italic', fontWeight: 600,
-                  lineHeight: 1,
-                }}
-              >
-                S
-              </span>
-              <span
-                style={{
-                  color: '#fff', fontWeight: 600, letterSpacing: '0.08em',
-                  fontSize: 14, fontFamily: '"Geist", "Sora", system-ui, sans-serif',
-                }}
-              >
-                SPANBIX
-              </span>
+            <Link
+              to={withSpanbixBase('/')}
+              aria-label="Spanbix — home"
+              className="inline-flex items-center"
+              style={{
+                background: '#ffffff',
+                borderRadius: 12,
+                padding: '10px 16px',
+              }}
+            >
+              <img
+                src="/spanbix/spanbix-blue.png"
+                alt="Spanbix"
+                style={{ height: 44, width: 'auto', display: 'block' }}
+              />
             </Link>
             <p
               style={{

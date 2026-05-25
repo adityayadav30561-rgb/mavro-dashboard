@@ -35,10 +35,9 @@ export default function SpanbixLayout({ children }) {
       style={{ backgroundColor: '#ffffff' }}
     >
       <Navbar />
-      {/* Navbar is transparent at scroll-top — pages with their own hero
-          (SpanbixLanding, PageHero subpages) own visual clearance. Bare
-          pages keep a slim top pad so the bar doesn't cover their first row. */}
-      <main className="relative z-10">{children}</main>
+      {/* Navbar is solid white. Main padded to match navbar height across
+          breakpoints so the bar doesn't cover the hero / page top row. */}
+      <main className="relative z-10 pt-16 sm:pt-20 md:pt-24 lg:pt-24">{children}</main>
       <Footer />
     </div>
   );

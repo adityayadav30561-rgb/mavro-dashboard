@@ -28,8 +28,8 @@ export default function SpanbixCareerPaths() {
   useSEO({
     title: `Career Paths — ${SPANBIX_SITE.name}`,
     description:
-      'Structured SAP + ERP career paths for commerce, MBA, and engineering graduates — FICO, MM, SD, ABAP and more, with mentor-led tracks + placement support baked in from week one.',
-    keywords: ['SAP career paths', 'SAP FICO career', 'SAP MM career', 'SAP ABAP career', 'ERP career India'],
+      'Structured ERP career paths (SAP-led) for commerce, MBA, and engineering graduates — FICO, MM, SD, ABAP. Live mentorship, hands-on configuration, and a complimentary personality development module with every track.',
+    keywords: ['ERP career paths', 'SAP FICO career', 'SAP MM career', 'SAP ABAP career', 'ERP career India'],
     canonical: `${SPANBIX_SITE.url}/career-paths`,
     ogImage: SPANBIX_SITE.logo,
     jsonLd: [
@@ -46,12 +46,12 @@ export default function SpanbixCareerPaths() {
     <SpanbixLayout>
       <PageHero
         eyebrow="Career Paths"
-        title={<>Pick the SAP track that actually pays for <em>your degree</em>.</>}
-        subtitle="Each path below is a self-contained career layer — curriculum, mentor reviews, sandbox practice, capstone, and placement runway. Pick by background, salary band, and how soon you want an offer letter."
+        title={<>Pick the ERP track that fits <em>your background</em>.</>}
+        subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP. Each path is a self-contained career layer with curriculum, mentor reviews, sandbox practice, and a capstone. Functional tracks for commerce + MBA grads, technical for engineering."
         meta={[
-          { value: '4', label: 'Active tracks' },
-          { value: '₹6–22L', label: 'CTC range placed' },
-          { value: '3.5–5 mo', label: 'Time to job-ready' },
+          { value: '4', label: 'Active ERP tracks' },
+          { value: '3 mo', label: 'Course duration' },
+          { value: '2', label: 'Categories — Functional + Technical' },
         ]}
       />
 
@@ -68,8 +68,8 @@ export default function SpanbixCareerPaths() {
               </h2>
             </div>
             <p className="sx-lead sx-reveal">
-              Salary bands sourced from verified placements over the last 12 months. Demand
-              ratings reflect open requisitions across hiring partners as of this quarter.
+              Salary bands reflect typical CTC ranges for ERP consultants in India. Demand
+              ratings track open requisitions across hiring partners.
             </p>
           </div>
 
