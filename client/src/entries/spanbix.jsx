@@ -23,6 +23,7 @@ import { Toaster } from 'react-hot-toast';
 import SpanbixApp from '../SpanbixApp';
 import { ThemeProvider } from '../context/ThemeContext';
 import '../index.css';
+import '../styles/spanbix-redesign.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

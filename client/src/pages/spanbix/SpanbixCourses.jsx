@@ -1,9 +1,10 @@
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
-import CareerPaths from '@/components/spanbix/CareerPaths';
-import Certifications from '@/components/spanbix/Certifications';
-import LearningExperience from '@/components/spanbix/LearningExperience';
-import FinalCta from '@/components/spanbix/FinalCta';
-import PageHero from '@/components/spanbix/PageHero';
+import PageHero from '@/components/spanbix/redesign/PageHero';
+import Tracks from '@/components/spanbix/redesign/sections/Tracks';
+import LearningExperience from '@/components/spanbix/redesign/sections/LearningExperience';
+import Certification from '@/components/spanbix/redesign/sections/Certification';
+import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
+import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import useSEO from '@/hooks/useSEO';
 import { SPANBIX_SITE, SPANBIX_CAREER_PATHS, breadcrumbLd, courseLd } from '@/lib/spanbixSeo';
 
@@ -11,8 +12,8 @@ export default function SpanbixCourses() {
   useSEO({
     title: `Courses — ${SPANBIX_SITE.name}`,
     description:
-      'Explore Spanbix\'s SAP and enterprise technology course catalog — structured tracks across FICO, MM, SD, ABAP, HCM, BASIS, Analytics, and SuccessFactors.',
-    keywords: ['SAP courses', 'SAP training', 'SAP FICO course', 'SAP MM course', 'SAP ABAP', 'enterprise technology courses'],
+      "Explore Spanbix's SAP and ERP course catalog — structured functional + technical tracks built around the modules with the deepest hiring pipelines in India.",
+    keywords: ['SAP courses', 'SAP training', 'SAP FICO course', 'SAP MM course', 'SAP ABAP', 'ERP careers'],
     canonical: `${SPANBIX_SITE.url}/courses`,
     ogImage: SPANBIX_SITE.logo,
     jsonLd: [
@@ -23,17 +24,23 @@ export default function SpanbixCourses() {
       ...SPANBIX_CAREER_PATHS.map(courseLd),
     ],
   });
+  useScrollReveal();
 
   return (
     <SpanbixLayout>
       <PageHero
-        eyebrow="Course Catalog"
-        title="Built to be the fastest path from 'I don't know SAP' to 'I'm placed'."
-        subtitle="Every track is engineered for placement, not engagement metrics. Structured curriculum, working consultant mentorship, a live sandbox you actually configure, and a recruiter-verifiable capstone — in a timeline that respects your job, your college, and your life."
+        eyebrow="The Spanbix Catalog"
+        title={<>Four SAP tracks. <em>One outcome</em> — placed.</>}
+        subtitle="We don't run a 47-course catalog. We run the SAP modules with the deepest hiring pipelines in India — each track works as a self-paced individual program for solo learners, or as a campus cohort tied to your college's placement calendar."
+        meta={[
+          { value: '4', label: 'Active SAP tracks' },
+          { value: '₹14.2L', label: 'Median placed CTC' },
+          { value: '142+', label: 'Placements last 12 months' },
+        ]}
       />
-      <CareerPaths />
+      <Tracks />
       <LearningExperience />
-      <Certifications />
+      <Certification />
       <FinalCta />
     </SpanbixLayout>
   );

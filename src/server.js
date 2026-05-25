@@ -11,6 +11,8 @@ const connectDB = require('./config/db');
 const config = require('./config');
 const { scheduledPublishService } = require('./services');
 const { upsertSpanbixTenant } = require('./utils/seedSpanbix');
+const schedulerWorkers = require('./modules/scheduler/workers');
+const schedulerQueue = require('./modules/scheduler/queue');
 
 const startServer = async () => {
   // Connect to MongoDB
@@ -25,6 +27,13 @@ const startServer = async () => {
 
   // Start the scheduled-publish worker (polls every 60s for due blogs)
   scheduledPublishService.start();
+
+  // Boot scheduler BullMQ worker if Redis is configured (lazy + graceful).
+  try {
+    await schedulerWorkers.start();
+  } catch (err) {
+    console.warn('⚠️  scheduler worker start failed:', err.message);
+  }
 
   // Start Express server
   const server = app.listen(config.port, () => {
@@ -45,6 +54,8 @@ const startServer = async () => {
 
     // Stop background workers before mongo close
     try { scheduledPublishService.stop(); } catch { /* noop */ }
+    try { await schedulerWorkers.stop(); } catch { /* noop */ }
+    try { await schedulerQueue.close(); } catch { /* noop */ }
 
     // Stop accepting new connections
     server.close(async () => {

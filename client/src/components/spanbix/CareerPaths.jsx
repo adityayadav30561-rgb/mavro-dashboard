@@ -239,9 +239,6 @@ function CampusCard() {
             <PillBadge icon={ShieldCheck} verified>
               {c.badge}
             </PillBadge>
-            <PillBadge icon={ShieldCheck} verified>
-              AICTE / NAAC Aligned
-            </PillBadge>
           </div>
 
           <p
@@ -372,7 +369,7 @@ function CampusCard() {
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <CampusStat value="200–2K" label="Per cohort" />
                   <CampusStat value="39,000+" label="Eligible colleges" />
-                  <CampusStat value="AICTE" label="Curriculum fit" />
+                  <CampusStat value="6 mo" label="Cohort length" />
                 </div>
               </div>
 

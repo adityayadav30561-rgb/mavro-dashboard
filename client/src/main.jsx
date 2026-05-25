@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { TenantProvider } from './context/TenantContext';
 import './index.css';
+import './styles/spanbix-redesign.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

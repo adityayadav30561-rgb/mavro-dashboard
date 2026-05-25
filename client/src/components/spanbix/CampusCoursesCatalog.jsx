@@ -17,7 +17,7 @@ import { withSpanbixBase } from '@/lib/routeBase';
  * catalog (FICO, MM, SD, ABAP) but framed for a college placement cell:
  *   - Campus cohort badge instead of consumer "Bestseller"
  *   - Cohort duration sourced from campusTimeline length (6–7 months)
- *   - Highlights tuned to AICTE / NAAC / co-certification
+ *   - Highlights tuned to placement-cell needs + co-certification
  *   - CTA routes to /spanbix/career-paths/:code?mode=campus so the detail
  *     page lands directly on the Campus pill (no extra click).
  * Pricing is intentionally omitted everywhere on this surface — campus
@@ -30,7 +30,7 @@ export default function CampusCoursesCatalog() {
       tone="cream"
       caption="Campus Curriculum Catalog"
       title="Four SAP tracks. Drop any one of them inside your college."
-      subtitle="Every Spanbix track is also a campus cohort — AICTE / NAAC-aligned, attendance-linked, T&P-instrumented, and finished with college-branded co-certification. Open a track to see the 6–7 month cohort timeline aligned to a placement-cycle calendar."
+      subtitle="Every Spanbix track is also a campus cohort — attendance-linked, T&P-instrumented, and finished with college-branded co-certification. Open a track to see the 6–7 month cohort timeline aligned to a placement-cycle calendar."
     >
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
         {SPANBIX_CAREER_PATHS.map((track, i) => (
@@ -136,7 +136,7 @@ function CampusTrackCard({ track, index }) {
             }}
           >
             <ShieldCheck size={10} />
-            AICTE / NAAC
+            CAMPUS COHORT
           </span>
           <div className="absolute inset-0 flex items-center justify-center">
             <p

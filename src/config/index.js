@@ -81,6 +81,72 @@ const config = {
       .map((p) => p.trim())
       .filter(Boolean),
   },
+
+  scheduler: {
+    // Public origin used to build OAuth redirect URIs. Falls back to the
+    // first CORS origin in dev, or the explicit PUBLIC_BACKEND_URL in prod.
+    publicBackendUrl:
+      process.env.PUBLIC_BACKEND_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://mavro-dashboard.onrender.com'
+        : 'http://localhost:5000'),
+    // Where to bounce the browser after a successful OAuth dance.
+    dashboardCallbackUrl:
+      process.env.SCHEDULER_DASHBOARD_CALLBACK ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://mavro-dashboard.onrender.com/scheduler/calendar-connections'
+        : 'http://localhost:5173/scheduler/calendar-connections'),
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || null,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || null,
+    },
+    // OAuth state JWT signing secret — falls back to JWT_SECRET in dev only.
+    oauthStateSecret:
+      process.env.OAUTH_STATE_SECRET ||
+      (process.env.NODE_ENV === 'production' ? null : 'dev_oauth_state_secret_replace_me'),
+    // 32-byte key for AES-256-GCM at-rest token encryption.
+    // Accepts hex (64 chars) or base64 (44 chars). In dev a derived fallback
+    // is used so local boot doesn't crash; prod boot validates strictly.
+    tokenEncryptionKey:
+      process.env.TOKEN_ENCRYPTION_KEY ||
+      (process.env.NODE_ENV === 'production' ? null : null),
+    // Lifetime of an OAuth state JWT in seconds.
+    oauthStateTtlSeconds: parseInt(process.env.OAUTH_STATE_TTL, 10) || 600,
+    // Busy-range cache TTL (seconds). Phase 2 = 120s per the spec.
+    busyCacheTtlSeconds: parseInt(process.env.SCHEDULER_BUSY_CACHE_TTL, 10) || 120,
+    // Public dashboard origin — invitee manage link points here. Falls back to dashboard URL.
+    dashboardOrigin:
+      process.env.SCHEDULER_DASHBOARD_ORIGIN ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://mavro-dashboard.onrender.com'
+        : 'http://localhost:5173'),
+    // BullMQ / Redis
+    redisUrl: process.env.REDIS_URL || null,
+    // Bootstrap workers in this process. Default true so single-dyno deploys
+    // (Render free tier) work without extra config. Set 'false' in a web-only
+    // dyno when you split workers into a separate process.
+    bootWorkers: process.env.SCHEDULER_BOOT_WORKERS !== 'false',
+    workflowSigningSecret:
+      process.env.WORKFLOW_SIGNING_SECRET ||
+      (process.env.NODE_ENV === 'production' ? null : 'dev_workflow_signing_secret_replace_me'),
+    // Provider-retry tuning
+    providerRetryMaxAttempts: parseInt(process.env.SCHEDULER_PROVIDER_RETRY_MAX, 10) || 5,
+    providerRetryInitialDelayMs: parseInt(process.env.SCHEDULER_PROVIDER_RETRY_DELAY_MS, 10) || 30 * 1000,
+    // Reminder defaults (when an event type doesn't define its own workflow)
+    defaultReminderMinutesBefore: parseInt(process.env.SCHEDULER_DEFAULT_REMINDER_MIN, 10) || 60,
+    // Completion-sweep cron interval (ms)
+    completionSweepIntervalMs: parseInt(process.env.SCHEDULER_COMPLETION_SWEEP_MS, 10) || 15 * 60 * 1000,
+  },
+
+  email: {
+    host: process.env.EMAIL_HOST || null,
+    port: parseInt(process.env.EMAIL_PORT, 10) || 587,
+    secure: process.env.EMAIL_SECURE === 'true',
+    user: process.env.EMAIL_USER || null,
+    pass: process.env.EMAIL_PASS || null,
+    from: process.env.EMAIL_FROM || process.env.EMAIL_USER || null,
+    fromName: process.env.EMAIL_FROM_NAME || 'Mavro Scheduler',
+  },
 };
 
 // Runtime validation for production
@@ -94,6 +160,31 @@ if (config.env === 'production') {
   if (config.jwt.secret === 'fallback_secret_not_for_production') {
     console.error('❌ JWT_SECRET must be changed for production');
     process.exit(1);
+  }
+  // Scheduler env validation is non-fatal — the scheduler module degrades
+  // gracefully (returns 503 on /google/connect) when its env is incomplete.
+  // We warn instead of process.exit so a missing GOOGLE_CLIENT_ID can't take
+  // down the entire admin API.
+  const schedulerWarnings = [];
+  if (!config.scheduler.google.clientId) schedulerWarnings.push('GOOGLE_CLIENT_ID');
+  if (!config.scheduler.google.clientSecret) schedulerWarnings.push('GOOGLE_CLIENT_SECRET');
+  if (!config.scheduler.oauthStateSecret) schedulerWarnings.push('OAUTH_STATE_SECRET');
+  if (!config.scheduler.tokenEncryptionKey) schedulerWarnings.push('TOKEN_ENCRYPTION_KEY');
+  if (schedulerWarnings.length > 0) {
+    console.warn(
+      `⚠️  Scheduler env incomplete — Google Calendar integration disabled. Missing: ${schedulerWarnings.join(', ')}`
+    );
+  }
+  // Workflow infra — non-fatal warnings only. Each subsystem degrades to a
+  // no-op when its env is missing (see queue.js, emailService.js).
+  if (!config.scheduler.redisUrl) {
+    console.warn('⚠️  REDIS_URL not set — scheduler workflow queue disabled (booking creation still works).');
+  }
+  if (!config.email.host || !config.email.from) {
+    console.warn('⚠️  EMAIL_HOST / EMAIL_FROM not set — scheduler outbound email disabled.');
+  }
+  if (!config.scheduler.workflowSigningSecret) {
+    console.warn('⚠️  WORKFLOW_SIGNING_SECRET not set — webhook delivery disabled.');
   }
 }
 

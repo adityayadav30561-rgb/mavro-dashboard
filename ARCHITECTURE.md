@@ -137,26 +137,37 @@ custombackend/
         │   │   ├── FloatingIncidentFeed.jsx
         │   │   ├── TicketMetricOrb.jsx
         │   │   └── ...
-        │   └── spanbix/         # Spanbix (Phase 5) public site components — SAP career platform
-        │       ├── SpanbixLayout.jsx          # wraps every /spanbix/* route; carries `.spanbix-scope`
-        │       ├── Navbar.jsx                 # navy sticky nav, 7 links + Book Career Consultation CTA
-        │       ├── Footer.jsx                 # navy 4-column footer
-        │       ├── Section.jsx                # tone-aware section wrapper (white / cream / navy)
-        │       ├── PageHero.jsx               # navy hero band for subpages
-        │       ├── Hero.jsx                   # homepage hero with dashboard preview
-        │       ├── MarketValidation.jsx       # 4 stat tiles
-        │       ├── WhySap.jsx                 # 6 myth-busting blocks
-        │       ├── CareerPaths.jsx            # 3-tab pill switcher (Functional / Technical / Campus)
-        │       ├── IndustryExperts.jsx        # 6-card faculty + mentor scroll-snap rail (navy)
-        │       ├── LearningExperience.jsx     # 6 platform pillars + LMS preview
-        │       ├── DemoClasses.jsx            # 3 sample-session cards
-        │       ├── PlacementSupport.jsx       # 3-step navy step cards + hiring-category chip strip
-        │       ├── CampusPrograms.jsx         # institutional 6-feature grid + CTA card
-        │       ├── CampusCoursesCatalog.jsx   # 4 SAP tracks tuned for campus context (?mode=campus links)
-        │       ├── SuccessStories.jsx         # 3 placement story cards
-        │       ├── Certifications.jsx         # 4 credential pillars
-        │       ├── FinalCta.jsx               # closing navy CTA section
-        │       └── ContactForm.jsx            # multi-audience lead form (formId: 'spanbix-contact')
+        │   └── spanbix/         # Spanbix public site components
+        │       ├── SpanbixLayout.jsx          # wraps every /spanbix/* route; carries `.spanbix-scope`; no top padding (heroes own clearance)
+        │       ├── Navbar.jsx                 # transparent → scrolled-navy (Phase 5.6 redesign)
+        │       ├── Footer.jsx                 # 5-column footer + social tiles (Phase 5.6 redesign)
+        │       ├── Section.jsx                # legacy tone-aware section wrapper (still used by some sub-flows)
+        │       ├── PageHero.jsx               # legacy navy hero (used by older subpages during transition)
+        │       ├── Hero.jsx                   # legacy homepage hero (no longer wired — replaced by redesign/Hero.jsx)
+        │       ├── { MarketValidation,WhySap,CareerPaths,IndustryExperts,LearningExperience,DemoClasses,PlacementSupport,CampusPrograms,CampusCoursesCatalog,SuccessStories,Certifications,FinalCta,ContactForm }.jsx
+        │       │       # legacy v1 sections — kept for backward-compat; new homepage uses redesign/* instead
+        │       └── redesign/    # Phase 5.6 editorial magazine design system
+        │           ├── Arrow.jsx                  # shared Arrow + PlayIcon SVGs
+        │           ├── CohortCard.jsx             # glassmorphic live-cohort snapshot (hero floating card)
+        │           ├── Hero.jsx                   # homepage hero with background video + gradient stack
+        │           ├── PageHero.jsx               # magazine-style subpage hero (eyebrow + serif title + lead + meta + optional photo)
+        │           ├── useScrollReveal.js         # mount-only IntersectionObserver for `.sx-reveal` (with 1.6s safety net)
+        │           └── sections/                  # 13 redesign sections (all .spanbix-scope-scoped)
+        │               ├── HiringPartners.jsx     # logo marquee (PNGs from public/spanbix/partners/, cream-50 bg)
+        │               ├── MarketValidation.jsx   # 4-stat grid + photo placeholder
+        │               ├── WhySap.jsx             # locked 3×2 reasons grid with editorial photos
+        │               ├── Tracks.jsx             # tabbed catalog (Functional 3-col / Technical 1-card / Campus 2-col) — sliding pill via layoutId
+        │               ├── Mentors.jsx            # horizontal carousel + hover-overlay "CURRENTLY SHIPPING" description
+        │               ├── LearningExperience.jsx # sticky dashboard mockup
+        │               ├── Placement.jsx          # 3-step deep navy section
+        │               ├── Outcomes.jsx           # before/after CTC cards
+        │               ├── Campus.jsx             # institutional layer w/ navy stat panel
+        │               ├── Certification.jsx     # full credential mockup
+        │               ├── DemoVideos.jsx         # 3 sample-session cards + CTA
+        │               ├── FAQ.jsx                # single-open accordion
+        │               └── FinalCta.jsx           # closing navy CTA + form (submitPublicLead formId: 'spanbix-final-cta')
+        ├── styles/
+        │   └── spanbix-redesign.css           # Phase 5.6 design system (scoped to .spanbix-scope only)
         ├── SpanbixApp.jsx                   # Phase 5.4 standalone-Spanbix routing tree (root-mounted)
         ├── entries/
         │   └── spanbix.jsx                  # Phase 5.4 standalone entry — BrowserRouter + ThemeProvider + Toaster only

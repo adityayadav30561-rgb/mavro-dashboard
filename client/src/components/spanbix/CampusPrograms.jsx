@@ -37,8 +37,8 @@ const features = [
   },
   {
     icon: Briefcase,
-    title: 'AICTE / NAAC fit + NSDC funding pathways.',
-    body: 'Curriculum maps cleanly to AICTE and NAAC requirements. NSDC and Skill India funding pathways supported for accredited cohorts — bringing the program in often costs less than your existing soft-skills vendor.',
+    title: 'Costs less than your soft-skills vendor.',
+    body: 'Per-batch pricing scales with cohort size and modules enabled — in most engagements the program comes in below what colleges already spend on generic soft-skills training, with verifiable placement outcomes attached.',
   },
   {
     icon: Building,

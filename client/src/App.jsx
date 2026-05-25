@@ -22,11 +22,13 @@ import SpanbixCareerPaths from './pages/spanbix/SpanbixCareerPaths';
 import SpanbixCourseDetail from './pages/spanbix/SpanbixCourseDetail';
 import SpanbixCampusPrograms from './pages/spanbix/SpanbixCampusPrograms';
 import SpanbixPlacements from './pages/spanbix/SpanbixPlacements';
-import SpanbixDemoClasses from './pages/spanbix/SpanbixDemoClasses';
 import SpanbixAbout from './pages/spanbix/SpanbixAbout';
 import SpanbixContact from './pages/spanbix/SpanbixContact';
 import SpanbixBlogList from './pages/spanbix/SpanbixBlogList';
 import SpanbixBlogDetail from './pages/spanbix/SpanbixBlogDetail';
+import PublicBookingAvailabilityPage from './modules/scheduler/pages/PublicBookingAvailabilityPage';
+import BookingManagePage from './modules/scheduler/pages/BookingManagePage';
+import PublicRoutingPage from './modules/scheduler/pages/PublicRoutingPage';
 import NotFound from './pages/NotFound';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -51,6 +53,13 @@ const SeoEngine = lazy(() => import('./pages/SeoEngine'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const PremiumTestDashboard = lazy(() => import('./pages/PremiumTestDashboard'));
+const CalendarConnectionsPage = lazy(() => import('./modules/scheduler/pages/CalendarConnectionsPage'));
+const EventTypesPage = lazy(() => import('./modules/scheduler/pages/EventTypesPage'));
+const EventTypeEditorPage = lazy(() => import('./modules/scheduler/pages/EventTypeEditorPage'));
+const BookingsPage = lazy(() => import('./modules/scheduler/pages/BookingsPage'));
+const WorkflowEditorPage = lazy(() => import('./modules/scheduler/pages/WorkflowEditorPage'));
+const WorkflowHistoryPage = lazy(() => import('./modules/scheduler/pages/WorkflowHistoryPage'));
+const RoutingFormsPage = lazy(() => import('./modules/scheduler/pages/RoutingFormsPage'));
 
 // Lightweight Suspense fallback for the lazy admin chunks. Matches the
 // AuthContext's loading spinner so the visual is consistent.
@@ -84,11 +93,16 @@ export default function App() {
       <Route path="/spanbix/career-paths/:code" element={<SpanbixCourseDetail />} />
       <Route path="/spanbix/campus-programs" element={<SpanbixCampusPrograms />} />
       <Route path="/spanbix/placements" element={<SpanbixPlacements />} />
-      <Route path="/spanbix/demo-classes" element={<SpanbixDemoClasses />} />
       <Route path="/spanbix/about" element={<SpanbixAbout />} />
       <Route path="/spanbix/contact" element={<SpanbixContact />} />
       <Route path="/spanbix/blog" element={<SpanbixBlogList />} />
       <Route path="/spanbix/blog/:slug" element={<SpanbixBlogDetail />} />
+
+      {/* ──────── Public scheduler booking (Phase 4 availability viewer) ──────── */}
+      <Route path="/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
+      <Route path="/:tenantSlug/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
+      <Route path="/manage/:token" element={<BookingManagePage />} />
+      <Route path="/route/:slug" element={<PublicRoutingPage />} />
 
       {/* ──────── Admin surfaces (code-split, lazy-loaded) ──────── */}
       <Route
@@ -125,6 +139,14 @@ export default function App() {
         <Route path="seo" element={<Suspense fallback={<AdminFallback />}><SeoEngine /></Suspense>} />
         <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />
         <Route path="calendar" element={<Suspense fallback={<AdminFallback />}><Calendar /></Suspense>} />
+        <Route path="scheduler/calendar-connections" element={<Suspense fallback={<AdminFallback />}><CalendarConnectionsPage /></Suspense>} />
+        <Route path="scheduler/event-types" element={<Suspense fallback={<AdminFallback />}><EventTypesPage /></Suspense>} />
+        <Route path="scheduler/event-types/new" element={<Suspense fallback={<AdminFallback />}><EventTypeEditorPage /></Suspense>} />
+        <Route path="scheduler/event-types/:id/edit" element={<Suspense fallback={<AdminFallback />}><EventTypeEditorPage /></Suspense>} />
+        <Route path="scheduler/bookings" element={<Suspense fallback={<AdminFallback />}><BookingsPage /></Suspense>} />
+        <Route path="scheduler/workflows" element={<Suspense fallback={<AdminFallback />}><WorkflowEditorPage /></Suspense>} />
+        <Route path="scheduler/workflow-history" element={<Suspense fallback={<AdminFallback />}><WorkflowHistoryPage /></Suspense>} />
+        <Route path="scheduler/routing-forms" element={<Suspense fallback={<AdminFallback />}><RoutingFormsPage /></Suspense>} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

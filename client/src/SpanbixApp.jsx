@@ -22,11 +22,13 @@ import SpanbixCareerPaths from './pages/spanbix/SpanbixCareerPaths';
 import SpanbixCourseDetail from './pages/spanbix/SpanbixCourseDetail';
 import SpanbixCampusPrograms from './pages/spanbix/SpanbixCampusPrograms';
 import SpanbixPlacements from './pages/spanbix/SpanbixPlacements';
-import SpanbixDemoClasses from './pages/spanbix/SpanbixDemoClasses';
 import SpanbixAbout from './pages/spanbix/SpanbixAbout';
 import SpanbixContact from './pages/spanbix/SpanbixContact';
 import SpanbixBlogList from './pages/spanbix/SpanbixBlogList';
 import SpanbixBlogDetail from './pages/spanbix/SpanbixBlogDetail';
+import PublicBookingAvailabilityPage from './modules/scheduler/pages/PublicBookingAvailabilityPage';
+import BookingManagePage from './modules/scheduler/pages/BookingManagePage';
+import PublicRoutingPage from './modules/scheduler/pages/PublicRoutingPage';
 import NotFound from './pages/NotFound';
 
 export default function SpanbixApp() {
@@ -39,11 +41,15 @@ export default function SpanbixApp() {
       <Route path="/career-paths/:code" element={<SpanbixCourseDetail />} />
       <Route path="/campus-programs" element={<SpanbixCampusPrograms />} />
       <Route path="/placements" element={<SpanbixPlacements />} />
-      <Route path="/demo-classes" element={<SpanbixDemoClasses />} />
       <Route path="/about" element={<SpanbixAbout />} />
       <Route path="/contact" element={<SpanbixContact />} />
       <Route path="/blog" element={<SpanbixBlogList />} />
       <Route path="/blog/:slug" element={<SpanbixBlogDetail />} />
+
+      {/* Public scheduler booking + invitee self-service */}
+      <Route path="/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
+      <Route path="/manage/:token" element={<BookingManagePage />} />
+      <Route path="/route/:slug" element={<PublicRoutingPage />} />
 
       {/* Legacy `/spanbix/*` URLs from the Mavro Console era redirect to root
           equivalents so external inbound links don't 404 after the move. */}

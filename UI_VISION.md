@@ -183,6 +183,23 @@ Tenant-agnostic in `client/src/components/hrms/` (reused by Tickets via cross-im
 - **`Hero`** — parallax + mouse glow + floating panels (HRMS = analytics + feed + metric orb; Tickets = SLA timer + incident feed + MTTR orb)
 - **`ContactForm`** — validated lead form with success animation, tenant-aware
 
+### 7.2a Spanbix editorial primitives (`client/src/components/spanbix/redesign/`)
+
+Phase 5.6 magazine redesign — strictly scoped to `.spanbix-scope`, zero leak into Mavro admin / HRMS / Tickets:
+
+- **`spanbix-redesign.css`** (in `client/src/styles/`) — design tokens (`--sx-navy`, `--sx-cream`, `--sx-citron`, `--sx-coral`, `--sx-signal`, ink scale, hairlines), typography stack (Instrument Serif + Geist + JetBrains Mono), photo placeholder system (`.sx-photo-slate|cream|rose|olive`), section tones, marquee, reveal animation, chip + pill-badge utilities. Every selector under `.spanbix-scope`.
+- **`Hero.jsx`** — background-video homepage hero with two-axis gradient stack (horizontal navy darkness + vertical fade-to-deep-navy). Plays `/spanbix/herosection-video.mp4` autoplay+muted+loop+playsInline.
+- **`CohortCard.jsx`** — glassmorphic live-cohort snapshot (curriculum progress + module/mentor/placement stats + next live session + median CTC signal).
+- **`PageHero.jsx`** — magazine-style subpage hero (eyebrow + serif title + lead + optional meta strip + optional tonal photo).
+- **`useScrollReveal.js`** — mount-only IntersectionObserver for `.sx-reveal`, with 1.6s force-reveal safety net. NEVER wrap a tab-switched card with `.sx-reveal` — IO disconnects after mount.
+- **`sections/*`** — 13 homepage / subpage sections (HiringPartners, MarketValidation, WhySap, Tracks, Mentors, LearningExperience, Placement, Outcomes, Campus, Certification, DemoVideos, FAQ, FinalCta). Tracks tab switcher mirrors the `/courses` layout: sliding pill via `motion.span layoutId` + AnimatePresence content swap; Mentors carousel reveals "CURRENTLY SHIPPING" hover overlay per faculty card.
+
+### 7.2b Mavro Scheduler primitives (`client/src/modules/scheduler/`)
+
+- **Admin pages** — CalendarConnectionsPage, EventTypesPage, EventTypeEditorPage (5-tab editor: Core / Schedule / Booking rules / Intake form / Team beta), BookingsPage (filter + detail drawer), WorkflowEditorPage (per-step config), WorkflowHistoryPage (execution audit + replay), RoutingFormsPage (rule editor).
+- **Public pages** — PublicBookingAvailabilityPage at `/book/:eventSlug` (3-stage flow: slots → form → confirmed), BookingManagePage at `/manage/:token` (token-based cancel + reschedule), PublicRoutingPage at `/route/:slug` (rule-evaluated redirect to event type).
+- **Components** — `AvailabilityEditor`, `BlackoutDatesEditor`, `FormQuestionsEditor`.
+
 ### 7.3 Tickets-specific primitives (`client/src/components/tickets/`)
 
 - **`SLATimerPanel`** — live ticking SLA countdown per priority tier

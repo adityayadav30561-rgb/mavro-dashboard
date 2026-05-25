@@ -31,6 +31,17 @@ const navGroups = [
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
     ],
   },
+  {
+    label: 'Scheduler',
+    items: [
+      { to: '/scheduler/event-types', icon: Zap, label: 'Event Types', badge: 'Beta' },
+      { to: '/scheduler/bookings', icon: CalendarIcon, label: 'Bookings' },
+      { to: '/scheduler/workflows', icon: Zap, label: 'Workflows' },
+      { to: '/scheduler/workflow-history', icon: Zap, label: 'Workflow History' },
+      { to: '/scheduler/routing-forms', icon: Zap, label: 'Routing Forms' },
+      { to: '/scheduler/calendar-connections', icon: CalendarIcon, label: 'Calendar Connections' },
+    ],
+  },
 ];
 
 function NavItem({ to, icon: Icon, label, end, collapsed, badge, onClick }) {

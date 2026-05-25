@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom';
-import { Linkedin, ArrowUpRight } from 'lucide-react';
-import { SPANBIX_BRAND } from '@/lib/spanbixSeo';
 import { withSpanbixBase } from '@/lib/routeBase';
 
-const columns = [
+// Footer (redesign v2) — 5-column grid on desktop, 2-col on mobile.
+// Wordmark + brief, then Platform / Company / Resources / Legal link sets.
+
+const COLUMNS = [
   {
     label: 'Platform',
     links: [
-      { label: 'Courses', to: withSpanbixBase('/courses') },
-      { label: 'Career Paths', to: withSpanbixBase('/career-paths') },
-      { label: 'Certifications', to: withSpanbixBase('/courses#certifications') },
-      { label: 'Demo Classes', to: withSpanbixBase('/demo-classes') },
+      { label: 'SAP FICO Track', to: withSpanbixBase('/career-paths/sap-fico') },
+      { label: 'SAP MM Track', to: withSpanbixBase('/career-paths/sap-mm') },
+      { label: 'SAP SD Track', to: withSpanbixBase('/career-paths/sap-sd') },
+      { label: 'SAP ABAP Track', to: withSpanbixBase('/career-paths/sap-abap') },
     ],
   },
   {
@@ -33,57 +34,101 @@ const columns = [
   {
     label: 'Legal',
     links: [
-      { label: 'Privacy Policy', to: withSpanbixBase('/about#privacy') },
+      { label: 'Privacy', to: withSpanbixBase('/about#privacy') },
       { label: 'Terms', to: withSpanbixBase('/about#terms') },
-      { label: 'Refund Policy', to: withSpanbixBase('/about#refunds') },
+      { label: 'Refund', to: withSpanbixBase('/about#refunds') },
     ],
   },
 ];
 
 export default function Footer() {
   return (
-    <footer className="relative" style={{ backgroundColor: SPANBIX_BRAND.navy, color: '#fff' }}>
-      <div className="max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8 py-12 sm:py-16 md:py-20">
-        <div className="grid grid-cols-2 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12">
-          {/* Brand block */}
-          <div className="col-span-2 lg:col-span-4">
-            <Link to={withSpanbixBase('/')} className="inline-flex items-center" aria-label="Spanbix — home">
-              {/* Navy footer background → white wordmark variant */}
-              <img
-                src="/spanbix/spanbix-white.png"
-                alt="Spanbix"
-                className="h-20 sm:h-28 md:h-32 lg:h-40 w-auto select-none"
-                draggable={false}
-              />
+    <footer
+      className="relative"
+      style={{ background: '#050d1f', color: 'rgba(255,255,255,0.7)', padding: '72px 0 32px' }}
+    >
+      <div className="max-w-7xl mx-auto w-full min-w-0 px-6 sm:px-6 md:px-8">
+        <div
+          className="grid gap-10"
+          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', alignItems: 'start' }}
+        >
+          <div style={{ gridColumn: 'span 2', minWidth: 0 }}>
+            <Link to={withSpanbixBase('/')} className="inline-flex items-center gap-2.5" aria-label="Spanbix — home">
+              <span
+                className="grid place-items-center"
+                aria-hidden
+                style={{
+                  width: 36, height: 36, borderRadius: 8,
+                  background: 'linear-gradient(135deg, #fff 0%, #cfe1ff 100%)',
+                  color: '#102c56',
+                  fontFamily: '"Instrument Serif", "DM Serif Display", Georgia, serif',
+                  fontSize: 22, fontStyle: 'italic', fontWeight: 600,
+                  lineHeight: 1,
+                }}
+              >
+                S
+              </span>
+              <span
+                style={{
+                  color: '#fff', fontWeight: 600, letterSpacing: '0.08em',
+                  fontSize: 14, fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+                }}
+              >
+                SPANBIX
+              </span>
             </Link>
-            <p className="mt-5 text-[13.5px] font-sora text-white/70 max-w-sm leading-relaxed">
-              Career transformation infrastructure for the SAP and enterprise technology economy —
-              structured curriculum, mentorship, certification, and placement readiness.
-            </p>
-            <a
-              href="https://www.linkedin.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 px-3.5 py-2 rounded-md bg-white/[0.06] border border-white/10 hover:border-white/20 hover:bg-white/[0.09] transition-all text-[12px] font-medium font-sora text-white/80"
+            <p
+              style={{
+                fontSize: 13.5, color: 'rgba(255,255,255,0.6)',
+                marginTop: 16, maxWidth: 320, lineHeight: 1.6,
+                fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+              }}
             >
-              <Linkedin size={13} /> LinkedIn
-              <ArrowUpRight size={11} className="opacity-60" />
-            </a>
+              Career transformation infrastructure for the SAP and enterprise technology economy.
+              Built for the SAP economy.
+            </p>
+            <div className="flex gap-2.5" style={{ marginTop: 22 }}>
+              {['IG', 'LI', 'YT', 'X'].map((s) => (
+                <a
+                  key={s}
+                  href="#"
+                  aria-label={`Spanbix on ${s}`}
+                  className="grid place-items-center"
+                  style={{
+                    width: 36, height: 36, borderRadius: 8,
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    fontSize: 11, fontWeight: 600, letterSpacing: '0.05em',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+                  }}
+                >
+                  {s}
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Link columns */}
-          {columns.map((col) => (
-            <div key={col.label} className="col-span-1 lg:col-span-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55 mb-4 font-sora">
+          {COLUMNS.map((col) => (
+            <div key={col.label}>
+              <h5
+                style={{
+                  color: '#fff', fontSize: 11.5, letterSpacing: '0.16em',
+                  textTransform: 'uppercase', margin: '0 0 14px', fontWeight: 600,
+                  fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+                }}
+              >
                 {col.label}
-              </p>
-              <ul className="space-y-2.5">
+              </h5>
+              <ul
+                style={{
+                  listStyle: 'none', padding: 0, margin: 0,
+                  display: 'grid', gap: 9, fontSize: 13.5,
+                  fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+                }}
+              >
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link
-                      to={l.to}
-                      className="text-[13px] font-sora text-white/75 hover:text-white transition-colors"
-                    >
+                    <Link to={l.to} className="hover:text-white transition-colors">
                       {l.label}
                     </Link>
                   </li>
@@ -93,13 +138,19 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p className="text-[12px] font-sora text-white/60">
-            Spanbix — Career Transformation Infrastructure for Enterprise Technologies.
-          </p>
-          <p className="text-[11px] font-mono text-white/45">
-            © {new Date().getFullYear()} Spanbix · All systems operational
-          </p>
+        <div
+          className="flex flex-col md:flex-row justify-between gap-4"
+          style={{
+            marginTop: 56, paddingTop: 24,
+            borderTop: '1px solid rgba(255,255,255,0.08)',
+            fontSize: 12.5,
+            fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+          }}
+        >
+          <div>© {new Date().getFullYear()} Spanbix Training Institute. Bengaluru · Hyderabad · Pune.</div>
+          <div style={{ fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: 'rgba(255,255,255,0.45)' }}>
+            v.3.0 — REDESIGN_2026
+          </div>
         </div>
       </div>
     </footer>

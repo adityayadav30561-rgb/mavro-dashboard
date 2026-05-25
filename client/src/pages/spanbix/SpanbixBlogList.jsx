@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Clock, FileText, Search, Loader2 } from 'lucide-react';
+import { ArrowRight, Clock, Search, Loader2 } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
-import PageHero from '@/components/spanbix/PageHero';
+import PageHero from '@/components/spanbix/redesign/PageHero';
+import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
+import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import { getPublicBlogs } from '@/api/public';
 import useSEO from '@/hooks/useSEO';
-import { SPANBIX_SITE, SPANBIX_BRAND, blogListLd, breadcrumbLd } from '@/lib/spanbixSeo';
+import { SPANBIX_SITE, blogListLd, breadcrumbLd } from '@/lib/spanbixSeo';
 import { withSpanbixBase } from '@/lib/routeBase';
+
+const TONE_CYCLE = ['rose', 'olive', 'cream', 'slate'];
 
 function formatDate(iso) {
   try {
     return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-  } catch {
-    return '';
-  }
+  } catch { return ''; }
 }
 
 export default function SpanbixBlogList() {
@@ -38,9 +39,7 @@ export default function SpanbixBlogList() {
       })
       .catch(() => !cancelled && setBlogs([]))
       .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [page, query]);
 
   useSEO({
@@ -61,6 +60,8 @@ export default function SpanbixBlogList() {
     ].filter(Boolean),
   });
 
+  useScrollReveal([page, query, loading]);
+
   const onSearch = (e) => {
     e.preventDefault();
     const next = new URLSearchParams(searchParams);
@@ -69,7 +70,6 @@ export default function SpanbixBlogList() {
     next.delete('page');
     setSearchParams(next);
   };
-
   const goPage = (p) => {
     const next = new URLSearchParams(searchParams);
     next.set('page', String(p));
@@ -79,172 +79,138 @@ export default function SpanbixBlogList() {
   return (
     <SpanbixLayout>
       <PageHero
-        eyebrow="Career Intelligence"
-        title="Career guides, SAP deep-dives, and placement strategy."
-        subtitle="Operational reads from the Spanbix team — written for learners, working consultants, and T&P offices."
+        eyebrow="Career Insights · SAP Intelligence"
+        title={<>Field notes from the <em>SAP economy</em>.</>}
+        subtitle="Career guides, module deep-dives, placement strategy, and enterprise technology insights from working consultants on the Spanbix bench. Updated weekly."
       >
-        <form onSubmit={onSearch} className="mt-2 max-w-xl">
-          <div
-            className="flex items-center gap-2 p-1.5 rounded-xl"
+        <form onSubmit={onSearch} className="relative" style={{ maxWidth: 460 }}>
+          <Search size={14} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.6)' }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search articles…"
             style={{
-              backgroundColor: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              backdropFilter: 'blur(8px)',
+              width: '100%', paddingLeft: 38, paddingRight: 16, height: 44,
+              borderRadius: 10, background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.18)', color: '#fff',
+              fontFamily: 'var(--sx-sans)', fontSize: 14, outline: 'none',
             }}
-          >
-            <Search size={16} className="ml-3 text-white/60" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search articles…"
-              className="flex-1 bg-transparent outline-none text-[14px] font-sora text-white placeholder:text-white/55 py-2"
-            />
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-md text-[13px] font-semibold font-sora text-white"
-              style={{ backgroundColor: SPANBIX_BRAND.accent }}
-            >
-              Search
-            </button>
-          </div>
+          />
         </form>
       </PageHero>
 
-      <section className="relative pb-24 md:pb-32" style={{ paddingTop: '4rem' }}>
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
+      <section className="sx-section sx-section-paper">
+        <div className="sx-container">
           {loading ? (
-            <div className="flex items-center justify-center py-32">
-              <Loader2 size={28} className="animate-spin" style={{ color: SPANBIX_BRAND.accent }} />
+            <div className="text-center py-16">
+              <Loader2 className="animate-spin mx-auto" size={28} style={{ color: 'var(--sx-navy)' }} />
+              <p className="sx-mono mt-3" style={{ color: 'var(--sx-ink-4)' }}>LOADING ARTICLES</p>
             </div>
           ) : blogs.length === 0 ? (
-            <div
-              className="rounded-2xl p-16 text-center"
-              style={{ backgroundColor: '#ffffff', border: `1px solid ${SPANBIX_BRAND.border}` }}
-            >
-              <FileText size={32} className="mx-auto" style={{ color: SPANBIX_BRAND.textMuted }} />
-              <p className="mt-4 font-serif text-[20px]" style={{ color: SPANBIX_BRAND.navy }}>
-                No articles found
+            <div className="text-center py-16">
+              <p style={{ fontFamily: 'var(--sx-serif)', fontSize: 26, color: 'var(--sx-navy)' }}>
+                Nothing matches that search yet.
               </p>
-              <p className="mt-1 text-[13px] font-sora" style={{ color: SPANBIX_BRAND.textMuted }}>
-                Try a different search term.
+              <p className="sx-lead mx-auto" style={{ marginTop: 12 }}>
+                Try a broader keyword, or browse the full archive by clearing the search.
               </p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {blogs.map((b, i) => (
-                <motion.article
-                  key={b._id || b.slug}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-60px' }}
-                  transition={{ duration: 0.5, delay: (i % 3) * 0.05 }}
-                  className="group rounded-2xl overflow-hidden bg-white transition-all hover:-translate-y-1"
-                  style={{
-                    border: `1px solid ${SPANBIX_BRAND.border}`,
-                    boxShadow: '0 1px 2px rgba(16,44,86,0.04), 0 10px 28px -16px rgba(16,44,86,0.10)',
-                  }}
-                >
-                  <Link to={withSpanbixBase(`/blog/${b.slug}`)}>
-                    <div
-                      className="aspect-[16/9] relative overflow-hidden"
-                      style={{ backgroundColor: 'rgba(39,100,228,0.08)' }}
+            <>
+              <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                {blogs.map((b, i) => {
+                  const tone = TONE_CYCLE[i % TONE_CYCLE.length];
+                  return (
+                    <Link
+                      key={b._id || b.slug}
+                      to={withSpanbixBase(`/blog/${b.slug}`)}
+                      className="sx-reveal block overflow-hidden group"
+                      style={{
+                        background: 'var(--sx-white)',
+                        border: '1px solid var(--sx-hairline)',
+                        borderRadius: 14,
+                        transitionDelay: `${(i % 6) * 50}ms`,
+                      }}
                     >
-                      {b.featuredImage ? (
-                        <img
-                          src={b.featuredImage}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <FileText size={36} style={{ color: SPANBIX_BRAND.accent, opacity: 0.45 }} />
+                      <div className={`sx-photo sx-photo-${tone}`} style={{ aspectRatio: '16/10' }}>
+                        {b.coverImage && (
+                          <img
+                            src={b.coverImage}
+                            alt={b.title}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            style={{ zIndex: 1 }}
+                            loading="lazy"
+                          />
+                        )}
+                        <div className="sx-photo-label" style={{ zIndex: 2 }}>
+                          {(b.category || 'INSIGHT').toString().toUpperCase().slice(0, 24)}
                         </div>
-                      )}
-                      {b.category && (
-                        <span
-                          className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-[0.18em] font-sora"
+                      </div>
+                      <div style={{ padding: 22 }}>
+                        <div className="sx-row" style={{ gap: 10, color: 'var(--sx-ink-4)', fontSize: 12 }}>
+                          <span className="sx-mono">{formatDate(b.publishedAt || b.createdAt)}</span>
+                          {b.readingTimeMinutes && (
+                            <span className="inline-flex items-center gap-1">
+                              <Clock size={11} /> {b.readingTimeMinutes} min read
+                            </span>
+                          )}
+                        </div>
+                        <h3
                           style={{
-                            backgroundColor: '#ffffff',
-                            color: SPANBIX_BRAND.accent,
-                            border: `1px solid ${SPANBIX_BRAND.border}`,
+                            fontFamily: 'var(--sx-serif)', fontSize: 22, color: 'var(--sx-navy)',
+                            margin: '8px 0', letterSpacing: '-0.01em', lineHeight: 1.2,
                           }}
                         >
-                          {b.category}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-center gap-3 text-[11.5px] font-sora mb-2" style={{ color: SPANBIX_BRAND.textMuted }}>
-                        <span>{formatDate(b.publishedAt)}</span>
-                        {b.readingTime && (
-                          <>
-                            <span>·</span>
-                            <span className="inline-flex items-center gap-1">
-                              <Clock size={11} /> {b.readingTime} min
-                            </span>
-                          </>
+                          {b.title}
+                        </h3>
+                        {b.excerpt && (
+                          <p style={{ color: 'var(--sx-ink-3)', fontSize: 14, lineHeight: 1.55, margin: '0 0 14px' }}>
+                            {b.excerpt}
+                          </p>
                         )}
-                      </div>
-                      <h3
-                        className="font-serif text-[19px] tracking-tight leading-snug line-clamp-2 transition-colors"
-                        style={{ color: SPANBIX_BRAND.navy }}
-                      >
-                        {b.title}
-                      </h3>
-                      {b.excerpt && (
-                        <p
-                          className="mt-2 text-[13px] font-sora leading-relaxed line-clamp-2"
-                          style={{ color: SPANBIX_BRAND.textMuted }}
+                        <span
+                          className="inline-flex items-center gap-1.5"
+                          style={{ color: 'var(--sx-navy)', fontSize: 13, fontWeight: 500 }}
                         >
-                          {b.excerpt}
-                        </p>
-                      )}
-                      <span
-                        className="mt-4 inline-flex items-center gap-1 text-[12px] font-semibold font-sora"
-                        style={{ color: SPANBIX_BRAND.accent }}
-                      >
-                        Read <ArrowRight size={12} />
-                      </span>
-                    </div>
-                  </Link>
-                </motion.article>
-              ))}
-            </div>
-          )}
+                          Read article <ArrowRight size={13} />
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
 
-          {pagination.totalPages > 1 && (
-            <div className="mt-12 flex items-center justify-center gap-2 font-sora">
-              <button
-                onClick={() => goPage(Math.max(1, page - 1))}
-                disabled={page <= 1}
-                className="px-4 py-2 rounded-md text-[13px] font-medium disabled:opacity-40 transition-colors"
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: `1px solid ${SPANBIX_BRAND.border}`,
-                  color: SPANBIX_BRAND.navy,
-                }}
-              >
-                Previous
-              </button>
-              <span className="px-4 py-2 text-[13px] font-mono" style={{ color: SPANBIX_BRAND.textMuted }}>
-                {pagination.page} / {pagination.totalPages}
-              </span>
-              <button
-                onClick={() => goPage(Math.min(pagination.totalPages, page + 1))}
-                disabled={page >= pagination.totalPages}
-                className="px-4 py-2 rounded-md text-[13px] font-medium disabled:opacity-40 transition-colors"
-                style={{
-                  backgroundColor: '#ffffff',
-                  border: `1px solid ${SPANBIX_BRAND.border}`,
-                  color: SPANBIX_BRAND.navy,
-                }}
-              >
-                Next
-              </button>
-            </div>
+              {pagination.totalPages > 1 && (
+                <div className="flex justify-center items-center gap-2 mt-10">
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() => goPage(page - 1)}
+                    className="sx-btn sx-btn-outline"
+                    style={{ opacity: page <= 1 ? 0.4 : 1, cursor: page <= 1 ? 'not-allowed' : 'pointer' }}
+                  >
+                    Previous
+                  </button>
+                  <span className="sx-mono" style={{ color: 'var(--sx-ink-3)', margin: '0 14px' }}>
+                    PAGE {page} OF {pagination.totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={page >= pagination.totalPages}
+                    onClick={() => goPage(page + 1)}
+                    className="sx-btn sx-btn-outline"
+                    style={{ opacity: page >= pagination.totalPages ? 0.4 : 1, cursor: page >= pagination.totalPages ? 'not-allowed' : 'pointer' }}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
+
+      <FinalCta />
     </SpanbixLayout>
   );
 }
