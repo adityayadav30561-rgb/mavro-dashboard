@@ -5,16 +5,16 @@ import { useState } from 'react';
 
 const ITEMS = [
   {
-    q: "I'm a BCom / BBA / MBA graduate. Can I really become an SAP consultant?",
-    a: "Yes — and not just \"can\". You're actually the preferred profile for functional SAP roles (FICO, MM, SD). Companies need people who understand accounting, procurement, and sales — not people who can code. The \"SAP needs engineers\" myth is just that, a myth.",
+    q: "I'm a commerce / MBA / engineering graduate. Which ERP track fits me?",
+    a: 'Every background has a lane. Commerce, BBA, BCom, and MBA graduates own the functional tracks (FICO, MM, SD) — accounting, procurement, and sales sense matters more than coding. B.Tech, CS, and BCA graduates fit the technical and techno-functional tracks (ABAP, integrations). On the consultation call we map you to the track that matches your background and target salary.',
   },
   {
     q: 'How long does a track take to finish?',
-    a: 'Functional tracks (FICO, MM, SD) run about 3.5 to 4 months end-to-end — curriculum, sandbox practice, capstone, mock interviews, and placement prep. The ABAP technical track runs 5 months because of the development depth. Plan around 10–14 focused hours per week.',
+    a: 'All four tracks run about 3 months end-to-end — curriculum, hands-on practice, capstone, and mock interview prep. Live mentor sessions are recorded and added to your library so you can revisit them anytime. Plan around 10–14 focused hours per week.',
   },
   {
     q: 'What does "placement support" actually mean?',
-    a: "Three concrete things, baked into the program from week one: profile building (resume + LinkedIn + portfolio rewrite reviewed by your mentor), referrals (your mentor introduces you to their hiring panel network), and hiring partner connects (direct interviews with employers we work with). Not a \"we'll add your name to a job board\" line item.",
+    a: 'Three things baked into the program: profile work (resume, LinkedIn, portfolio reviewed by working consultants), mock interviews tuned to real hiring-panel questions, and hiring partner connects when you finish. We also include a complimentary personality development module so the interview itself goes smoothly.',
   },
   {
     q: "What's the certification worth?",
@@ -22,11 +22,11 @@ const ITEMS = [
   },
   {
     q: "I'm from a Tier-2 / Tier-3 city. Will this still work for me?",
-    a: "Yes — that's precisely who Spanbix is built for. The whole program runs online; mentor sessions are live, sandbox access is cloud-based, and our hiring partner network spans GCCs and SIs that hire remote or relocate candidates. You don't have to move to Bengaluru first.",
+    a: "Yes — that's precisely who Spanbix is built for. The whole program runs online: live mentor sessions, recorded library, and cloud-based hands-on practice. You don't need to relocate to a metro to start.",
   },
   {
     q: 'I run a placement cell. How does the campus partnership work?',
-    a: 'Three steps. We do a free awareness workshop on your campus. Your students who opt in roll into a structured cohort (200–2,000 learners, 6 months). You get a T&P dashboard, attendance-linked progression, monthly cohort reports, and a co-branded certificate. Pricing follows the conversation with your team — every campus is different.',
+    a: "Three steps. We do a free awareness workshop on your campus. Students who opt in roll into a structured cohort aligned to your academic calendar. You get a co-branded credential, regular T&P updates, and a cohort report at the end. Pricing follows the conversation with your team — every campus is different, and the personality development module is complimentary for campus cohorts.",
   },
 ];
 
@@ -44,8 +44,8 @@ export default function FAQ() {
             </h2>
           </div>
           <p className="sx-lead sx-reveal">
-            If you're considering Spanbix, these are the questions almost every applicant asks. If
-            yours isn't here, the strategist call at the bottom of this page is the right place.
+            The questions almost every applicant asks. If yours isn't here, book a quick consultation
+            and a strategist will walk you through it.
           </p>
         </div>
 
