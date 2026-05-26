@@ -12,7 +12,7 @@ const ALUMNI = [
     growth: '2.7x',
     partner: 'Tier-1 IT services',
     quote: "Spanbix's structured FICO path got me into a consulting role with a real implementation team within five months.",
-    tone: 'rose',
+    image: '/spanbix/priya.png',
   },
   {
     name: 'Rahul Verma',
@@ -21,8 +21,8 @@ const ALUMNI = [
     after: { role: 'SAP MM Consultant', ctc: '11.8L' },
     growth: '2.9x',
     partner: 'Manufacturing major',
-    quote: 'The mentor reviews were the difference. Working consultants who actively delivered S/4HANA rollouts walked me through every realistic interview scenario.',
-    tone: 'olive',
+    quote: 'The mentor reviews were the difference. Working consultants walked me through every realistic interview scenario.',
+    image: '/spanbix/rahul.png',
   },
   {
     name: 'Anjali Iyer',
@@ -31,8 +31,8 @@ const ALUMNI = [
     after: { role: 'SAP ABAP Developer', ctc: '14.4L' },
     growth: '2.6x',
     partner: 'Global SI partner',
-    quote: 'I doubted whether SAP would value my dev background. The capstone projects gave me a portfolio recruiters could verify — that closed the offer.',
-    tone: 'slate',
+    quote: 'The capstone projects gave me a portfolio recruiters could verify — that closed the offer.',
+    image: '/spanbix/anjali.png',
   },
 ];
 
@@ -106,7 +106,18 @@ export default function Outcomes() {
                 borderRadius: 16,
               }}
             >
-              <div className={`sx-photo sx-photo-${a.tone} relative`} style={{ aspectRatio: '16/10' }}>
+              <div className="relative overflow-hidden" style={{ aspectRatio: '16/10', background: 'var(--sx-cream-50)' }}>
+                <img
+                  src={a.image}
+                  alt={a.name}
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: '50% 15%',
+                    display: 'block',
+                  }}
+                  loading="lazy"
+                />
                 <div
                   className="absolute flex items-center gap-1"
                   style={{
@@ -119,12 +130,12 @@ export default function Outcomes() {
                     padding: '5px 10px',
                     borderRadius: 99,
                     fontWeight: 600,
+                    zIndex: 2,
                   }}
                 >
                   <svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 12l5-5 3 3 5-5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
                   {a.growth} growth
                 </div>
-                <div className="sx-photo-label">{a.name.toUpperCase().replace(/ /g, '_')}_PLACED.JPG</div>
               </div>
 
               <div style={{ padding: 22, flex: 1, display: 'flex', flexDirection: 'column' }}>

@@ -159,7 +159,6 @@ function TrackCard({ track }) {
       <div className="p-7 flex-1 flex flex-col">
         <div className="flex flex-wrap gap-2">
           <PillBadge icon={Wifi}>Online Track</PillBadge>
-          <PillBadge icon={ShieldCheck} verified>Industry Certified</PillBadge>
         </div>
 
         <h3
