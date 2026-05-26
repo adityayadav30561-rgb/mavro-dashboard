@@ -14,19 +14,19 @@ const LANES = [
   {
     t: "I'm a student / fresh grad",
     b: '30-minute career strategist call. We map the right ERP track, give you an honest placement timeline, and tell you straight if Spanbix is the wrong fit.',
-    tone: 'rose', label: 'STUDENT_CONSULTATION.JPG',
+    image: '/spanbix/STUDENT-CONSULTATION.png',
     eta: 'Response in 1 business day',
   },
   {
     t: "I'm a working professional",
     b: 'Career-switch consultation. Bring your background, target salary, and geography. We map your fastest path into ERP roles.',
-    tone: 'olive', label: 'PROFESSIONAL_PIVOT.JPG',
+    image: '/spanbix/PROFESSIONAL-PIVOT.png',
     eta: 'Response in 1 business day',
   },
   {
     t: "I'm a placement head / college",
     b: 'Institutional walkthrough with the Campus team. We align curriculum, cohort size, and placement strategy to your academic calendar.',
-    tone: 'slate', label: 'CAMPUS_PARTNERSHIP.JPG',
+    image: '/spanbix/CAMPUS%20PARTNERSHIP.png',
     eta: 'Response within 24 hours',
   },
 ];
@@ -69,7 +69,10 @@ export default function SpanbixContact() {
       <ContactForm />
 
       {/* Audience lanes */}
-      <section className="sx-section sx-section-paper">
+      <section
+        className="sx-section sx-section-paper"
+        style={{ paddingTop: 'clamp(32px, 4vw, 56px)', paddingBottom: 'clamp(40px, 5vw, 72px)' }}
+      >
         <div className="sx-container">
           <div className="sx-section-head">
             <div className="sx-stack-md">
@@ -88,7 +91,7 @@ export default function SpanbixContact() {
             {LANES.map((l, i) => (
               <article
                 key={l.t}
-                className="sx-reveal overflow-hidden"
+                className="sx-reveal overflow-hidden flex flex-col"
                 style={{
                   background: 'var(--sx-white)',
                   border: '1px solid var(--sx-hairline)',
@@ -96,15 +99,29 @@ export default function SpanbixContact() {
                   transitionDelay: `${i * 60}ms`,
                 }}
               >
-                <div className={`sx-photo sx-photo-${l.tone}`} style={{ aspectRatio: '16/9' }}>
-                  <div className="sx-photo-label">{l.label}</div>
+                <div className="relative overflow-hidden" style={{ aspectRatio: '16/9', background: 'var(--sx-cream-50)' }}>
+                  <img
+                    src={l.image}
+                    alt={l.t}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    loading="lazy"
+                  />
                 </div>
-                <div style={{ padding: 22 }}>
+                <div style={{ padding: 22, display: 'flex', flexDirection: 'column', flex: 1 }}>
                   <h4 style={{ fontFamily: 'var(--sx-serif)', fontSize: 22, color: 'var(--sx-navy)', margin: '0 0 8px', letterSpacing: '-0.01em' }}>
                     {l.t}
                   </h4>
                   <p style={{ color: 'var(--sx-ink-3)', fontSize: 14.5, lineHeight: 1.55, margin: '0 0 14px' }}>{l.b}</p>
                   <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>{l.eta.toUpperCase()}</div>
+                  <div style={{ marginTop: 'auto', paddingTop: 18 }}>
+                    <a
+                      href="#contact-form"
+                      className="sx-btn sx-btn-dark"
+                      style={{ justifyContent: 'center', width: '100%' }}
+                    >
+                      Start The Conversation <Arrow />
+                    </a>
+                  </div>
                 </div>
               </article>
             ))}
@@ -174,7 +191,11 @@ function ContactForm() {
   };
 
   return (
-    <section className="sx-section sx-section-paper" id="contact-form" style={{ paddingTop: 'clamp(40px, 5vw, 64px)' }}>
+    <section
+      className="sx-section sx-section-paper"
+      id="contact-form"
+      style={{ paddingTop: 'clamp(32px, 4vw, 48px)', paddingBottom: 'clamp(32px, 4vw, 48px)' }}
+    >
       <div className="sx-container">
         <div className="grid gap-6 md:gap-8 grid-cols-1 md:[grid-template-columns:30%_70%] items-start">
             {/* LEFT — contact details (30%) */}
