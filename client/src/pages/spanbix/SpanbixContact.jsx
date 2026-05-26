@@ -1,27 +1,31 @@
-import { Mail, Phone, MapPin, Clock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Mail, Phone, MapPin, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import PageHero from '@/components/spanbix/redesign/PageHero';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
+import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import useSEO from '@/hooks/useSEO';
 import { SPANBIX_SITE, breadcrumbLd } from '@/lib/spanbixSeo';
+import { getPublicWebsite, submitPublicLead } from '@/api/public';
+import { getOrCreateSession } from '@/lib/analytics';
 
 const LANES = [
   {
     t: "I'm a student / fresh grad",
-    b: '30-minute career strategist call. We map the right SAP track, give you an honest placement timeline, and tell you straight if Spanbix is the wrong fit.',
+    b: '30-minute career strategist call. We map the right ERP track, give you an honest placement timeline, and tell you straight if Spanbix is the wrong fit.',
     tone: 'rose', label: 'STUDENT_CONSULTATION.JPG',
     eta: 'Response in 1 business day',
   },
   {
     t: "I'm a working professional",
-    b: 'Career-switch consultation. Bring your background, target salary, and geography. We map your fastest path into SAP roles that compound.',
+    b: 'Career-switch consultation. Bring your background, target salary, and geography. We map your fastest path into ERP roles.',
     tone: 'olive', label: 'PROFESSIONAL_PIVOT.JPG',
     eta: 'Response in 1 business day',
   },
   {
     t: "I'm a placement head / college",
-    b: 'Institutional walkthrough with our Campus team. We align curriculum, cohort size, and placement strategy to your academic calendar.',
+    b: 'Institutional walkthrough with the Campus team. We align curriculum, cohort size, and placement strategy to your academic calendar.',
     tone: 'slate', label: 'CAMPUS_PARTNERSHIP.JPG',
     eta: 'Response within 24 hours',
   },
@@ -34,12 +38,15 @@ const COORDINATES = [
   { icon: Clock,   label: 'Hours',     value: 'Mon–Sat · 10AM – 7PM IST' },
 ];
 
+const AUDIENCES = ['Student', 'Working professional', 'College / T&P office'];
+const INTERESTS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
+
 export default function SpanbixContact() {
   useSEO({
     title: `Contact — ${SPANBIX_SITE.name}`,
     description:
-      'Talk to a Spanbix career strategist. 30-minute consultation for students, working professionals, or institutional partnerships — no sales pressure, just honest mapping.',
-    keywords: ['contact Spanbix', 'SAP career consultation', 'campus partnership inquiry'],
+      'Talk to a Spanbix career strategist. 30-minute consultation for students, working professionals, or institutional partnerships.',
+    keywords: ['contact Spanbix', 'ERP career consultation', 'campus partnership inquiry'],
     canonical: `${SPANBIX_SITE.url}/contact`,
     ogImage: SPANBIX_SITE.logo,
     jsonLd: [
@@ -56,8 +63,10 @@ export default function SpanbixContact() {
       <PageHero
         eyebrow="Talk To Spanbix"
         title={<>30 minutes with a strategist. <em>Then you decide.</em></>}
-        subtitle="Tell us your background — degree, geography, current role, target salary. We'll map the right SAP track, give you an honest placement timeline, and if Spanbix isn't the right fit, we'll say so. No sales pressure. No upselling. No scripted scripts."
+        subtitle="Share your background — degree, geography, current role, target salary. We'll map the right ERP track, give you an honest placement timeline, and tell you straight if Spanbix isn't the right fit."
       />
+
+      <ContactForm />
 
       {/* Audience lanes */}
       <section className="sx-section sx-section-paper">
@@ -71,7 +80,7 @@ export default function SpanbixContact() {
             </div>
             <p className="sx-lead sx-reveal">
               Different inquiries route to different teams. Picking the right lane gets you the
-              right strategist faster — and a more useful conversation when the call lands.
+              right strategist faster.
             </p>
           </div>
 
@@ -132,7 +141,7 @@ export default function SpanbixContact() {
                   </span>
                   <div className="min-w-0">
                     <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>{c.label.toUpperCase()}</div>
-                    <div style={{ fontSize: 14, color: 'var(--sx-ink), fontWeight: 500', marginTop: 2 }}>
+                    <div style={{ fontSize: 14, color: 'var(--sx-ink)', fontWeight: 500, marginTop: 2 }}>
                       {c.value}
                     </div>
                   </div>
@@ -145,5 +154,192 @@ export default function SpanbixContact() {
 
       <FinalCta />
     </SpanbixLayout>
+  );
+}
+
+function ContactForm() {
+  const [websiteId, setWebsiteId] = useState(null);
+  const [form, setForm] = useState({
+    name: '', email: '', phone: '', company: '',
+    audience: 'Student', interest: '', message: '',
+  });
+  const [status, setStatus] = useState('idle');
+  const [serverError, setServerError] = useState('');
+
+  useEffect(() => {
+    getPublicWebsite(SPANBIX_SITE.slug)
+      .then((res) => setWebsiteId(res?.data?.data?.website?._id))
+      .catch(() => {});
+  }, []);
+
+  const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim()) {
+      setServerError('Name and email are required.');
+      setStatus('error');
+      return;
+    }
+    if (!websiteId) {
+      setServerError('Still connecting — try again in a moment.');
+      setStatus('error');
+      return;
+    }
+    setStatus('loading');
+    setServerError('');
+    try {
+      const meta = [
+        form.audience ? `Audience: ${form.audience}` : null,
+        form.interest ? `Interest: ${form.interest}` : null,
+      ].filter(Boolean).join(' · ');
+      const message = (form.message + (meta ? `\n\n[${meta}]` : '')).trim();
+
+      await submitPublicLead({
+        website: websiteId,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim() || undefined,
+        company: form.company.trim() || undefined,
+        message: message || undefined,
+        sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
+        referrer: typeof document !== 'undefined' ? document.referrer : undefined,
+        sessionId: getOrCreateSession(),
+        formId: 'spanbix-contact',
+      });
+      setStatus('success');
+      setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', message: '' });
+    } catch (err) {
+      setServerError(err?.response?.data?.message || 'Submission failed. Please try again.');
+      setStatus('error');
+    }
+  };
+
+  return (
+    <section className="sx-section sx-section-paper" id="contact-form" style={{ paddingTop: 'clamp(40px, 5vw, 64px)' }}>
+      <div className="sx-container">
+        <div className="mx-auto" style={{ maxWidth: 920 }}>
+          <div
+            style={{
+              background: 'var(--sx-white)',
+              border: '1px solid var(--sx-hairline)',
+              borderRadius: 16,
+              padding: 'clamp(22px, 4vw, 36px)',
+              boxShadow: '0 30px 80px -40px rgba(16,44,86,0.18)',
+            }}
+          >
+            <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>CAREER CONSULTATION</div>
+            <h3 style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(22px, 3.4vw, 28px)', color: 'var(--sx-navy)', margin: '6px 0 22px', letterSpacing: '-0.01em' }}>
+              Book a 30-minute call with a career strategist
+            </h3>
+
+            {status === 'success' ? (
+              <div
+                className="flex items-start gap-3 p-4 rounded-xl"
+                style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.25)', color: '#15803d' }}
+              >
+                <CheckCircle2 size={20} className="shrink-0 mt-0.5" />
+                <div>
+                  <div style={{ fontWeight: 600 }}>Thanks — we got it.</div>
+                  <div style={{ fontSize: 13.5, marginTop: 4, color: 'var(--sx-ink-2)' }}>
+                    A career strategist will reach out within one business day. Check your inbox + spam.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} className="grid gap-4">
+                <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                  <Field label="Full Name *" placeholder="Priya Sharma" value={form.name} onChange={update('name')} required />
+                  <Field label="Email *" placeholder="priya@example.com" value={form.email} onChange={update('email')} required type="email" />
+                  <Field label="Phone" placeholder="+91 98XXXXXXXX" value={form.phone} onChange={update('phone')} />
+                  <Field label="Company / College" placeholder="Tata Consultancy Services" value={form.company} onChange={update('company')} />
+                </div>
+
+                <div>
+                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>I AM A</div>
+                  <div className="sx-row" style={{ gap: 8 }}>
+                    {AUDIENCES.map((a) => (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, audience: a }))}
+                        className={form.audience === a ? 'sx-role-chip active' : 'sx-role-chip'}
+                      >
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>INTERESTED TRACK</div>
+                  <div className="sx-row" style={{ gap: 8 }}>
+                    {INTERESTS.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, interest: t }))}
+                        className={form.interest === t ? 'sx-role-chip active' : 'sx-role-chip'}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>
+                    TELL US ABOUT YOUR BACKGROUND (OPTIONAL)
+                  </div>
+                  <textarea
+                    className="sx-input"
+                    rows={3}
+                    value={form.message}
+                    onChange={update('message')}
+                    placeholder="Current role, years of experience, target geography, salary expectation…"
+                  />
+                </div>
+
+                {status === 'error' && serverError && (
+                  <div
+                    className="flex items-start gap-2 p-3 rounded-lg text-sm"
+                    style={{ background: 'rgba(244,63,94,0.06)', border: '1px solid rgba(244,63,94,0.25)', color: '#b91c1c' }}
+                  >
+                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                    <span>{serverError}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end mt-2">
+                  <button type="submit" disabled={status === 'loading'} className="sx-btn sx-btn-dark" style={{ minWidth: 220 }}>
+                    {status === 'loading' ? (
+                      <><Loader2 size={14} className="animate-spin" /> Sending…</>
+                    ) : (
+                      <>Book Career Consultation <Arrow /></>
+                    )}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Field({ label, placeholder, value, onChange, required, type = 'text' }) {
+  return (
+    <label className="flex flex-col gap-2">
+      <span className="sx-mono" style={{ color: 'var(--sx-ink-3)' }}>{label.toUpperCase()}</span>
+      <input
+        className="sx-input"
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+      />
+    </label>
   );
 }
