@@ -117,15 +117,11 @@ export const SPANBIX_CAREER_PATHS = [
       'Build interview-ready communication via the personality development module',
     ],
     includes: [
-      '120+ hours on-demand video',
-      '60+ hands-on configuration exercises',
-      '4 capstone modules with mentor review',
-      'Live S/4HANA sandbox for 6 months',
-      'Spanbix Certificate of Completion',
-      'Mock interview prep + resume review',
-      'Hiring partner referral access',
+      'Live mentor sessions + recorded library',
+      'Hands-on configuration practice',
+      'Mentor-reviewed capstone',
+      'Mock interview + resume support',
       'Personality development module',
-      'Lifetime access to recorded sessions',
     ],
     requirements: [
       'Commerce or business background recommended (BBA / BCom / MBA)',
@@ -310,15 +306,11 @@ export const SPANBIX_CAREER_PATHS = [
       'Build interview-ready communication via the personality development module',
     ],
     includes: [
-      '95+ hours on-demand video',
-      '50+ hands-on configuration exercises',
-      '3 capstone modules with mentor review',
-      'Live S/4HANA sandbox for 6 months',
-      'Spanbix Certificate of Completion',
-      'Mock interview prep + resume review',
-      'Hiring partner referral access',
+      'Live mentor sessions + recorded library',
+      'Hands-on configuration practice',
+      'Mentor-reviewed capstone',
+      'Mock interview + resume support',
       'Personality development module',
-      'Lifetime access to recorded sessions',
     ],
     requirements: [
       'Commerce / business / supply-chain background recommended',
@@ -514,15 +506,11 @@ export const SPANBIX_CAREER_PATHS = [
       'Build interview-ready communication via the personality development module',
     ],
     includes: [
-      '95+ hours on-demand video',
-      '50+ hands-on configuration exercises',
-      '3 capstone modules with mentor review',
-      'Live S/4HANA sandbox for 6 months',
-      'Spanbix Certificate of Completion',
-      'Mock interview prep + resume review',
-      'Hiring partner referral access',
+      'Live mentor sessions + recorded library',
+      'Hands-on configuration practice',
+      'Mentor-reviewed capstone',
+      'Mock interview + resume support',
       'Personality development module',
-      'Lifetime access to recorded sessions',
     ],
     requirements: [
       'Commerce / business background recommended (BBA / BCom / MBA)',
@@ -719,15 +707,11 @@ export const SPANBIX_CAREER_PATHS = [
       'Build interview-ready communication via the personality development module',
     ],
     includes: [
-      '150+ hours on-demand video',
-      '70+ coding exercises and code-review labs',
-      '5 capstone modules with senior consultant review',
-      'Live SAP NetWeaver + S/4HANA dev sandbox for 6 months',
-      'Spanbix Certificate of Completion',
-      'Mock interview prep + resume review',
-      'Hiring partner referral access',
+      'Live mentor sessions + recorded library',
+      'Coding labs + code reviews',
+      'Mentor-reviewed capstone',
+      'Mock interview + resume support',
       'Personality development module',
-      'Lifetime access to recorded sessions',
     ],
     requirements: [
       'Engineering / technical background recommended (BTech / BCA / MCA)',
@@ -1039,3 +1023,41 @@ export function blogListLd(blogs, baseUrl) {
     })),
   };
 }
+
+// ──────── Faculty roster ────────
+// Single source of truth for mentor cards. Imported by Mentors carousel on
+// homepage / about page AND by the mentor carousel on each course detail page.
+export const SPANBIX_MENTORS = [
+  {
+    name: 'LalitMohan Parihar',
+    role: 'Senior SAP Consultant',
+    exp: '15+',
+    tag: 'SAP MM · SD',
+    image: '/spanbix/lalit.png',
+    currently: 'Highly experienced in SAP MM and SD. Multiple MNC implementations, supervised large cross-functional rollouts.',
+  },
+  {
+    name: 'Abhishek Singh',
+    role: 'Senior SAP Consultant',
+    exp: '15+',
+    tag: 'SAP SD · ABAP',
+    image: '/spanbix/abhishek.png',
+    currently: 'Highly experienced in SAP SD and ABAP. Worked across multiple MNCs on full-cycle implementations.',
+  },
+  {
+    name: 'Aman Verma',
+    role: 'SAP Consultant',
+    exp: '5+',
+    tag: 'SAP MM',
+    image: '/spanbix/aman%20verma.png',
+    currently: 'Strong delivery experience in SAP MM. Multiple implementation projects across MNC clients.',
+  },
+  {
+    name: 'Mayank Rastogi',
+    role: 'SAP Consultant',
+    exp: '5+',
+    tag: 'SAP ABAP',
+    image: '/spanbix/mayank%20rastogi.png',
+    currently: 'Hands-on SAP ABAP developer. Multiple implementation projects with global delivery teams.',
+  },
+];

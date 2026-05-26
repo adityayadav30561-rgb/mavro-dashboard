@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useParams, Navigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Globe, Star, Users, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Clock, Globe, Users, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import useSEO from '@/hooks/useSEO';
 import {
   SPANBIX_SITE,
+  SPANBIX_MENTORS,
   getCareerPath,
   breadcrumbLd,
   courseLd,
@@ -109,11 +109,9 @@ export default function SpanbixCourseDetail() {
               <div className="sx-hero-meta" style={{ marginTop: 32 }}>
                 <Meta value={track.duration} label="Duration" />
                 <span className="sx-hero-meta-divider" />
-                <Meta value={track.salaryRange} label="Salary range" />
+                <Meta value={track.salaryRange} label="Salary range (industry)" />
                 <span className="sx-hero-meta-divider" />
-                <Meta value={track.studentsEnrolled} label="Students enrolled" />
-                <span className="sx-hero-meta-divider" />
-                <Meta value={`★ ${track.rating}`} label={track.ratingsCount} />
+                <Meta value={track.eligibility} label="Eligibility" />
               </div>
             </div>
 
@@ -169,22 +167,17 @@ export default function SpanbixCourseDetail() {
                 {showPricing ? (
                   <>
                     <div className="sx-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>INDIVIDUAL ENROLMENT</div>
-                    <div className="flex items-baseline gap-2 mt-2">
-                      <div
-                        style={{
-                          fontFamily: 'var(--sx-serif)', fontSize: 40,
-                          letterSpacing: '-0.02em', color: '#fff', lineHeight: 1,
-                        }}
-                      >
-                        {track.priceIndividual}
-                      </div>
-                      <div className="sx-mono" style={{ color: 'rgba(255,255,255,0.45)', textDecoration: 'line-through' }}>
-                        {track.priceMrp}
-                      </div>
+                    <div
+                      style={{
+                        fontFamily: 'var(--sx-serif)', fontSize: 26,
+                        color: '#fff', marginTop: 8, letterSpacing: '-0.01em', lineHeight: 1.15,
+                      }}
+                    >
+                      Talk to us to enrol.
                     </div>
-                    <div className="sx-mono" style={{ color: 'var(--sx-citron)', marginTop: 4 }}>
-                      Last updated {track.lastUpdated.toUpperCase()}
-                    </div>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.55, marginTop: 8 }}>
+                      Pricing is shared during the consultation call so we can tailor it to your background and goals.
+                    </p>
                     <Link
                       to={withSpanbixBase('/contact')}
                       onClick={() => trackCtaClick('Enrol Now', { location: 'course-detail', track: track.code })}
@@ -222,8 +215,7 @@ export default function SpanbixCourseDetail() {
                 <div className="mt-5 pt-5 grid gap-2.5 text-[12.5px]" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <Detail icon={Clock}  label={track.duration} />
                   <Detail icon={Globe}  label={track.language} />
-                  <Detail icon={Users}  label={`Instructor · ${track.instructor.name}`} />
-                  <Detail icon={Star}   label={`${track.rating} · ${track.ratingsCount}`} />
+                  <Detail icon={Users}  label={`Mentor · ${track.instructor.name}`} />
                 </div>
               </div>
             </div>
@@ -238,12 +230,11 @@ export default function SpanbixCourseDetail() {
             <div className="sx-stack-md">
               <span className="sx-eyebrow">What You'll Learn</span>
               <h2 className="sx-display sx-h2 sx-reveal">
-                Outcomes you'll <em>own</em> by the end of this track.
+                What you'll take away from the track.
               </h2>
             </div>
             <p className="sx-lead sx-reveal">
-              Every line below is a verifiable capability — recruiters can ask, and you'll have a
-              capstone artifact to back it up. No "exposure to" language. No "introduction to".
+              The core capabilities you'll build, with a capstone to demonstrate them.
             </p>
           </div>
 
@@ -273,19 +264,18 @@ export default function SpanbixCourseDetail() {
         </div>
       </section>
 
-      {/* Curriculum timeline */}
+      {/* Curriculum overview — general flow */}
       <section className="sx-section sx-section-cream">
         <div className="sx-container">
           <div className="sx-section-head">
             <div className="sx-stack-md">
-              <span className="sx-eyebrow">Curriculum Timeline · {mode === 'campus' ? 'Campus Cohort' : 'Individual Track'}</span>
+              <span className="sx-eyebrow">Curriculum Flow · {mode === 'campus' ? 'Campus Cohort' : 'Individual Track'}</span>
               <h2 className="sx-display sx-h2 sx-reveal">
-                How the {mode === 'campus' ? 'semester' : 'track'} <em>actually unfolds</em>.
+                How the {mode === 'campus' ? 'semester' : 'track'} <em>progresses</em>.
               </h2>
             </div>
             <p className="sx-lead sx-reveal">
-              Calendar below is the real cadence — milestones, mentor reviews, capstone gates, and
-              placement runway. {mode === 'campus' ? 'Aligned to your academic calendar.' : 'Self-paced inside cohort windows.'}
+              A high-level view of the modules and pacing. {mode === 'campus' ? 'Aligned to your academic calendar.' : 'Walk through each module at a pace that fits your schedule.'}
             </p>
           </div>
 
@@ -300,10 +290,10 @@ export default function SpanbixCourseDetail() {
             >
               {timeline.map((block, i) => (
                 <div
-                  key={i}
+                  key={block.id || i}
                   className="grid gap-4 items-start"
                   style={{
-                    gridTemplateColumns: '120px 1fr',
+                    gridTemplateColumns: 'minmax(120px, 180px) 1fr',
                     background: 'var(--sx-white)',
                     border: '1px solid var(--sx-hairline)',
                     borderRadius: 12,
@@ -311,13 +301,12 @@ export default function SpanbixCourseDetail() {
                   }}
                 >
                   <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', letterSpacing: '0.1em', fontSize: 12 }}>
-                    {block.label.toUpperCase()}
+                    {(block.meta || '').toUpperCase()}
                   </div>
                   <div className="min-w-0">
                     <h4 style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, color: 'var(--sx-navy)', margin: 0, letterSpacing: '-0.01em' }}>
                       {block.title}
                     </h4>
-                    <p style={{ color: 'var(--sx-ink-3)', fontSize: 14, lineHeight: 1.55, margin: '6px 0 0' }}>{block.body}</p>
                   </div>
                 </div>
               ))}
@@ -326,44 +315,24 @@ export default function SpanbixCourseDetail() {
         </div>
       </section>
 
-      {/* Instructor + Includes + Requirements */}
+      {/* Faculty + Includes + Requirements */}
       <section className="sx-section sx-section-paper">
         <div className="sx-container">
-          <div className="grid gap-8" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)' }}>
-            {/* Instructor */}
-            <div
-              className="sx-reveal"
-              style={{
-                background: 'var(--sx-white)',
-                border: '1px solid var(--sx-hairline)',
-                borderRadius: 16,
-                padding: 24,
-                alignSelf: 'start',
-                position: 'sticky',
-                top: 100,
-              }}
-            >
-              <span className="sx-eyebrow">Mentor</span>
-              <div
-                className="mt-4 grid place-items-center"
-                style={{
-                  width: 80, height: 80, borderRadius: 999,
-                  background: 'var(--sx-navy)', color: '#fff',
-                  fontFamily: 'var(--sx-serif)', fontSize: 28, fontStyle: 'italic', letterSpacing: '-0.02em',
-                }}
-              >
-                {track.instructor.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
-              </div>
-              <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 22, color: 'var(--sx-navy)', marginTop: 10, letterSpacing: '-0.01em' }}>
-                {track.instructor.name}
-              </div>
-              <div className="sx-mono" style={{ color: 'var(--sx-ink-3)', marginTop: 4 }}>
-                {track.instructor.title.toUpperCase()}
-              </div>
-              <p style={{ color: 'var(--sx-ink-3)', fontSize: 13.5, lineHeight: 1.6, marginTop: 14 }}>
-                {track.instructor.bio}
-              </p>
+          <div className="sx-section-head">
+            <div className="sx-stack-md">
+              <span className="sx-eyebrow">Track Details</span>
+              <h2 className="sx-display sx-h2 sx-reveal">
+                Meet the faculty. See <em>what's inside</em>.
+              </h2>
             </div>
+            <p className="sx-lead sx-reveal">
+              Who you'll learn from and what you walk away with — laid out side by side.
+            </p>
+          </div>
+
+          <div className="grid gap-8" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)' }}>
+            {/* Mentor carousel */}
+            <MentorCarousel />
 
             {/* Includes + Requirements */}
             <div className="grid gap-6">
@@ -415,7 +384,6 @@ export default function SpanbixCourseDetail() {
         </div>
       </section>
 
-      <Mentors />
       <FinalCta />
     </SpanbixLayout>
   );
@@ -435,6 +403,154 @@ function Detail({ icon: Icon, label }) {
     <div className="flex items-center gap-2.5" style={{ color: 'rgba(255,255,255,0.78)' }}>
       <Icon size={13} style={{ color: 'rgba(255,255,255,0.6)' }} />
       <span>{label}</span>
+    </div>
+  );
+}
+
+// Mentor carousel — one mentor visible at a time, prev/next buttons + swipe.
+// Touch swipe threshold ~50px so accidental taps don't trigger.
+function MentorCarousel() {
+  const [idx, setIdx] = useState(0);
+  const total = SPANBIX_MENTORS.length;
+  const touchStartX = useRef(null);
+
+  const goPrev = () => setIdx((i) => (i - 1 + total) % total);
+  const goNext = () => setIdx((i) => (i + 1) % total);
+
+  const onTouchStart = (e) => { touchStartX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) goNext(); else goPrev();
+    }
+    touchStartX.current = null;
+  };
+
+  const m = SPANBIX_MENTORS[idx];
+
+  return (
+    <div
+      className="sx-reveal"
+      style={{
+        background: 'var(--sx-white)',
+        border: '1px solid var(--sx-hairline)',
+        borderRadius: 16,
+        padding: 24,
+        alignSelf: 'start',
+        position: 'sticky',
+        top: 100,
+      }}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
+      <div className="flex items-center justify-between">
+        <span className="sx-eyebrow">Faculty</span>
+        <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>
+          {String(idx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={m.name}
+          initial={{ opacity: 0, x: 18 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -18 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div
+            className="mt-4 relative overflow-hidden"
+            style={{
+              aspectRatio: '1 / 1',
+              borderRadius: 12,
+              background: 'rgba(16,44,86,0.06)',
+            }}
+          >
+            <img
+              src={m.image}
+              alt={m.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              loading="lazy"
+            />
+            <div
+              className="absolute grid place-items-center"
+              style={{
+                top: 12, right: 12,
+                minWidth: 54, height: 54, padding: '0 8px',
+                borderRadius: 999,
+                background: 'var(--sx-citron)',
+                color: 'var(--sx-citron-ink)',
+                fontFamily: 'var(--sx-serif)',
+                boxShadow: '0 8px 22px -10px rgba(212,240,74,0.55), 0 0 0 3px rgba(212,240,74,0.18)',
+                textAlign: 'center',
+                lineHeight: 1,
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em' }}>{m.exp}</div>
+                <div className="sx-mono" style={{ fontSize: 8.5, marginTop: 2, letterSpacing: '0.08em' }}>YOE</div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(20px, 2.6vw, 24px)', color: 'var(--sx-navy)', marginTop: 14, letterSpacing: '-0.01em' }}>
+            {m.name}
+          </div>
+          <div className="sx-mono" style={{ color: 'var(--sx-ink-3)', marginTop: 4 }}>
+            {m.role.toUpperCase()}
+          </div>
+          <div className="sx-row" style={{ marginTop: 10, gap: 8 }}>
+            <span className="sx-chip">{m.tag}</span>
+          </div>
+          <p style={{ color: 'var(--sx-ink-3)', fontSize: 13.5, lineHeight: 1.6, marginTop: 14 }}>
+            {m.currently}
+          </p>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="flex items-center justify-between mt-5 pt-5" style={{ borderTop: '1px solid var(--sx-hairline)' }}>
+        <button
+          onClick={goPrev}
+          aria-label="Previous mentor"
+          style={{
+            width: 38, height: 38, borderRadius: 999,
+            border: '1px solid var(--sx-hairline)',
+            background: 'var(--sx-white)', color: 'var(--sx-navy)',
+            display: 'grid', placeItems: 'center', cursor: 'pointer',
+          }}
+        >
+          <ChevronLeft size={16} />
+        </button>
+        <div className="flex gap-1.5">
+          {SPANBIX_MENTORS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setIdx(i)}
+              aria-label={`Mentor ${i + 1}`}
+              style={{
+                width: idx === i ? 22 : 8, height: 8, borderRadius: 99,
+                border: 0, padding: 0,
+                background: idx === i ? 'var(--sx-navy)' : 'var(--sx-hairline)',
+                cursor: 'pointer',
+                transition: 'width 0.25s ease, background 0.2s ease',
+              }}
+            />
+          ))}
+        </div>
+        <button
+          onClick={goNext}
+          aria-label="Next mentor"
+          style={{
+            width: 38, height: 38, borderRadius: 999,
+            border: '1px solid var(--sx-hairline)',
+            background: 'var(--sx-white)', color: 'var(--sx-navy)',
+            display: 'grid', placeItems: 'center', cursor: 'pointer',
+          }}
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
     </div>
   );
 }

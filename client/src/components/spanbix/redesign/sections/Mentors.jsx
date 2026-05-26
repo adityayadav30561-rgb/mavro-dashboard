@@ -1,41 +1,9 @@
 import { useRef } from 'react';
+import { SPANBIX_MENTORS as MENTORS } from '@/lib/spanbixSeo';
 
 // Mentors — horizontal-scrolling faculty carousel on navy background.
-
-const MENTORS = [
-  {
-    name: 'LalitMohan Parihar',
-    role: 'Senior SAP Consultant',
-    exp: '15+',
-    tag: 'SAP MM · SD',
-    image: '/spanbix/lalit.png',
-    currently: 'Highly experienced in SAP MM and SD. Multiple MNC implementations, supervised large cross-functional rollouts.',
-  },
-  {
-    name: 'Abhishek Singh',
-    role: 'Senior SAP Consultant',
-    exp: '15+',
-    tag: 'SAP SD · ABAP',
-    image: '/spanbix/abhishek.png',
-    currently: 'Highly experienced in SAP SD and ABAP. Worked across multiple MNCs on full-cycle implementations.',
-  },
-  {
-    name: 'Aman Verma',
-    role: 'SAP Consultant',
-    exp: '5+',
-    tag: 'SAP MM',
-    image: '/spanbix/aman%20verma.png',
-    currently: 'Strong delivery experience in SAP MM. Multiple implementation projects across MNC clients.',
-  },
-  {
-    name: 'Mayank Rastogi',
-    role: 'SAP Consultant',
-    exp: '5+',
-    tag: 'SAP ABAP',
-    image: '/spanbix/mayank%20rastogi.png',
-    currently: 'Hands-on SAP ABAP developer. Multiple implementation projects with global delivery teams.',
-  },
-];
+// Faculty data lives in spanbixSeo.js so the same roster powers detail-page
+// carousels too. Edit once, propagate everywhere.
 
 export default function Mentors() {
   const trackRef = useRef(null);

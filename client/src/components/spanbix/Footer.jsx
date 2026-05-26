@@ -8,10 +8,10 @@ const COLUMNS = [
   {
     label: 'Platform',
     links: [
-      { label: 'SAP FICO Track', to: withSpanbixBase('/career-paths/sap-fico') },
-      { label: 'SAP MM Track', to: withSpanbixBase('/career-paths/sap-mm') },
-      { label: 'SAP SD Track', to: withSpanbixBase('/career-paths/sap-sd') },
-      { label: 'SAP ABAP Track', to: withSpanbixBase('/career-paths/sap-abap') },
+      { label: 'SAP FICO Track', to: withSpanbixBase('/career-paths/fico') },
+      { label: 'SAP MM Track', to: withSpanbixBase('/career-paths/mm') },
+      { label: 'SAP SD Track', to: withSpanbixBase('/career-paths/sd') },
+      { label: 'SAP ABAP Track', to: withSpanbixBase('/career-paths/abap') },
     ],
   },
   {
