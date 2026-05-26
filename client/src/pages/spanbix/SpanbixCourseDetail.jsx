@@ -99,7 +99,8 @@ export default function SpanbixCourseDetail() {
                 className="sx-display on-navy"
                 style={{
                   color: '#fff', marginTop: 18,
-                  fontSize: 'clamp(40px, 6vw, 76px)', lineHeight: 1.04, letterSpacing: '-0.02em',
+                  fontSize: 'clamp(32px, 6vw, 76px)', lineHeight: 1.04, letterSpacing: '-0.02em',
+                  wordBreak: 'break-word',
                 }}
               >
                 {track.name}
@@ -118,9 +119,9 @@ export default function SpanbixCourseDetail() {
             {/* Floating pricing / enrolment panel — individual mode only */}
             <div className="lg:col-span-4 min-w-0">
               <div
-                className="sticky"
+                className="lg:sticky"
                 style={{
-                  top: 24,
+                  top: 110,
                   background: 'rgba(255,255,255,0.06)',
                   backdropFilter: 'blur(20px)',
                   WebkitBackdropFilter: 'blur(20px)',
@@ -291,20 +292,19 @@ export default function SpanbixCourseDetail() {
               {timeline.map((block, i) => (
                 <div
                   key={block.id || i}
-                  className="grid gap-4 items-start"
+                  className="grid gap-2 sm:gap-4 items-start grid-cols-1 sm:[grid-template-columns:minmax(120px,_180px)_1fr]"
                   style={{
-                    gridTemplateColumns: 'minmax(120px, 180px) 1fr',
                     background: 'var(--sx-white)',
                     border: '1px solid var(--sx-hairline)',
                     borderRadius: 12,
-                    padding: 20,
+                    padding: 'clamp(14px, 2.5vw, 20px)',
                   }}
                 >
                   <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', letterSpacing: '0.1em', fontSize: 12 }}>
                     {(block.meta || '').toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <h4 style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, color: 'var(--sx-navy)', margin: 0, letterSpacing: '-0.01em' }}>
+                    <h4 style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(17px, 2.4vw, 20px)', color: 'var(--sx-navy)', margin: 0, letterSpacing: '-0.01em' }}>
                       {block.title}
                     </h4>
                   </div>
@@ -330,7 +330,7 @@ export default function SpanbixCourseDetail() {
             </p>
           </div>
 
-          <div className="grid gap-8" style={{ gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)' }}>
+          <div className="grid gap-8 grid-cols-1 md:[grid-template-columns:minmax(0,_1fr)_minmax(0,_1.4fr)]">
             {/* Mentor carousel */}
             <MentorCarousel />
 
@@ -431,15 +431,14 @@ function MentorCarousel() {
 
   return (
     <div
-      className="sx-reveal"
+      className="sx-reveal md:sticky"
       style={{
         background: 'var(--sx-white)',
         border: '1px solid var(--sx-hairline)',
         borderRadius: 16,
-        padding: 24,
+        padding: 'clamp(18px, 3vw, 24px)',
         alignSelf: 'start',
-        position: 'sticky',
-        top: 100,
+        top: 110,
       }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
