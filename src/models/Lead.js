@@ -41,6 +41,19 @@ const leadSchema = new mongoose.Schema(
       maxlength: [5000, 'Message cannot exceed 5000 characters'],
     },
 
+    // ----- Form metadata + flexible per-tenant fields -----
+    formId: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [100, 'Form ID cannot exceed 100 characters'],
+      index: true,
+    },
+    customFields: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+
     // ----- Tracking -----
     sourcePage: {
       type: String,

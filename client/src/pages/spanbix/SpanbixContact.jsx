@@ -33,8 +33,8 @@ const LANES = [
 
 const COORDINATES = [
   { icon: Mail,    label: 'Email',     value: 'hello@spanbix.com' },
-  { icon: Phone,   label: 'Phone',     value: '+91 80XXXX XXXX' },
-  { icon: MapPin,  label: 'Locations', value: 'Bengaluru · Hyderabad · Pune' },
+  { icon: Phone,   label: 'Phone',     value: '+91 9211429011' },
+  { icon: MapPin,  label: 'Locations', value: 'Noida · Lucknow' },
   { icon: Clock,   label: 'Hours',     value: 'Mon–Sat · 10AM – 7PM IST' },
 ];
 
@@ -112,46 +112,6 @@ export default function SpanbixContact() {
         </div>
       </section>
 
-      {/* Coordinates strip */}
-      <section className="sx-section sx-section-cream" style={{ paddingTop: 'clamp(40px, 5vw, 64px)', paddingBottom: 'clamp(40px, 5vw, 64px)' }}>
-        <div className="sx-container">
-          <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 18 }}>DIRECT COORDINATES</div>
-          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
-            {COORDINATES.map((c) => {
-              const Icon = c.icon;
-              return (
-                <div
-                  key={c.label}
-                  className="flex items-center gap-3"
-                  style={{
-                    background: 'var(--sx-white)',
-                    border: '1px solid var(--sx-hairline)',
-                    borderRadius: 12,
-                    padding: '14px 16px',
-                  }}
-                >
-                  <span
-                    className="grid place-items-center shrink-0"
-                    style={{
-                      width: 40, height: 40, borderRadius: 10,
-                      background: 'rgba(16,44,86,0.06)', color: 'var(--sx-navy)',
-                    }}
-                  >
-                    <Icon size={18} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>{c.label.toUpperCase()}</div>
-                    <div style={{ fontSize: 14, color: 'var(--sx-ink)', fontWeight: 500, marginTop: 2 }}>
-                      {c.value}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
       <FinalCta />
     </SpanbixLayout>
   );
@@ -189,19 +149,17 @@ function ContactForm() {
     setStatus('loading');
     setServerError('');
     try {
-      const meta = [
-        form.audience ? `Audience: ${form.audience}` : null,
-        form.interest ? `Interest: ${form.interest}` : null,
-      ].filter(Boolean).join(' · ');
-      const message = (form.message + (meta ? `\n\n[${meta}]` : '')).trim();
-
       await submitPublicLead({
         website: websiteId,
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
         company: form.company.trim() || undefined,
-        message: message || undefined,
+        message: form.message.trim() || undefined,
+        customFields: {
+          ...(form.audience ? { audience: form.audience } : {}),
+          ...(form.interest ? { interest: form.interest } : {}),
+        },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
         sessionId: getOrCreateSession(),
@@ -218,22 +176,94 @@ function ContactForm() {
   return (
     <section className="sx-section sx-section-paper" id="contact-form" style={{ paddingTop: 'clamp(40px, 5vw, 64px)' }}>
       <div className="sx-container">
-        <div className="mx-auto" style={{ maxWidth: 920 }}>
-          <div
-            style={{
-              background: 'var(--sx-white)',
-              border: '1px solid var(--sx-hairline)',
-              borderRadius: 16,
-              padding: 'clamp(22px, 4vw, 36px)',
-              boxShadow: '0 30px 80px -40px rgba(16,44,86,0.18)',
-            }}
-          >
-            <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>CAREER CONSULTATION</div>
-            <h3 style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(22px, 3.4vw, 28px)', color: 'var(--sx-navy)', margin: '6px 0 22px', letterSpacing: '-0.01em' }}>
-              Book a 30-minute call with a career strategist
-            </h3>
+        <div className="grid gap-6 md:gap-8 grid-cols-1 md:[grid-template-columns:30%_70%] items-start">
+            {/* LEFT — contact details (30%) */}
+            <aside
+              style={{
+                background: 'var(--sx-navy)',
+                color: '#fff',
+                borderRadius: 16,
+                padding: 'clamp(22px, 3vw, 30px)',
+                boxShadow: '0 30px 80px -40px rgba(16,44,86,0.35)',
+              }}
+            >
+              <div className="sx-mono" style={{ color: 'rgba(255,255,255,0.55)' }}>GET IN TOUCH</div>
+              <h3 style={{
+                fontFamily: 'var(--sx-serif)',
+                fontSize: 'clamp(22px, 3vw, 28px)',
+                color: '#fff',
+                margin: '6px 0 22px',
+                letterSpacing: '-0.01em',
+                lineHeight: 1.15,
+              }}>
+                Talk to us directly.
+              </h3>
+              <div className="flex flex-col gap-5">
+                {COORDINATES.map((c) => {
+                  const Icon = c.icon;
+                  return (
+                    <div key={c.label} className="flex items-start gap-3">
+                      <span
+                        className="grid place-items-center shrink-0"
+                        style={{
+                          width: 40, height: 40, borderRadius: 10,
+                          background: 'rgba(255,255,255,0.08)',
+                          color: 'var(--sx-citron)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        <Icon size={18} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="sx-mono" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.label.toUpperCase()}</div>
+                        <div style={{ fontSize: 14.5, color: '#fff', fontWeight: 500, marginTop: 3, lineHeight: 1.4, wordBreak: 'break-word' }}>
+                          {c.value}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
-            {status === 'success' ? (
+              {/* Office location map */}
+              <div
+                style={{
+                  marginTop: 24,
+                  borderRadius: 12,
+                  overflow: 'hidden',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(255,255,255,0.04)',
+                }}
+              >
+                <iframe
+                  title="Spanbix office location"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.8304222630195!2d77.43036737706927!3d28.604863675679876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cf36d281a3787%3A0x365799707d044772!2sBest%20SAP%20Consulting%20Company%20-%20Saisatwik%20Technologies%20Private%20Limited!5e0!3m2!1sen!2sin!4v1779759062749!5m2!1sen!2sin"
+                  width="100%"
+                  height="240"
+                  style={{ border: 0, display: 'block', filter: 'grayscale(0.15)' }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            </aside>
+
+            {/* RIGHT — form (70%) */}
+            <div
+              style={{
+                background: 'var(--sx-white)',
+                border: '1px solid var(--sx-hairline)',
+                borderRadius: 16,
+                padding: 'clamp(22px, 4vw, 36px)',
+                boxShadow: '0 30px 80px -40px rgba(16,44,86,0.18)',
+              }}
+            >
+              <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>CAREER CONSULTATION</div>
+              <h3 style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(22px, 3.4vw, 28px)', color: 'var(--sx-navy)', margin: '6px 0 22px', letterSpacing: '-0.01em' }}>
+                Book a 30-minute call with a career strategist
+              </h3>
+
+              {status === 'success' ? (
               <div
                 className="flex items-start gap-3 p-4 rounded-xl"
                 style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.25)', color: '#15803d' }}
@@ -321,9 +351,9 @@ function ContactForm() {
                 </div>
               </form>
             )}
+            </div>
           </div>
         </div>
-      </div>
     </section>
   );
 }

@@ -149,10 +149,30 @@ export default function LeadList() {
               <div><p className="text-xs text-slate-500 uppercase font-semibold">Company</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{selected.company || '—'}</p></div>
               <div><p className="text-xs text-slate-500 uppercase font-semibold">Website</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{selected.website?.name || '—'}</p></div>
               <div><p className="text-xs text-slate-500 uppercase font-semibold">Source Page</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300 truncate">{selected.sourcePage || '—'}</p></div>
+              {selected.formId && (
+                <div><p className="text-xs text-slate-500 uppercase font-semibold">Form</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{selected.formId}</p></div>
+              )}
             </div>
+
+            {selected.customFields && Object.keys(selected.customFields).length > 0 && (
+              <div>
+                <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Form Responses</p>
+                <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 grid grid-cols-2 gap-3">
+                  {Object.entries(selected.customFields).map(([k, v]) => (
+                    <div key={k} className="min-w-0">
+                      <p className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider">{k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase())}</p>
+                      <p className="mt-0.5 text-sm text-slate-700 dark:text-slate-200 break-words">
+                        {Array.isArray(v) ? v.join(', ') : (typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v))}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {selected.message && (
               <div><p className="text-xs text-slate-500 uppercase font-semibold">Message</p>
-                <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">{selected.message}</p>
+                <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg p-3 whitespace-pre-wrap">{selected.message}</p>
               </div>
             )}
             <div>

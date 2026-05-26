@@ -52,19 +52,17 @@ export default function ContactForm() {
     setStatus('loading');
     setServerError('');
     try {
-      const messageWithMeta = [
-        form.message,
-        form.teamSize     ? `[Team size: ${form.teamSize}]`           : '',
-        form.ticketVolume ? `[Ticket volume: ${form.ticketVolume}]`   : '',
-      ].filter(Boolean).join('\n\n');
-
       await submitPublicLead({
         website: websiteId,
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
         company: form.company.trim() || undefined,
-        message: messageWithMeta.trim() || undefined,
+        message: form.message.trim() || undefined,
+        customFields: {
+          ...(form.teamSize ? { teamSize: form.teamSize } : {}),
+          ...(form.ticketVolume ? { ticketVolume: form.ticketVolume } : {}),
+        },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
         sessionId: getOrCreateSession(),

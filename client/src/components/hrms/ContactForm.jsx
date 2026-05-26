@@ -52,14 +52,16 @@ export default function ContactForm() {
     setStatus('loading');
     setServerError('');
     try {
-      const message = form.message + (form.teamSize ? `\n\n[Team size: ${form.teamSize}]` : '');
       await submitPublicLead({
         website: websiteId,
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
         company: form.company.trim() || undefined,
-        message: message.trim() || undefined,
+        message: form.message.trim() || undefined,
+        customFields: {
+          ...(form.teamSize ? { teamSize: form.teamSize } : {}),
+        },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
         // Carry the analytics session so the server-side form_submit event ties

@@ -65,7 +65,32 @@ const ALLOWED_SUBMIT_FIELDS = [
   'website', 'name', 'email', 'phone', 'company',
   'message', 'sourcePage', 'referrer',
   'utmSource', 'utmMedium', 'utmCampaign',
+  'formId', 'customFields',
 ];
+
+// Defensive sanitizer for the Mixed customFields object. Strips functions,
+// nested objects beyond one level, and oversize string values. Keeps the
+// shape predictable so the admin UI can render keys safely.
+const sanitizeCustomFields = (raw) => {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+  const out = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (typeof k !== 'string' || k.length === 0 || k.length > 60) continue;
+    if (v === null || v === undefined) continue;
+    if (typeof v === 'string') {
+      out[k] = v.slice(0, 1000);
+    } else if (typeof v === 'number' || typeof v === 'boolean') {
+      out[k] = v;
+    } else if (Array.isArray(v)) {
+      out[k] = v
+        .filter((x) => typeof x === 'string' || typeof x === 'number' || typeof x === 'boolean')
+        .slice(0, 20)
+        .map((x) => (typeof x === 'string' ? x.slice(0, 200) : x));
+    }
+    // functions, nested objects, etc. silently dropped
+  }
+  return out;
+};
 
 const pickFields = (body, allowedFields) => {
   const filtered = {};
@@ -91,6 +116,11 @@ const pickFields = (body, allowedFields) => {
  */
 const submitLead = asyncHandler(async (req, res) => {
   const data = pickFields(req.body, ALLOWED_SUBMIT_FIELDS);
+
+  // Normalize per-tenant custom fields (Mixed type — must sanitize)
+  if (data.customFields !== undefined) {
+    data.customFields = sanitizeCustomFields(data.customFields);
+  }
 
   // Verify website exists
   const website = await Website.findById(data.website);
