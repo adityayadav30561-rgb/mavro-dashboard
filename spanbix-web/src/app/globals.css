@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Bridge next/font CSS variables into the Spanbix design-system tokens.
+   spanbix-redesign.css hardcodes literal family names ("Instrument Serif"
+   etc.); next/font self-hosts under hashed names, so map its variables onto
+   the --sx-* type tokens. Imported AFTER spanbix-redesign.css so this wins. */
+.spanbix-scope {
+  --sx-serif: var(--font-instrument-serif), var(--font-dm-serif), Georgia, serif;
+  --sx-sans: var(--font-geist), var(--font-sora), "Inter", ui-sans-serif, system-ui, sans-serif;
+  --sx-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}

@@ -5,6 +5,7 @@ const schemaService = require('./schemaService');
 const analyticsService = require('./analyticsService');
 const anomalyService = require('./anomalyService');
 const scheduledPublishService = require('./scheduledPublishService');
+const revalidateService = require('./revalidateService');
 
 module.exports = {
   indexingService,
@@ -14,4 +15,5 @@ module.exports = {
   analyticsService,
   anomalyService,
   scheduledPublishService,
+  revalidateService,
 };

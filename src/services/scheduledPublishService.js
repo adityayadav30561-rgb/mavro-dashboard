@@ -15,6 +15,7 @@
 const Blog = require('../models/Blog');
 const Website = require('../models/Website');
 const pingService = require('./pingService');
+const revalidateService = require('./revalidateService');
 
 const POLL_INTERVAL_MS = 60 * 1000; // 60s
 let timerHandle = null;
@@ -79,6 +80,9 @@ async function runOnce() {
         pingService.onBlogPublished(blog, website).catch((err) => {
           console.error(`[scheduledPublish] ping failed for ${blog.slug}:`, err.message);
         });
+
+        // Fire-and-forget on-demand ISR revalidation (never rejects)
+        revalidateService.revalidateBlog(blog.slug);
       } catch (err) {
         stats.errors++;
         console.error(`[scheduledPublish] error on blog ${candidate._id}:`, err.message);

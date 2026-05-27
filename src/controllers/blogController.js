@@ -1,6 +1,6 @@
 const { Blog, Website } = require('../models');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
-const { pingService } = require('../services');
+const { pingService, revalidateService } = require('../services');
 
 // ===================================
 // Allowed fields for create & update
@@ -302,6 +302,10 @@ const publishBlog = asyncHandler(async (req, res) => {
   pingService.onBlogPublished(blog, website).catch((err) => {
     console.error('📡 [AutoPing] Failed:', err.message);
   });
+
+  // Trigger on-demand ISR revalidation on the Spanbix Next.js site
+  // (fire-and-forget — must not block; revalidateBlog never rejects)
+  revalidateService.revalidateBlog(blog.slug);
 });
 
 /**
@@ -735,6 +739,7 @@ const updateWorkflowStatus = asyncHandler(async (req, res) => {
   // to a publish-state outcome so the site never lies about visibility.
   blog.publishHistory = blog.publishHistory || [];
   const wasPublished = blog.status === 'published';
+  let becamePublished = false;
 
   if (workflowStatusForBridge === 'published') {
     if (!wasPublished) {
@@ -745,6 +750,7 @@ const updateWorkflowStatus = asyncHandler(async (req, res) => {
       blog.status = 'published';
       blog.publishedAt = blog.publishedAt || new Date();
       blog.publishHistory.push({ at: new Date(), by: req.user?._id || null, action: 'publish', note: note || 'via workflow' });
+      becamePublished = true;
     }
   } else if (workflowStatusForBridge === 'archived') {
     if (blog.status !== 'archived') {
@@ -784,6 +790,13 @@ const updateWorkflowStatus = asyncHandler(async (req, res) => {
 
   blog.lastEditedBy = req.user?._id || null;
   await blog.save();
+
+  // On-demand ISR revalidation when the Kanban move actually published the post
+  // (fire-and-forget — must not block; revalidateBlog never rejects)
+  if (becamePublished) {
+    revalidateService.revalidateBlog(blog.slug);
+  }
+
   return ApiResponse.success(res, { blog }, 'Workflow status updated');
 });
 
