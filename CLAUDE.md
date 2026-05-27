@@ -235,6 +235,54 @@ http://localhost:5173/seo
 
 ---
 
+## Phase 5.8 — Spanbix Tone Pass + Lead Schema Invariants (May 26, 2026)
+
+The following invariants supersede or extend earlier ones. Honor them on every future edit.
+
+- **Lead schema is flexible.** `customFields` is `mongoose.Schema.Types.Mixed`. Every public lead submission can carry tenant-specific keys (Spanbix `{ audience, interest }`, HRMS `{ teamSize }`, Tickets `{ teamSize, ticketVolume }`). The sanitizer in `leadController.js → sanitizeCustomFields()` is the only place values are coerced — keep keys ≤60 chars, values ≤1000 chars / 20-element arrays, drop functions + nested objects. NEVER add a typed schema field for a per-tenant form input — add it to `customFields` on the frontend submit instead. The admin `LeadList.jsx` modal auto-renders every `customFields` key as its own labeled cell; no code change needed when a new tenant ships a new field.
+
+- **`formId` is the form identifier.** Spanbix forms send `spanbix-contact`, HRMS sends `hrms-contact`, Tickets sends `tickets-contact`. Admin can filter by `formId` (indexed). New forms must pick a unique kebab-case id and send it via `submitPublicLead`.
+
+- **Stop stuffing form fields into `message`.** The bracket-pattern (`[Audience: X · Interest: Y]`) is dead. New tenant forms must use `customFields`. Old leads still in DB keep their bracket-stuffed messages — no migration. `LeadList.jsx` renders `message` with `whitespace-pre-wrap` so legacy multi-line strings still read cleanly.
+
+- **`SPANBIX_MENTORS` is the single source of faculty data.** Lives in `client/src/lib/spanbixSeo.js`. Imported by homepage `Mentors.jsx` (horizontal scroll) and course-detail `MentorCarousel` (one-at-a-time, prev/next + swipe). Edit once → propagates to every surface. NEVER duplicate the mentor array inline in a component.
+
+- **Course detail page contract.** `SpanbixCourseDetail.jsx` reads timeline blocks by `block.meta` + `block.title` only — NOT `block.label` / `block.body`. That mismatch was a runtime crash. If a future change needs to surface module topics, add a new explicit section — do not re-introduce the deep per-module bullet list, the user asked for general flow.
+
+- **No pricing on individual course pages.** Pricing panel reads "Talk to us to enrol." + Enrol Now button → `/contact`. `priceIndividual` + `priceMrp` data still live in `spanbixSeo.js` but are no longer rendered. Do NOT surface them on the public site without explicit approval.
+
+- **No SAP-exam-mapping claims.** Dropped sitewide. Do not re-introduce "Crack the C_TS… certification" bullets, "maps to SAP's official exam blueprints", or any phrasing that implies parity with real SAP certifications. Spanbix issues its OWN credential — frame it as that, mentor-signed, never as SAP equivalent.
+
+- **No AICTE / NAAC / NSDC references on the public site.** All removed. If a future tenant doc surfaces these terms in copy, flag it — they represent compliance claims we don't currently make.
+
+- **All 4 SAP tracks are 3-month duration.** `duration: '3 months'` in `spanbixSeo.js` for FICO/MM/SD/ABAP. Changing this breaks copy across hero meta, Tracks campus card, CohortCard, FAQ #2, and detail pages.
+
+- **Personality Development Module is complimentary** and surfaces as a 4th highlight in every Tracks card + every track's `whatYoullLearn[]` + `includes[]` + campus highlights. Citron marker-style highlight (`linear-gradient(transparent 55%, var(--sx-citron) 55%)`) is applied in `Tracks.jsx` by detecting `h.toLowerCase().includes('personality')`. Adding a new highlight containing the word "personality" auto-styles it.
+
+- **Spanbix Navbar is solid glassmorphic cream — no longer transparent at scroll-top.** `rgba(243, 237, 224, 0.72)` + `blur(22px) saturate(160%)`. Logo is a real blue PNG (`/spanbix/spanbix-blue.png`) at `clamp(56px, 9vw, 96px)` height with zero vertical padding. `SpanbixLayout` main has `pt-16 sm:pt-20 md:pt-24 lg:pt-24` to clear it. **DO NOT** restore the transparent-at-scroll-top behavior or remove the layout pt — hero will paint over.
+
+- **Footer logo is blue PNG inside a white pill** (`bg #fff`, padding `10px 16px`, radius `12`). Required because navy footer hides the blue logo without the pill.
+
+- **Footer track links use bare codes, not `sap-` prefix.** `withSpanbixBase('/career-paths/fico')` — NOT `/career-paths/sap-fico`. Codes in `SPANBIX_CAREER_PATHS` are `fico` / `mm` / `sd` / `abap`. A `sap-` prefix 404s.
+
+- **Demo Classes / DemoVideos and Placements page are GONE.** Routes stripped from `App.jsx` + `SpanbixApp.jsx`. Nav + footer links removed. Files orphaned but not deleted. Don't re-introduce without explicit ask.
+
+- **MarketValidation + Campus sections are props-driven.** Defaults preserve homepage behavior. `MarketValidation` accepts `eyebrow / title / lead / stats / sources / image / imageAlt / imageCorner`. `Campus` accepts `tone='navy'|'paper'` + `showCtaStrip`. About page passes a "Founder Story" override; CampusPrograms passes `tone='paper'` + `showCtaStrip={false}`. NEVER hardcode tone or copy inside the section components for a subpage — pass props.
+
+- **Outcomes + Mentors + Track-detail mentor sections are horizontal-scroll carousels.** Cards size-clamped to `flex: '0 0 clamp(280px, 85vw, 380px)'`. NEVER put `sx-reveal` on a carousel card (mount-only reveal-observer invariant — items that scroll into view later never trigger). Parent animation only.
+
+- **Contact page form is the lead-capture surface.** Homepage FinalCta is copy + 2 CTAs only — the inline form was removed. New CTAs that need to capture leads route to `/contact` (or `#contact-form` if on the contact page already).
+
+- **`client/vercel.json` is shared by BOTH Vercel projects** (Spanbix + Admin Dashboard). `buildCommand` is NOT in the file — each Vercel project sets its UI Build Command (`npm run build:spanbix` for Spanbix, `npm run build` for admin). Sitemap + robots rewrites point to backend's actual paths (`/sitemap/spanbix.xml` + `/robots/spanbix.txt`, NOT `/api/seo/…`). SPA fallback regex is last in `rewrites[]` order.
+
+- **Linux-safe filename casing.** Vercel + Render Linux containers are case-sensitive. Imports must match real filenames exactly: `@/components/ui/Badge` (PascalCase file), `@/components/ui/card` (lowercase file), `@/components/ui/Modal` (PascalCase file), etc. macOS / Windows dev FS is case-insensitive and hides the mismatch.
+
+- **Hosting topology**: Frontend on Vercel (Spanbix + Admin separate projects), backend on Render, MongoDB Atlas, optional Redis for scheduler workers. Custom domain `spanbix.com` attaches to Vercel project's Domains setting — no migration required. CORS allowlist in `src/app.js` must include every Vercel domain + custom domain.
+
+- **Lead dedup is silent.** `Lead.isDuplicate(email, websiteId, 10)` in `spamProtection.duplicateCheck` returns 200 OK + "success" without saving when same email + website hit within 10 minutes. Test forms with fresh emails or wait the window — otherwise "lead not landing in /leads" looks like a bug.
+
+---
+
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>

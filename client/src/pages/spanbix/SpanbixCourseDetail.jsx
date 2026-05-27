@@ -9,7 +9,6 @@ import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import useSEO from '@/hooks/useSEO';
 import {
   SPANBIX_SITE,
-  SPANBIX_MENTORS,
   getCareerPath,
   breadcrumbLd,
   courseLd,
@@ -322,17 +321,17 @@ export default function SpanbixCourseDetail() {
             <div className="sx-stack-md">
               <span className="sx-eyebrow">Track Details</span>
               <h2 className="sx-display sx-h2 sx-reveal">
-                Meet the faculty. See <em>what's inside</em>.
+                Where you could get hired. See <em>what's inside</em>.
               </h2>
             </div>
             <p className="sx-lead sx-reveal">
-              Who you'll learn from and what you walk away with — laid out side by side.
+              The kind of companies that hire for this track, and what the program includes — laid out side by side.
             </p>
           </div>
 
           <div className="grid gap-8 grid-cols-1 md:[grid-template-columns:minmax(0,_1fr)_minmax(0,_1.4fr)]">
-            {/* Mentor carousel */}
-            <MentorCarousel />
+            {/* Hiring companies carousel */}
+            <HiringCompaniesCarousel />
 
             {/* Includes + Requirements */}
             <div className="grid gap-6">
@@ -407,11 +406,25 @@ function Detail({ icon: Icon, label }) {
   );
 }
 
-// Mentor carousel — one mentor visible at a time, prev/next buttons + swipe.
-// Touch swipe threshold ~50px so accidental taps don't trigger.
-function MentorCarousel() {
+// Companies that hire for ERP/SAP tracks. Industry-recognized employers — the
+// "hires" field is the kind of track they recruit for, the note is a general
+// framing (NOT a Spanbix-guaranteed placement claim).
+const HIRING_COMPANIES = [
+  { name: 'Deloitte',    logo: '/spanbix/partners/deloitte.png',     hires: 'FICO · MM · SD · ABAP', note: 'Big 4 consulting. ERP consultants across finance transformation + advisory.' },
+  { name: 'Accenture',   logo: '/spanbix/partners/ACCENTURE.png',    hires: 'FICO · MM · SD · ABAP', note: 'One of the largest SAP partners globally. High-volume consultant intake.' },
+  { name: 'IBM',         logo: '/spanbix/partners/ibm.png',          hires: 'MM · SD · ABAP',        note: 'Strong S/4HANA migration practice across global delivery centers.' },
+  { name: 'TCS',         logo: '/spanbix/partners/tcs.png',          hires: 'FICO · MM · SD · ABAP', note: "India's largest IT services firm. Consistent ERP hiring at scale." },
+  { name: 'Infosys',     logo: '/spanbix/partners/infosys.png',      hires: 'FICO · MM · SD',        note: 'Enterprise application services. Functional consultant roles.' },
+  { name: 'Capgemini',   logo: '/spanbix/partners/capgemini.png',    hires: 'FICO · SD · ABAP',      note: 'Heavy European SAP delivery run out of India.' },
+  { name: 'KPMG',        logo: '/spanbix/partners/kpmg.png',         hires: 'FICO · MM',             note: 'Big 4. Finance transformation + ERP advisory engagements.' },
+  { name: 'Wipro',       logo: '/spanbix/partners/wipro.png',        hires: 'MM · SD · ABAP',        note: 'ERP + digital practice with a steady consultant pipeline.' },
+];
+
+// Hiring-companies carousel — one company at a time, prev/next + swipe.
+// Logo sits on a white tile (contain, not cover) so brand marks aren't cropped.
+function HiringCompaniesCarousel() {
   const [idx, setIdx] = useState(0);
-  const total = SPANBIX_MENTORS.length;
+  const total = HIRING_COMPANIES.length;
   const touchStartX = useRef(null);
 
   const goPrev = () => setIdx((i) => (i - 1 + total) % total);
@@ -427,7 +440,7 @@ function MentorCarousel() {
     touchStartX.current = null;
   };
 
-  const m = SPANBIX_MENTORS[idx];
+  const c = HIRING_COMPANIES[idx];
 
   return (
     <div
@@ -444,7 +457,7 @@ function MentorCarousel() {
       onTouchEnd={onTouchEnd}
     >
       <div className="flex items-center justify-between">
-        <span className="sx-eyebrow">Faculty</span>
+        <span className="sx-eyebrow">Companies That Hire</span>
         <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>
           {String(idx + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
         </div>
@@ -452,58 +465,38 @@ function MentorCarousel() {
 
       <AnimatePresence mode="wait">
         <motion.div
-          key={m.name}
+          key={c.name}
           initial={{ opacity: 0, x: 18 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -18 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
-            className="mt-4 relative overflow-hidden"
+            className="mt-4 grid place-items-center overflow-hidden"
             style={{
-              aspectRatio: '1 / 1',
+              aspectRatio: '16 / 10',
               borderRadius: 12,
-              background: 'rgba(16,44,86,0.06)',
+              background: 'var(--sx-cream-50)',
+              border: '1px solid var(--sx-hairline)',
+              padding: '24px 32px',
             }}
           >
             <img
-              src={m.image}
-              alt={m.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+              src={c.logo}
+              alt={c.name}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
               loading="lazy"
             />
-            <div
-              className="absolute grid place-items-center"
-              style={{
-                top: 12, right: 12,
-                minWidth: 54, height: 54, padding: '0 8px',
-                borderRadius: 999,
-                background: 'var(--sx-citron)',
-                color: 'var(--sx-citron-ink)',
-                fontFamily: 'var(--sx-serif)',
-                boxShadow: '0 8px 22px -10px rgba(212,240,74,0.55), 0 0 0 3px rgba(212,240,74,0.18)',
-                textAlign: 'center',
-                lineHeight: 1,
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em' }}>{m.exp}</div>
-                <div className="sx-mono" style={{ fontSize: 8.5, marginTop: 2, letterSpacing: '0.08em' }}>YOE</div>
-              </div>
-            </div>
           </div>
 
           <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(20px, 2.6vw, 24px)', color: 'var(--sx-navy)', marginTop: 14, letterSpacing: '-0.01em' }}>
-            {m.name}
+            {c.name}
           </div>
           <div className="sx-mono" style={{ color: 'var(--sx-ink-3)', marginTop: 4 }}>
-            {m.role.toUpperCase()}
-          </div>
-          <div className="sx-row" style={{ marginTop: 10, gap: 8 }}>
-            <span className="sx-chip">{m.tag}</span>
+            HIRES FOR · {c.hires}
           </div>
           <p style={{ color: 'var(--sx-ink-3)', fontSize: 13.5, lineHeight: 1.6, marginTop: 14 }}>
-            {m.currently}
+            {c.note}
           </p>
         </motion.div>
       </AnimatePresence>
@@ -511,7 +504,7 @@ function MentorCarousel() {
       <div className="flex items-center justify-between mt-5 pt-5" style={{ borderTop: '1px solid var(--sx-hairline)' }}>
         <button
           onClick={goPrev}
-          aria-label="Previous mentor"
+          aria-label="Previous company"
           style={{
             width: 38, height: 38, borderRadius: 999,
             border: '1px solid var(--sx-hairline)',
@@ -522,11 +515,11 @@ function MentorCarousel() {
           <ChevronLeft size={16} />
         </button>
         <div className="flex gap-1.5">
-          {SPANBIX_MENTORS.map((_, i) => (
+          {HIRING_COMPANIES.map((_, i) => (
             <button
               key={i}
               onClick={() => setIdx(i)}
-              aria-label={`Mentor ${i + 1}`}
+              aria-label={`Company ${i + 1}`}
               style={{
                 width: idx === i ? 22 : 8, height: 8, borderRadius: 99,
                 border: 0, padding: 0,
@@ -539,7 +532,7 @@ function MentorCarousel() {
         </div>
         <button
           onClick={goNext}
-          aria-label="Next mentor"
+          aria-label="Next company"
           style={{
             width: 38, height: 38, borderRadius: 999,
             border: '1px solid var(--sx-hairline)',
@@ -550,6 +543,13 @@ function MentorCarousel() {
           <ChevronRight size={16} />
         </button>
       </div>
+
+      <p
+        className="sx-mono"
+        style={{ marginTop: 16, color: 'var(--sx-ink-4)', fontSize: 11, lineHeight: 1.6, letterSpacing: '0.04em' }}
+      >
+        ENTRY ERP CONSULTANT CTC TYPICALLY ₹5–9L, SCALING TO ₹15L+ WITH EXPERIENCE. ACTUAL OFFERS DEPEND ON TRACK, INTERVIEW + COMPANY.
+      </p>
     </div>
   );
 }

@@ -402,6 +402,55 @@ When upgrading existing pages:
 
 ---
 
+## Phase 5.8 — Spanbix Tone Pass + Visual Rebuild (May 26, 2026)
+
+### Navbar pattern — supersedes earlier transparent-at-scroll-top
+- **Glassmorphic cream** is the new Spanbix navbar. `rgba(243, 237, 224, 0.72)` background + `blur(22px) saturate(160%)` + 1px hairline navy border bottom + soft scrolled shadow.
+- **Logo is the real blue PNG** (`/spanbix/spanbix-blue.png`) at `clamp(56px, 9vw, 96px)` height with zero vertical padding (fills navbar vertically). NO CSS monogram, NO wordmark text.
+- Nav links + CTA flip to navy text on the cream bar. CTA button inverse: navy bg + white text.
+- Mobile drawer matches cream glass with backdrop-blur.
+- The "transparent at scroll-top" pattern is GONE for Spanbix. `SpanbixLayout` carries `pt-16 sm:pt-20 md:pt-24 lg:pt-24` on `<main>` so hero clears the bar.
+
+### Footer logo pattern
+- Blue Spanbix PNG wrapped in a **white pill** (`bg #fff` · `padding 10px 16px` · `radius 12px`). Required to keep the blue logo legible on the navy footer. Same pattern reusable for any blue-asset-on-dark-bg surface.
+
+### Mentor carousel pattern (course detail pages)
+- One card visible at a time. Real photo at `aspect-ratio: 1/1` with `objectFit: cover` + `objectPosition: '50% 15%'` to keep faces in frame.
+- Citron YOE bubble top-right (`min-width: 54px · height: 54px · padding 0 8px · border-radius 999`). Two-line content: large serif YOE number + sx-mono "YOE" label.
+- Prev/next chevron buttons (38×38, hairline-bordered, navy chevron) + clickable pagination dots (active dot stretches `8 → 22px` with `transition: width 0.25s ease`).
+- Framer Motion crossfade between slides (`opacity + x: 0 / 18`, ease `[0.22, 1, 0.36, 1]`, duration `0.28s`).
+- Touch swipe handler on the container — 50px threshold to avoid trigger on accidental taps.
+- Sticky on `md+` (`top: 110` clears navbar). Stacks normally below md.
+
+### Highlighter pattern (marker stripe on text)
+- For "must-not-miss" highlights inside bullet lists: `linear-gradient(transparent 55%, var(--sx-citron) 55%)` applied to the text span. Citron stripe runs through the bottom 45% of the text — reads as a highlighter swipe.
+- Implementation matcher in `Tracks.jsx` looks for `h.toLowerCase().includes('personality')`. Any new "personality" bullet auto-styles. Generalise by case (substring match) when applying to other categories.
+
+### Glassmorphic cohort card (hero overlay) — toned
+- Reduced from 4-block detail panel (modules + mentors + placements + median CTC) to 3-stat general panel (`MODULES / MENTORS / DURATION`). No `NEXT LIVE`, no `PLACEMENT SIGNAL`, no median CTC. Stat block uses existing `sx-cohort-stat` tile pattern from the design system — width didn't change, depth dropped.
+
+### Icon-tile-on-card pattern for feature/process sections
+- 52×52 tile, `border-radius: 13`, `gradient: linear-gradient(135deg, var(--sx-navy), var(--sx-navy-700))`, citron icon (lucide-react), soft drop shadow + inset hairline. Stroke width 1.8.
+- Used in `LearningExperience` (Users / Workflow / Radio / Terminal), `Certification` (BadgeCheck / QrCode / Target), `CampusPrograms` rollout (Compass / UserPlus / Calendar / Briefcase).
+- Variant for navy-background sections: invert the tile — `bg: var(--sx-citron)`, `color: var(--sx-citron-ink)` icon, soft citron drop shadow. Used in `Campus.jsx` feature cards.
+
+### Photo-first card pattern
+- When real images exist, drop the striped `sx-photo` placeholder entirely. Use `<div class="relative overflow-hidden" style="aspect-ratio: 16/9; background: var(--sx-cream-50)">` → absolutely positioned `<img>` with `objectFit: cover`. Decorative chips/labels overlay with `zIndex: 2`.
+- For portrait headshots, set `objectPosition: '50% 15%'` (heads tend to sit near the top of source photos). For full-frame scenes, default center is fine.
+
+### Two-column contact pattern
+- Navy aside `30%` (eyebrow + headline + 4 contact rows with citron-icon tiles + Google Maps iframe inside a rounded-overflow-hidden wrapper). White card `70%` (form with audience chips + interest chips + textarea + submit). Grid: `grid-cols-1 md:[grid-template-columns:30%_70%] items-start`.
+- Audience lane cards: `flex flex-col`, button at bottom with `marginTop: 'auto'` so buttons align across cards regardless of body length.
+
+### Spanbix section tone sequence (homepage, post-Phase 5.8)
+Hero (navy bg/video) → HiringPartners (cream-50) → MarketValidation (cream) → WhySap (paper) → Tracks (cream) → Mentors (navy) → LearningExperience (paper) → Placement (deep-navy) → Outcomes (paper) → Campus (navy) → FAQ (cream) → FinalCta (navy). No adjacent same-tone collisions.
+
+CampusPrograms subpage tone sequence: Hero (navy via PageHero) → Campus (paper override) → Rollout (cream) → Tracks Delivered (paper) → Mentors (navy) → Certification (cream) → FinalCta (navy).
+
+About subpage tone sequence: Hero (navy) → MarketValidation founder-story (cream) → WhySap (paper) → Mentors (navy) → FinalCta (navy).
+
+---
+
 *This document is the source of truth for Mavro's frontend identity. Read it. Internalize it. Build it.*
 </content>
 </invoke>

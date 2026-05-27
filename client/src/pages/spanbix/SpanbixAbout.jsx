@@ -2,7 +2,6 @@ import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import PageHero from '@/components/spanbix/redesign/PageHero';
 import MarketValidation from '@/components/spanbix/redesign/sections/MarketValidation';
 import WhySap from '@/components/spanbix/redesign/sections/WhySap';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
 import useSEO from '@/hooks/useSEO';
@@ -55,7 +54,6 @@ export default function SpanbixAbout() {
       />
 
       <WhySap />
-      <Mentors />
       <FinalCta />
     </SpanbixLayout>
   );

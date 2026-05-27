@@ -3,7 +3,6 @@ import { Star, Clock, TrendingUp } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import PageHero from '@/components/spanbix/redesign/PageHero';
 import Tracks from '@/components/spanbix/redesign/sections/Tracks';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import useScrollReveal from '@/components/spanbix/redesign/useScrollReveal';
@@ -57,7 +56,6 @@ export default function SpanbixCareerPaths() {
 
       <Tracks />
 
-      <Mentors />
       <FinalCta />
     </SpanbixLayout>
   );

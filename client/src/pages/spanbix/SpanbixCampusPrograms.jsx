@@ -3,7 +3,6 @@ import { Compass, UserPlus, Calendar, Briefcase } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import PageHero from '@/components/spanbix/redesign/PageHero';
 import Campus from '@/components/spanbix/redesign/sections/Campus';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import Certification from '@/components/spanbix/redesign/sections/Certification';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import { Arrow } from '@/components/spanbix/redesign/Arrow';
@@ -178,7 +177,6 @@ export default function SpanbixCampusPrograms() {
         </div>
       </section>
 
-      <Mentors />
       <Certification />
       <FinalCta />
     </SpanbixLayout>

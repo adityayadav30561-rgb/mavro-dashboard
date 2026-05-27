@@ -441,6 +441,47 @@ When implementing each phase:
 
 ---
 
+## ✅ Phase 5.8 — Spanbix Tone Pass + Lead Schema Flexibility (May 26, 2026)
+
+### Goals
+- Strip overclaims across every Spanbix surface — sales-y promises, AICTE/NAAC compliance claims, SAP-exam-parity language, fabricated placement counts.
+- Switch to ERP-first framing while keeping SAP context where meaningful.
+- Replace placeholder striped photos with real images sitewide.
+- Make the lead schema flexible enough for any tenant's form without per-tenant code changes.
+- Lock down hosting topology (Vercel + Render + Atlas + optional Redis) with custom-domain readiness.
+
+### Completed
+- ✅ **6 sections removed** from Spanbix flow: DemoVideos (homepage), Placements page (entirely + routes + nav), Full Catalog table (CareerPaths), Operating Principles (About), Certification (homepage only), inline lead form (FinalCta).
+- ✅ **All 4 track durations unified to 3 months.**
+- ✅ **Personality development module** wired into every track card + `whatYoullLearn[]` + `includes[]` + campus highlights, with citron marker-highlight via `Tracks.jsx` keyword matcher.
+- ✅ **AICTE / NAAC / NSDC stripped sitewide.**
+- ✅ **SAP-exam parity claims dropped.** "Crack the C_TS####" bullets gone. "Maps directly to SAP's official C_TS exams" Certification point gone. Spanbix credential framed as its own mentor-signed certificate.
+- ✅ **Real images wired** for WhySap (6 cards), MarketValidation, Outcomes (3 alumni), Campus, Contact lane cards (3), Mentors (4 faculty), About founder story.
+- ✅ **SPANBIX_MENTORS hoisted** to `spanbixSeo.js` as single source of faculty data for homepage carousel + course-detail `MentorCarousel`.
+- ✅ **New `MentorCarousel`** component on course detail pages — one mentor at a time, prev/next chevrons, clickable dots, framer-motion crossfade, 50px touch swipe, sticky on `md+`.
+- ✅ **Course detail page rebuilt** — pricing display removed (Enrol Now → `/contact`), timeline render bug fixed (`block.meta + block.title` reads), per-module 4-bullet topics dropped for general flow, "This Track Includes" reduced 9 → 5 generic items, responsive 2-col grids stack on mobile.
+- ✅ **Footer track route bug fixed** — `/career-paths/sap-fico` → `/career-paths/fico` (codes are bare).
+- ✅ **Contact page form built** — 2-col 30/70 layout (navy aside left with 4 contact rows + Google Maps iframe, white card right with full lead form). Audience lanes get `Start The Conversation` anchor CTAs.
+- ✅ **Phone + locations updated** — `+91 9211429011`, `Noida · Lucknow`.
+- ✅ **Lead schema rebuilt** — `formId` (indexed) + `customFields` (Mixed) added to `Lead.js`. Sanitizer in `leadController.js`. All 3 ContactForms (Spanbix/HRMS/Tickets) send real form keys via `customFields` instead of bracket-stuffing `message`. `LeadList.jsx` modal auto-renders the keys.
+- ✅ **Navbar redesigned** to glassmorphic cream (`rgba(243, 237, 224, 0.72)` + `blur(22px) saturate(160%)`). Logo is real blue PNG, zero vertical padding, `clamp(56-96px)` height. Footer logo wrapped in white pill against navy bg.
+- ✅ **Spanbix sections become props-driven**: `MarketValidation` (eyebrow/title/lead/stats/sources/image/imageAlt/imageCorner), `Campus` (tone navy|paper + showCtaStrip). About + CampusPrograms subpages override defaults — homepage unchanged.
+- ✅ **`client/vercel.json` rewritten** as shared multi-project config (Spanbix + Admin). `buildCommand` removed (per-project Vercel UI overrides). Sitemap + robots rewrites use actual backend paths.
+- ✅ **Linux-safe imports** — Badge import case fixed (`@/components/ui/Badge`).
+- ✅ **Hosting decisions documented** — Vercel for frontend (custom domain attachable in 15 min, no migration needed), Render for backend (Starter $7/mo recommended for always-on).
+
+### Deferred (intentional, not removed from data)
+- 🕒 `priceIndividual` + `priceMrp` fields still live in `spanbixSeo.js` but no longer rendered. Reinstate when pricing is finalised + approved for public display.
+- 🕒 `instructor` per-track field still in data but no longer rendered (`MentorCarousel` replaces it). Decide later whether to surface track-lead in addition to faculty roster.
+- 🕒 Spanbix custom-domain attach (`spanbix.com` → Vercel Spanbix project). Documented path; pending registrar + DNS step.
+
+### Open follow-ups
+- 🔜 Real recordings infrastructure (Cloudflare R2 + signed upload URLs) when the recording library goes live.
+- 🔜 Backend CORS allowlist update when custom domain attaches (`https://spanbix.com` + `https://www.spanbix.com`).
+- 🔜 Render free-tier upgrade decision (Starter $7/mo always-on vs UptimeRobot keepalive).
+
+---
+
 *End of roadmap.*
 </content>
 </invoke>

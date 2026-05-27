@@ -685,6 +685,103 @@ Cardinality:
 
 ---
 
+## Phase 5.8 — Spanbix Tone Pass + Lead Schema Flexibility (May 26, 2026)
+
+### Lead pipeline (cross-tenant)
+```
+Lead (mongoose)
+  ├─ existing fields (name/email/phone/company/message/status/...)
+  ├─ formId                  # NEW · indexed · max 100 chars
+  └─ customFields            # NEW · Schema.Types.Mixed · default {}
+
+leadController.js
+  ├─ ALLOWED_SUBMIT_FIELDS now includes formId + customFields
+  └─ sanitizeCustomFields()  # NEW · cap keys 60ch · values 1000ch · arrays 20
+                             #     drop functions + nested objects
+                             #     called before Lead.create() inside submitLead
+
+LeadList.jsx (admin)
+  └─ Modal renders Object.entries(customFields) as a labeled grid
+                             + Form row showing formId
+                             + message gets whitespace-pre-wrap
+```
+
+### Spanbix frontend component tree changes
+```
+client/src/lib/spanbixSeo.js
+  ├─ SPANBIX_MENTORS              # NEW · 4 real mentors with photos
+  │                                #     · imported by Mentors.jsx + MentorCarousel
+  ├─ SPANBIX_CAREER_PATHS
+  │  ├─ duration: '3 months'      # unified across all 4 tracks
+  │  ├─ whatYoullLearn[]          # 5 bullets/track · personality dev added · C_TS bullets dropped
+  │  └─ includes[]                # 5 bullets/track · hours/labs counts dropped
+  └─ SPANBIX_CAMPUS_PROGRAM.highlights — `Individual guidance even in group class` etc.
+
+client/src/components/spanbix/redesign/
+  ├─ CohortCard.jsx               # toned · MODULES + MENTORS:4 + DURATION:3 mo (only)
+  ├─ Hero.jsx                     # CTA #2 → /contact (Book Consultation)
+  ├─ Mentors.jsx                  # imports SPANBIX_MENTORS · faculty rotation line dropped
+  └─ sections/
+     ├─ MarketValidation.jsx      # props-driven (eyebrow/title/lead/stats/sources/image/...)
+     ├─ Campus.jsx                # props-driven (tone: navy|paper · showCtaStrip)
+     ├─ LearningExperience.jsx    # lucide icon tiles · feature 03 = Live first, then on-demand
+     ├─ Certification.jsx         # 3 points · BadgeCheck/QrCode/Target icons · QR mockup stripped
+     ├─ Outcomes.jsx              # horizontal carousel · real alumni photos
+     ├─ Tracks.jsx                # 4-bullet card incl. personality dev (citron marker highlight)
+     ├─ WhySap.jsx                # real images · 01·REASON micro-labels dropped
+     ├─ FAQ.jsx                   # 6 toned items · ERP framing
+     └─ FinalCta.jsx              # copy + 2 CTAs only · form removed
+
+client/src/pages/spanbix/
+  ├─ SpanbixLanding.jsx           # Certification + DemoVideos sections dropped from flow
+  ├─ SpanbixCourses.jsx           # hero meta retoned (no placed-CTC / placement count)
+  ├─ SpanbixCareerPaths.jsx       # Full Catalog flat table removed · Tracks + Mentors only
+  ├─ SpanbixCourseDetail.jsx      # MentorCarousel introduced (left col)
+  │                                # · pricing display removed (Enrol Now → /contact)
+  │                                # · timeline reads block.meta + block.title (was crash)
+  │                                # · per-module 4-bullet topics dropped (general flow)
+  │                                # · responsive grid stacks on mobile
+  ├─ SpanbixCampusPrograms.jsx    # 5 rollout steps → 4 · icon tiles · Campus tone=paper
+  ├─ SpanbixAbout.jsx             # Operating Principles section removed
+  │                                # · MarketValidation override = Founder Story + lalit.png
+  └─ SpanbixContact.jsx           # 2-col form (navy aside 30% / white form 70%)
+                                   # · Google Maps iframe · phone +91 9211429011
+                                   # · Audience lanes get "Start The Conversation" CTAs
+
+client/src/components/spanbix/
+  ├─ Navbar.jsx                   # glassmorphic cream bg · blue logo (no pill)
+  ├─ Footer.jsx                   # blue logo wrapped in white pill
+  │                                # · Demo Library + Placements links removed
+  │                                # · track links use bare codes (fico/mm/sd/abap)
+  └─ SpanbixLayout.jsx            # pt-16 sm:pt-20 md:pt-24 lg:pt-24 restored on <main>
+
+Routes (App.jsx + SpanbixApp.jsx)
+  ├─ /spanbix/demo-classes        # REMOVED
+  ├─ /spanbix/placements          # REMOVED
+  └─ /spanbix/career-paths/:code  # render fix · MentorCarousel + general timeline
+```
+
+### Vercel deploy topology
+```
+Vercel Project: Spanbix (custom domain spanbix.com attachable)
+  └─ UI Build Command: npm run build:spanbix
+     ▼
+client/vercel.json (shared with Admin project)
+  ├─ rewrite /sitemap.xml → render-backend/sitemap/spanbix.xml
+  ├─ rewrite /robots.txt  → render-backend/robots/spanbix.txt
+  └─ SPA fallback (last in rewrites[])
+
+Vercel Project: Admin Dashboard
+  └─ UI Build Command: npm run build
+     ▼
+Same client/vercel.json — sitemap proxies dead-weight on admin domain
+
+Backend on Render (mavro-dashboard.onrender.com)
+  └─ CORS allowlist in src/app.js must include every Vercel domain + custom domain
+```
+
+---
+
 *End of architecture reference.*
 </content>
 </invoke>

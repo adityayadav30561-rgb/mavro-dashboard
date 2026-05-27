@@ -518,6 +518,74 @@ When resuming a session, an agent should:
 
 ---
 
+## Phase 5.8 — Spanbix Tone Pass + Lead Schema Flexibility (May 26, 2026)
+
+### Scope
+End-to-end editorial + claim-honesty pass across every Spanbix surface, removal of dead sections, lead capture schema rebuilt for per-tenant flexibility, and visual hosting decisions (Vercel + Render with custom domain ready).
+
+### Content + tone changes (all Spanbix surfaces)
+- **ERP-first framing** replacing SAP-only framing across homepage + subpages. SAP retained where contextually needed; ERP used where the message is broader (e.g., `Why ERP Careers`, `1,000+ EMPLOYERS` stat, `50,000+ ERP jobs` hero meta).
+- **AICTE / NAAC / NSDC references stripped** sitewide. Replaced with `Industry-aligned curriculum` / `Campus cohort` / `6 mo cohort length` framing.
+- **Course duration unified to 3 months** across all 4 tracks (FICO/MM/SD/ABAP) in `client/src/lib/spanbixSeo.js`. Previously: FICO 4mo, MM/SD 3.5mo, ABAP 5mo.
+- **Personality development module** surfaced as a 4th highlight on each track card (homepage `Tracks`), in `whatYoullLearn[]` arrays, in `includes[]` arrays, and as complimentary for campus cohorts. Rendered with citron marker-style highlight in `Tracks.jsx` cards.
+- **Overclaim removal**: dropped "Crack the C_TS####" bullets from `whatYoullLearn[]`, dropped "Maps directly to SAP's official C_TS exams" point from `Certification.jsx`, dropped `studentsEnrolled` / `★ rating · ratingsCount` from `SpanbixCourseDetail.jsx` hero meta, dropped `Last updated MAY 2026`, dropped "Faculty rotates as new consultants join the bench…" from `Mentors.jsx`, dropped 6-month / 200–2,000 cohort specifics from FAQ + Campus copy, dropped "₹14.2L Median placed CTC" / "142+ Placements last 12 months" from `SpanbixCourses` + `SpanbixCareerPaths` hero meta.
+
+### Sections / pages removed
+- **Demo Classes / DemoVideos**: homepage render dropped, route `/spanbix/demo-classes` removed from `App.jsx` + `SpanbixApp.jsx`, "Demo Library" link removed from Footer, Hero "Watch Free Demo" CTA → "Book Consultation", FinalCta "Join Demo Session" button removed. `SpanbixDemoClasses.jsx` + `DemoVideos.jsx` orphaned (not deleted).
+- **Placements page** removed entirely. Routes + nav links + footer link stripped.
+- **Full Catalog flat table** removed from `SpanbixCareerPaths.jsx`. Page now: PageHero → Tracks → Mentors → FinalCta.
+- **Operating Principles** (6-card section) removed from `SpanbixAbout.jsx`. About flow now: PageHero → MarketValidation (founder-story override) → WhySap → Mentors → FinalCta.
+- **Certification section** removed from homepage (still rendered on `/courses` + `/campus-programs`). Homepage flow: Hero → HiringPartners → MarketValidation → WhySap → Tracks → Mentors → LearningExperience → Placement → Outcomes → Campus → FAQ → FinalCta.
+- **Form on homepage FinalCta** removed. Now copy + 2 CTAs (`Book Consultation` → `/contact`, `Explore Programs` → `/career-paths`). Form lives only on `/contact`.
+
+### New components / behaviors
+- **`SPANBIX_MENTORS`** hoisted to `client/src/lib/spanbixSeo.js` as single source of faculty data. 4 real mentors with real photos. Both homepage `Mentors.jsx` carousel and `MentorCarousel` (course detail) import from there.
+- **`MentorCarousel`** new component inside `SpanbixCourseDetail.jsx`. One mentor at a time, citron YOE bubble top-right, real photo, prev/next chevron buttons, clickable pagination dots, framer-motion crossfade, touch swipe (50px threshold). Sticky on `md+`.
+- **Outcomes section** converted from grid to horizontal-scroll carousel matching Mentors pattern. 3 real alumni photos with `objectPosition: '50% 15%'`.
+- **WhySap reason cards** dropped striped placeholders → use 6 real images. Dropped `01 · REASON` micro-label above each card title.
+- **MarketValidation became props-driven** — accepts `eyebrow`, `title`, `lead`, `stats[]`, `sources`, `image`, `imageAlt`, `imageCorner`. About page overrides to "Founder Story" with `lalit.png`; homepage default unchanged.
+- **Campus section became props-driven** — `tone='navy'|'paper'` + `showCtaStrip` flag. CampusPrograms subpage uses `tone='paper'` to avoid same-tone collision with the navy PageHero above. Icon tiles per card (Megaphone / CalendarCheck / Wallet / Award).
+- **LearningExperience features get icon tiles** (Users / Workflow / Radio / Terminal). Feature 03 reframed to `Live first, then on-demand` (dropped 1:1 promise).
+- **Rollout Process** (CampusPrograms subpage) gets icon tiles. Step 05 removed — 4 steps total.
+- **Certification points** reduced 4 → 3 with icon tiles (BadgeCheck / QrCode / Target). Strips QR mockup + verify URL.
+- **CohortCard** (hero overlay) toned to general content card. Dropped `PLACEMENTS` stat, `NEXT LIVE` block, `PLACEMENT SIGNAL · ₹14.2L MEDIAN CTC`. Now shows `MODULES / MENTORS:4 / DURATION:3 mo`.
+- **Tracks campus card** stats: `Individual GUIDANCE EVERY COHORT / 50,000+ ERP JOBS / 3 mo COHORT LENGTH`. Tagline: `One of the most competitive institutional ERP programs you can complete on your own`.
+
+### Course detail page rebuild
+- **Pricing removed** for all 4 individual tracks. Panel reads `Talk to us to enrol.` + `Enrol Now` button → `/contact`.
+- **Curriculum Timeline bug fixed** — code read `block.label` / `block.body`, data has `block.meta` / `block.title` / `block.topics`. Caused runtime crash. Now reads correct fields. Dropped per-module 4-bullet topics for `meta + title` general flow.
+- **"This Track Includes"** trimmed 9 → 5 generic items per track.
+- **Mentors section** (the `Taught by the people you'll be working alongside` block) removed — MentorCarousel above already covers it.
+- **Track Details section** introduced as the bottom block: eyebrow + heading + 2-col grid (MentorCarousel left / Includes + Requirements right).
+- **Responsive overhaul** — hero pricing panel `lg:sticky top:110`, Track Details grid `grid-cols-1 md:[1fr_1.4fr]`, Curriculum block `grid-cols-1 sm:[2-col]`, H1 floor `40px → 32px`, MentorCarousel sticky only on `md+`.
+
+### Footer route fix (critical)
+- **`/career-paths/sap-fico` etc. → `/career-paths/fico`** in `Footer.jsx`. Code is `fico` not `sap-fico` per `spanbixSeo.js` data. Previously footer links 404'd.
+
+### Contact page rebuild
+- **Form added** on `/contact`. 2-col grid `md:[30%_70%]`: navy aside left with eyebrow, headline, 4 contact rows (Email / Phone +91 9211429011 / Locations: Noida · Lucknow / Hours) + Google Maps iframe embed; white card right with full lead form.
+- **DIRECT COORDINATES strip** removed (data moved into the new aside).
+- **PageHero subtitle** dropped `no scripted scripts` and `right SAP track` → ERP-first.
+- **Audience Lane cards** wired to real images. Each card gets a bottom `Start The Conversation` button that anchor-scrolls to `#contact-form`.
+
+### Lead schema rebuilt for per-tenant flexibility
+- **`Lead.js`** — added `formId` (indexed, max 100 chars) + `customFields` (`mongoose.Schema.Types.Mixed`, default `{}`). Old leads with bracket-stuffed `message` strings remain as-is (no migration).
+- **`leadController.js`** — `formId` + `customFields` added to `ALLOWED_SUBMIT_FIELDS`. New `sanitizeCustomFields()` helper drops functions, nested objects, caps key length 60, value length 1000, array length 20. Called in `submitLead` before `Lead.create()`.
+- **3 ContactForms (Spanbix, HRMS, Tickets)** stop concatenating meta into `message` string. Send real keys via `customFields` (`{ audience, interest }` / `{ teamSize }` / `{ teamSize, ticketVolume }`).
+- **`LeadList.jsx` modal** renders `Form Responses` grid that auto-iterates `customFields` keys, plus a `Form` row showing `formId`. `message` gets `whitespace-pre-wrap`.
+
+### Visual + brand
+- **Navbar redesigned** to **glassmorphic cream**: `rgba(243, 237, 224, 0.72)` + `blur(22px) saturate(160%)`. Logo swapped from CSS monogram `S` + wordmark to real blue PNG (`/spanbix/spanbix-blue.png`) at `clamp(56px, 9vw, 96px)` height, zero vertical padding. Nav text + CTA flipped to navy. Mobile drawer matches cream glass.
+- **Footer logo** changed to blue PNG wrapped in white pill (10px radius, 10/16 padding) so it stays readable on the navy footer bg.
+- **CLAUDE.md "navbar transparent at scroll-top" invariant is now superseded** — navbar is solid glassmorphic cream always. `SpanbixLayout` restored `pt-16 sm:pt-20 md:pt-24 lg:pt-24` on `<main>` since navbar no longer transparent.
+
+### Hosting + deploy ops
+- **`client/vercel.json`** — shared multi-project config for both Spanbix and Admin Dashboard Vercel projects. `buildCommand` removed from file (per-project Vercel UI overrides it). Sitemap + robots rewrites point to actual backend paths (`/sitemap/spanbix.xml` + `/robots/spanbix.txt`). Security headers + asset cache headers preserved. SPA fallback rewrite last.
+- **Linux-safe imports**: `PremiumTestDashboard.jsx` import `@/components/ui/badge` → `@/components/ui/Badge` (PascalCase). Linux/Vercel case-sensitive FS rejected lowercase.
+- **Hosting decisions**: Vercel for frontend (custom domain `spanbix.com` attachable in 15 min — no migration needed), Render for backend. Self-host on shared hosting documented as viable but not recommended.
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>

@@ -4,7 +4,6 @@ import HiringPartners from '@/components/spanbix/redesign/sections/HiringPartner
 import MarketValidation from '@/components/spanbix/redesign/sections/MarketValidation';
 import WhySap from '@/components/spanbix/redesign/sections/WhySap';
 import Tracks from '@/components/spanbix/redesign/sections/Tracks';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import LearningExperience from '@/components/spanbix/redesign/sections/LearningExperience';
 import Placement from '@/components/spanbix/redesign/sections/Placement';
 import Outcomes from '@/components/spanbix/redesign/sections/Outcomes';
@@ -51,7 +50,6 @@ export default function SpanbixLanding() {
       <MarketValidation />
       <WhySap />
       <Tracks />
-      <Mentors />
       <LearningExperience />
       <Placement />
       <Outcomes />

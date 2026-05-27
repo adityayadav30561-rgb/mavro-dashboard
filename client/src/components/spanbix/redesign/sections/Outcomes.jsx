@@ -5,6 +5,15 @@ import { Arrow } from '../Arrow';
 
 const ALUMNI = [
   {
+    name: 'Tushar Aggarwal',
+    track: 'SAP SD',
+    before: { role: 'B.Com (Hons.) graduate', ctc: 'Fresher' },
+    after: { role: 'SAP SD Consultant', ctc: '14.5L' },
+    partner: 'EY',
+    quote: 'I came in straight out of a B.Com with zero SAP background. The SD track + mock interviews got me an offer at EY before I even graduated.',
+    image: '/spanbix/tushar.jpeg',
+  },
+  {
     name: 'Priya Sharma',
     track: 'SAP FICO · Cohort 18',
     before: { role: 'Accounts executive', ctc: '3.4L' },
@@ -35,6 +44,9 @@ const ALUMNI = [
     image: '/spanbix/anjali.png',
   },
 ];
+
+// CTC values that start with a digit get a ₹ prefix; labels like "Fresher" render as-is.
+const fmtCtc = (v) => (/^\d/.test(String(v)) ? `₹${v}` : v);
 
 export default function Outcomes() {
   const trackRef = useRef(null);
@@ -118,24 +130,26 @@ export default function Outcomes() {
                   }}
                   loading="lazy"
                 />
-                <div
-                  className="absolute flex items-center gap-1"
-                  style={{
-                    top: 14, right: 14,
-                    background: 'rgba(212, 240, 74, 0.92)',
-                    color: 'var(--sx-citron-ink)',
-                    fontFamily: 'var(--sx-mono)',
-                    fontSize: 11,
-                    letterSpacing: '0.05em',
-                    padding: '5px 10px',
-                    borderRadius: 99,
-                    fontWeight: 600,
-                    zIndex: 2,
-                  }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 12l5-5 3 3 5-5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
-                  {a.growth} growth
-                </div>
+                {a.growth && (
+                  <div
+                    className="absolute flex items-center gap-1"
+                    style={{
+                      top: 14, right: 14,
+                      background: 'rgba(212, 240, 74, 0.92)',
+                      color: 'var(--sx-citron-ink)',
+                      fontFamily: 'var(--sx-mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.05em',
+                      padding: '5px 10px',
+                      borderRadius: 99,
+                      fontWeight: 600,
+                      zIndex: 2,
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16"><path d="M3 12l5-5 3 3 5-5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
+                    {a.growth} growth
+                  </div>
+                )}
               </div>
 
               <div style={{ padding: 22, flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -168,7 +182,7 @@ export default function Outcomes() {
                   <div>
                     <div className="sx-mono" style={{ color: 'var(--sx-ink-4)' }}>BEFORE</div>
                     <div style={{ fontSize: 12.5, marginTop: 4 }}>{a.before.role}</div>
-                    <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, marginTop: 2 }}>₹{a.before.ctc}</div>
+                    <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, marginTop: 2 }}>{fmtCtc(a.before.ctc)}</div>
                   </div>
                   <Arrow size={18} />
                   <div
@@ -181,7 +195,7 @@ export default function Outcomes() {
                   >
                     <div className="sx-mono" style={{ color: 'var(--sx-citron-ink)' }}>AFTER</div>
                     <div style={{ fontSize: 12.5, marginTop: 4, color: 'var(--sx-navy)' }}>{a.after.role}</div>
-                    <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, marginTop: 2, color: 'var(--sx-navy)' }}>₹{a.after.ctc}</div>
+                    <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 20, marginTop: 2, color: 'var(--sx-navy)' }}>{fmtCtc(a.after.ctc)}</div>
                   </div>
                 </div>
 
@@ -189,19 +203,21 @@ export default function Outcomes() {
                   <span className="sx-chip">{a.partner}</span>
                 </div>
 
-                <p
-                  style={{
-                    fontFamily: 'var(--sx-serif)',
-                    fontSize: 17,
-                    fontStyle: 'italic',
-                    color: 'var(--sx-ink-2)',
-                    margin: '18px 0 0',
-                    lineHeight: 1.45,
-                    textWrap: 'pretty',
-                  }}
-                >
-                  "{a.quote}"
-                </p>
+                {a.quote && (
+                  <p
+                    style={{
+                      fontFamily: 'var(--sx-serif)',
+                      fontSize: 17,
+                      fontStyle: 'italic',
+                      color: 'var(--sx-ink-2)',
+                      margin: '18px 0 0',
+                      lineHeight: 1.45,
+                      textWrap: 'pretty',
+                    }}
+                  >
+                    "{a.quote}"
+                  </p>
+                )}
               </div>
             </article>
           ))}
