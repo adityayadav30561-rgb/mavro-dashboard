@@ -46,12 +46,31 @@ app.use(helmet({
 }));
 
 // CORS — supports multiple product domains
+//
+// Static baseline of product origins that must always be allowed, merged with
+// the env-driven CORS_ORIGIN list. Baseline keeps the Spanbix Next.js site
+// (spanbix-web on Vercel + the spanbix.com custom domain) reachable even if
+// Render's CORS_ORIGIN env var has not yet been updated. The regex matches the
+// spanbix-web project's production + preview deploys (e.g. spanbix-web.vercel.app
+// and spanbix-web-<hash>-<scope>.vercel.app) without opening up all of *.vercel.app.
+const CORS_BASELINE_ORIGINS = [
+  'https://spanbix.com',
+  'https://www.spanbix.com',
+  'https://spanbix-web.vercel.app',
+];
+const SPANBIX_WEB_VERCEL_RE = /^https:\/\/spanbix-web[a-z0-9-]*\.vercel\.app$/;
+
+const isAllowedOrigin = (origin) =>
+  config.cors.origins.includes(origin) ||
+  CORS_BASELINE_ORIGINS.includes(origin) ||
+  SPANBIX_WEB_VERCEL_RE.test(origin);
+
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (server-to-server, curl, etc.)
       if (!origin) return callback(null, true);
-      if (config.cors.origins.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
       return callback(new Error(`CORS: Origin "${origin}" not allowed`));
