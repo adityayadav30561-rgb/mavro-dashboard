@@ -33,10 +33,16 @@ function publicUrlFromDomain(domain) {
   return `https://${trimmed}`;
 }
 
-// Build the sitemap URL the backend actually serves for this slug.
-function defaultSitemapUrl(slug) {
-  if (!slug) return '';
-  return `${window.location.protocol}//${window.location.hostname}:5000/sitemap/${slug}.xml`;
+// The sitemap lives at /sitemap.xml on the website's own public domain (the
+// Next SSR site proxies the backend sitemap there). Derive it from the stored
+// domain so it matches the property in Search Console — e.g.
+// spanbix-web.vercel.app → https://spanbix-web.vercel.app/sitemap.xml, and the
+// same field set to spanbix.com → https://spanbix.com/sitemap.xml. Both domains
+// front the same deployment, so either resolves. The old window.location +
+// :5000 form produced https://mavro-dashboard.vercel.app:5000/... on Vercel.
+function defaultSitemapUrl(domain) {
+  const base = publicUrlFromDomain(domain);
+  return base ? `${base}/sitemap.xml` : '';
 }
 
 export default function WebsiteList() {
@@ -94,7 +100,7 @@ export default function WebsiteList() {
       domain: w.domain,
       description: w.description || '',
       status: w.status,
-      sitemapUrl: w.sitemapUrl || defaultSitemapUrl(w.slug),
+      sitemapUrl: w.sitemapUrl || defaultSitemapUrl(w.domain),
       logo: w.logo || '',
     });
     setModalOpen(true);
@@ -131,13 +137,14 @@ export default function WebsiteList() {
 
   const set = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  // Auto-derive sitemap URL when domain changes on a tracked slug
+  // Auto-derive sitemap URL when the domain changes — but only while it still
+  // equals the default for the previous domain (i.e. the user hasn't hand-edited).
   const onDomainChange = (e) => {
     const domain = e.target.value;
     setForm((f) => {
       const next = { ...f, domain };
-      if (editSlug && (!f.sitemapUrl || f.sitemapUrl === defaultSitemapUrl(editSlug))) {
-        next.sitemapUrl = defaultSitemapUrl(editSlug);
+      if (!f.sitemapUrl || f.sitemapUrl === defaultSitemapUrl(f.domain)) {
+        next.sitemapUrl = defaultSitemapUrl(domain);
       }
       return next;
     });
@@ -261,15 +268,15 @@ export default function WebsiteList() {
               value={form.sitemapUrl}
               onChange={set('sitemapUrl')}
               className="input-field font-mono text-[12px]"
-              placeholder={editSlug ? defaultSitemapUrl(editSlug) : 'http://localhost:5000/sitemap/<slug>.xml'}
+              placeholder={form.domain ? defaultSitemapUrl(form.domain) : 'https://<domain>/sitemap.xml'}
             />
-            {editSlug && (
+            {form.domain && (
               <button
                 type="button"
-                onClick={() => setForm((f) => ({ ...f, sitemapUrl: defaultSitemapUrl(editSlug) }))}
+                onClick={() => setForm((f) => ({ ...f, sitemapUrl: defaultSitemapUrl(f.domain) }))}
                 className="mt-1.5 text-[11px] font-semibold text-violet-400 hover:text-violet-300 transition-colors"
               >
-                Use current localhost sitemap URL
+                Use default sitemap URL ({defaultSitemapUrl(form.domain)})
               </button>
             )}
           </div>

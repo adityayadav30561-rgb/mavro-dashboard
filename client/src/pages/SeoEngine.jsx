@@ -56,14 +56,20 @@ function publicUrlFromDomain(domain) {
   return `https://${trimmed}`;
 }
 
-function sitemapXmlUrl(slug) {
-  if (typeof window === 'undefined') return '';
-  return `${window.location.protocol}//${window.location.hostname}:5000/sitemap/${slug}.xml`;
+// sitemap.xml / robots.txt are served at the root of the website's own public
+// domain (the Next SSR site proxies the backend there). Derive from the stored
+// domain so the URL matches the Search Console property —
+// spanbix-web.vercel.app → https://spanbix-web.vercel.app/sitemap.xml, and the
+// same site under spanbix.com resolves the same path. The old window.location +
+// :5000 form produced https://mavro-dashboard.vercel.app:5000/... on Vercel.
+function sitemapXmlUrl(domain) {
+  const base = publicUrlFromDomain(domain);
+  return base ? `${base}/sitemap.xml` : '';
 }
 
-function robotsTxtUrl(slug) {
-  if (typeof window === 'undefined') return '';
-  return `${window.location.protocol}//${window.location.hostname}:5000/robots/${slug}.txt`;
+function robotsTxtUrl(domain) {
+  const base = publicUrlFromDomain(domain);
+  return base ? `${base}/robots.txt` : '';
 }
 
 const severityIcon = {
@@ -372,7 +378,7 @@ export default function SeoEngine() {
           <div className="grid lg:grid-cols-2 gap-5">
             {scopedWebsites.map((w) => {
               const s = sitemapStats[w._id] || { blogUrls: 0, staticUrls: 0, totalUrls: 0 };
-              const xml = sitemapXmlUrl(w.slug);
+              const xml = sitemapXmlUrl(w.domain);
               return (
                 <GlassCard key={w._id} className="p-6" delay={0.1}>
                   <div className="flex items-start justify-between mb-4">
@@ -489,13 +495,13 @@ export default function SeoEngine() {
                   <Badge variant="success" className="text-[10px] uppercase">serving</Badge>
                 </div>
                 <a
-                  href={robotsTxtUrl(w.slug)}
+                  href={robotsTxtUrl(w.domain)}
                   target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-foreground/[0.03] border border-border/60 hover:bg-foreground/[0.06] transition-colors group"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <ShieldCheck size={12} className="text-amber-400 flex-shrink-0" />
-                    <span className="text-[11.5px] font-mono truncate">{robotsTxtUrl(w.slug)}</span>
+                    <span className="text-[11.5px] font-mono truncate">{robotsTxtUrl(w.domain)}</span>
                   </div>
                   <ExternalLink size={11} className="text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0" />
                 </a>
