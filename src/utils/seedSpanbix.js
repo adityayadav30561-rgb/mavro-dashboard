@@ -197,17 +197,25 @@ const upsertSpanbixTenant = async ({ silent = false } = {}) => {
       // canonical production host. The backend sitemap/robots URL generators
       // read this field, so the wrong value silently breaks SEO output.
       // Hand-edited custom domains beyond this set are preserved.
+      //
+      // Normalize the stored value (strip scheme + trailing slash + lowercase)
+      // before comparing — the admin /websites form sometimes saves the domain
+      // with a `https://` prefix or trailing `/`, which would otherwise defeat
+      // exact-match and leave the migration silently skipped. (Real example
+      // observed in prod: stored value `"https://spanbix-web.vercel.app/"`.)
       const LEGACY_DOMAINS = new Set([
         'localhost:5173/spanbix',
         'spanbix-web.vercel.app',
-        'https://spanbix-web.vercel.app',
         'spanbix.vercel.app',
-        'https://spanbix.vercel.app',
         // Pre-www-canonical state (apex was canonical before the cutover-day flip).
         'spanbix.com',
-        'https://spanbix.com',
       ]);
-      if (!existing.domain || LEGACY_DOMAINS.has(String(existing.domain).trim())) {
+      const normalizedDomain = String(existing.domain || '')
+        .trim()
+        .toLowerCase()
+        .replace(/^https?:\/\//i, '')
+        .replace(/\/+$/, '');
+      if (!normalizedDomain || LEGACY_DOMAINS.has(normalizedDomain)) {
         existing.domain = SPANBIX.domain;
       }
 

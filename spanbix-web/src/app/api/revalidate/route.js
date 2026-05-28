@@ -43,5 +43,13 @@ export async function POST(request) {
     revalidatePath('/blog/' + slug);
   }
 
+  // sitemap + robots are ISR-cached proxies of the backend (300s and 3600s
+  // respectively). When the backend's canonical host or static-page set
+  // changes, this endpoint is the only way to bust both caches on demand
+  // without redeploying spanbix-web — repurposing the publish webhook keeps
+  // dashboard editors from needing to know the difference.
+  revalidatePath('/sitemap.xml');
+  revalidatePath('/robots.txt');
+
   return NextResponse.json({ revalidated: true, slug: slug || null, now: Date.now() });
 }
