@@ -43,7 +43,7 @@ const sora = Sora({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://spanbix.com"),
+  metadataBase: new URL("https://www.spanbix.com"),
   title: "Spanbix",
   description: "SAP careers, built for graduates.",
 };

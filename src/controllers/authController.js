@@ -126,11 +126,24 @@ const updateUser = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, 'Cannot deactivate your own account', 400);
   }
 
-  const { name, role, assignedWebsites, isActive } = req.body;
+  const {
+    name, role, assignedWebsites, isActive,
+    avatar, phone, bio, linkedinUrl, jobTitle,
+  } = req.body;
   if (name) user.name = name;
   if (role) user.role = role;
   if (assignedWebsites !== undefined) user.assignedWebsites = assignedWebsites;
   if (isActive !== undefined) user.isActive = isActive;
+
+  // Public-author byline fields — surfaced by BlogPosting JSON-LD + the blog
+  // detail page author card on the Spanbix Next site. Empty strings explicitly
+  // clear the field; `undefined` leaves it untouched. linkedinUrl is validated
+  // by the AdminUser schema (must be a linkedin.com URL or empty).
+  if (avatar !== undefined) user.avatar = avatar;
+  if (phone !== undefined) user.phone = phone;
+  if (bio !== undefined) user.bio = bio;
+  if (linkedinUrl !== undefined) user.linkedinUrl = linkedinUrl;
+  if (jobTitle !== undefined) user.jobTitle = jobTitle;
 
   await user.save({ validateBeforeSave: false });
 

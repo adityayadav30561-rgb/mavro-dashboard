@@ -608,7 +608,7 @@ const getPublicBlog = asyncHandler(async (req, res) => {
     status: 'published',
   })
     .select('-contentPlainText -indexingStatus -lastIndexedAt -lastEditedBy -version')
-    .populate('author', 'name')
+    .populate('author', 'name avatar bio linkedinUrl jobTitle')
     .lean();
 
   if (!blog) return ApiResponse.notFound(res, 'Blog post');

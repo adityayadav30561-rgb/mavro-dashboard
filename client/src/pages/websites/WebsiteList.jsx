@@ -35,11 +35,11 @@ function publicUrlFromDomain(domain) {
 
 // The sitemap lives at /sitemap.xml on the website's own public domain (the
 // Next SSR site proxies the backend sitemap there). Derive it from the stored
-// domain so it matches the property in Search Console — e.g.
-// spanbix-web.vercel.app → https://spanbix-web.vercel.app/sitemap.xml, and the
-// same field set to spanbix.com → https://spanbix.com/sitemap.xml. Both domains
-// front the same deployment, so either resolves. The old window.location +
-// :5000 form produced https://mavro-dashboard.vercel.app:5000/... on Vercel.
+// domain so it matches the property in Search Console — e.g. domain
+// `spanbix.com` → `https://spanbix.com/sitemap.xml`. www.spanbix.com 301s to
+// apex at the Vercel domain layer, so apex is the single canonical. The old
+// window.location + :5000 form produced
+// https://mavro-dashboard.vercel.app:5000/... on Vercel — broken.
 function defaultSitemapUrl(domain) {
   const base = publicUrlFromDomain(domain);
   return base ? `${base}/sitemap.xml` : '';

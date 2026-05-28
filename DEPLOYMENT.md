@@ -148,7 +148,7 @@ Vite exposes only `VITE_*` vars to client code. Anything else in `.env` stays se
 **Before first deploy you must:**
 1. Replace `https://placeholder-backend.example.com` in `client/vercel.json` (two occurrences) with the real backend URL — e.g. `https://api.spanbix.com` or your Render/Railway/etc. host.
 2. Set `VITE_API_BASE_URL` in Vercel project settings to the same backend URL.
-3. Update backend `CORS_ORIGIN` to include the Vercel domain (e.g. `https://spanbix.vercel.app`, then your custom domain).
+3. Update backend `CORS_ORIGIN` to include the production origin (e.g. `https://spanbix.com,https://www.spanbix.com`). The Vercel `*.vercel.app` preview URLs are already covered by the static baseline + regex in `src/app.js`.
 4. Update each `Website.domain` for Spanbix in MongoDB once the production hostname is live so canonical URLs + sitemaps reflect production.
 
 ---
@@ -214,11 +214,12 @@ When you are ready to deploy:
 
 ## Current live deployment
 
-- **Frontend:** `spanbix.vercel.app` (custom domain `spanbix.com` reserved for cutover)
-- **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas)
-- **Build target:** `VITE_BUILD_TARGET=spanbix` → standalone Spanbix-only bundle
-- **API origin:** `VITE_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env)
-- **CORS:** Render `CORS_ORIGIN` includes both the Vercel domain and localhost dev
+- **Frontend (Spanbix):** `https://spanbix.com` (apex canonical; `www.spanbix.com` 301-redirects to apex at the Vercel domain layer; legacy `spanbix-web.vercel.app` still resolves and stays in the CORS allowlist for preview deploys).
+- **Stack:** Next.js 16 App Router (SSR + ISR + on-demand revalidation) under `spanbix-web/`. The legacy Vite Spanbix bundle is retired but still buildable.
+- **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas).
+- **API origin (spanbix-web):** `NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env).
+- **ISR revalidation:** Render env `SPANBIX_WEB_URL=https://spanbix.com` + matching `REVALIDATE_SECRET` on both ends. Backend POSTs `${SPANBIX_WEB_URL}/api/revalidate` on every publish (`src/services/revalidateService.js`).
+- **CORS:** Render `CORS_ORIGIN` + the static baseline in `src/app.js` together cover `https://spanbix.com`, `https://www.spanbix.com`, `https://spanbix-web.vercel.app`, and the `spanbix-web-*.vercel.app` preview regex.
 
 ---
 
@@ -241,7 +242,7 @@ When you are ready to deploy:
 
 ### Backend prep
 
-1. Set `CORS_ORIGIN` env var to include the Vercel domain(s). Comma-separated: `https://spanbix.vercel.app,https://spanbix.com`.
+1. Set `CORS_ORIGIN` env var to include the production hosts. Comma-separated: `https://spanbix.com,https://www.spanbix.com`. The `*.vercel.app` preview URLs are already covered by the static baseline + regex in `src/app.js`, so they don't need to be repeated here.
 2. Ensure backend is publicly accessible over HTTPS.
 3. Run `npm run seed:spanbix` once on the backend to materialize the Spanbix `Website` row (or just restart — auto-bootstrap will do it).
 

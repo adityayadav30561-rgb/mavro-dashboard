@@ -20,14 +20,19 @@ const escapeXml = (str) =>
 
 /**
  * Build a clean `https://<host>` base from a stored Website.domain that may
- * carry a scheme and/or trailing slash (e.g. `https://spanbix.vercel.app/`).
+ * carry a scheme and/or trailing slash (e.g. `https://spanbix.com/`).
  * Without this, `https://${website.domain}` produces `https://https://…//`.
  */
 const buildBaseUrl = (domain) => {
-  const host = String(domain || '')
-    .trim()
-    .replace(/^https?:\/\//i, '')
-    .replace(/\/+$/, '');
+  // Loop the scheme strip — a single non-global replace only removes the FIRST
+  // `https://`, so a double-prefixed input like `https://https://spanbix.com`
+  // would otherwise leave one scheme behind and re-emerge as the very bug this
+  // helper exists to prevent.
+  let host = String(domain || '').trim();
+  while (/^https?:\/\//i.test(host)) {
+    host = host.replace(/^https?:\/\//i, '');
+  }
+  host = host.replace(/\/+$/, '');
   return `https://${host}`;
 };
 

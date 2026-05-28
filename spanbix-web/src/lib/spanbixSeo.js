@@ -11,8 +11,8 @@ export const SPANBIX_SITE = {
   tagline: 'India\'s Premier Enterprise Career Learning Platform',
   description:
     'Spanbix is India\'s premier enterprise career learning platform — purpose-built to bridge the gap between commerce, management, and humanities graduates and the country\'s highest-paying SAP and enterprise technology roles. Structured SAP curriculum, institutional campus partnerships, placement-ready training, and certification under one product roof.',
-  url: 'https://spanbix.com',
-  logo: 'https://spanbix.com/spanbix/spanbix-blue.png',
+  url: 'https://www.spanbix.com',
+  logo: 'https://www.spanbix.com/spanbix/spanbix-blue.png',
   twitter: '@spanbix',
   keywords: [
     'SAP training India',
@@ -1000,7 +1000,17 @@ export function blogPostingLd(blog, url) {
     datePublished: blog.publishedAt,
     dateModified: blog.updatedAt || blog.publishedAt,
     author: blog.author?.name
-      ? { '@type': 'Person', name: blog.author.name }
+      ? {
+          '@type': 'Person',
+          name: blog.author.name,
+          ...(blog.author.jobTitle && { jobTitle: blog.author.jobTitle }),
+          ...(blog.author.bio && { description: blog.author.bio }),
+          ...(blog.author.avatar && { image: blog.author.avatar }),
+          ...(blog.author.linkedinUrl && {
+            url: blog.author.linkedinUrl,
+            sameAs: [blog.author.linkedinUrl],
+          }),
+        }
       : { '@type': 'Organization', name: SPANBIX_SITE.name },
     publisher: {
       '@type': 'Organization',

@@ -58,10 +58,10 @@ function publicUrlFromDomain(domain) {
 
 // sitemap.xml / robots.txt are served at the root of the website's own public
 // domain (the Next SSR site proxies the backend there). Derive from the stored
-// domain so the URL matches the Search Console property —
-// spanbix-web.vercel.app → https://spanbix-web.vercel.app/sitemap.xml, and the
-// same site under spanbix.com resolves the same path. The old window.location +
-// :5000 form produced https://mavro-dashboard.vercel.app:5000/... on Vercel.
+// domain so the URL matches the Search Console property — domain `spanbix.com`
+// → `https://spanbix.com/sitemap.xml`. www 301s to apex at the Vercel domain
+// layer. The old window.location + :5000 form produced
+// https://mavro-dashboard.vercel.app:5000/... on Vercel — broken.
 function sitemapXmlUrl(domain) {
   const base = publicUrlFromDomain(domain);
   return base ? `${base}/sitemap.xml` : '';

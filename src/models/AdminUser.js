@@ -60,6 +60,33 @@ const adminUserSchema = new mongoose.Schema(
       default: '',
     },
 
+    // ----- Author byline (public blog) -----
+    // Surfaced on every BlogPosting JSON-LD `author` block and on the public
+    // article header. Google's Sept 2025 QRG flags anonymous authorship as a
+    // spam signal — a real bio + linkedInUrl + avatar establishes the Person
+    // entity behind each blog post and is required to keep ranking trust.
+    bio: {
+      type: String,
+      trim: true,
+      maxlength: [600, 'Bio cannot exceed 600 characters'],
+      default: '',
+    },
+    linkedinUrl: {
+      type: String,
+      trim: true,
+      default: '',
+      validate: {
+        validator: (v) => !v || /^https?:\/\/(?:www\.)?linkedin\.com\//i.test(v),
+        message: 'linkedinUrl must be a linkedin.com URL',
+      },
+    },
+    jobTitle: {
+      type: String,
+      trim: true,
+      maxlength: [120, 'Job title cannot exceed 120 characters'],
+      default: '',
+    },
+
     // ----- Status & Tracking -----
     isActive: {
       type: Boolean,
