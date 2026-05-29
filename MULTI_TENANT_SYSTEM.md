@@ -20,11 +20,11 @@ A tenant = one row in the `Website` collection. Each tenant has:
 
 ## 2. Active Tenants
 
-| Slug | Name | Dev domain | Status |
-|---|---|---|---|
-| `mavro-hrms` | Mavro HRMS | `localhost:5173/hrms` | active |
-| `mavro-ticket-management` | Mavro Ticket Management | `localhost:5173/tickets` | active |
-| `spanbix` | Spanbix | `localhost:5173/spanbix` | active (Career Transformation Infrastructure — first non-Mavro-prefixed brand) |
+| Slug | Name | Dev domain | Prod domain | Status |
+|---|---|---|---|---|
+| `mavro-hrms` | Mavro HRMS | `localhost:5173/hrms` | (co-hosted on the Vite admin bundle) | active |
+| `mavro-ticket-management` | Mavro Ticket Management | `localhost:5173/tickets` | (co-hosted on the Vite admin bundle) | active |
+| `spanbix` | Spanbix | `localhost:3000` (spanbix-web Next dev server) | **`www.spanbix.com`** (Phase 6 — standalone Next.js sub-app at `spanbix-web/`; apex `spanbix.com` 301s to www at Cloudflare AND via `spanbix-web/src/proxy.js`) | active (Career Transformation Infrastructure — first non-Mavro-prefixed brand) |
 
 Removed during cleanup (PROJECT_CONTEXT.md §3):
 - `mavro-fleet-management`

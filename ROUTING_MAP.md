@@ -45,6 +45,28 @@
 - `spanbix-web/next.config.mjs` `headers()` — CSP, HSTS+preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy applied to every route.
 - `spanbix-web/next.config.mjs` `redirects()` — legacy `/spanbix` and `/spanbix/<page>` → root (308, page paths only).
 
+### Scheduler — Public (no auth, `/api/public/*`)
+
+The Mavro Scheduler (Phase 5.7 Calendly clone) ships both admin + public surfaces. Public routes serve the booker (invitee) flow without auth.
+
+| Path | Component | Notes |
+|---|---|---|
+| `/book/:eventSlug` | `client/src/modules/scheduler/pages/PublicBookingAvailabilityPage.jsx` | Available-slots picker for a public event type. Each slot carries an HMAC-signed hash. Booking POST re-runs the availability engine inside `bookingService` and maps the 4 race-loss cases to a 409 (`SLOT_ALREADY_BOOKED` / `SLOT_UNAVAILABLE` / `STALE_SLOT`). |
+| `/manage/:token` | `client/src/modules/scheduler/pages/BookingManagePage.jsx` | Invitee manage view (reschedule / cancel) gated by a single-use signed token. Cancellation window enforced. |
+| `/route/:slug` | `client/src/modules/scheduler/pages/PublicRoutingPage.jsx` | Routing form: invitee answers, server-side rule engine evaluates (whitelisted ops, first-match wins, required-field gate, fallback target), returns the matched event type to book. |
+
+### Scheduler — Admin (`/scheduler/*`, protected via `ProtectedRoute`)
+
+| Path | Component | Notes |
+|---|---|---|
+| `/scheduler/connections` | `pages/scheduler/CalendarConnectionsPage.jsx` | Google Calendar OAuth + token-storage (AES-256-GCM, v1 envelope). Outlook stub for Phase 8. |
+| `/scheduler/event-types` | `pages/scheduler/EventTypesPage.jsx` | Event-type list, soft-delete, public-link copy. |
+| `/scheduler/event-types/:id` | `pages/scheduler/EventTypeEditorPage.jsx` | Editor: availability, override dates, blackouts, booking rules, team strategy, intake form. |
+| `/scheduler/bookings` | `pages/scheduler/BookingsPage.jsx` | Booking inbox + filters + status transitions. Mongo partial unique index `race_guard_confirmed` protects against double-booking. |
+| `/scheduler/workflows` | `pages/scheduler/WorkflowEditorPage.jsx` | Trigger + step builder (send_email / send_sms / send_slack / wait / webhook). Cumulative delay computed across the chain. |
+| `/scheduler/workflows/history` | `pages/scheduler/WorkflowHistoryPage.jsx` | Per-execution audit feed (90-day TTL on `WorkflowExecution`). |
+| `/scheduler/routing` | `pages/scheduler/RoutingFormsPage.jsx` | Routing-form editor: questions, ordered rules, fallback target. |
+
 ### Public marketing — Spanbix (LEGACY Vite tree — retired, still buildable)
 
 The original Vite Spanbix surface lives in `client/src/pages/spanbix/*` and was reachable at `/spanbix/*` on the admin Vite bundle pre-Phase-6. After the cutover to `spanbix-web/`, these routes are **retired** — `www.spanbix.com` no longer serves them, and any `/spanbix/*` request to the Vercel admin project that does still serve them is shadowed by the SPA fallback. The Vite `build:spanbix` target remains available as an emergency fallback build and is **not** used for the live deploy.
