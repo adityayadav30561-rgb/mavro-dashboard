@@ -192,7 +192,7 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 - ✅ **Person JSON-LD enriched** — `blogPostingLd` in both `spanbixSeo.js` files emits `@type: Person` with `name`, `jobTitle`, `description`, `image`, `url`, `sameAs[]` — every field conditional on a value. Closes Google's Sept 2025 QRG "anonymous authorship" gap.
 - ✅ **CLI `npm run set:spanbix-author`** — `src/utils/setSpanbixAuthor.js` updates the Spanbix admin user's author fields from env vars (`SPANBIX_AUTHOR_NAME / JOBTITLE / BIO / AVATAR / LINKEDIN / EMAIL`). No MongoDB editing needed.
 - ✅ **Security headers** in `spanbix-web/next.config.mjs` `headers()`:
-  - `Content-Security-Policy` — `default-src 'self'`; scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics. `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until nonce-based CSP refactor. `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
+  - `Content-Security-Policy` — `default-src 'self'`; scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics. `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until nonce-based CSP refactor. `frame-src 'self' https://www.google.com https://maps.google.com` for the `/contact` Google Maps embed (Phase 6.8.2). `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
   - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` — exact value hstspreload.org requires.
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
   - `Referrer-Policy: strict-origin-when-cross-origin`.
@@ -207,6 +207,10 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 - ✅ **`client/src/App.jsx`** — `<SpanbixLegacyRedirect />` catch-all on `/spanbix` and `/spanbix/*` hard-redirects to `https://www.spanbix.com/<path>` via `window.location.replace`, preserving search + hash.
 - ✅ **Admin Vite build** ✓ 18.06s. Main chunk shrank 1234 kB → 1097 kB (gzipped 359 → 325 kB) — the saved bytes are the removed Spanbix code.
 - ✅ **Live site unaffected** — `spanbix-web/` Next build still ships 12 routes + Proxy; `https://www.spanbix.com` serves the same SSR + ISR + on-demand revalidation contract.
+
+### 6.2 Spanbix Phase 6.8 follow-up patches (May 29, 2026) ✅ COMPLETE
+- ✅ **Phase 6.8.1** — capitalised `I` in the WhatsApp floater prefilled message. Draft now reads `"I want to enquire about the courses"`.
+- ✅ **Phase 6.8.2** — CSP `frame-src` directive added to `spanbix-web/next.config.mjs` `headers()`: `frame-src 'self' https://www.google.com https://maps.google.com`. The `/contact` Google Maps embed was previously blocked by the CSP default-src fallback (Chrome rendered "This content is blocked"). Allow-list kept tight — no wildcards, exact upstream hosts only.
 
 ### 6.1 Spanbix Phase 6.8 — Next app content + UX polish (May 29, 2026) ✅ COMPLETE
 - ✅ **Contact info updated** in `spanbix-web/src/app/contact/ContactForm.jsx`: phone `+91 93107 93790`, email `contact@spanbix.com`, address `Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, UP (201009)`, centres `Greater Noida · Lucknow`. Map embed re-pointed at the real Galaxy Blue Sapphire Plaza coordinates.

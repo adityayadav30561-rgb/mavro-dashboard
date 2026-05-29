@@ -315,6 +315,8 @@ The Spanbix public surface moved off the Vite admin bundle onto a standalone **N
 
 - **CSP `connect-src` whitelists the backend + Vercel analytics.** Adding any new client-side fetch destination = add it to `connect-src` in `next.config.mjs` before its first request, or CSP will silently block it.
 
+- **CSP `frame-src` whitelist is `'self' https://www.google.com https://maps.google.com`** (Phase 6.8.2). Required for the `/contact` Google Maps iframe. Adding any new `<iframe>` upstream = add the exact host to `frame-src` in `next.config.mjs`, NOT a wildcard. If a third-party embed feels like it needs `frame-src https://*.example.com`, prefer replacing it with a native component first; the CSP allow-list is the brake that catches accidental embed introductions.
+
 - **`spanbix-web/` ships ZERO admin code.** No `axios` interceptors, no admin contexts, no `react-quill-new`, no `recharts`, no radix primitives. The public bundle stays minimal. The Next app talks to the backend over `fetch` (Server Components) and over `apiPath()` from `spanbix-web/src/lib/apiBase.js` (`'use client'` islands).
 
 - **`spanbix-web/AGENTS.md` says: "This is NOT the Next.js you know."** Next 16 has breaking changes from public training corpora. Read `node_modules/next/dist/docs/` before writing Next code in this repo. Heed deprecation notices (e.g., `middleware` → `proxy`).

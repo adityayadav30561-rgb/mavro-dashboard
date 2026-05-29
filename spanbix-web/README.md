@@ -50,7 +50,7 @@ Every route is root-relative; the legacy `/spanbix/*` prefix from the Vite era i
 ## Edge / cross-cutting
 
 - **`src/proxy.js`** — Next 16 Proxy (renamed from `middleware.js` per the new file-convention deprecation). Apex `spanbix.com` → 301 → `www.spanbix.com` via explicit `NextResponse.redirect(url, 301)` (Next 16 `redirects()` only emits 307/308).
-- **`next.config.mjs` `headers()`** — Content-Security-Policy, Strict-Transport-Security (`max-age=63072000; includeSubDomains; preload`), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy (every unused sensor disabled). `poweredByHeader: false`.
+- **`next.config.mjs` `headers()`** — Content-Security-Policy (`default-src 'self'` with scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics; `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until a nonce-based CSP is wired; `frame-src 'self' https://www.google.com https://maps.google.com` for the `/contact` Google Maps embed; `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`), Strict-Transport-Security (`max-age=63072000; includeSubDomains; preload`), X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy (every unused sensor disabled). `poweredByHeader: false`.
 - **`next.config.mjs` `redirects()`** — legacy `/spanbix` and `/spanbix/<page>` → root (308, page paths only; asset extensions excluded).
 - **`src/components/JsonLd.jsx`** — emits `<script type="application/ld+json">` server-side for every page.
 

@@ -633,7 +633,7 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 - ✅ **AuthorByline block** rendered on `spanbix-web/src/app/blog/[slug]/page.jsx` below the article body — avatar + serif name + monospace job title + bio paragraph + LinkedIn link (inline brand SVG; lucide 1.16 in this project has no `Linkedin` export).
 - ✅ **CLI: `npm run set:spanbix-author`** — `src/utils/setSpanbixAuthor.js` updates author fields on the existing AdminUser from env vars (`SPANBIX_AUTHOR_NAME / JOBTITLE / BIO / AVATAR / LINKEDIN / EMAIL`). No MongoDB editing needed.
 - ✅ **Security headers** in `spanbix-web/next.config.mjs` `headers()`:
-  - `Content-Security-Policy` — `default-src 'self'`; scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics. `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until nonce-based CSP refactor lands. `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
+  - `Content-Security-Policy` — `default-src 'self'`; scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics. `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until nonce-based CSP refactor lands. `frame-src 'self' https://www.google.com https://maps.google.com` for the `/contact` Google Maps embed (Phase 6.8.2). `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
   - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` — exact value `hstspreload.org` requires.
   - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
   - `Referrer-Policy: strict-origin-when-cross-origin`.
@@ -736,9 +736,10 @@ The previous 4-tile placeholder grid (`IG / LI / YT / X` with `href="#"`) was re
 
 ### Phase 6.8 invariants
 - **`Footer.jsx SOCIALS` is the single source of truth for social URLs.** Adding a new platform = drop a new entry; the glyph is a path payload, the tile chrome stays the same.
-- **WhatsApp phone digits are a hardcoded constant in `WhatsAppFloater.jsx`** for now. A future move to a shared contact-config module can replace it without touching the floater layout.
+- **WhatsApp phone digits + prefilled message live in `WhatsAppFloater.jsx`** as hardcoded constants for now. A future move to a shared contact-config module can replace them without touching the floater layout. The prefilled draft is `"I want to enquire about the courses"` — capital `I` is intentional (Phase 6.8.1 fix). When editing the message: keep it ≤60 chars so the WhatsApp draft preview doesn't truncate on mobile.
 - **Cohort banner `DISMISS_KEY` is versioned (`-1`).** Bump the suffix when launching a new cohort campaign so previously-dismissed users see the new banner. Don't mutate the suppression window inline — flip the key.
 - **The cohort banner is mounted from `SpanbixLayout.jsx`.** Don't drop it into individual pages; the global mount is what guarantees the 24-h localStorage contract is enforced consistently across navigations.
+- **CSP `frame-src` whitelist is tight: `'self' https://www.google.com https://maps.google.com`** (Phase 6.8.2 fix). Required for the `/contact` Google Maps iframe — without it the CSP default-src fallback renders Chrome's "This content is blocked" placeholder. **Do NOT wildcard `frame-src`** when adding new embeds. Add the exact upstream host and nothing else; if it's a third-party calendar / video / form embed, also vet whether it should be CSP-allowed at all vs replaced by a native component.
 
 ---
 
