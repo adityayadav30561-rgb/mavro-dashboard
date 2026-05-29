@@ -32,9 +32,14 @@ const LANES = [
 ];
 
 const COORDINATES = [
-  { icon: Mail,    label: 'Email',     value: 'hello@spanbix.com' },
-  { icon: Phone,   label: 'Phone',     value: '+91 9211429011' },
-  { icon: MapPin,  label: 'Locations', value: 'Noida · Lucknow' },
+  { icon: Mail,    label: 'Email',     value: 'contact@spanbix.com' },
+  { icon: Phone,   label: 'Phone',     value: '+91 93107 93790' },
+  {
+    icon: MapPin,
+    label: 'Office',
+    value:
+      'Galaxy Blue Sapphire Plaza, 1105,\nGreater Noida West Link Rd, Sector 4,\nGhaziabad, Greater Noida,\nUttar Pradesh — 201009',
+  },
   { icon: Clock,   label: 'Hours',     value: 'Mon–Sat · 10AM – 7PM IST' },
 ];
 
@@ -237,7 +242,7 @@ function ContactForm() {
                       </span>
                       <div className="min-w-0">
                         <div className="sx-mono" style={{ color: 'rgba(255,255,255,0.5)' }}>{c.label.toUpperCase()}</div>
-                        <div style={{ fontSize: 14.5, color: '#fff', fontWeight: 500, marginTop: 3, lineHeight: 1.4, wordBreak: 'break-word' }}>
+                        <div style={{ fontSize: 14.5, color: '#fff', fontWeight: 500, marginTop: 3, lineHeight: 1.45, wordBreak: 'break-word', whiteSpace: 'pre-line' }}>
                           {c.value}
                         </div>
                       </div>

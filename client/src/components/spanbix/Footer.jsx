@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
+import { Linkedin, Facebook } from 'lucide-react';
 import { withSpanbixBase } from '@/lib/routeBase';
+
+const SOCIAL_LINKS = [
+  { name: 'LinkedIn', Icon: Linkedin, href: 'https://www.linkedin.com/company/118163985' },
+  { name: 'Facebook', Icon: Facebook, href: 'https://www.facebook.com/people/Spanbix-Training-Institute/61590494903596/' },
+];
 
 // Footer (redesign v2) — 5-column grid on desktop, 2-col on mobile.
 // Wordmark + brief, then Platform / Company / Resources / Legal link sets.
@@ -79,21 +85,21 @@ export default function Footer() {
               Built for the SAP economy.
             </p>
             <div className="flex gap-2.5" style={{ marginTop: 22 }}>
-              {['IG', 'LI', 'YT', 'X'].map((s) => (
+              {SOCIAL_LINKS.map(({ name, Icon, href }) => (
                 <a
-                  key={s}
-                  href="#"
-                  aria-label={`Spanbix on ${s}`}
-                  className="grid place-items-center"
+                  key={name}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Spanbix on ${name}`}
+                  className="grid place-items-center transition-colors"
                   style={{
-                    width: 36, height: 36, borderRadius: 8,
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    fontSize: 11, fontWeight: 600, letterSpacing: '0.05em',
-                    color: 'rgba(255,255,255,0.7)',
-                    fontFamily: '"Geist", "Sora", system-ui, sans-serif',
+                    width: 38, height: 38, borderRadius: 8,
+                    border: '1px solid rgba(255,255,255,0.14)',
+                    color: 'rgba(255,255,255,0.78)',
                   }}
                 >
-                  {s}
+                  <Icon size={17} strokeWidth={1.8} />
                 </a>
               ))}
             </div>
@@ -138,7 +144,7 @@ export default function Footer() {
             fontFamily: '"Geist", "Sora", system-ui, sans-serif',
           }}
         >
-          <div>© {new Date().getFullYear()} Spanbix Training Institute. Bengaluru · Hyderabad · Pune.</div>
+          <div>© {new Date().getFullYear()} Spanbix Training Institute. · Greater Noida</div>
           <div style={{ fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: 'rgba(255,255,255,0.45)' }}>
             v.3.0 — REDESIGN_2026
           </div>

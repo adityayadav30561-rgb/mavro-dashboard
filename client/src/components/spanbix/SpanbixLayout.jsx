@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import WhatsAppFab from './WhatsAppFab';
+import CohortBanner from './CohortBanner';
 import useTrackPageView from '@/hooks/useTrackPageView';
 import { setAnalyticsTenant } from '@/lib/analytics';
 
@@ -39,6 +41,8 @@ export default function SpanbixLayout({ children }) {
           breakpoints so the bar doesn't cover the hero / page top row. */}
       <main className="relative z-10 pt-16 sm:pt-20 md:pt-24 lg:pt-24">{children}</main>
       <Footer />
+      <WhatsAppFab />
+      <CohortBanner />
     </div>
   );
 }
