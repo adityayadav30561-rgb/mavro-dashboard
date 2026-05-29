@@ -204,9 +204,6 @@ export default function Footer() {
           }}
         >
           <div>© 2026 Spanbix Training Institute. · Greater Noida</div>
-          <div style={{ fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: 'rgba(255,255,255,0.45)' }}>
-            v.3.0 — REDESIGN_2026
-          </div>
         </div>
       </div>
     </footer>
