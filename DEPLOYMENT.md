@@ -217,7 +217,7 @@ When you are ready to deploy:
 ## Current live deployment
 
 - **Frontend (Spanbix):** **canonical `https://www.spanbix.com`**. Apex `spanbix.com` 301-redirects to www at the Cloudflare edge AND via `spanbix-web/src/proxy.js` (Next 16 Proxy; explicit `NextResponse.redirect(url, 301)` because `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` still resolves as a preview alias and stays in the CORS allowlist.
-- **Stack:** Next.js 16 App Router (Turbopack) at `spanbix-web/`. SSR + ISR + on-demand revalidation; per-blog static generation; backend-proxied sitemap + robots; security headers including HSTS preload. The legacy Vite Spanbix bundle is retired but still buildable as a fallback (`npm run build:spanbix` from `client/`).
+- **Stack:** Next.js 16 App Router (Turbopack) at `spanbix-web/`. SSR + ISR + on-demand revalidation; per-blog static generation; backend-proxied sitemap + robots; security headers including HSTS preload. The legacy Vite Spanbix bundle (entry HTML, App, pages, components, SEO lib, route base, public assets) was **fully deleted in Phase 6.7** (May 29, 2026); the `VITE_BUILD_TARGET` machinery is gone from `client/vite.config.js` and `client/package.json` only ships `dev` / `build` / `preview` scripts now.
 - **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas).
 - **API origin (spanbix-web):** `NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env).
 - **ISR revalidation:** Render env `SPANBIX_WEB_URL=https://www.spanbix.com` + matching `REVALIDATE_SECRET` on both ends. Backend POSTs `${SPANBIX_WEB_URL}/api/revalidate` fire-and-forget on every publish (`src/services/revalidateService.js`). The endpoint busts `/blog`, `/blog/<slug>`, `/sitemap.xml`, `/robots.txt`.

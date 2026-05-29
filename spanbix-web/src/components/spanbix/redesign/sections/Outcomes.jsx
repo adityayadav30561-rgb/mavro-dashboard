@@ -12,7 +12,7 @@ const ALUMNI = [
     before: { role: 'B.Com (Hons.) graduate', ctc: 'Fresher' },
     after: { role: 'SAP SD Consultant', ctc: '14.5L' },
     partner: 'EY',
-    quote: 'I came in straight out of a B.Com with zero SAP background. The SD track + mock interviews got me an offer at EY before I even graduated.',
+    quote: 'I came in straight out of a B.Com with zero SAP background. The SD track + mock interviews got me an offer at EY.',
     image: '/spanbix/tushar.jpeg',
   },
   {

@@ -3,14 +3,6 @@
 
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "https://mavro-dashboard.onrender.com/sitemap/spanbix.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "https://mavro-dashboard.onrender.com/robots/spanbix.txt"
-    },
-    {
       "source": "/((?!assets/|favicon\\.ico|sitemap\\.xml|robots\\.txt).*)",
       "destination": "/index.html"
     }

@@ -8,9 +8,14 @@ import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
 
 const COORDINATES = [
-  { icon: Mail,    label: 'Email',     value: 'hello@spanbix.com' },
-  { icon: Phone,   label: 'Phone',     value: '+91 9211429011' },
-  { icon: MapPin,  label: 'Locations', value: 'Noida · Lucknow' },
+  { icon: Mail,    label: 'Email',     value: 'contact@spanbix.com' },
+  { icon: Phone,   label: 'Phone',     value: '+91 93107 93790' },
+  {
+    icon: MapPin,
+    label: 'Address',
+    value: 'Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009)',
+  },
+  { icon: MapPin,  label: 'Centres',   value: 'Greater Noida · Lucknow' },
   { icon: Clock,   label: 'Hours',     value: 'Mon–Sat · 10AM – 7PM IST' },
 ];
 
@@ -140,8 +145,8 @@ export default function ContactForm() {
                 }}
               >
                 <iframe
-                  title="Spanbix office location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.8304222630195!2d77.43036737706927!3d28.604863675679876!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cf36d281a3787%3A0x365799707d044772!2sBest%20SAP%20Consulting%20Company%20-%20Saisatwik%20Technologies%20Private%20Limited!5e0!3m2!1sen!2sin!4v1779759062749!5m2!1sen!2sin"
+                  title="Spanbix office — Galaxy Blue Sapphire Plaza, Greater Noida"
+                  src="https://www.google.com/maps?q=Galaxy+Blue+Sapphire+Plaza+1105+Greater+Noida+West+Link+Rd+Sector+4+Greater+Noida&output=embed"
                   width="100%"
                   height="240"
                   style={{ border: 0, display: 'block', filter: 'grayscale(0.15)' }}

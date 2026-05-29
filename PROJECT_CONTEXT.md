@@ -656,6 +656,92 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 
 ---
 
+## Phase 6.7 — Vite Spanbix surface FULLY DELETED (May 29, 2026)
+
+After the Phase 6 SSR migration verified the Next.js app at `spanbix-web/` was serving every Spanbix surface from `https://www.spanbix.com`, the legacy Vite Spanbix tree was retired in-place and then deleted to remove confusion + dead code.
+
+### Deleted in this phase
+- `client/src/SpanbixApp.jsx` (standalone Spanbix routing tree)
+- `client/src/entries/spanbix.jsx` (standalone Vite entry)
+- `client/src/components/spanbix/` (entire tree — Navbar, Footer, SpanbixLayout + every redesign section)
+- `client/src/pages/spanbix/` (entire tree — all 10 Spanbix page components)
+- `client/src/lib/spanbixSeo.js` (SPANBIX_SITE constants, mentor roster, career-path catalog, JSON-LD builders)
+- `client/src/lib/routeBase.js` (`withSpanbixBase()` / `isStandaloneSpanbix()` / `getBuildTarget()`)
+- `client/index.spanbix.html` (Spanbix entry HTML)
+- `client/public/spanbix/` (entire asset namespace — logos, mentor photos, alumni photos, hero video, partner PNGs)
+
+Total: 91 files removed in a single commit.
+
+### Config simplification
+- `client/vite.config.js` — entire `VITE_BUILD_TARGET` machinery dropped: `ENTRY_HTML` table, `renamePromotedHtmlPlugin`, `devTargetHtmlPlugin`, the `define` block pinning the target into the bundle, the `rollupOptions.input` override. Single-entry config: `index.html → src/main.jsx → App.jsx`.
+- `client/package.json` — removed `dev:spanbix`, `build:full`, `build:spanbix`, `build:hrms`, `build:tickets`. Scripts now: `dev` / `build` / `preview`. `cross-env` dropped from devDependencies (no longer used).
+- `client/vercel.json` — removed Spanbix-specific rewrites (`/sitemap.xml → /sitemap/spanbix.xml`, `/robots.txt → /robots/spanbix.txt`). The SPA fallback regex still excludes `sitemap.xml` + `robots.txt` so those paths 404 cleanly on the admin host instead of falling through to `index.html`.
+- `client/src/context/ThemeContext.jsx` — `DEFAULT_DARK` is now just `true` (the build-target-based default was the only Spanbix-specific behaviour in the admin context).
+
+### Legacy URL handling
+- `client/src/App.jsx` mounts a single `<SpanbixLegacyRedirect />` catch-all on `/spanbix` and `/spanbix/*`. The component reads `window.location.{pathname, search, hash}`, strips the `/spanbix/` prefix, and calls `window.location.replace('https://www.spanbix.com' + path + search + hash)`. Deep links survive the cutover; admin history doesn't carry the legacy path.
+
+### Verification
+- Admin Vite `npm run build` clean. Main chunk shrank from 1234 kB → 1097 kB (gzipped 359 kB → 325 kB) — the saved bytes are the removed Spanbix code.
+- Next `spanbix-web/` build unchanged: 12 routes + Proxy still ship; live site unaffected.
+
+### Invariant
+- **Adding a new Spanbix page = `spanbix-web/src/app/...`. Always.** Never reintroduce `client/src/components/spanbix/` or `client/src/pages/spanbix/`. Same for `spanbixSeo.js` and `routeBase.js` — both are gone permanently.
+
+---
+
+## Phase 6.8 — Spanbix Next app content + UX polish (May 29, 2026)
+
+Content + UX updates applied to `spanbix-web/` after the cleanup. Live site immediately reflects them on the next deploy.
+
+### Contact / brand identity updates
+- **Phone:** `+91 93107 93790` (`spanbix-web/src/app/contact/ContactForm.jsx → COORDINATES`).
+- **Email:** `contact@spanbix.com` (was `hello@spanbix.com`).
+- **Address:** Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009).
+- **Centres:** Greater Noida + Lucknow only. All Bengaluru / Hyderabad / Pune copy removed (image filenames retained where they don't surface in visible UI).
+- **Map embed** rewritten to point at the Galaxy Blue Sapphire Plaza address (the old iframe pointed at an unrelated "Saisatwik Technologies" pin).
+- **Footer copyright** flipped to `© 2026 Spanbix Training Institute. · Greater Noida`.
+- **Tushar testimonial** trimmed to remove the `before I even graduated` tail (`spanbix-web/src/components/spanbix/redesign/sections/Outcomes.jsx`).
+
+### Social brand tiles
+`spanbix-web/src/components/spanbix/Footer.jsx` now ships real brand glyphs (inline SVG paths because lucide-react 1.16 has no brand-icon exports) for **LinkedIn**, **Facebook**, **Instagram** — every tile opens in a new tab with `rel="noopener noreferrer me"`:
+- LinkedIn → `https://www.linkedin.com/company/118163985`
+- Facebook → `https://www.facebook.com/people/Spanbix-Training-Institute/61590494903596/`
+- Instagram → `https://www.instagram.com/spanbix93`
+
+The previous 4-tile placeholder grid (`IG / LI / YT / X` with `href="#"`) was removed in the same edit.
+
+### Floating WhatsApp affordance
+- New component `spanbix-web/src/components/spanbix/WhatsAppFloater.jsx` ('use client').
+- Fixed bottom-right on every page (mounted from `SpanbixLayout`).
+- Brand-green circular button (`#25D366`) with inline brand glyph SVG, hover-scale interaction.
+- Deep link: `https://wa.me/919310793790?text=i%20want%20to%20enquire%20about%20the%20courses` — pre-populates the WhatsApp draft with the user's chosen enquiry message.
+- Phone number constant `PHONE_DIGITS_ONLY = '919310793790'` (full international form, no `+`, no spaces — per wa.me spec).
+
+### First-visit cohort banner
+- New component `spanbix-web/src/components/spanbix/CohortBanner.jsx` ('use client').
+- Trigger contract:
+  - Appears centered on first visit after ~400 ms delay (avoids fighting LCP paint).
+  - × icon, "Maybe later" button, backdrop click, AND Esc key all dismiss.
+  - Dismissal writes `Date.now()` to `localStorage` under key `spanbix-cohort-banner-dismissed-1`. Suppressed for 24 h. Bumping the key suffix invalidates every existing dismissal next time the user loads the site.
+  - Body scroll is locked while open.
+- Mounted globally from `spanbix-web/src/components/spanbix/SpanbixLayout.jsx` so it appears on every route.
+- Locked copy (Option A — recommended):
+  - Eyebrow: `NEW COHORT · ENROLMENTS OPEN`
+  - Headline: `Batch starts 8 June 2026.`
+  - Meta rows: `📅 STARTS — Monday · 8 June 2026`, `🎯 TRACKS OPEN — SAP FICO · MM · SD · ABAP`, `🪑 SEATS — Limited · cohort-capped`
+  - Subtext: `Reserve a seat before the cohort fills. 30-minute consultation to map the right track for your background.`
+  - Primary CTA: `Book Consultation →` (routes `/contact`, also dismisses)
+  - Secondary: `Maybe later`
+
+### Phase 6.8 invariants
+- **`Footer.jsx SOCIALS` is the single source of truth for social URLs.** Adding a new platform = drop a new entry; the glyph is a path payload, the tile chrome stays the same.
+- **WhatsApp phone digits are a hardcoded constant in `WhatsAppFloater.jsx`** for now. A future move to a shared contact-config module can replace it without touching the floater layout.
+- **Cohort banner `DISMISS_KEY` is versioned (`-1`).** Bump the suffix when launching a new cohort campaign so previously-dismissed users see the new banner. Don't mutate the suppression window inline — flip the key.
+- **The cohort banner is mounted from `SpanbixLayout.jsx`.** Don't drop it into individual pages; the global mount is what guarantees the 24-h localStorage contract is enforced consistently across navigations.
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>

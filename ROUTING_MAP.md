@@ -67,13 +67,13 @@ The Mavro Scheduler (Phase 5.7 Calendly clone) ships both admin + public surface
 | `/scheduler/workflows/history` | `pages/scheduler/WorkflowHistoryPage.jsx` | Per-execution audit feed (90-day TTL on `WorkflowExecution`). |
 | `/scheduler/routing` | `pages/scheduler/RoutingFormsPage.jsx` | Routing-form editor: questions, ordered rules, fallback target. |
 
-### Public marketing — Spanbix (LEGACY Vite tree — retired, still buildable)
+### Public marketing — Spanbix (LEGACY Vite tree — DELETED in Phase 6.7)
 
-The original Vite Spanbix surface lives in `client/src/pages/spanbix/*` and was reachable at `/spanbix/*` on the admin Vite bundle pre-Phase-6. After the cutover to `spanbix-web/`, these routes are **retired** — `www.spanbix.com` no longer serves them, and any `/spanbix/*` request to the Vercel admin project that does still serve them is shadowed by the SPA fallback. The Vite `build:spanbix` target remains available as an emergency fallback build and is **not** used for the live deploy.
+The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/components/spanbix/`, `client/src/SpanbixApp.jsx`, `client/src/entries/spanbix.jsx`, `client/src/lib/spanbixSeo.js`, `client/src/lib/routeBase.js`, `client/index.spanbix.html`, `client/public/spanbix/`) was **fully deleted on May 29, 2026** — 91 files removed plus the `VITE_BUILD_TARGET` machinery. The single source of truth for every Spanbix page is `spanbix-web/src/app/**`.
 
-| Path (legacy) | Component | Status |
-|---|---|---|
-| `/spanbix` and 9 sub-routes | `pages/spanbix/*` | Vite-only. Not the source of truth for SEO. Do NOT add new pages here — add them to `spanbix-web/src/app/`. |
+| Path on admin host | Behaviour |
+|---|---|
+| `/spanbix` and `/spanbix/*` | Hard-redirected by `client/src/App.jsx` → `SpanbixLegacyRedirect` component → `window.location.replace('https://www.spanbix.com' + path + search + hash)`. Preserves deep links + query string. |
 
 ### Admin (wrapped by `ProtectedRoute` → `DashboardLayout`)
 | Path | Component | Notes |

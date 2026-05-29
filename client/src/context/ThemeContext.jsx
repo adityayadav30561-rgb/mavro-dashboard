@@ -2,11 +2,11 @@ import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext(null);
 
-// Spanbix is a premium light-mode-first brand (cream + navy). The full Mavro
-// Console remains dark-first (Cyber Editorial). We pick the default by
-// build target so each property gets the visual identity its brand intends —
-// before the React tree renders, before any flash.
-const DEFAULT_DARK = import.meta.env.VITE_BUILD_TARGET !== 'spanbix';
+// Mavro Console is dark-first (Cyber Editorial). Spanbix moved off this
+// bundle in Phase 6 — it owns its own light-mode design system inside the
+// standalone `spanbix-web/` Next.js app and doesn't share ThemeContext with
+// the admin. So the only consumer left is the admin shell.
+const DEFAULT_DARK = true;
 
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {

@@ -3,6 +3,56 @@ import Link from 'next/link';
 // Footer (redesign v2) — 5-column grid on desktop, 2-col on mobile.
 // Wordmark + brief, then Platform / Company / Resources / Legal link sets.
 
+// Real social tiles — lucide-react 1.16 in this project does NOT export brand
+// icons (Linkedin / Facebook / Instagram), so we inline the official brand
+// glyphs as SVG. Each entry: { id, label, href, glyph }. Adding a new platform
+// = drop a new entry; the icon is just a path payload.
+const SOCIALS = [
+  {
+    id: 'LI',
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/118163985',
+    glyph: (
+      <path d="M19 0H5C2.24 0 0 2.24 0 5v14c0 2.76 2.24 5 5 5h14c2.76 0 5-2.24 5-5V5c0-2.76-2.24-5-5-5zM8 19H5V8h3v11zM6.5 6.7C5.5 6.7 4.8 6 4.8 5s.7-1.7 1.7-1.7S8.2 4 8.2 5s-.7 1.7-1.7 1.7zM20 19h-3v-5.6c0-1.4-.5-2.2-1.6-2.2-1.2 0-1.9.8-1.9 2.2V19h-3V8h2.9v1.3c.4-.7 1.5-1.5 3-1.5 2 0 3.6 1.2 3.6 3.6V19z" />
+    ),
+  },
+  {
+    id: 'FB',
+    label: 'Facebook',
+    href: 'https://www.facebook.com/people/Spanbix-Training-Institute/61590494903596/',
+    glyph: (
+      <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.68.23 2.68.23v2.96h-1.51c-1.49 0-1.95.93-1.95 1.88v2.26h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07z" />
+    ),
+  },
+  {
+    id: 'IG',
+    label: 'Instagram',
+    href: 'https://www.instagram.com/spanbix93',
+    glyph: (
+      <>
+        <path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.72 3.72 0 01-1.38-.9 3.72 3.72 0 01-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16M12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63a5.88 5.88 0 00-2.13 1.38A5.88 5.88 0 00.63 4.14C.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12c0 3.26.01 3.67.07 4.95.06 1.27.26 2.15.56 2.91.31.79.73 1.46 1.38 2.13a5.88 5.88 0 002.13 1.38c.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24c3.26 0 3.67-.01 4.95-.07 1.27-.06 2.15-.26 2.91-.56a5.88 5.88 0 002.13-1.38 5.88 5.88 0 001.38-2.13c.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95 0-3.26-.01-3.67-.07-4.95-.06-1.27-.26-2.15-.56-2.91a5.88 5.88 0 00-1.38-2.13A5.88 5.88 0 0019.86.63C19.1.33 18.22.13 16.95.07 15.67.01 15.26 0 12 0z" />
+        <path d="M12 5.84A6.16 6.16 0 1018.16 12 6.16 6.16 0 0012 5.84zm0 10.16A4 4 0 1116 12a4 4 0 01-4 4zM18.4 6.86a1.44 1.44 0 11-1.44-1.44 1.44 1.44 0 011.44 1.44z" />
+      </>
+    ),
+  },
+];
+
+function SocialGlyph({ children }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="currentColor"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}
+
 const COLUMNS = [
   {
     label: 'Platform',
@@ -78,21 +128,21 @@ export default function Footer() {
               Built for the SAP economy.
             </p>
             <div className="flex gap-2.5" style={{ marginTop: 22 }}>
-              {['IG', 'LI', 'YT', 'X'].map((s) => (
+              {SOCIALS.map((s) => (
                 <a
-                  key={s}
-                  href="#"
-                  aria-label={`Spanbix on ${s}`}
-                  className="grid place-items-center"
+                  key={s.id}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer me"
+                  aria-label={`Spanbix on ${s.label}`}
+                  className="grid place-items-center transition-colors hover:text-white hover:border-white/30"
                   style={{
                     width: 36, height: 36, borderRadius: 8,
                     border: '1px solid rgba(255,255,255,0.12)',
-                    fontSize: 11, fontWeight: 600, letterSpacing: '0.05em',
                     color: 'rgba(255,255,255,0.7)',
-                    fontFamily: '"Geist", "Sora", system-ui, sans-serif',
                   }}
                 >
-                  {s}
+                  <SocialGlyph>{s.glyph}</SocialGlyph>
                 </a>
               ))}
             </div>
@@ -137,7 +187,7 @@ export default function Footer() {
             fontFamily: '"Geist", "Sora", system-ui, sans-serif',
           }}
         >
-          <div>© {new Date().getFullYear()} Spanbix Training Institute. Bengaluru · Hyderabad · Pune.</div>
+          <div>© 2026 Spanbix Training Institute. · Greater Noida</div>
           <div style={{ fontFamily: '"JetBrains Mono", ui-monospace, monospace', color: 'rgba(255,255,255,0.45)' }}>
             v.3.0 — REDESIGN_2026
           </div>

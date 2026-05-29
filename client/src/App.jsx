@@ -5,10 +5,16 @@ import { useAuth } from './context/AuthContext';
 // ════════════════════════════════════════════════════════════════════════════
 // PUBLIC ROUTES — eager-imported.
 // ────────────────────────────────────────────────────────────────────────────
-// These are the primary user-facing surfaces (HRMS, Tickets, Spanbix marketing
-// sites). They render on first paint for visitors landing from search engines
-// / social / paid acquisition, so the bundle for these routes is shipped in
-// the initial JS payload. No Suspense wait, no flash of loading state.
+// These are the primary user-facing surfaces (HRMS + Tickets marketing sites).
+// They render on first paint for visitors landing from search engines / social
+// / paid acquisition, so the bundle for these routes ships in the initial JS
+// payload. No Suspense wait, no flash of loading state.
+//
+// Spanbix moved off this bundle in Phase 6 — the live site is the standalone
+// Next.js 16 App Router app at `spanbix-web/` (deployed to www.spanbix.com).
+// Legacy `/spanbix/*` requests against the admin host now fall through to the
+// NotFound catch-all and the global `<SpanbixLegacyRedirect />` (below) sends
+// them to the canonical www host so any stale inbound link still resolves.
 // ════════════════════════════════════════════════════════════════════════════
 import HrmsLanding from './pages/hrms/HrmsLanding';
 import HrmsBlogList from './pages/hrms/HrmsBlogList';
@@ -16,15 +22,6 @@ import HrmsBlogDetail from './pages/hrms/HrmsBlogDetail';
 import TicketsLanding from './pages/tickets/TicketsLanding';
 import TicketsBlogList from './pages/tickets/TicketsBlogList';
 import TicketsBlogDetail from './pages/tickets/TicketsBlogDetail';
-import SpanbixLanding from './pages/spanbix/SpanbixLanding';
-import SpanbixCourses from './pages/spanbix/SpanbixCourses';
-import SpanbixCareerPaths from './pages/spanbix/SpanbixCareerPaths';
-import SpanbixCourseDetail from './pages/spanbix/SpanbixCourseDetail';
-import SpanbixCampusPrograms from './pages/spanbix/SpanbixCampusPrograms';
-import SpanbixAbout from './pages/spanbix/SpanbixAbout';
-import SpanbixContact from './pages/spanbix/SpanbixContact';
-import SpanbixBlogList from './pages/spanbix/SpanbixBlogList';
-import SpanbixBlogDetail from './pages/spanbix/SpanbixBlogDetail';
 import PublicBookingAvailabilityPage from './modules/scheduler/pages/PublicBookingAvailabilityPage';
 import BookingManagePage from './modules/scheduler/pages/BookingManagePage';
 import PublicRoutingPage from './modules/scheduler/pages/PublicRoutingPage';
@@ -70,6 +67,20 @@ function AdminFallback() {
   );
 }
 
+// Hard-redirects `/spanbix/<path>` → `https://www.spanbix.com/<path>`. Runs on
+// mount; preserves search + hash so deep links survive the cutover. React
+// Router's <Navigate> can't issue cross-origin redirects, so we go through
+// `window.location.replace` to also drop the legacy path from history.
+const SPANBIX_CANONICAL_ORIGIN = 'https://www.spanbix.com';
+function SpanbixLegacyRedirect() {
+  if (typeof window !== 'undefined') {
+    const { pathname, search, hash } = window.location;
+    const trimmed = pathname.replace(/^\/spanbix\/?/, '/').replace(/\/+$/, '') || '/';
+    window.location.replace(SPANBIX_CANONICAL_ORIGIN + trimmed + search + hash);
+  }
+  return null;
+}
+
 export default function App() {
   const { user } = useAuth();
 
@@ -85,16 +96,13 @@ export default function App() {
       <Route path="/tickets/blog" element={<TicketsBlogList />} />
       <Route path="/tickets/blog/:slug" element={<TicketsBlogDetail />} />
 
-      {/* ──────── Public Spanbix marketing site (Phase 5) ──────── */}
-      <Route path="/spanbix" element={<SpanbixLanding />} />
-      <Route path="/spanbix/courses" element={<SpanbixCourses />} />
-      <Route path="/spanbix/career-paths" element={<SpanbixCareerPaths />} />
-      <Route path="/spanbix/career-paths/:code" element={<SpanbixCourseDetail />} />
-      <Route path="/spanbix/campus-programs" element={<SpanbixCampusPrograms />} />
-      <Route path="/spanbix/about" element={<SpanbixAbout />} />
-      <Route path="/spanbix/contact" element={<SpanbixContact />} />
-      <Route path="/spanbix/blog" element={<SpanbixBlogList />} />
-      <Route path="/spanbix/blog/:slug" element={<SpanbixBlogDetail />} />
+      {/* ──────── Legacy /spanbix/* → canonical www.spanbix.com ────────
+          Phase 6 cutover: the live Spanbix site is the standalone Next.js app
+          at www.spanbix.com (repo: `spanbix-web/`). Stale inbound links to the
+          admin host get bounced to the public canonical via a hard browser
+          redirect. NotFound shows for ~one frame before the redirect runs. */}
+      <Route path="/spanbix/*" element={<SpanbixLegacyRedirect />} />
+      <Route path="/spanbix" element={<SpanbixLegacyRedirect />} />
 
       {/* ──────── Public scheduler booking (Phase 4 availability viewer) ──────── */}
       <Route path="/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
