@@ -65,9 +65,11 @@ Mavro is a **multi-tenant SEO + publishing + lead operations platform**. One Nod
 
 | Slug | Name | Public route | Status |
 |---|---|---|---|
-| `mavro-hrms` | Mavro HRMS | `/hrms` | Live |
-| `mavro-ticket-management` | Mavro Ticket Management | `/tickets` | Live |
-| `spanbix` | Spanbix | `/spanbix` | Live — Career Transformation Infrastructure for Enterprise Technologies (SAP ecosystem upskilling, campus partnerships, placement). Brand isolated from Mavro: navy `#102c56` + accent `#2764e4` + DM Serif Display + Sora + JetBrains Mono. Public ecosystem: `/spanbix`, `/spanbix/courses`, `/spanbix/career-paths`, `/spanbix/campus-programs`, `/spanbix/placements`, `/spanbix/demo-classes`, `/spanbix/about`, `/spanbix/contact`, `/spanbix/blog`, `/spanbix/blog/:slug`. |
+| `mavro-hrms` | Mavro HRMS | `/hrms` | Live (co-hosted on the Vite admin bundle) |
+| `mavro-ticket-management` | Mavro Ticket Management | `/tickets` | Live (co-hosted on the Vite admin bundle) |
+| `spanbix` | Spanbix | `https://www.spanbix.com` | **Live on the standalone Next.js app `spanbix-web/`** — Career Transformation Infrastructure for Enterprise Technologies (SAP ecosystem upskilling, campus partnerships, placement). Brand isolated: navy `#102c56` + accent `#2764e4` + Instrument Serif + Geist + JetBrains Mono (DM Serif Display + Sora retained as fallbacks). Public ecosystem at root: `/`, `/courses`, `/career-paths`, `/career-paths/{fico,mm,sd,abap}`, `/campus-programs`, `/about`, `/contact`, `/blog`, `/blog/<slug>`. Legacy `/spanbix/*` page paths 308 → root via `next.config.mjs` redirects (asset-extension excluded). |
+
+**Canonical host:** `https://www.spanbix.com`. Apex `spanbix.com` 301-redirects to www via `spanbix-web/src/proxy.js` (Next 16 Proxy / formerly Middleware — explicit `NextResponse.redirect(url, 301)`, since `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` stays in the CORS allowlist as a fallback / preview alias. `Website.domain` for the Spanbix row was migrated to `"www.spanbix.com"` (the backend sitemap + robots URL generators read this field via `sitemapService.buildBaseUrl`).
 
 Demo tenants (Fleet, Inventory, Transport) removed via `POST /api/websites/_cleanup-demo`. Domains stored in `Website.domain` as `localhost:5173/hrms` and `localhost:5173/tickets` for dev; will be flipped to production hostnames at deploy time without code changes (resolver detects `localhost*` prefix and switches `http://` vs `https://`).
 
@@ -458,7 +460,7 @@ These exist for **specific historical reasons** — do not revert without consul
 - `SeoMetadata` model exists but is sparsely used; only feeds `/seo/stats` rollups
 - No real-time WebSocket layer; dashboard polls on range change
 - Auth token has no refresh-token flow (7-day expiry forces re-login)
-- No CDN-cached blog detail pages yet — SSR or static export deferred
+- ~~No CDN-cached blog detail pages yet — SSR or static export deferred~~ **Resolved in Phase 6** — Spanbix now ships from `spanbix-web/` (Next.js 16 App Router) with per-blog static generation + ISR + on-demand revalidation. HRMS + Tickets remain on the Vite admin bundle for now; they can adopt the same pattern when SEO becomes a priority.
 - Image upload pipeline absent — all images are URL inputs
 - Mobile UX of admin dashboard not deeply tested
 - No automated test suite
@@ -583,6 +585,74 @@ End-to-end editorial + claim-honesty pass across every Spanbix surface, removal 
 - **`client/vercel.json`** — shared multi-project config for both Spanbix and Admin Dashboard Vercel projects. `buildCommand` removed from file (per-project Vercel UI overrides it). Sitemap + robots rewrites point to actual backend paths (`/sitemap/spanbix.xml` + `/robots/spanbix.txt`). Security headers + asset cache headers preserved. SPA fallback rewrite last.
 - **Linux-safe imports**: `PremiumTestDashboard.jsx` import `@/components/ui/badge` → `@/components/ui/Badge` (PascalCase). Linux/Vercel case-sensitive FS rejected lowercase.
 - **Hosting decisions**: Vercel for frontend (custom domain `spanbix.com` attachable in 15 min — no migration needed), Render for backend. Self-host on shared hosting documented as viable but not recommended.
+
+---
+
+## Phase 6 — Spanbix SSR migration + canonical cutover (May 27–29, 2026)
+
+End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`spanbix-web/`) so search engines and social platforms receive real per-page metadata, JSON-LD, and content in the initial HTML — closing the gap that `useSEO` (client-side) left open for Facebook, LinkedIn, WhatsApp, Bing, and DuckDuckGo. Mavro admin (Vite) is unchanged; HRMS + Tickets stay on the Vite bundle. Only Spanbix migrated.
+
+### Why SSR / ISR (decision record)
+`useSEO` (`client/src/hooks/useSEO.js`) injects title / meta / OG / JSON-LD client-side after React mount. The Vite shell `index.spanbix.html` carries only generic homepage meta for every URL. Bots that don't render JS (FB / LinkedIn / WhatsApp / Bing) see the same shell on every blog. Next.js App Router + `generateMetadata` + ISR + on-demand revalidation lets the backend keep ownership of blog data while the frontend ships real per-page meta + body. The legacy `client/src/pages/spanbix/*` Vite tree is **retired but still buildable** (`build:spanbix`) as a quick fallback.
+
+### Phase 6.0 — Next.js scaffold + design-system port ✅ COMPLETE
+- ✅ `spanbix-web/` — Next.js 16 App Router (Turbopack, JS, Tailwind), `src/` layout, project root at `import.meta.dirname`.
+- ✅ Fonts loaded via `next/font` (Instrument Serif, Geist, JetBrains Mono, DM Serif Display, Sora) in `app/layout.js`.
+- ✅ Spanbix design system imported verbatim from `client/src/styles/spanbix-redesign.css` — same `.spanbix-scope` selector, same tokens / utilities. Imported from both Vite (`main.jsx`) and Next (`entries/spanbix.jsx` analog: `app/layout.js`).
+- ✅ Components ported verbatim from `client/src/components/spanbix/redesign/**`. Static sections stay Server Components; interactive ones (carousels, forms, accordions) get `'use client'`. `react-router-dom` → `next/link` + `next/navigation`; `withSpanbixBase()` dropped because Next routes are root-relative.
+- ✅ `lib/spanbixSeo.js` copied as the single SEO source — `SPANBIX_SITE`, `SPANBIX_MENTORS`, `SPANBIX_CAREER_PATHS`, `blogPostingLd`, `breadcrumbLd`, `blogListLd`, `courseLd`, `educationalOrganizationLd`, `faqLd` all available to Next pages without re-implementation.
+- ✅ Admin-only deps (recharts, react-quill-new, radix-*) NOT pulled into `spanbix-web/` — public bundle stays lean.
+
+### Phase 6.1 — Marketing routes (SSG) + blog routes (ISR) ✅ COMPLETE
+- ✅ Marketing routes: `app/page.jsx`, `app/courses/page.jsx`, `app/career-paths/page.jsx`, `app/career-paths/[code]/page.jsx`, `app/campus-programs/page.jsx`, `app/about/page.jsx`, `app/contact/page.jsx`. `[code]` uses `generateStaticParams()` over `SPANBIX_CAREER_PATHS` codes (`fico`, `mm`, `sd`, `abap`). Per-page `generateMetadata()` mirrors the old `useSEO({...})` call.
+- ✅ JSON-LD emitted via server-rendered `<script type="application/ld+json">` (no client `useEffect`).
+- ✅ `app/blog/page.jsx` — Server Component fetching `${API}/api/blogs/website/spanbix` with `next: { revalidate: 300 }`. `generateMetadata` from `SpanbixBlogList.jsx` defaults.
+- ✅ `app/blog/[slug]/page.jsx` — Server Component, `generateStaticParams()` returns every published slug, body fetched with `revalidate: 300`. `generateMetadata({ params })` resolves blog `seoTitle / seoDescription / canonicalUrl / ogImage / keywords`; emits `breadcrumbLd` + `blogPostingLd`; `notFound()` on backend 404.
+
+### Phase 6.2 — On-demand ISR revalidation ✅ COMPLETE
+- ✅ `spanbix-web/src/app/api/revalidate/route.js` — POST with shared secret. Calls `revalidatePath('/blog')` + `revalidatePath('/blog/<slug>')` + (Phase 6-fix) `revalidatePath('/sitemap.xml')` + `revalidatePath('/robots.txt')`. Returns 401 on bad secret, 500 if `REVALIDATE_SECRET` unset.
+- ✅ `src/services/revalidateService.js` — backend fire-and-forget POST. 4s timeout; never throws; silent no-op when `SPANBIX_WEB_URL` / `REVALIDATE_SECRET` unset. Tenant-agnostic — `/api/revalidate` ignores slugs it doesn't know.
+- ✅ Wired into every backend publish path: `blogController.publishBlog`, `blogController.updateWorkflowStatus` (when `becamePublished` flag set), `scheduledPublishService` worker. Every publish triggers `revalidateService.revalidateBlog(slug)` without blocking the response.
+
+### Phase 6.3 — Sitemap + robots + legacy redirects ✅ COMPLETE
+- ✅ `app/sitemap.xml/route.js` proxies `${API}/sitemap/spanbix.xml` (5-min ISR cache). `app/robots.txt/route.js` proxies `${API}/robots/spanbix.txt` (1-hour ISR cache). Both fall back gracefully if the backend is unreachable.
+- ✅ `next.config.mjs` redirects: `/spanbix → /` (308) and `/spanbix/:path((?!.*\\.).*) → /:path` (308). Negative-lookahead excludes static assets so `/spanbix/herosection-video.mp4` etc still resolve.
+- ✅ Backend sitemap (`sitemapService.generateSitemap`) now lists 9 seeded marketing pages via `SeoMetadata` rows (`/about`, `/courses`, `/career-paths`, `/career-paths/{fico,mm,sd,abap}`, `/campus-programs`, `/contact`) plus `/` + `/blog` + every published blog post. Seeded by `seedSpanbix.js → upsertSpanbixStaticPages()` with idempotent `$setOnInsert` so admin tweaks are preserved.
+
+### Phase 6.4 — Production cutover to www.spanbix.com ✅ COMPLETE
+- ✅ Domain cutover: DNS for `spanbix.com` + `www.spanbix.com` points at the spanbix-web Vercel project. Apex 301-redirects to www (via Cloudflare at the edge + a Next 16 Proxy at the app layer as a belt-and-braces fallback). www serves the Next app.
+- ✅ Canonical host flipped to `https://www.spanbix.com` across the entire codebase: `seedSpanbix.js` domain field, `spanbixSeo.js` (`client/` + `spanbix-web/`) `SPANBIX_SITE.url` / `logo`, `app/layout.js` `metadataBase`, `client/index.spanbix.html` `og:url` + `og:image` + `twitter:image`, `.env.example` `SPANBIX_WEB_URL`, backend CORS baseline in `src/app.js`.
+- ✅ `spanbix-web/src/proxy.js` — Next 16 Proxy (renamed from `middleware.js` per the new file-convention deprecation). Detects exact apex hostname and emits `NextResponse.redirect(url, 301)`. Necessary because `redirects()` only emits 307/308.
+- ✅ `seedSpanbix.js` LEGACY_DOMAINS migration normalizes both sides (strip scheme + trailing slash + lowercase) before comparing, so a stored value like `"https://spanbix-web.vercel.app/"` (the value that defeated the initial exact-match) is now caught and rewritten to `www.spanbix.com` on the next boot.
+- ✅ `sitemapService.buildBaseUrl` hardened: loops the scheme strip so a double-prefixed input like `https://https://...` can no longer re-emerge as the bug the helper exists to prevent.
+
+### Phase 6.5 — SEO audit fixes: author byline + security headers ✅ COMPLETE
+- ✅ **AdminUser byline fields** — `bio` (≤600ch), `linkedinUrl` (linkedin.com URL validator), `jobTitle` (≤120ch) added to the schema and surfaced in `PUT /api/auth/users/:id` whitelist.
+- ✅ **Populate enriched** — `blogController.getPublicBlog` populates `name avatar bio linkedinUrl jobTitle` so the public blog endpoint returns the full author shape.
+- ✅ **Person schema enriched** — `blogPostingLd` (in both `client/src/lib/spanbixSeo.js` and `spanbix-web/src/lib/spanbixSeo.js`) emits `@type: Person` with `name`, `jobTitle`, `description`, `image`, `url`, `sameAs[]` — every field conditional on a value. Closes Google's Sept 2025 QRG "anonymous authorship" gap.
+- ✅ **AuthorByline block** rendered on `spanbix-web/src/app/blog/[slug]/page.jsx` below the article body — avatar + serif name + monospace job title + bio paragraph + LinkedIn link (inline brand SVG; lucide 1.16 in this project has no `Linkedin` export).
+- ✅ **CLI: `npm run set:spanbix-author`** — `src/utils/setSpanbixAuthor.js` updates author fields on the existing AdminUser from env vars (`SPANBIX_AUTHOR_NAME / JOBTITLE / BIO / AVATAR / LINKEDIN / EMAIL`). No MongoDB editing needed.
+- ✅ **Security headers** in `spanbix-web/next.config.mjs` `headers()`:
+  - `Content-Security-Policy` — `default-src 'self'`; scoped allowlists for Vercel scripts, Google Fonts, Render API, Vercel analytics. `'unsafe-inline' 'unsafe-eval'` retained on `script-src` until nonce-based CSP refactor lands. `frame-ancestors 'none'`, `object-src 'none'`, `base-uri 'self'`, `form-action 'self'`, `upgrade-insecure-requests`.
+  - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` — exact value `hstspreload.org` requires.
+  - `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`.
+  - `Referrer-Policy: strict-origin-when-cross-origin`.
+  - `Permissions-Policy` drops every unused sensor (camera, microphone, geolocation, payment, USB, etc.).
+  - `poweredByHeader: false` disables Vercel's `X-Powered-By: Next.js` advertising header.
+
+### Phase 6.6 — Dashboard sitemap URL helpers (admin Vite) ✅ COMPLETE
+- ✅ `client/src/pages/websites/WebsiteList.jsx` `defaultSitemapUrl(domain)` and `client/src/pages/SeoEngine.jsx` `sitemapXmlUrl(domain)` / `robotsTxtUrl(domain)` now derive from the website's public domain via `publicUrlFromDomain(domain)` + `/sitemap.xml` (or `/robots.txt`). The old hardcoded `window.location.hostname:5000` form produced `https://mavro-dashboard.vercel.app:5000/sitemap/<slug>.xml` on the live admin Vercel — broken because Vercel doesn't serve port 5000.
+- ✅ `onDomainChange` re-derives the auto-default sitemap URL only while it still equals the previous domain's auto-default (preserves admin hand-edits).
+
+### Phase 6 invariants (do not regress)
+- **Canonical host is `https://www.spanbix.com`.** Apex `spanbix.com` 301s to www at both the Cloudflare edge AND `spanbix-web/src/proxy.js`. Never reintroduce a www-side redirect (caused the redirect-loop incident — Vercel was doing www → apex while Cloudflare did apex → www).
+- **`Website.domain` is the single source of truth** for sitemap + robots URLs. Backend `sitemapService.buildBaseUrl(domain)` strips scheme + trailing slash and emits `https://${host}/...`. Migrating the canonical host = update this field (or let `seedSpanbix.js` LEGACY_DOMAINS migration do it on next boot).
+- **Spanbix marketing pages must live in `SeoMetadata` rows**, not hardcoded in `sitemapService`. Adding a new marketing page = add a row to `SPANBIX_STATIC_PAGES` in `seedSpanbix.js`; the seeder upserts it idempotently on next boot.
+- **Author byline reads from the populated `Blog.author` doc** — never hardcoded. Every blog with a real author gets full Person schema; blogs without one fall back to Organization. Avatar / bio / LinkedIn must be set on the AdminUser record (use `npm run set:spanbix-author`).
+- **`/api/revalidate` is the single on-demand cache-bust path** for spanbix-web ISR. Every backend publish calls it. It now busts blog (`/blog`, `/blog/<slug>`) AND infrastructure (`/sitemap.xml`, `/robots.txt`) routes — do not duplicate this logic elsewhere.
+- **proxy.js, not middleware.js** — Next 16 renamed the file convention. The exported function is `proxy(request)`, the file is `src/proxy.js`. Vercel deploys fail with `Proxy is missing expected function export name` if either is wrong.
+- **CSP `'unsafe-inline' 'unsafe-eval'` remain on `script-src`** until a nonce-based CSP is wired (would require Proxy/Middleware to inject a per-request nonce). Removing them today breaks Next runtime + framer-motion + Vercel analytics.
+- **Apex domain in Vercel must point DIRECTLY at the app**, not redirect to www via the Vercel Domains UI. If Vercel handles the apex redirect at the edge with 308, our 301 never fires.
 
 ---
 

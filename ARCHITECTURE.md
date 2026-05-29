@@ -782,6 +782,143 @@ Backend on Render (mavro-dashboard.onrender.com)
 
 ---
 
+## Phase 6 — Spanbix SSR migration: `spanbix-web/` Next.js sub-app (May 27–29, 2026)
+
+The Spanbix public surface moved off the Vite admin bundle onto a standalone **Next.js 16 App Router** app at `spanbix-web/`. Mavro admin (Vite) is unchanged; HRMS + Tickets stay on the Vite bundle. The Next sub-app talks to the same Express backend on Render.
+
+### Repository layout — `spanbix-web/`
+
+```
+spanbix-web/
+├── next.config.mjs              # headers() — security headers + HSTS preload
+│                                 # redirects() — legacy /spanbix/* → / (308, page paths only)
+│                                 # poweredByHeader: false
+├── package.json                 # Next 16.2.6, React 19, lucide-react 1.16, tailwindcss 4
+├── tailwind.config.js
+├── postcss.config.mjs
+├── jsconfig.json
+├── .env                         # NEXT_PUBLIC_API_BASE_URL + REVALIDATE_SECRET (server-only)
+├── public/spanbix/              # asset namespace (matches /spanbix/* URLs from legacy era)
+│   ├── herosection-video.mp4
+│   ├── spanbix-blue.png         # blue logo (light surfaces, favicon, OG, JSON-LD)
+│   ├── spanbix-white.png        # white logo (navy surfaces — Navbar + Footer)
+│   ├── partners/<12 brand PNGs>
+│   └── …
+└── src/
+    ├── proxy.js                 # Next 16 Proxy (formerly middleware.js)
+    │                              apex → www explicit 301
+    │                              matcher excludes _next, static assets, /spanbix/, /sitemap.xml, /robots.txt
+    ├── app/
+    │   ├── layout.js            # next/font (Instrument Serif, Geist, JetBrains Mono, DM Serif, Sora)
+    │   │                          metadataBase = https://www.spanbix.com
+    │   │                          body className="spanbix-scope"
+    │   ├── globals.css
+    │   ├── page.jsx             # homepage — Server Component
+    │   ├── courses/page.jsx
+    │   ├── career-paths/page.jsx
+    │   ├── career-paths/[code]/page.jsx          # generateStaticParams over SPANBIX_CAREER_PATHS
+    │   ├── career-paths/[code]/CourseDetailView.jsx   # 'use client' island (Individual/Campus toggle)
+    │   ├── campus-programs/page.jsx
+    │   ├── about/page.jsx
+    │   ├── contact/page.jsx
+    │   ├── contact/ContactForm.jsx               # 'use client' island
+    │   ├── blog/page.jsx                         # blog index, revalidate: 300
+    │   ├── blog/[slug]/page.jsx                  # generateStaticParams + ISR + AuthorByline
+    │   ├── api/revalidate/route.js               # POST + secret → revalidatePath('/blog', '/blog/<slug>', '/sitemap.xml', '/robots.txt')
+    │   ├── sitemap.xml/route.js                  # proxies backend, revalidate: 300
+    │   └── robots.txt/route.js                   # proxies backend, revalidate: 3600
+    ├── components/
+    │   ├── spanbix/
+    │   │   ├── SpanbixLayout.jsx                 # main wrapper
+    │   │   ├── Navbar.jsx                        # 'use client'
+    │   │   ├── Footer.jsx
+    │   │   └── redesign/                         # ported verbatim from client/src/components/spanbix/redesign/
+    │   │       ├── Hero.jsx                      # background video Hero
+    │   │       ├── PageHero.jsx
+    │   │       ├── Section.jsx
+    │   │       └── sections/                     # HiringPartners, MarketValidation, WhySap, Tracks, Mentors,
+    │   │                                         # LearningExperience, Placement, Outcomes, Campus,
+    │   │                                         # Certification, FAQ, FinalCta, …
+    │   └── JsonLd.jsx                            # <script type="application/ld+json"> emitter
+    ├── lib/
+    │   ├── spanbixSeo.js                         # SPANBIX_SITE, SPANBIX_MENTORS, SPANBIX_CAREER_PATHS,
+    │   │                                         # JSON-LD builders (blogPostingLd, breadcrumbLd, …)
+    │   ├── seoMeta.js                            # buildMetadata() — shape for Next Metadata
+    │   ├── blogApi.js                            # fetchBlogDetail + fetchAllBlogSlugs
+    │   └── apiBase.js                            # NEXT_PUBLIC_API_BASE_URL resolver
+    └── styles/
+        └── spanbix-redesign.css                  # design system, scoped to .spanbix-scope
+```
+
+### Request lifecycle on `spanbix-web/`
+
+```
+GET https://spanbix.com/career-paths/fico         (anything)
+                       ▼
+Cloudflare edge        ─ 301 → https://www.spanbix.com/career-paths/fico
+
+GET https://www.spanbix.com/career-paths/fico
+                       ▼
+Vercel CDN             ─ matched: static? serve from cache. dynamic? handle on origin.
+                       ▼
+spanbix-web/src/proxy.js
+  host === 'spanbix.com' ? NextResponse.redirect(301)  ← belt-and-braces (Cloudflare normally handles first)
+  : NextResponse.next()
+                       ▼
+Next 16 App Router
+  ▸ generateMetadata({ params }) → <title>, <meta>, <link rel=canonical>
+  ▸ Page Server Component:
+      const { blog } = await fetchBlogDetail(slug)   // fetch(backend, { next: { revalidate: 300 } })
+      return <Layout>…<article dangerouslySetInnerHTML={{__html: blog.content}}/>…<AuthorByline/>…</Layout>
+  ▸ JsonLd component emits BreadcrumbList + BlogPosting (with enriched Person schema)
+                       ▼
+Response HTML          ─ headers() injected by next.config.mjs:
+                         Content-Security-Policy, Strict-Transport-Security (preload),
+                         X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
+```
+
+### Publish → revalidate flow
+
+```
+Editor clicks Publish in /blogs/:id/edit (admin Vite on Vercel)
+       │
+       ▼ axios PATCH /api/blogs/:id/publish
+Render backend (Express)
+       ▼
+blogController.publishBlog
+       │ (Phase 6.2)
+       ▼ fire-and-forget
+services/revalidateService.revalidateBlog(slug)
+       │
+       ▼ POST https://www.spanbix.com/api/revalidate
+       │  { slug: "...", secret: process.env.REVALIDATE_SECRET }
+       ▼
+spanbix-web /api/revalidate/route.js
+       ▼ revalidatePath('/blog')
+         revalidatePath('/blog/' + slug)
+         revalidatePath('/sitemap.xml')
+         revalidatePath('/robots.txt')
+       ▼
+Next ISR cache       ─ next request to any of those paths fetches fresh upstream
+                       (backend sitemap regenerates per request, no backend cache)
+```
+
+Other publish paths wire the same call: `blogController.updateWorkflowStatus` (when the `becamePublished` flag is set) and `scheduledPublishService` (the cron-driven worker). The endpoint is secret-gated (401 on wrong secret) and tenant-agnostic — it cheerfully revalidates any blog slug, harmless for non-Spanbix slugs.
+
+### Phase 6 critical invariants (Spanbix-specific)
+
+- **Canonical host is `https://www.spanbix.com`.** Apex 301s to www at Cloudflare AND at the app layer (`spanbix-web/src/proxy.js`). Never reintroduce a www-side redirect — the May 28 redirect-loop incident was caused by Vercel doing www → apex while Cloudflare did apex → www.
+- **`Website.domain` is the single source of truth** for sitemap + robots URLs (backend `sitemapService.buildBaseUrl(domain)`). Migrating the canonical host = update this field. `seedSpanbix.js → LEGACY_DOMAINS` migration normalises before comparing so scheme + trailing slash + casing variants all collapse to the canonical value.
+- **Marketing pages live in `SeoMetadata` rows**, seeded by `seedSpanbix.js → upsertSpanbixStaticPages()`. Adding a new marketing page = add an entry to `SPANBIX_STATIC_PAGES`; on next boot the seeder upserts it idempotently (`$setOnInsert`, so admin tweaks survive).
+- **Author byline reads from the populated `Blog.author` doc** — never hardcoded. `blogController.getPublicBlog` populates `name avatar bio linkedinUrl jobTitle`; `blogPostingLd` emits `@type: Person` with every conditional field; `AuthorByline` renders the matching block below the article.
+- **`/api/revalidate` is the only on-demand cache-bust** for spanbix-web ISR. Every backend publish hits it; it busts blog routes AND `/sitemap.xml` + `/robots.txt`. Do not duplicate this logic elsewhere.
+- **proxy.js, not middleware.js** — Next 16 renamed the file convention. File is `src/proxy.js`, exported function is `proxy(request)`. Vercel deploys fail with `Proxy is missing expected function export name` if either is wrong.
+- **CSP `'unsafe-inline' 'unsafe-eval'` remain on `script-src`** until a nonce-based CSP is wired. Removing them today breaks Next runtime + framer-motion + Vercel analytics.
+- **Apex in Vercel Domains must point DIRECTLY at the app**, not redirect to www via the Vercel UI toggle. If Vercel handles apex → www at the edge with a 308, our explicit 301 in proxy.js never fires.
+- **Admin Vite + HRMS + Tickets are NOT migrated.** They stay on the Vite bundle. The architectural blueprint at `spanbix-web/` is the reference if/when HRMS or Tickets needs the same SEO treatment.
+
+---
+
 *End of architecture reference.*
 </content>
 </invoke>

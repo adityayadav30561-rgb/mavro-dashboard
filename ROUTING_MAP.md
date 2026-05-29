@@ -21,20 +21,37 @@
 | `/tickets/blog` | `pages/tickets/TicketsBlogList.jsx` | Paginated, searchable |
 | `/tickets/blog/:slug` | `pages/tickets/TicketsBlogDetail.jsx` | BlogPosting JSON-LD |
 
-### Public marketing — Spanbix (Phase 5)
+### Public marketing — Spanbix (Phase 6 — live on `spanbix-web/` Next.js App Router)
+
+**Canonical host:** `https://www.spanbix.com`. Apex `spanbix.com` → 301 → www at the Cloudflare edge AND via `spanbix-web/src/proxy.js` (`NextResponse.redirect(url, 301)` — Next 16's `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` still resolves as a preview alias. Routes are root-relative on the Next app — the historical `/spanbix/*` prefix is now a 308 redirect to root inside `next.config.mjs` (page paths only — asset extensions excluded via negative lookahead).
+
 | Path | Component | Notes |
 |---|---|---|
-| `/spanbix` | `pages/spanbix/SpanbixLanding.jsx` | 10-section homepage, EducationalOrganization + FAQ JSON-LD, navy/accent brand, fires `setAnalyticsTenant('spanbix')` |
-| `/spanbix/courses` | `pages/spanbix/SpanbixCourses.jsx` | Course catalog, emits `Course` JSON-LD per SAP track |
-| `/spanbix/career-paths` | `pages/spanbix/SpanbixCareerPaths.jsx` | Udemy-style horizontal listing of the 4 active SAP tracks (FICO / MM / SD / ABAP) |
-| `/spanbix/career-paths/:code` | `pages/spanbix/SpanbixCourseDetail.jsx` | **Phase 5.1** Per-track detail with Individual/Campus pill toggle. Reads `?mode=campus` via `useSearchParams` for deep-linking. Invalid `:code` → `<Navigate to="/spanbix/career-paths" replace />` |
-| `/spanbix/campus-programs` | `pages/spanbix/SpanbixCampusPrograms.jsx` | Institutional partnerships + ContactForm |
-| `/spanbix/placements` | `pages/spanbix/SpanbixPlacements.jsx` | Success stories + market validation |
-| `/spanbix/demo-classes` | `pages/spanbix/SpanbixDemoClasses.jsx` | Free demo previews |
-| `/spanbix/about` | `pages/spanbix/SpanbixAbout.jsx` | About + values + FAQs |
-| `/spanbix/contact` | `pages/spanbix/SpanbixContact.jsx` | ContactForm wired to `submitPublicLead`, `formId: 'spanbix-contact'` |
-| `/spanbix/blog` | `pages/spanbix/SpanbixBlogList.jsx` | Tenant-scoped via `SPANBIX_SITE.slug` |
-| `/spanbix/blog/:slug` | `pages/spanbix/SpanbixBlogDetail.jsx` | BlogPosting JSON-LD, fires `blog_view` |
+| `/` | `spanbix-web/src/app/page.jsx` | Homepage. Server Component. `generateMetadata` from `SPANBIX_SITE`. EducationalOrganization + FAQ JSON-LD baked into server HTML. |
+| `/courses` | `spanbix-web/src/app/courses/page.jsx` | Course catalog. `Course` JSON-LD per SAP track. |
+| `/career-paths` | `spanbix-web/src/app/career-paths/page.jsx` | Listing of the 4 active SAP tracks (FICO / MM / SD / ABAP). |
+| `/career-paths/[code]` | `spanbix-web/src/app/career-paths/[code]/page.jsx` | Per-track detail. `generateStaticParams()` returns `fico` / `mm` / `sd` / `abap`. Individual/Campus pill toggle is a client island (`CourseDetailView.jsx`). Invalid `code` → `notFound()`. |
+| `/campus-programs` | `spanbix-web/src/app/campus-programs/page.jsx` | Institutional partnerships + ContactForm island. |
+| `/about` | `spanbix-web/src/app/about/page.jsx` | About + values + FAQs. |
+| `/contact` | `spanbix-web/src/app/contact/page.jsx` | Server-rendered shell + client `ContactForm.jsx` island. Submits to `submitPublicLead`, `formId: 'spanbix-contact'`. |
+| `/blog` | `spanbix-web/src/app/blog/page.jsx` | Blog index. Fetches `${API}/api/blogs/website/spanbix` with `revalidate: 300`. BreadcrumbList + ItemList JSON-LD. |
+| `/blog/[slug]` | `spanbix-web/src/app/blog/[slug]/page.jsx` | Blog detail. `generateStaticParams()` returns every published slug at build; per-blog fetch uses `revalidate: 300`. `generateMetadata` emits per-blog title / description / canonical / og:image. JSON-LD: BreadcrumbList + BlogPosting with enriched Person schema (name, jobTitle, description, image, url, sameAs). `AuthorByline` block renders below the article. |
+| `/api/revalidate` | `spanbix-web/src/app/api/revalidate/route.js` | POST + shared secret → busts `/blog`, `/blog/<slug>`, `/sitemap.xml`, `/robots.txt` ISR caches. Backend `revalidateService` fires this fire-and-forget on every publish. |
+| `/sitemap.xml` | `spanbix-web/src/app/sitemap.xml/route.js` | Proxies `${API}/sitemap/spanbix.xml` (5-min ISR). |
+| `/robots.txt` | `spanbix-web/src/app/robots.txt/route.js` | Proxies `${API}/robots/spanbix.txt` (1-hour ISR). |
+
+**Edge / cross-cutting:**
+- `spanbix-web/src/proxy.js` — apex → www 301 redirect (Next 16 Proxy convention, formerly `middleware.js`).
+- `spanbix-web/next.config.mjs` `headers()` — CSP, HSTS+preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy applied to every route.
+- `spanbix-web/next.config.mjs` `redirects()` — legacy `/spanbix` and `/spanbix/<page>` → root (308, page paths only).
+
+### Public marketing — Spanbix (LEGACY Vite tree — retired, still buildable)
+
+The original Vite Spanbix surface lives in `client/src/pages/spanbix/*` and was reachable at `/spanbix/*` on the admin Vite bundle pre-Phase-6. After the cutover to `spanbix-web/`, these routes are **retired** — `www.spanbix.com` no longer serves them, and any `/spanbix/*` request to the Vercel admin project that does still serve them is shadowed by the SPA fallback. The Vite `build:spanbix` target remains available as an emergency fallback build and is **not** used for the live deploy.
+
+| Path (legacy) | Component | Status |
+|---|---|---|
+| `/spanbix` and 9 sub-routes | `pages/spanbix/*` | Vite-only. Not the source of truth for SEO. Do NOT add new pages here — add them to `spanbix-web/src/app/`. |
 
 ### Admin (wrapped by `ProtectedRoute` → `DashboardLayout`)
 | Path | Component | Notes |

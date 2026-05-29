@@ -160,3 +160,35 @@ SSR fixes this by emitting real per-page meta + content in the server HTML.
   website: { name, slug, domain } }
 ```
 **Blog list response (`blogController.js:585-589`):** paginated; each blog has `title, slug, excerpt, featuredImage, seoTitle, seoDescription, keywords, tags, category, readingTime, publishedAt` (NO content).
+
+---
+
+## ✅ ALL PHASES COMPLETE — production cutover landed May 27–29, 2026
+
+This plan is now a historical artefact; the live state of the SSR migration is documented in:
+
+- [PROJECT_CONTEXT.md](../PROJECT_CONTEXT.md) — Phase 6 section (Phase 6.0 through 6.6) + Phase 6 invariants
+- [FUTURE_ROADMAP.md](../FUTURE_ROADMAP.md) — Phase 5.9, 5.9.1, 5.9.2 (SSR migration, canonical cutover, SEO audit fixes)
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — Phase 6 section (spanbix-web layout, request lifecycle, publish → revalidate flow, invariants)
+- [ROUTING_MAP.md](../ROUTING_MAP.md) — Spanbix (Phase 6 — live on spanbix-web Next.js App Router)
+- [DEPLOYMENT.md](../DEPLOYMENT.md) — Current live deployment block
+- [spanbix-web/README.md](../spanbix-web/README.md) — per-app operating doc
+
+### What landed vs the plan above
+
+- **Phase 0 (discovery)** — confirmed verbatim.
+- **Phase 1 (scaffold)** — done. Next 16.2.6 (Turbopack), App Router, JS, Tailwind. Fonts via `next/font`.
+- **Phase 2 (design system + components)** — done. Components ported verbatim from `client/src/components/spanbix/redesign/**`. Server / client split applied. `react-router-dom` removed.
+- **Phase 3 (marketing routes)** — done. `app/page.jsx`, `app/courses/page.jsx`, `app/career-paths/page.jsx`, `app/career-paths/[code]/page.jsx` (+ `CourseDetailView.jsx` client island), `app/campus-programs/page.jsx`, `app/about/page.jsx`, `app/contact/page.jsx` (+ `ContactForm.jsx` client island).
+- **Phase 4 (blog routes with ISR)** — done. Plus a `Phase 6.5` `AuthorByline` block was added below the article body with enriched `schema.org/Person` JSON-LD (avatar, jobTitle, description, image, url, sameAs).
+- **Phase 5 (on-demand revalidation)** — done. The endpoint was later (Phase 6 follow-up) extended to also bust `/sitemap.xml` + `/robots.txt` ISR caches so canonical-host migrations propagate end-to-end without a redeploy.
+- **Phase 6 (sitemap / robots / redirects)** — done. Backend sitemap was simultaneously expanded with 9 marketing pages seeded via `SeoMetadata` rows in `seedSpanbix.js → upsertSpanbixStaticPages()` (idempotent `$setOnInsert`).
+- **Phase 7 (deploy + cutover)** — done. Cutover went from `spanbix-web.vercel.app` → `spanbix.com` → `www.spanbix.com`. The `www` canonical decision (rather than the apex this plan originally listed) was finalised post-deploy; apex now 301s to www at the Cloudflare edge AND via `spanbix-web/src/proxy.js` (Next 16 Proxy convention, formerly Middleware).
+
+### Notes for anyone re-reading this plan
+
+- The plan said `Next.js 14`. Actual deploy is `Next.js 16.2.6`. The App Router + ISR + on-demand revalidation contract is materially unchanged, but the file convention `middleware.js` is deprecated in 16 — use `proxy.js` exporting `proxy(request)`.
+- The plan said use `permanent: true` redirects (which Next emits as 308). The SEO audit later requested explicit 301 for the apex → www redirect; that lives in `proxy.js` because `next.config.mjs` `redirects()` can only emit 307/308.
+- The plan stored `lib/spanbixSeo.js` once. Two copies exist now: `client/src/lib/spanbixSeo.js` (Vite admin's last-mile fallback) and `spanbix-web/src/lib/spanbixSeo.js` (the live source on www). Keep them in sync.
+- `SPANBIX_WEB_URL` (backend env) was originally `https://spanbix.com`; flipped to `https://www.spanbix.com` during cutover.
+- Backend CORS allowlist + preview regex in `src/app.js` already cover every Vercel domain + the apex + www.

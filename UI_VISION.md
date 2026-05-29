@@ -183,9 +183,9 @@ Tenant-agnostic in `client/src/components/hrms/` (reused by Tickets via cross-im
 - **`Hero`** — parallax + mouse glow + floating panels (HRMS = analytics + feed + metric orb; Tickets = SLA timer + incident feed + MTTR orb)
 - **`ContactForm`** — validated lead form with success animation, tenant-aware
 
-### 7.2a Spanbix editorial primitives (`client/src/components/spanbix/redesign/`)
+### 7.2a Spanbix editorial primitives (`client/src/components/spanbix/redesign/` AND `spanbix-web/src/components/spanbix/redesign/`)
 
-Phase 5.6 magazine redesign — strictly scoped to `.spanbix-scope`, zero leak into Mavro admin / HRMS / Tickets:
+Phase 5.6 magazine redesign — strictly scoped to `.spanbix-scope`, zero leak into Mavro admin / HRMS / Tickets. **Phase 6 note (May 27–29):** every primitive in this section now lives in TWO trees — the original `client/src/components/spanbix/redesign/` (Vite admin fallback) and a verbatim copy in `spanbix-web/src/components/spanbix/redesign/` (the LIVE source on `https://www.spanbix.com`). Same for `spanbix-redesign.css`. Keep them in sync — updates to one must land in the other. Interactive primitives (carousels, accordions, forms) get `'use client'` directives in the Next tree; static sections stay Server Components.
 
 - **`spanbix-redesign.css`** (in `client/src/styles/`) — design tokens (`--sx-navy`, `--sx-cream`, `--sx-citron`, `--sx-coral`, `--sx-signal`, ink scale, hairlines), typography stack (Instrument Serif + Geist + JetBrains Mono), photo placeholder system (`.sx-photo-slate|cream|rose|olive`), section tones, marquee, reveal animation, chip + pill-badge utilities. Every selector under `.spanbix-scope`.
 - **`Hero.jsx`** — background-video homepage hero with two-axis gradient stack (horizontal navy darkness + vertical fade-to-deep-navy). Plays `/spanbix/herosection-video.mp4` autoplay+muted+loop+playsInline.

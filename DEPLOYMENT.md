@@ -1,8 +1,8 @@
 # Spanbix on Vercel — Frontend Deployment Readiness
 
-**Status:** Spanbix LIVE on Vercel; backend LIVE on Render; multi-property build-target architecture active.
-**Phase:** 5.5 — full responsive sweep complete + Hero mobile fix applied.
-**Scope:** frontend only. Backend hosting unchanged. No SSR, no Next.js migration.
+**Status:** Spanbix LIVE at `https://www.spanbix.com` on the standalone **Next.js 16 App Router** app at `spanbix-web/`. Backend LIVE on Render. Multi-property build-target architecture (Vite) still active for the Mavro admin + HRMS + Tickets surfaces.
+**Phase:** 6.5 — SSR migration, canonical cutover to www, SEO audit fixes (author byline, security headers, HSTS preload) complete.
+**Scope:** covers BOTH the original Vite multi-tenant deploy AND the Phase 6 Spanbix-only Next.js sub-app. Sections 0–7 below describe the Vite path (still relevant for the admin / HRMS / Tickets builds). Section 7 ("SSR migration considerations") is now historical — see Section 8 below + [PROJECT_CONTEXT.md Phase 6](./PROJECT_CONTEXT.md) and [spanbix-web/README.md](./spanbix-web/README.md) for the live Next architecture.
 
 ## Critical gotchas observed during real deploys (read this first)
 
@@ -77,12 +77,12 @@ What changed in Phase 5.3:
 | Vercel config | none | `client/vercel.json` with SPA rewrite, security headers, asset cache policy, sitemap/robots backend rewrite (placeholder backend URL) |
 | Env contract | undocumented | `client/.env.example` with single `VITE_API_BASE_URL` switch |
 
-What did NOT change (per constraints):
+What did NOT change in Phase 5.3 (per the constraints of THAT phase — Phase 6 later changed some of this):
 - Backend (`src/`) untouched
 - Mongo schema untouched
 - Centralized SEO engine + analytics service + AI orchestration untouched
 - Existing Mavro dashboard ecosystem untouched
-- No SSR, no Next.js
+- ~~No SSR, no Next.js~~ **Superseded in Phase 6** — Spanbix now ships from `spanbix-web/` on Next.js 16 App Router with SSR + ISR + on-demand revalidation. The Vite path described in this section still runs the Mavro admin + HRMS + Tickets builds. See Section 8 below.
 
 ---
 
@@ -182,7 +182,9 @@ None of these are code changes; they are operational configuration steps.
 
 ---
 
-## 7. SSR migration considerations (for later, not now)
+## 7. SSR migration considerations — ✅ DONE in Phase 6 (historical context)
+
+> The analysis below is preserved as historical context for the decision that was taken. Spanbix has since migrated to Path B (Next.js sub-app at `spanbix-web/`). See Section 8 below + [PROJECT_CONTEXT.md Phase 6](./PROJECT_CONTEXT.md) for the live state.
 
 Current architecture is client-rendered SPA. For SEO-critical Spanbix public pages, this is **acceptable but not optimal** because:
 
@@ -214,12 +216,14 @@ When you are ready to deploy:
 
 ## Current live deployment
 
-- **Frontend (Spanbix):** `https://spanbix.com` (apex canonical; `www.spanbix.com` 301-redirects to apex at the Vercel domain layer; legacy `spanbix-web.vercel.app` still resolves and stays in the CORS allowlist for preview deploys).
-- **Stack:** Next.js 16 App Router (SSR + ISR + on-demand revalidation) under `spanbix-web/`. The legacy Vite Spanbix bundle is retired but still buildable.
+- **Frontend (Spanbix):** **canonical `https://www.spanbix.com`**. Apex `spanbix.com` 301-redirects to www at the Cloudflare edge AND via `spanbix-web/src/proxy.js` (Next 16 Proxy; explicit `NextResponse.redirect(url, 301)` because `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` still resolves as a preview alias and stays in the CORS allowlist.
+- **Stack:** Next.js 16 App Router (Turbopack) at `spanbix-web/`. SSR + ISR + on-demand revalidation; per-blog static generation; backend-proxied sitemap + robots; security headers including HSTS preload. The legacy Vite Spanbix bundle is retired but still buildable as a fallback (`npm run build:spanbix` from `client/`).
 - **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas).
 - **API origin (spanbix-web):** `NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env).
-- **ISR revalidation:** Render env `SPANBIX_WEB_URL=https://spanbix.com` + matching `REVALIDATE_SECRET` on both ends. Backend POSTs `${SPANBIX_WEB_URL}/api/revalidate` on every publish (`src/services/revalidateService.js`).
-- **CORS:** Render `CORS_ORIGIN` + the static baseline in `src/app.js` together cover `https://spanbix.com`, `https://www.spanbix.com`, `https://spanbix-web.vercel.app`, and the `spanbix-web-*.vercel.app` preview regex.
+- **ISR revalidation:** Render env `SPANBIX_WEB_URL=https://www.spanbix.com` + matching `REVALIDATE_SECRET` on both ends. Backend POSTs `${SPANBIX_WEB_URL}/api/revalidate` fire-and-forget on every publish (`src/services/revalidateService.js`). The endpoint busts `/blog`, `/blog/<slug>`, `/sitemap.xml`, `/robots.txt`.
+- **CORS:** Render `CORS_ORIGIN` + the static baseline in `src/app.js` together cover `https://www.spanbix.com`, `https://spanbix.com`, `https://spanbix-web.vercel.app`, and the `spanbix-web-*.vercel.app` preview regex.
+- **Vercel project Domains setup:** `www.spanbix.com` is the PRIMARY. Apex `spanbix.com` must point DIRECTLY at the app — do NOT toggle "redirect to www.spanbix.com" in the Vercel Domains UI. If Vercel handles the redirect at the edge with 308, our explicit 301 in `proxy.js` never fires.
+- **Author byline (Phase 6.5):** real author data lives on the populated `Blog.author` AdminUser doc. Update via `npm run set:spanbix-author` driven by `SPANBIX_AUTHOR_*` env vars — no MongoDB editing.
 
 ---
 
@@ -286,5 +290,91 @@ When you are ready to deploy:
 | `client/vite.config.js` | Build chunking + dev proxy switch |
 | `src/utils/seedSpanbix.js` | Idempotent tenant bootstrap |
 | `src/server.js` | Calls `upsertSpanbixTenant({ silent: true })` on boot |
+
+---
+
+## 8. Phase 6 — Live Spanbix SSR deploy on `spanbix-web/` (Next.js 16)
+
+The standalone Next.js sub-app at `spanbix-web/` is what `www.spanbix.com` actually serves today. It is a SEPARATE Vercel project from the Mavro admin Vite project — they share a backend on Render but nothing else.
+
+### 8.1 Vercel project — `spanbix-web`
+
+| Setting | Value |
+|---|---|
+| Framework Preset | **Next.js** (auto-detected, 16.x) |
+| Root Directory | `spanbix-web/` |
+| Install Command | `npm install` (default) |
+| Build Command | `npm run build` (default) |
+| Output Directory | `.next` (auto) |
+| Domains | `www.spanbix.com` (primary), `spanbix.com` (points at app, do **not** toggle "redirect to www" in Vercel UI), `spanbix-web.vercel.app` (preview alias) |
+
+**Env vars (Production + Preview):**
+```
+NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com
+REVALIDATE_SECRET=<shared secret, also in Render env>
+```
+
+### 8.2 Render env additions (backend pairs with spanbix-web)
+
+```
+SPANBIX_WEB_URL=https://www.spanbix.com
+REVALIDATE_SECRET=<same value as Vercel>
+CORS_ORIGIN=https://www.spanbix.com,https://spanbix.com    # baseline in app.js already covers these + preview regex
+```
+
+### 8.3 First-deploy verification checklist
+
+```
+# Redirect path
+curl -I https://spanbix.com/                                  # expect 301 → https://www.spanbix.com/
+
+# Security headers (must all be present)
+curl -I https://www.spanbix.com/ | grep -iE "strict-transport-security|content-security-policy|x-frame-options|x-content-type|referrer-policy|permissions-policy"
+
+# Sitemap host
+curl https://www.spanbix.com/sitemap.xml | grep -c '<loc>'    # expect 12+ (scales with published blogs)
+curl https://www.spanbix.com/sitemap.xml | grep -oE 'https://[^<]+' | grep -v 'www.spanbix.com'   # expect EMPTY
+
+# Robots
+curl https://www.spanbix.com/robots.txt | grep -i Sitemap     # expect Sitemap: https://www.spanbix.com/sitemap.xml
+
+# Per-blog real meta + Person schema in raw HTML (no JS)
+curl https://www.spanbix.com/blog/<slug> | grep -oE '"@type":"(BlogPosting|Person)"'
+
+# On-demand revalidation works (will 401 with wrong secret — expected)
+curl -X POST https://www.spanbix.com/api/revalidate -H "Content-Type: application/json" -d '{"slug":"x","secret":"wrong"}'
+```
+
+### 8.4 Common-failure runbook
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| Sitemap `<loc>` still shows `spanbix-web.vercel.app` after Render redeploy | `Website.domain` in Mongo still stores the legacy value; the seed migration's exact-match Set didn't catch a stored value with trailing slash | Already hardened in `seedSpanbix.js → LEGACY_DOMAINS` (normalize scheme + trailing slash + casing). For a one-shot manual fix, run from repo root: `node -e "require('dotenv').config();require('dns').setServers(['8.8.8.8']);const m=require('mongoose');const{Website}=require('./src/models');const c=require('./src/config');(async()=>{await m.connect(c.mongo.uri);const w=await Website.findOne({slug:'spanbix'});w.domain='www.spanbix.com';await w.save();process.exit(0);})()"` |
+| Vercel deploy fails with `Proxy is missing expected function export name` | `src/proxy.js` exports `middleware(...)` instead of `proxy(...)` (Next 16 file-convention deprecation) | Rename the export to `proxy(request)` |
+| `ERR_TOO_MANY_REDIRECTS` on www | Vercel project Domains has `www.spanbix.com` set to "Redirect to spanbix.com" while Cloudflare does apex → www → infinite loop | Set `www.spanbix.com` as the PRIMARY in Vercel Domains; `spanbix.com` either points at the app (let `proxy.js` 301) or "Redirect to www" |
+| Public sitemap shows old URLs after canonical change | Vercel ISR cache holds the proxied response (5 min for `/sitemap.xml`, 1 hour for `/robots.txt`) | Wait the ISR window, OR redeploy spanbix-web (fully busts cache), OR POST `/api/revalidate` with the right secret (now busts both paths too) |
+| Blog author block missing on detail page | AdminUser `bio` / `linkedinUrl` / `jobTitle` / `avatar` not set on the populated author doc | `npm run set:spanbix-author` from repo root with `SPANBIX_AUTHOR_*` env vars |
+| `unsafe-inline` CSP warnings in Lighthouse | Intentional — Next runtime + framer-motion + Vercel analytics need it until a nonce-based CSP is wired | Defer; tracked under Open follow-ups in FUTURE_ROADMAP.md |
+| HRMS or Tickets blog social previews still generic | They are still on the Vite admin bundle with `useSEO` — not migrated | Re-apply the `spanbix-web/` blueprint to a new sub-app if/when SEO becomes a priority |
+
+### 8.5 Files / paths to know
+
+| Path | Role |
+|---|---|
+| `spanbix-web/next.config.mjs` | `headers()` (security headers + HSTS preload) + `redirects()` (legacy `/spanbix/*` → root) + `poweredByHeader: false` |
+| `spanbix-web/src/proxy.js` | Apex → www 301 (Next 16 Proxy convention; renamed from `middleware.js`) |
+| `spanbix-web/src/app/api/revalidate/route.js` | On-demand ISR bust for `/blog`, `/blog/<slug>`, `/sitemap.xml`, `/robots.txt` |
+| `spanbix-web/src/app/sitemap.xml/route.js` | Proxy of backend `/sitemap/spanbix.xml` (5-min ISR) |
+| `spanbix-web/src/app/robots.txt/route.js` | Proxy of backend `/robots/spanbix.txt` (1-hour ISR) |
+| `spanbix-web/src/app/blog/[slug]/page.jsx` | Per-blog SSG + ISR + enriched Person JSON-LD + `AuthorByline` block |
+| `spanbix-web/src/lib/spanbixSeo.js` | `blogPostingLd` (enriched Person), `breadcrumbLd`, `blogListLd`, `SPANBIX_SITE`, `SPANBIX_CAREER_PATHS` |
+| `src/services/revalidateService.js` | Backend fire-and-forget POST to `${SPANBIX_WEB_URL}/api/revalidate` |
+| `src/utils/seedSpanbix.js` | `upsertSpanbixTenant` (LEGACY_DOMAINS migration, normalized) + `upsertSpanbixStaticPages` (9 marketing `SeoMetadata` rows seeded idempotently) |
+| `src/utils/setSpanbixAuthor.js` | `npm run set:spanbix-author` — env-driven AdminUser byline updates |
+| `src/services/sitemapService.js` | `buildBaseUrl` (looped scheme strip) + `generateSitemap` + `generateRobotsTxt` |
+| `src/controllers/blogController.js` | `getPublicBlog` populates `author` with `name avatar bio linkedinUrl jobTitle`; publish paths fire `revalidateService.revalidateBlog(slug)` |
+| `src/controllers/authController.js` | `updateUser` whitelist now accepts `avatar / phone / bio / linkedinUrl / jobTitle` |
+
+---
 
 *End of deployment readiness document. Update before each subsequent deploy.*
