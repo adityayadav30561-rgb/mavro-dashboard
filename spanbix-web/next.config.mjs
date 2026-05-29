@@ -39,6 +39,11 @@ const csp = [
   `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com`,
   "media-src 'self'",
   "object-src 'none'",
+  // Google Maps embed on /contact uses an iframe served from www.google.com
+  // (and a couple of map subdomains it loads internally). Without this rule
+  // the default-src fallback blocks the iframe with the "This content is
+  // blocked" placeholder. Keep the allow-list tight — no wildcards.
+  "frame-src 'self' https://www.google.com https://maps.google.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
