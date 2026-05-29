@@ -208,6 +208,12 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 - ✅ **Admin Vite build** ✓ 18.06s. Main chunk shrank 1234 kB → 1097 kB (gzipped 359 → 325 kB) — the saved bytes are the removed Spanbix code.
 - ✅ **Live site unaffected** — `spanbix-web/` Next build still ships 12 routes + Proxy; `https://www.spanbix.com` serves the same SSR + ISR + on-demand revalidation contract.
 
+### 6.3 Spanbix Phase 6.8.3 — Dedicated WhatsApp-share enquiry page (May 29, 2026) ✅ COMPLETE
+- ✅ **New route `/enquire`** at `spanbix-web/src/app/enquire/page.jsx` + `EnquireForm.jsx` ('use client'). Single-column centered card on cream, no contact-coordinates aside, no map. Headline "Tell us about you.", same audience / interest chip set as `/contact`.
+- ✅ **Attribution mechanism** — submissions tag `formId: 'spanbix-whatsapp'` + `customFields.source: 'whatsapp-share'`. Backend `Lead.formId` index lets admin filter cleanly. Beats UTM-on-`/contact` because copy-paste flattens query strings; a dedicated route guarantees 100% attribution regardless of how the link travels.
+- ✅ **SEO** — `robots: { index: false, follow: false }` via Next `generateMetadata`. Not added to sitemap / `SeoMetadata` seed. Search engines stay focused on `/contact`.
+- ✅ Next build green: 13 static + ƒ-routes (`/enquire` listed as `○`).
+
 ### 6.2 Spanbix Phase 6.8 follow-up patches (May 29, 2026) ✅ COMPLETE
 - ✅ **Phase 6.8.1** — capitalised `I` in the WhatsApp floater prefilled message. Draft now reads `"I want to enquire about the courses"`.
 - ✅ **Phase 6.8.2** — CSP `frame-src` directive added to `spanbix-web/next.config.mjs` `headers()`: `frame-src 'self' https://www.google.com https://maps.google.com`. The `/contact` Google Maps embed was previously blocked by the CSP default-src fallback (Chrome rendered "This content is blocked"). Allow-list kept tight — no wildcards, exact upstream hosts only.

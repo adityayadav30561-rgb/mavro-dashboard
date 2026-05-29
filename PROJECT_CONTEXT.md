@@ -734,6 +734,16 @@ The previous 4-tile placeholder grid (`IG / LI / YT / X` with `href="#"`) was re
   - Primary CTA: `Book Consultation →` (routes `/contact`, also dismisses)
   - Secondary: `Maybe later`
 
+### Phase 6.8.3 — Dedicated WhatsApp-share enquiry page `/enquire` (May 29, 2026)
+
+Single-purpose lead-capture page intended for **1-to-1 outreach** (sales team shares the URL over WhatsApp / email when chatting with a prospect). Lives at `https://www.spanbix.com/enquire`. Distinct from `/contact` so admin Leads can separate inbound channels by `formId` without relying on UTM hygiene.
+
+- **Form contract** — `formId: 'spanbix-whatsapp'` + `customFields.source: 'whatsapp-share'`. Backend Lead schema indexes `formId`; admin Leads UI groups by it. Do NOT change either string without updating the matching saved filter on the admin side.
+- **Visual identity** — single-column centered card on `--sx-cream-50`, no contact-coordinates aside, no map. Headline: "Tell us about you." Same audience / interest chip set as `/contact` for consistency.
+- **SEO posture** — `robots: { index: false, follow: false }` via Next `generateMetadata`. The page is intentionally NOT in the sitemap and is not seeded as a `SeoMetadata` row. Search engines should not index it; people receive the URL by direct share.
+- **Files** — `spanbix-web/src/app/enquire/page.jsx` (Server Component, metadata + JSON-LD breadcrumbs) + `spanbix-web/src/app/enquire/EnquireForm.jsx` (`'use client'` form island reusing `submitPublicLead` + `getOrCreateSession`).
+- **Attribution alternative considered** — UTM (`?utm_source=whatsapp&utm_medium=referral`) on the existing `/contact` URL. Rejected as the primary mechanism because copy-paste flattens query strings, browser back/refresh loses them, and people often type the bare URL. A dedicated route + `formId` is 100% reliable; UTMs can still ride on top if needed for finer-grained campaign tracking.
+
 ### Phase 6.8 invariants
 - **`Footer.jsx SOCIALS` is the single source of truth for social URLs.** Adding a new platform = drop a new entry; the glyph is a path payload, the tile chrome stays the same.
 - **WhatsApp phone digits + prefilled message live in `WhatsAppFloater.jsx`** as hardcoded constants for now. A future move to a shared contact-config module can replace them without touching the floater layout. The prefilled draft is `"I want to enquire about the courses"` — capital `I` is intentional (Phase 6.8.1 fix). When editing the message: keep it ≤60 chars so the WhatsApp draft preview doesn't truncate on mobile.
