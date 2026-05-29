@@ -13,7 +13,7 @@
 // module can replace this constant.
 
 const PHONE_DIGITS_ONLY = '919310793790';
-const PREFILLED_MESSAGE = 'i want to enquire about the courses';
+const PREFILLED_MESSAGE = 'I want to enquire about the courses';
 
 function WhatsAppGlyph({ size = 26 }) {
   return (
