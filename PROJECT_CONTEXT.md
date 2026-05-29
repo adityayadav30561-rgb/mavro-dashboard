@@ -697,7 +697,7 @@ Content + UX updates applied to `spanbix-web/` after the cleanup. Live site imme
 ### Contact / brand identity updates
 - **Phone:** `+91 93107 93790` (`spanbix-web/src/app/contact/ContactForm.jsx → COORDINATES`).
 - **Email:** `contact@spanbix.com` (was `hello@spanbix.com`).
-- **Address:** Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009).
+- **Address:** Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009).
 - **Centres:** Greater Noida + Lucknow only. All Bengaluru / Hyderabad / Pune copy removed (image filenames retained where they don't surface in visible UI).
 - **Map embed** rewritten to point at the Galaxy Blue Sapphire Plaza address (the old iframe pointed at an unrelated "Saisatwik Technologies" pin).
 - **Footer copyright** flipped to `© 2026 Spanbix Training Institute. · Greater Noida`.

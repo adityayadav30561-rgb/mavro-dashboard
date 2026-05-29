@@ -13,7 +13,7 @@ const COORDINATES = [
   {
     icon: MapPin,
     label: 'Address',
-    value: 'Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009)',
+    value: 'Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009)',
   },
   { icon: MapPin,  label: 'Centres',   value: 'Greater Noida · Lucknow' },
   { icon: Clock,   label: 'Hours',     value: 'Mon–Sat · 10AM – 7PM IST' },
@@ -146,7 +146,7 @@ export default function ContactForm() {
               >
                 <iframe
                   title="Spanbix office — Galaxy Blue Sapphire Plaza, Greater Noida"
-                  src="https://www.google.com/maps?q=Galaxy+Blue+Sapphire+Plaza+1105+Greater+Noida+West+Link+Rd+Sector+4+Greater+Noida&output=embed"
+                  src="https://www.google.com/maps?q=Galaxy+Blue+Sapphire+Plaza+1415+Greater+Noida+West+Link+Rd+Sector+4+Greater+Noida&output=embed"
                   width="100%"
                   height="240"
                   style={{ border: 0, display: 'block', filter: 'grayscale(0.15)' }}

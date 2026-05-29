@@ -213,7 +213,7 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 - ✅ **Phase 6.8.2** — CSP `frame-src` directive added to `spanbix-web/next.config.mjs` `headers()`: `frame-src 'self' https://www.google.com https://maps.google.com`. The `/contact` Google Maps embed was previously blocked by the CSP default-src fallback (Chrome rendered "This content is blocked"). Allow-list kept tight — no wildcards, exact upstream hosts only.
 
 ### 6.1 Spanbix Phase 6.8 — Next app content + UX polish (May 29, 2026) ✅ COMPLETE
-- ✅ **Contact info updated** in `spanbix-web/src/app/contact/ContactForm.jsx`: phone `+91 93107 93790`, email `contact@spanbix.com`, address `Galaxy Blue Sapphire Plaza, 1105, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, UP (201009)`, centres `Greater Noida · Lucknow`. Map embed re-pointed at the real Galaxy Blue Sapphire Plaza coordinates.
+- ✅ **Contact info updated** in `spanbix-web/src/app/contact/ContactForm.jsx`: phone `+91 93107 93790`, email `contact@spanbix.com`, address `Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, UP (201009)`, centres `Greater Noida · Lucknow`. Map embed re-pointed at the real Galaxy Blue Sapphire Plaza coordinates.
 - ✅ **Footer copyright** flipped to `© 2026 Spanbix Training Institute. · Greater Noida`. Bengaluru / Hyderabad / Pune copy removed from the footer + every visible surface.
 - ✅ **Social tiles** replaced the `IG / LI / YT / X` placeholder grid with real LinkedIn / Facebook / Instagram links and inline brand SVG glyphs (lucide-react 1.16 has no brand-icon exports). Each tile opens in a new tab with `rel="noopener noreferrer me"`.
 - ✅ **Tushar testimonial** trimmed to remove the `before I even graduated` tail.
