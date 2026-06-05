@@ -23,6 +23,10 @@ import { getOrCreateSession } from '@/lib/analytics';
 
 const AUDIENCES = ['Student', 'Working professional', 'College / T&P office'];
 const INTERESTS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
+// Highest education qualification — must match the chip set used on
+// /contact's ContactForm so admin Leads has a single canonical column for
+// `customFields.education` across both inbound channels.
+const EDUCATIONS = ['12th', 'Diploma', "Bachelor's", "Master's", 'PhD', 'Other'];
 
 const FORM_ID = 'spanbix-whatsapp';
 const SOURCE_TAG = 'whatsapp-share';
@@ -31,7 +35,7 @@ export default function EnquireForm() {
   const [websiteId, setWebsiteId] = useState(null);
   const [form, setForm] = useState({
     name: '', email: '', phone: '', company: '',
-    audience: 'Student', interest: '', message: '',
+    audience: 'Student', interest: '', education: '', message: '',
   });
   const [status, setStatus] = useState('idle');
   const [serverError, setServerError] = useState('');
@@ -46,8 +50,13 @@ export default function EnquireForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim()) {
-      setServerError('Name and email are required.');
+    if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
+      setServerError('Name, email, and phone are required.');
+      setStatus('error');
+      return;
+    }
+    if (!form.education) {
+      setServerError('Please pick your highest education qualification.');
       setStatus('error');
       return;
     }
@@ -63,7 +72,7 @@ export default function EnquireForm() {
         website: websiteId,
         name: form.name.trim(),
         email: form.email.trim(),
-        phone: form.phone.trim() || undefined,
+        phone: form.phone.trim(),
         company: form.company.trim() || undefined,
         message: form.message.trim() || undefined,
         customFields: {
@@ -72,6 +81,7 @@ export default function EnquireForm() {
           // operators see WHATSAPP-SHARE next to the lead at a glance.
           source: SOURCE_TAG,
           ...(form.audience ? { audience: form.audience } : {}),
+          ...(form.education ? { education: form.education } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
@@ -80,7 +90,7 @@ export default function EnquireForm() {
         formId: FORM_ID,
       });
       setStatus('success');
-      setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', message: '' });
+      setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', education: '', message: '' });
     } catch (err) {
       setServerError(err?.response?.data?.message || 'Submission failed. Please try again.');
       setStatus('error');
@@ -171,7 +181,7 @@ export default function EnquireForm() {
               >
                 <Field label="Full Name *" placeholder="Priya Sharma" value={form.name} onChange={update('name')} required />
                 <Field label="Email *" placeholder="priya@example.com" value={form.email} onChange={update('email')} required type="email" />
-                <Field label="Phone (WhatsApp)" placeholder="+91 98XXXXXXXX" value={form.phone} onChange={update('phone')} />
+                <Field label="Phone (WhatsApp) *" placeholder="+91 98XXXXXXXX" value={form.phone} onChange={update('phone')} required type="tel" />
                 <Field label="Company / College" placeholder="Tata Consultancy Services" value={form.company} onChange={update('company')} />
               </div>
 
@@ -186,6 +196,22 @@ export default function EnquireForm() {
                       className={form.audience === a ? 'sx-role-chip active' : 'sx-role-chip'}
                     >
                       {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="sx-mono" style={{ color: 'var(--sx-ink-4, #5d6a8a)', marginBottom: 8 }}>HIGHEST EDUCATION *</div>
+                <div className="sx-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                  {EDUCATIONS.map((e) => (
+                    <button
+                      key={e}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, education: e }))}
+                      className={form.education === e ? 'sx-role-chip active' : 'sx-role-chip'}
+                    >
+                      {e}
                     </button>
                   ))}
                 </div>
