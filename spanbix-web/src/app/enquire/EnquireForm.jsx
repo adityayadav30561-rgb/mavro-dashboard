@@ -23,10 +23,12 @@ import { getOrCreateSession } from '@/lib/analytics';
 
 const AUDIENCES = ['Student', 'Working professional', 'College / T&P office'];
 const INTERESTS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
-// Highest education qualification — must match the chip set used on
-// /contact's ContactForm so admin Leads has a single canonical column for
-// `customFields.education` across both inbound channels.
-const EDUCATIONS = ['12th', 'Diploma', "Bachelor's", "Master's", 'PhD', 'Other'];
+// Highest education qualification is a free-text input — mirrors /contact's
+// ContactForm so admin Leads has a single canonical column
+// (`customFields.education`) across both inbound channels regardless of how
+// people phrase their credential (B.Com Hons / MBA Finance / B.Tech CSE / CA
+// Inter / Diploma in Mechanical Engineering / …). 120-char client-side cap;
+// the leadController sanitizer enforces 1000-char ceiling server-side.
 
 const FORM_ID = 'spanbix-whatsapp';
 const SOURCE_TAG = 'whatsapp-share';
@@ -55,8 +57,8 @@ export default function EnquireForm() {
       setStatus('error');
       return;
     }
-    if (!form.education) {
-      setServerError('Please pick your highest education qualification.');
+    if (!form.education.trim()) {
+      setServerError('Please enter your highest education qualification.');
       setStatus('error');
       return;
     }
@@ -81,7 +83,7 @@ export default function EnquireForm() {
           // operators see WHATSAPP-SHARE next to the lead at a glance.
           source: SOURCE_TAG,
           ...(form.audience ? { audience: form.audience } : {}),
-          ...(form.education ? { education: form.education } : {}),
+          ...(form.education.trim() ? { education: form.education.trim() } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
@@ -201,21 +203,14 @@ export default function EnquireForm() {
                 </div>
               </div>
 
-              <div>
-                <div className="sx-mono" style={{ color: 'var(--sx-ink-4, #5d6a8a)', marginBottom: 8 }}>HIGHEST EDUCATION *</div>
-                <div className="sx-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                  {EDUCATIONS.map((e) => (
-                    <button
-                      key={e}
-                      type="button"
-                      onClick={() => setForm((f) => ({ ...f, education: e }))}
-                      className={form.education === e ? 'sx-role-chip active' : 'sx-role-chip'}
-                    >
-                      {e}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <Field
+                label="Highest Education *"
+                placeholder="e.g. B.Com (Hons), MBA Finance, B.Tech CSE…"
+                value={form.education}
+                onChange={update('education')}
+                required
+                maxLength={120}
+              />
 
               <div>
                 <div className="sx-mono" style={{ color: 'var(--sx-ink-4, #5d6a8a)', marginBottom: 8 }}>INTERESTED TRACK</div>
@@ -295,7 +290,7 @@ export default function EnquireForm() {
   );
 }
 
-function Field({ label, placeholder, value, onChange, required, type = 'text' }) {
+function Field({ label, placeholder, value, onChange, required, type = 'text', maxLength }) {
   return (
     <label className="flex flex-col gap-2">
       <span className="sx-mono" style={{ color: 'var(--sx-ink-3, #3a4970)' }}>
@@ -308,6 +303,7 @@ function Field({ label, placeholder, value, onChange, required, type = 'text' })
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        maxLength={maxLength}
       />
     </label>
   );

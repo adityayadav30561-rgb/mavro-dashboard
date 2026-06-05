@@ -16,9 +16,13 @@ import { trackCtaClick } from '@/lib/analytics';
 //   - Mount animation is intentionally skipped — see prior bug fix log
 //     (a slide-in caused a visible white sliver between bar + page on refresh).
 
+// `external: true` entries render as <a target="_blank"> instead of next/link.
+// Jobs lives on a separate Vercel project at jobs.spanbix.com — different app,
+// independent deploy — so we never want client-side routing to chase it.
 const NAV_LINKS = [
   { label: 'Courses', to: '/courses' },
   { label: 'Career Paths', to: '/career-paths' },
+  { label: 'Jobs', to: 'https://jobs.spanbix.com/', external: true },
   { label: 'Campus Programs', to: '/campus-programs' },
   { label: 'Blog', to: '/blog' },
   { label: 'About', to: '/about' },
@@ -68,17 +72,28 @@ export default function Navbar() {
 
         <nav className="hidden lg:flex items-center gap-1">
           {NAV_LINKS.map((l) => {
-            const active = pathname === l.to || pathname.startsWith(l.to + '/');
+            const active = !l.external && (pathname === l.to || pathname.startsWith(l.to + '/'));
+            const className = cn(
+              'px-3 py-2 text-[13.5px] font-medium rounded-md transition-colors',
+              active ? 'text-[#102c56]' : 'text-[#102c56]/65 hover:text-[#102c56]'
+            );
+            const style = { fontFamily: '"Geist", "Sora", system-ui, sans-serif' };
+            if (l.external) {
+              return (
+                <a
+                  key={l.to}
+                  href={l.to}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={className}
+                  style={style}
+                >
+                  {l.label}
+                </a>
+              );
+            }
             return (
-              <Link
-                key={l.to}
-                href={l.to}
-                className={cn(
-                  'px-3 py-2 text-[13.5px] font-medium rounded-md transition-colors',
-                  active ? 'text-[#102c56]' : 'text-[#102c56]/65 hover:text-[#102c56]'
-                )}
-                style={{ fontFamily: '"Geist", "Sora", system-ui, sans-serif' }}
-              >
+              <Link key={l.to} href={l.to} className={className} style={style}>
                 {l.label}
               </Link>
             );
@@ -121,16 +136,29 @@ export default function Navbar() {
             }}
           >
             <nav className="flex flex-col px-6 py-4 gap-1">
-              {NAV_LINKS.map((l) => (
-                <Link
-                  key={l.to}
-                  href={l.to}
-                  className="px-3 py-2.5 rounded-md text-[14px] text-[#102c56]/75 hover:text-[#102c56] hover:bg-[#102c56]/[0.05]"
-                  style={{ fontFamily: '"Geist", "Sora", system-ui, sans-serif' }}
-                >
-                  {l.label}
-                </Link>
-              ))}
+              {NAV_LINKS.map((l) => {
+                const className = 'px-3 py-2.5 rounded-md text-[14px] text-[#102c56]/75 hover:text-[#102c56] hover:bg-[#102c56]/[0.05]';
+                const style = { fontFamily: '"Geist", "Sora", system-ui, sans-serif' };
+                if (l.external) {
+                  return (
+                    <a
+                      key={l.to}
+                      href={l.to}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={className}
+                      style={style}
+                    >
+                      {l.label}
+                    </a>
+                  );
+                }
+                return (
+                  <Link key={l.to} href={l.to} className={className} style={style}>
+                    {l.label}
+                  </Link>
+                );
+              })}
               <Link
                 href="/contact"
                 onClick={() => trackCtaClick('Book Career Consultation', { location: 'navbar-mobile' })}

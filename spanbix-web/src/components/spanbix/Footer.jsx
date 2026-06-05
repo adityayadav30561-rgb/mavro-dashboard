@@ -84,6 +84,7 @@ const COLUMNS = [
     links: [
       { label: 'About', to: '/about' },
       { label: 'Campus Programs', to: '/campus-programs' },
+      { label: 'Jobs', to: 'https://jobs.spanbix.com/', external: true },
       { label: 'Contact', to: '/contact' },
     ],
   },
@@ -184,9 +185,20 @@ export default function Footer() {
               >
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link href={l.to} className="hover:text-white transition-colors">
-                      {l.label}
-                    </Link>
+                    {l.external ? (
+                      <a
+                        href={l.to}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white transition-colors"
+                      >
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link href={l.to} className="hover:text-white transition-colors">
+                        {l.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

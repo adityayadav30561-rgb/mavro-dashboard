@@ -21,11 +21,13 @@ const COORDINATES = [
 
 const AUDIENCES = ['Student', 'Working professional', 'College / T&P office'];
 const INTERESTS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
-// Highest education qualification — chip choices match the SAP-bound audience
-// (commerce / management / engineering / pure-science). "Other" is the catch-all
-// for non-standard credentials so the field stays bounded but expressive. Values
-// land in customFields.education on the Lead — admin LeadList auto-renders it.
-const EDUCATIONS = ['12th', 'Diploma', "Bachelor's", "Master's", 'PhD', 'Other'];
+// Highest education qualification is a free-text input — the SAP-bound audience
+// is too varied for a fixed chip list (12th / Diploma / B.Com / BBA / B.Tech /
+// BSc / MBA / MCA / M.Tech / PhD / professional credentials like CA-Inter etc).
+// Values land in customFields.education on the Lead — admin LeadList auto-
+// renders every customFields key as its own column, so no admin code change is
+// needed when the values vary. The sanitizer in leadController caps value
+// length at 1000 chars and the input below adds a 120-char client-side cap.
 
 export default function ContactForm() {
   const [websiteId, setWebsiteId] = useState(null);
@@ -51,8 +53,8 @@ export default function ContactForm() {
       setStatus('error');
       return;
     }
-    if (!form.education) {
-      setServerError('Please pick your highest education qualification.');
+    if (!form.education.trim()) {
+      setServerError('Please enter your highest education qualification.');
       setStatus('error');
       return;
     }
@@ -73,7 +75,7 @@ export default function ContactForm() {
         message: form.message.trim() || undefined,
         customFields: {
           ...(form.audience ? { audience: form.audience } : {}),
-          ...(form.education ? { education: form.education } : {}),
+          ...(form.education.trim() ? { education: form.education.trim() } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
@@ -221,21 +223,14 @@ export default function ContactForm() {
                   </div>
                 </div>
 
-                <div>
-                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>HIGHEST EDUCATION *</div>
-                  <div className="sx-row" style={{ gap: 8, flexWrap: 'wrap' }}>
-                    {EDUCATIONS.map((e) => (
-                      <button
-                        key={e}
-                        type="button"
-                        onClick={() => setForm((f) => ({ ...f, education: e }))}
-                        className={form.education === e ? 'sx-role-chip active' : 'sx-role-chip'}
-                      >
-                        {e}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                <Field
+                  label="Highest Education *"
+                  placeholder="e.g. B.Com (Hons), MBA Finance, B.Tech CSE…"
+                  value={form.education}
+                  onChange={update('education')}
+                  required
+                  maxLength={120}
+                />
 
                 <div>
                   <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>INTERESTED TRACK</div>
@@ -294,7 +289,7 @@ export default function ContactForm() {
   );
 }
 
-function Field({ label, placeholder, value, onChange, required, type = 'text' }) {
+function Field({ label, placeholder, value, onChange, required, type = 'text', maxLength }) {
   return (
     <label className="flex flex-col gap-2">
       <span className="sx-mono" style={{ color: 'var(--sx-ink-3)' }}>{label.toUpperCase()}</span>
@@ -305,6 +300,7 @@ function Field({ label, placeholder, value, onChange, required, type = 'text' })
         onChange={onChange}
         placeholder={placeholder}
         required={required}
+        maxLength={maxLength}
       />
     </label>
   );
