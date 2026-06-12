@@ -1,5 +1,8 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
+
 // HiringPartners — marquee strip of partner logos.
 //
 // Logos are served locally from `client/public/spanbix/partners/<slug>.png`.
@@ -28,38 +31,48 @@ const PARTNERS = [
 
 function PartnerLogo({ p }) {
   // Logo PNG renders directly on the section's cream bg — no pill / shadow /
-  // tile around it. Native brand colors stay intact.
+  // tile around it. Native brand colors stay intact. next/image serves AVIF/WebP
+  // automatically; on load failure we fall back to a serif wordmark via React
+  // state (the old imperative `replaceWith` DOM swap doesn't compose with the
+  // next/image wrapper element).
+  const [errored, setErrored] = useState(false);
   return (
     <div
       className="shrink-0 grid place-items-center"
       style={{ height: 56, minWidth: 160, padding: '0 8px' }}
       title={p.name}
     >
-      <img
-        src={`/spanbix/partners/${p.file}`}
-        alt={`${p.name} logo`}
-        loading="lazy"
-        decoding="async"
-        style={{
-          maxHeight: 48,
-          maxWidth: 170,
-          objectFit: 'contain',
-          display: 'block',
-        }}
-        onError={(e) => {
-          const fallback = document.createElement('span');
-          fallback.textContent = p.name;
-          fallback.style.cssText = [
-            'font-family: var(--sx-serif)',
-            'font-size: 20px',
-            'color: var(--sx-navy)',
-            'letter-spacing: 0.02em',
-            'font-style: italic',
-            'white-space: nowrap',
-          ].join(';');
-          e.currentTarget.replaceWith(fallback);
-        }}
-      />
+      {errored ? (
+        <span
+          style={{
+            fontFamily: 'var(--sx-serif)',
+            fontSize: 20,
+            color: 'var(--sx-navy)',
+            letterSpacing: '0.02em',
+            fontStyle: 'italic',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {p.name}
+        </span>
+      ) : (
+        <Image
+          src={`/spanbix/partners/${p.file}`}
+          alt={`${p.name} logo`}
+          width={170}
+          height={48}
+          loading="lazy"
+          onError={() => setErrored(true)}
+          style={{
+            maxHeight: 48,
+            maxWidth: 170,
+            width: 'auto',
+            height: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      )}
     </div>
   );
 }

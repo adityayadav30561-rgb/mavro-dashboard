@@ -15,7 +15,15 @@ export function buildMetadata({
     title,
     description,
     keywords,
-    alternates: canonical ? { canonical } : undefined,
+    // hreflang: this is English content targeted at India. en-IN tells Google to
+    // prefer it in Indian SERPs; x-default catches everyone else. Both point at
+    // the same canonical URL (single-locale site — no separate translations).
+    alternates: canonical
+      ? {
+          canonical,
+          languages: { 'en-IN': canonical, 'x-default': canonical },
+        }
+      : undefined,
     openGraph: {
       title,
       description,

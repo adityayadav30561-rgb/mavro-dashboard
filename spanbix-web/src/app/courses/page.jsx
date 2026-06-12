@@ -11,7 +11,7 @@ import { SPANBIX_SITE, SPANBIX_CAREER_PATHS, breadcrumbLd, courseLd } from '@/li
 export const metadata = buildMetadata({
   title: `Courses — ${SPANBIX_SITE.name}`,
   description:
-    "Explore Spanbix's ERP course catalog — four SAP-led tracks (FICO, MM, SD, ABAP) with live mentorship, hands-on configuration, and a complimentary personality development module.",
+    'Explore Spanbix SAP courses — FICO, MM, SD & ABAP. 3-month mentor-led tracks with capstone and placement support for graduates across India.',
   keywords: ['ERP courses', 'SAP training', 'SAP FICO course', 'SAP MM course', 'SAP ABAP', 'ERP careers'],
   canonical: `${SPANBIX_SITE.url}/courses`,
   ogImage: SPANBIX_SITE.logo,

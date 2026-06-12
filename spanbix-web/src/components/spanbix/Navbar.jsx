@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -63,9 +64,13 @@ export default function Navbar() {
           className="inline-flex items-center"
           style={{ padding: 0 }}
         >
-          <img
+          <Image
             src="/spanbix/spanbix-blue.png"
             alt="Spanbix"
+            width={500}
+            height={500}
+            priority
+            sizes="96px"
             style={{ height: 'clamp(56px, 9vw, 96px)', width: 'auto', display: 'block' }}
           />
         </Link>

@@ -14,8 +14,8 @@ import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import { buildMetadata } from '@/lib/seoMeta';
 import {
   SPANBIX_SITE,
-  organizationLd,
   educationalOrganizationLd,
+  websiteLd,
   faqLd,
 } from '@/lib/spanbixSeo';
 
@@ -32,7 +32,7 @@ const landingFaqs = [
 
 export const metadata = buildMetadata({
   title: `${SPANBIX_SITE.name} — ${SPANBIX_SITE.tagline}`,
-  description: SPANBIX_SITE.description,
+  description: SPANBIX_SITE.metaDescription,
   keywords: SPANBIX_SITE.keywords,
   canonical: `${SPANBIX_SITE.url}/`,
   ogImage: SPANBIX_SITE.logo,
@@ -42,7 +42,7 @@ export const metadata = buildMetadata({
 export default function HomePage() {
   return (
     <>
-      <JsonLd data={[organizationLd(), educationalOrganizationLd(), faqLd(landingFaqs)]} />
+      <JsonLd data={[educationalOrganizationLd(), websiteLd(), faqLd(landingFaqs)]} />
       <SpanbixLayout>
         <Hero />
         <HiringPartners />

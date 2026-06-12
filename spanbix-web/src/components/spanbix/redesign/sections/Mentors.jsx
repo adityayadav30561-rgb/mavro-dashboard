@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import Image from 'next/image';
 import { SPANBIX_MENTORS as MENTORS } from '@/lib/spanbixSeo';
 
 // Mentors — horizontal-scrolling faculty carousel on navy background.
@@ -80,11 +81,12 @@ export default function Mentors() {
               }}
             >
               <div className="relative overflow-hidden" style={{ aspectRatio: 1, background: 'rgba(255,255,255,0.04)' }}>
-                <img
+                <Image
                   src={m.image}
                   alt={m.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 768px) 85vw, 380px"
+                  style={{ objectFit: 'cover' }}
                 />
                 <span
                   className="sx-mono absolute"

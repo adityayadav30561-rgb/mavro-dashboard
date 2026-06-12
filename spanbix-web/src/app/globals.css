@@ -7,7 +7,11 @@
    etc.); next/font self-hosts under hashed names, so map its variables onto
    the --sx-* type tokens. Imported AFTER spanbix-redesign.css so this wins. */
 .spanbix-scope {
-  --sx-serif: var(--font-instrument-serif), var(--font-dm-serif), Georgia, serif;
-  --sx-sans: var(--font-geist), var(--font-sora), "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* DM Serif Display / Sora are no longer loaded as webfonts (trimmed for LCP).
+     Keep them as LITERAL family-name fallbacks — never `var(--font-dm-serif)`,
+     which is now undefined and would invalidate the whole font-family at
+     computed-value time, dropping the type to the browser default. */
+  --sx-serif: var(--font-instrument-serif), "DM Serif Display", Georgia, serif;
+  --sx-sans: var(--font-geist), "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
   --sx-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }

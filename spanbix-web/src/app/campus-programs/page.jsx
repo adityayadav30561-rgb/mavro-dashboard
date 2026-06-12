@@ -27,7 +27,7 @@ const TRACKS = [
 export const metadata = buildMetadata({
   title: `Campus Programs — ${SPANBIX_SITE.name}`,
   description:
-    'Spanbix Campus brings ERP-readiness cohorts inside your college — structured curriculum, live mentor sessions, and a co-branded credential. Aligned to your placement calendar.',
+    'Bring SAP-ready career infrastructure to your campus. Spanbix runs co-branded SAP cohorts and placement support for colleges across India.',
   keywords: ['campus ERP training', 'institutional SAP partnerships', 'placement cell ERP', 'campus ERP curriculum'],
   canonical: `${SPANBIX_SITE.url}/campus-programs`,
   ogImage: SPANBIX_SITE.logo,

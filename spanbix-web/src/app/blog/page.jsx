@@ -24,7 +24,7 @@ export async function generateMetadata({ searchParams }) {
       ? `Search: ${query} — ${SPANBIX_SITE.name} Blog`
       : `Career Insights & SAP Intelligence — ${SPANBIX_SITE.name}`,
     description:
-      'Career guides, SAP module deep-dives, placement strategy, and enterprise technology insights from the Spanbix team.',
+      'SAP career guides from Spanbix — salaries, track comparisons and job advice for commerce, MBA and engineering graduates in India.',
     keywords: ['SAP blog', 'SAP career guide', 'enterprise technology insights', 'placement strategy'],
     canonical: `${SPANBIX_SITE.url}/blog${query ? `?q=${encodeURIComponent(query)}` : ''}`,
     ogImage: SPANBIX_SITE.logo,

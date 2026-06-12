@@ -31,7 +31,7 @@ const LANES = [
 export const metadata = buildMetadata({
   title: `Contact — ${SPANBIX_SITE.name}`,
   description:
-    'Talk to a Spanbix career strategist. 30-minute consultation for students, working professionals, or institutional partnerships.',
+    'Talk to Spanbix — book a free career consultation on SAP FICO, MM, SD or ABAP. Greater Noida & Lucknow centres. Mon–Sat, 10AM–7PM IST.',
   keywords: ['contact Spanbix', 'ERP career consultation', 'campus partnership inquiry'],
   canonical: `${SPANBIX_SITE.url}/contact`,
   ogImage: SPANBIX_SITE.logo,

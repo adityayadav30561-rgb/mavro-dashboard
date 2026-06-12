@@ -9,7 +9,7 @@ import { SPANBIX_SITE, SPANBIX_CAREER_PATHS, breadcrumbLd, courseLd } from '@/li
 export const metadata = buildMetadata({
   title: `Career Paths — ${SPANBIX_SITE.name}`,
   description:
-    'Structured ERP career paths (SAP-led) for commerce, MBA, and engineering graduates — FICO, MM, SD, ABAP. Live mentorship, hands-on configuration, and a complimentary personality development module with every track.',
+    'Pick your SAP career track — FICO, MM, SD or ABAP. Mentor-led 3-month programs with capstone and placement support for graduates in India.',
   keywords: ['ERP career paths', 'SAP FICO career', 'SAP MM career', 'SAP ABAP career', 'ERP career India'],
   canonical: `${SPANBIX_SITE.url}/career-paths`,
   ogImage: SPANBIX_SITE.logo,

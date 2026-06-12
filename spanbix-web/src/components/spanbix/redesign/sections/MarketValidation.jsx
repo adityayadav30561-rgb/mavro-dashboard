@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 // MarketValidation — left photo, right 2x2 stat grid.
 
 const DEFAULT_STATS = [
@@ -38,19 +40,17 @@ export default function MarketValidation({
 
         <div className="grid gap-7 grid-cols-1 md:[grid-template-columns:minmax(0,_0.85fr)_minmax(0,_1.15fr)]">
           <div className="relative overflow-hidden hidden md:block" style={{ minHeight: 460, borderRadius: 10, background: 'var(--sx-navy)' }}>
-            <img
+            <Image
               src={image}
               alt={imageAlt}
+              fill
+              sizes="(max-width: 768px) 0px, 45vw"
               style={{
-                position: 'absolute', inset: 0,
-                width: '100%', height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center top',
                 transform: 'scale(1.18)',
                 transformOrigin: 'center 30%',
-                display: 'block',
               }}
-              loading="lazy"
             />
             {imageCorner && <div className="sx-photo-corner" style={{ zIndex: 2 }}>{imageCorner}</div>}
           </div>

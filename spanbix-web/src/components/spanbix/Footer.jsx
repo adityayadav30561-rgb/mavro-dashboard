@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 // Footer (redesign v2) — 5-column grid on desktop, 2-col on mobile.
@@ -128,9 +129,12 @@ export default function Footer() {
                 padding: '10px 16px',
               }}
             >
-              <img
+              <Image
                 src="/spanbix/spanbix-blue.png"
                 alt="Spanbix"
+                width={500}
+                height={500}
+                sizes="44px"
                 style={{ height: 44, width: 'auto', display: 'block' }}
               />
             </Link>

@@ -94,6 +94,20 @@ const nextConfig = {
         source: '/:path*',
         headers: securityHeaders,
       },
+      {
+        // Stable brand assets in /public/spanbix (logos, partner PNGs, hero
+        // video). Filenames aren't content-hashed, so NOT `immutable` — fresh
+        // for a day, then serve-stale-while-revalidate for a month so a swapped
+        // asset still propagates. Next's own /_next/static (hashed) is already
+        // served immutable by the framework — don't duplicate that here.
+        source: '/spanbix/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=2592000',
+          },
+        ],
+      },
     ];
   },
   async redirects() {

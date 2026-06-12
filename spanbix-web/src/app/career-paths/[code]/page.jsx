@@ -26,8 +26,8 @@ export async function generateMetadata({ params }) {
       ? `${track.name} · ${track.fullName} — ${SPANBIX_SITE.name}`
       : `SAP Career Paths — ${SPANBIX_SITE.name}`,
     description: track
-      ? `${track.summary} Mentor-led training, capstone, certification, and placement readiness.`
-      : SPANBIX_SITE.description,
+      ? `${track.name} training in India — 3-month mentor-led S/4HANA program with capstone, certification and placement support for graduates.`
+      : SPANBIX_SITE.metaDescription,
     keywords: track
       ? [`${track.name} course`, `${track.name} training`, `${track.name} certification`, `learn ${track.name}`]
       : SPANBIX_SITE.keywords,

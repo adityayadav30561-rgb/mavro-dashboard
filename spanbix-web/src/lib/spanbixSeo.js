@@ -14,6 +14,24 @@ export const SPANBIX_SITE = {
   url: 'https://www.spanbix.com',
   logo: 'https://www.spanbix.com/spanbix/spanbix-blue.png',
   twitter: '@spanbix',
+  // Short ≤155-char variant for the <meta description> / OG tag. The long-form
+  // `description` above stays the canonical schema.org description (no length
+  // limit there) — Google truncates page meta at ~160 chars, schema does not.
+  metaDescription:
+    'SAP training in India for commerce, MBA & engineering graduates. Mentor-led FICO, MM, SD & ABAP tracks with placement support. Online + Greater Noida.',
+  // Verified contact + registered office — single source of truth, mirrors the
+  // /contact page COORDINATES. Used to enrich the EducationalOrganization schema
+  // (address / telephone / email). Keep in lockstep with ContactForm.jsx.
+  email: 'contact@spanbix.com',
+  phone: '+91 93107 93790',
+  address: {
+    street: 'Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4',
+    locality: 'Greater Noida',
+    region: 'Uttar Pradesh',
+    postalCode: '201009',
+    country: 'IN',
+  },
+  centres: ['Greater Noida', 'Lucknow'],
   keywords: [
     'SAP training India',
     'SAP careers',
@@ -35,6 +53,19 @@ export const SPANBIX_SITE = {
     'ERP careers',
   ],
 };
+
+// Canonical brand profiles — single source of truth for schema `sameAs` AND the
+// footer social row. Keep in lockstep with Footer.jsx SOCIALS (Footer needs the
+// inline brand glyphs; the URLs must match these). Real verified handles only —
+// never a bare platform root (e.g. 'https://www.linkedin.com'), which reads as a
+// low-quality / placeholder signal to crawlers and LLMs.
+export const SPANBIX_SOCIALS = [
+  'https://www.linkedin.com/company/118163985',
+  'https://www.facebook.com/people/Spanbix-Training-Institute/61590494903596/',
+  'https://www.instagram.com/spanbix93',
+  'https://www.youtube.com/@Spanbix93',
+  'https://in.pinterest.com/spanbix93/',
+];
 
 // Brand color tokens — used in component className via inline style or scoped utility wrappers.
 // Per UI_VISION rules, tenant accents are baked into per-tenant components, not theme tokens.
@@ -927,27 +958,66 @@ export const SPANBIX_MARKET_SIGNALS = [
   { label: 'Size of India\'s SAP training market', value: '₹900Cr+', unit: 'addressable' },
 ];
 
-export function organizationLd() {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: SPANBIX_SITE.name,
-    url: SPANBIX_SITE.url,
-    logo: SPANBIX_SITE.logo,
-    sameAs: ['https://www.linkedin.com'],
-    description: SPANBIX_SITE.description,
-  };
-}
-
+// Canonical organization node. EducationalOrganization is a subtype of
+// Organization, so a single EducationalOrganization node satisfies both — no
+// need to emit a separate Organization node (which produced duplicate,
+// conflicting entities). Stable `@id` lets other schema (WebSite.publisher,
+// Course.provider) reference this one entity instead of restating it.
 export function educationalOrganizationLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'EducationalOrganization',
+    '@id': `${SPANBIX_SITE.url}/#organization`,
     name: SPANBIX_SITE.name,
     url: SPANBIX_SITE.url,
     logo: SPANBIX_SITE.logo,
     description: SPANBIX_SITE.description,
-    sameAs: ['https://www.linkedin.com'],
+    email: SPANBIX_SITE.email,
+    telephone: SPANBIX_SITE.phone,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: SPANBIX_SITE.address.street,
+      addressLocality: SPANBIX_SITE.address.locality,
+      addressRegion: SPANBIX_SITE.address.region,
+      postalCode: SPANBIX_SITE.address.postalCode,
+      addressCountry: SPANBIX_SITE.address.country,
+    },
+    areaServed: { '@type': 'Country', name: 'India' },
+    founder: { '@type': 'Person', name: 'LalitMohan Parihar' },
+    sameAs: SPANBIX_SOCIALS,
+    // NOTE: legalName / foundingDate / CIN / GST intentionally omitted — not
+    // verified yet. Add only with confirmed registration data, never placeholder.
+  };
+}
+
+// Deprecated alias — kept so any straggling importer keeps working, but it now
+// returns the SAME consolidated EducationalOrganization node. Do not add a
+// second, plain-Organization node to a page; emit educationalOrganizationLd once.
+export function organizationLd() {
+  return educationalOrganizationLd();
+}
+
+// Homepage WebSite node + sitelinks SearchAction. Makes the site eligible for a
+// Google sitelinks search box and gives LLMs an explicit search entry point.
+// `target` points at the blog search surface; `{search_term_string}` is the
+// required Google token.
+export function websiteLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SPANBIX_SITE.url}/#website`,
+    url: SPANBIX_SITE.url,
+    name: SPANBIX_SITE.name,
+    description: SPANBIX_SITE.description,
+    publisher: { '@id': `${SPANBIX_SITE.url}/#organization` },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${SPANBIX_SITE.url}/blog?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
   };
 }
 
@@ -976,16 +1046,51 @@ export function breadcrumbLd(items) {
   };
 }
 
+// Google Course rich-result eligibility needs BOTH hasCourseInstance and offers.
+//   - hasCourseInstance: how the course actually runs (online, instructor-led,
+//     ~3-month workload). courseWorkload is an ISO-8601 duration (P3M).
+//   - offers: required node, but we deliberately omit the numeric `price` —
+//     Spanbix policy is "no pricing on the public site / crawlable surface"
+//     (enrolment is a conversation, see CourseDetailView Campus-mode rule). The
+//     Offer still carries currency + availability + the enrol URL, which is
+//     valid schema; it just won't surface a price chip. Add price ONLY on
+//     explicit approval to flip pricing public.
 export function courseLd(course) {
+  const courseUrl = `${SPANBIX_SITE.url}/career-paths/${course.code}`;
   return {
     '@context': 'https://schema.org',
     '@type': 'Course',
     name: course.name,
     description: course.summary,
+    url: courseUrl,
+    // Self-contained provider (not an @id ref) — course pages don't emit the
+    // organization node, so a bare @id would dangle. Homepage WebSite.publisher
+    // CAN use @id because the org node is present there.
     provider: {
       '@type': 'EducationalOrganization',
       name: SPANBIX_SITE.name,
-      sameAs: SPANBIX_SITE.url,
+      url: SPANBIX_SITE.url,
+      sameAs: SPANBIX_SOCIALS,
+    },
+    inLanguage: ['en', 'hi'],
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'Online',
+      courseWorkload: 'P3M',
+      location: {
+        '@type': 'VirtualLocation',
+        url: courseUrl,
+      },
+      instructor: course.instructor?.name
+        ? { '@type': 'Person', name: course.instructor.name }
+        : undefined,
+    },
+    offers: {
+      '@type': 'Offer',
+      category: 'Paid',
+      priceCurrency: 'INR',
+      availability: 'https://schema.org/InStock',
+      url: `${SPANBIX_SITE.url}/contact`,
     },
   };
 }

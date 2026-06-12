@@ -1,9 +1,12 @@
+// Only the 3 families the redesign actually renders are loaded as webfonts:
+// Instrument Serif (headlines), Geist (UI/body), JetBrains Mono (labels). The
+// design system's fallback chain still NAMES "DM Serif Display" / "Sora" for
+// graceful degradation, but those are no longer fetched — the browser falls
+// through to Georgia / system-ui. Trimmed from 5 → 3 webfonts to cut LCP.
 import {
   Instrument_Serif,
   Geist,
   JetBrains_Mono,
-  DM_Serif_Display,
-  Sora,
 } from "next/font/google";
 import "../styles/spanbix-redesign.css";
 import "./globals.css";
@@ -28,20 +31,6 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const dmSerifDisplay = DM_Serif_Display({
-  variable: "--font-dm-serif",
-  weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const sora = Sora({
-  variable: "--font-sora",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata = {
   metadataBase: new URL("https://www.spanbix.com"),
   title: "Spanbix",
@@ -52,8 +41,6 @@ const fontVars = [
   instrumentSerif.variable,
   geist.variable,
   jetbrainsMono.variable,
-  dmSerifDisplay.variable,
-  sora.variable,
 ].join(" ");
 
 export default function RootLayout({ children }) {
