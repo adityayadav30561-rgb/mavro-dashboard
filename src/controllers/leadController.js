@@ -2,7 +2,6 @@ const { Lead, Website } = require('../models');
 const AnalyticsEvent = require('../models/AnalyticsEvent');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
-const { notifyNewLead } = require('../services/leadNotifier');
 
 // ===================================
 // User-Agent → device classifier (shared with analyticsController logic)
@@ -163,10 +162,6 @@ const submitLead = asyncHandler(async (req, res) => {
   // Skipped for auto-spam submissions so dashboards don't inflate from bots.
   if (!data.isSpam) {
     await emitFormSubmitEvent({ lead, website, req, body: req.body });
-    // Speed-to-lead alert (WhatsApp group / Telegram / webhook). Fire-and-forget
-    // — never block or fail the submit on a notification error. No-op until a
-    // channel is configured via env.
-    notifyNewLead({ lead, website }).catch(() => {});
   }
 
   // Return minimal data to public endpoint (don't expose internal fields)
