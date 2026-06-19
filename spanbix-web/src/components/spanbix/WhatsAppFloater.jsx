@@ -12,6 +12,8 @@
 // is digits-only. Hardcoded here on purpose; a future move to a contact-config
 // module can replace this constant.
 
+import { trackWhatsApp } from '@/lib/track';
+
 const PHONE_DIGITS_ONLY = '919310793790';
 const PREFILLED_MESSAGE = 'I want to enquire about the courses';
 
@@ -41,6 +43,7 @@ export default function WhatsAppFloater() {
       rel="noopener noreferrer"
       aria-label="Chat with Spanbix on WhatsApp"
       title="Chat with us on WhatsApp"
+      onClick={() => trackWhatsApp('floater')}
       style={{
         position: 'fixed',
         bottom: 'clamp(18px, 3.5vw, 28px)',
