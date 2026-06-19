@@ -9,6 +9,7 @@ import CohortBanner from './CohortBanner';
 import useScrollReveal from './redesign/useScrollReveal';
 import useTrackPageView from '@/hooks/useTrackPageView';
 import { setAnalyticsTenant } from '@/lib/analytics';
+import { captureAttribution } from '@/lib/attribution';
 
 // Spanbix is the third active Mavro tenant (slug 'spanbix'). The module-level
 // call ensures analytics events fire under the correct websiteSlug from the
@@ -21,6 +22,7 @@ export default function SpanbixLayout({ children }) {
 
   useEffect(() => {
     setAnalyticsTenant('spanbix');
+    captureAttribution();
   }, []);
 
   useTrackPageView();

@@ -6,7 +6,9 @@ import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
+import { getAttribution } from '@/lib/attribution';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
+import Honeypot from '@/components/spanbix/Honeypot';
 
 const COORDINATES = [
   { icon: Mail,    label: 'Email',     value: 'contact@spanbix.com' },
@@ -36,6 +38,7 @@ export default function ContactForm() {
     name: '', email: '', phone: '', company: '',
     audience: 'Student', interest: '', education: '', message: '',
   });
+  const [hp, setHp] = useState('');
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState('idle');
   const [serverError, setServerError] = useState('');
@@ -50,6 +53,7 @@ export default function ContactForm() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (hp.trim()) { setStatus('success'); return; }
     if (!form.name.trim() || !form.email.trim() || !form.phone.trim()) {
       setServerError('Name, email, and phone are required.');
       setStatus('error');
@@ -85,6 +89,7 @@ export default function ContactForm() {
           ...(form.education.trim() ? { education: form.education.trim() } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
           consent: CONSENT_RECORD,
+          ...getAttribution(),
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
@@ -279,6 +284,8 @@ export default function ContactForm() {
                     <span>{serverError}</span>
                   </div>
                 )}
+
+                <Honeypot value={hp} onChange={(e) => setHp(e.target.value)} />
 
                 <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} error={status === 'error' && !consent} />
 

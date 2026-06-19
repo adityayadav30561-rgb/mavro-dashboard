@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Phone, TrendingUp, Globe2, IndianRupee, Boxes, UserCheck, FlaskConical,
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import LpLeadForm from './LpLeadForm';
 import { trackCta, trackWhatsApp, trackCall } from '@/lib/track';
+import { captureAttribution } from '@/lib/attribution';
 
 const PHONE_DISPLAY = '+91 93107 93790';
 const PHONE_TEL = '+919310793790';
@@ -92,6 +93,7 @@ const FAQS = [
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function SapCourseLanding({ googleReviews = [], googleRating = null, googleTotal = null }) {
   const reviews = [...CURATED, ...googleReviews];
+  useEffect(() => { captureAttribution(); }, []);
 
   return (
     <div className="spanbix-scope" style={{ background: '#fff', color: 'var(--sx-ink, #0f172a)', overflowX: 'hidden' }}>
