@@ -2,7 +2,6 @@ import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import JsonLd from '@/components/JsonLd';
 import PageHero from '@/components/spanbix/redesign/PageHero';
 import MarketValidation from '@/components/spanbix/redesign/sections/MarketValidation';
-import Mentors from '@/components/spanbix/redesign/sections/Mentors';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import { buildMetadata } from '@/lib/seoMeta';
 import { SPANBIX_SITE, educationalOrganizationLd, breadcrumbLd } from '@/lib/spanbixSeo';
@@ -62,7 +61,6 @@ export default function AboutPage() {
           imageCorner="FOUNDER"
           sources={null}
         />
-        <Mentors />
         <section className="sx-section sx-section-paper">
           <div className="sx-container">
             <div className="sx-section-head">
