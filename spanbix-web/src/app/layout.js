@@ -10,6 +10,7 @@ import {
 } from "next/font/google";
 import "../styles/spanbix-redesign.css";
 import "./globals.css";
+import { GtmScript, GtmNoScript } from "@/components/GoogleTagManager";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -46,7 +47,11 @@ const fontVars = [
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={fontVars}>
-      <body className="spanbix-scope">{children}</body>
+      <body className="spanbix-scope">
+        <GtmNoScript />
+        {children}
+        <GtmScript />
+      </body>
     </html>
   );
 }

@@ -30,20 +30,25 @@ const csp = [
   "default-src 'self'",
   // Vercel injects its analytics script at runtime; framer-motion + Next
   // hydration require inline + eval until we ship a nonce-based CSP.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://va.vercel-scripts.com",
+  // Google Tag Manager loads gtm.js + (via GTM) the GA4 gtag and Google Ads
+  // conversion scripts. These hosts are required for GTM/GA4/Ads to run.
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // featuredImage + ogImage may live on any HTTPS host (we don't control where
-  // editors upload); data:/blob: covers next/image local placeholders.
+  // editors upload); data:/blob: covers next/image local placeholders. Open
+  // https: also covers GA4/Ads conversion pixels.
   "img-src 'self' data: blob: https:",
   "font-src 'self' https://fonts.gstatic.com data:",
-  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com`,
+  // GA4 measurement + Google Ads beacons post here; GTM container fetch + the
+  // doubleclick endpoints handle conversion + remarketing pings.
+  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com`,
   "media-src 'self'",
   "object-src 'none'",
   // Google Maps embed on /contact uses an iframe served from www.google.com
-  // (and a couple of map subdomains it loads internally). Without this rule
-  // the default-src fallback blocks the iframe with the "This content is
-  // blocked" placeholder. Keep the allow-list tight — no wildcards.
-  "frame-src 'self' https://www.google.com https://maps.google.com",
+  // (and a couple of map subdomains it loads internally). googletagmanager +
+  // doubleclick are needed for GTM preview mode + Ads conversion iframes.
+  // Keep the allow-list tight — no broad wildcards.
+  "frame-src 'self' https://www.google.com https://maps.google.com https://www.googletagmanager.com https://td.doubleclick.net",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
