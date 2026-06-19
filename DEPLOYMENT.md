@@ -312,7 +312,24 @@ The standalone Next.js sub-app at `spanbix-web/` is what `www.spanbix.com` actua
 ```
 NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com
 REVALIDATE_SECRET=<shared secret, also in Render env>
+
+# Analytics / Ads (Phase 7) — OPTIONAL, no-op when unset
+NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX        # Google Tag Manager container. Loads GTM
+                                      # sitewide via src/components/GoogleTagManager.jsx.
+                                      # GA4 + Google Ads conversion tags are configured
+                                      # INSIDE the GTM UI — not via more env vars.
+                                      # Set this + redeploy once the GTM container exists.
+
+# Live Google reviews on /sap-course (Phase 7) — OPTIONAL, server-only (NO NEXT_PUBLIC_).
+# Without both, the LP carousel shows curated reviews only (no fabricated data).
+GOOGLE_PLACES_API_KEY=<Places API key, "Places API" enabled in Google Cloud>
+GOOGLE_PLACE_ID=<Spanbix Google Business Profile Place ID>
 ```
+
+> Phase 7 notes:
+> - `NEXT_PUBLIC_*` vars are inlined into the client bundle at build time → **redeploy** after changing them.
+> - Adding any Google/3rd-party tag host requires opening the CSP in `spanbix-web/next.config.mjs` (script-src/connect-src/frame-src) — already done for googletagmanager / google-analytics / analytics.google / doubleclick / googleadservices.
+> - PENDING from the ads/analytics person: GA4 `G-…`, GTM `GTM-…`, Google Ads `AW-…` + conversion label.
 
 ### 8.2 Render env additions (backend pairs with spanbix-web)
 

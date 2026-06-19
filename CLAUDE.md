@@ -329,6 +329,24 @@ The Spanbix public surface moved off the Vite admin bundle onto a standalone **N
 
 ---
 
+## Phase 7 — SAP Ads landing page, consent/legal, ad tracking (June 11–19, 2026)
+
+Invariants from this phase (all in `spanbix-web/` unless noted). Full record: PROJECT_CONTEXT.md §Phase 7.
+
+- **`/sap-course` is a dedicated Google Ads landing page** — `metadata.robots = { index:false, follow:true }` (noindex, paid traffic only; do not index). It has its OWN minimal chrome (sticky header + footer in `SapCourseLanding.jsx`), NOT `SpanbixLayout` — no nav escape links by design. Leads post under `formId: 'spanbix-sap-lp'` + `customFields.source: 'google-ads-sap-lp'`. **No pricing** anywhere on it. Files: `src/app/sap-course/*`, `src/components/spanbix/lp/CallFloater.jsx`, `src/lib/track.js`.
+- **`ConsentCheckbox` is MANDATORY on every Spanbix lead form** (`ContactForm`, `EnquireForm`, `LpLeadForm`). It blocks submit when unchecked and writes `customFields.consent` (DPDP Act 2023). Admin `LeadList` auto-renders it per new submission. Any new tenant/form MUST include it.
+- **Every lead form captures ad attribution + ships a honeypot.** `getAttribution()` (from `src/lib/attribution.js`) is spread into `customFields` (first-touch `gclid`/`utm_*`, captured via `SpanbixLayout` + `SapCourseLanding`); `Honeypot` (`company_website` hidden field) drops bot submits. Keep BOTH when adding/editing any form. No backend change needed — the customFields sanitizer accepts arbitrary keys.
+- **`src/lib/track.js` is the only event dispatcher** — pushes to `window.dataLayer` (GTM/GA4/Ads) AND mirrors to backend analytics. Events: `cta_click`, `call_click`, `whatsapp_click`, `generate_lead`. **Never client-emit `form_submit`** — the lead controller is server-authoritative for it. `generate_lead` is the Ads conversion signal.
+- **GTM is env-driven, GA4/Ads live in the GTM UI.** `src/components/GoogleTagManager.jsx` mounts sitewide from `app/layout.js`, no-op unless `NEXT_PUBLIC_GTM_ID` is set. Adding any Google/3rd-party tag host = add it to the CSP in `next.config.mjs` (script-src/connect-src/frame-src) BEFORE it loads. PENDING: GA4 `G-…`, GTM `GTM-…`, Ads `AW-…`+label from the ads/analytics person.
+- **Legal pages** `/privacy` `/terms` `/refund` via `src/components/spanbix/LegalPage.jsx` (data-driven `sections`). DPDP-aware, general, **no overcommitting** (no hard refund numbers/days). **Never add CIN/GST/foundingDate placeholders** — unverified. Founder = LalitMohan Parihar. Governing law = Gautam Buddh Nagar (Greater Noida), UP. Footer Legal links point to these real routes (not `/about#…`).
+- **Course schema `offers` carries no `price`** (`courseLd`) and the LP shows no fees — the no-public-pricing rule extends to structured data. Add price only on explicit approval.
+- **`/about` is founder-only** — do NOT re-add the `<Mentors/>` instructor carousel (it was added during SEO Phase 1 and reverted by user decision).
+- **Font trim invariant:** only Instrument Serif / Geist / JetBrains Mono are loaded as webfonts. `globals.css` references DM Serif Display / Sora as LITERAL fallback family names — never `var(--font-dm-serif)` / `var(--font-sora)` (now undefined; would invalidate the whole font stack).
+- **Live Google reviews are optional + off by default.** `src/lib/googleReviews.js` pulls via Places API only when `GOOGLE_PLACES_API_KEY` + `GOOGLE_PLACE_ID` are set; otherwise the LP carousel shows curated reviews (4 alumni + 3 real pasted Google reviews) only.
+- **Lead alerts/notifications were tried and REVERTED at user request.** Do NOT rebuild any lead-notification (WhatsApp/Telegram/email/SMS) without an explicit new ask. (Future note: official WhatsApp Cloud API cannot post to groups — needs a 3rd-party gateway.)
+
+---
+
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>

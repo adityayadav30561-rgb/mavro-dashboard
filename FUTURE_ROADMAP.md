@@ -544,6 +544,26 @@ When implementing each phase:
 
 ---
 
+## Phase 7 follow-ups — SAP Ads landing page + tracking (June 2026)
+
+Code is shipped; these are blocked on third-party IDs/accounts or are explicit next steps. Full record in PROJECT_CONTEXT.md §Phase 7.
+
+### Pending — needs IDs from the ads/analytics person
+- 🔜 **GA4 / GTM / Google Ads IDs** — receive `G-…` (GA4 Measurement ID), `GTM-…` (container ID), `AW-…` + conversion label (Google Ads "Lead – SAP LP"). The request email + console setup steps are written; waiting on the reply.
+- 🔜 **Set `NEXT_PUBLIC_GTM_ID` on the spanbix-web Vercel project + redeploy** → GTM loads sitewide and starts receiving the dataLayer events (`page_view`, `cta_click`, `call_click`, `whatsapp_click`, `generate_lead`).
+- 🔜 **Build the importable GTM container JSON** (GA4 config tag + custom-event → GA4 event tags + Conversion Linker + Google Ads conversion on `generate_lead`) so the analytics person imports instead of hand-building tags.
+- 🔜 **Enhanced Conversions for Google Ads** — push hashed email/phone (`user_data`) to dataLayer for better match rates / lower CPA. Small client change + a toggle in Ads.
+- 🔜 **Mark `generate_lead` as a Key event/conversion in GA4** + link GA4 ↔ Google Ads and GA4 ↔ Search Console.
+
+### Deferred / optional
+- 🕒 **Live Google reviews on `/sap-course`** — `src/lib/googleReviews.js` auto-merges real Google reviews when `GOOGLE_PLACES_API_KEY` + `GOOGLE_PLACE_ID` are set on Vercel (Places API caps at 5). Currently curated reviews only (4 alumni + 3 real pasted). User deprioritised the live pull.
+- 🕒 **Offline / qualified-conversion import** — once a lead actually enrols, feed that back to Google Ads as an offline conversion (keyed on the captured `gclid`) so Ads optimises for QUALITY, not just form-fills. Depends on a lead-status → Ads pipeline.
+
+### Declined (do not build without an explicit new ask)
+- ⛔ **Automated lead-alert notifications** (WhatsApp/Telegram/email/SMS) — a `leadNotifier` service was built and **reverted at user request**. Note: official WhatsApp Cloud API cannot post to groups (needs a 3rd-party gateway); free single-recipient options surveyed: Email (Brevo/Resend/Gmail SMTP), CallMeBot (unofficial WhatsApp), Telegram bot, ntfy.sh. SMS is not realistically free in India (DLT + paid gateway).
+
+---
+
 *End of roadmap.*
 </content>
 </invoke>

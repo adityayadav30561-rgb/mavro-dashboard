@@ -753,6 +753,55 @@ Single-purpose lead-capture page intended for **1-to-1 outreach** (sales team sh
 
 ---
 
+## Phase 7 — SEO Phase 1, SAP Ads landing page, legal/consent, ad attribution (June 11–19, 2026)
+
+All changes below are in `spanbix-web/` (Next 16) unless noted. Backend untouched except where stated.
+
+### 7.1 SEO Phase 1 (schema / on-page / perf) — DEPLOYED
+- **Schema** (`src/lib/spanbixSeo.js`): real `sameAs` via new `SPANBIX_SOCIALS` (LinkedIn/FB/Insta/YouTube/Pinterest); `courseLd` now emits `hasCourseInstance` (Online, P3M) + `offers` (INR, InStock, `/contact` url, **no `price`** per pricing policy); new `websiteLd()` = WebSite + SearchAction on homepage; consolidated into ONE `EducationalOrganization` node (`@id` `#organization`) enriched with Greater Noida `PostalAddress`, phone, email, `areaServed` India, founder. `organizationLd()` is now an alias of `educationalOrganizationLd()`.
+- **Meta** (`src/lib/seoMeta.js`): added `alternates.languages` → `en-IN` + `x-default`. New `SPANBIX_SITE.metaDescription` (≤155). All page descriptions rewritten ≤155, no false city claims.
+- **Perf**: logo/footer/mentors/partners/founder images → `next/image` (auto AVIF/WebP); navbar logo `priority`. Fonts trimmed 5→3 (dropped DM Serif Display + Sora webfonts; `globals.css` keeps them as LITERAL fallback names — never `var(--font-dm-serif)`, which is now undefined and would invalidate the font stack). `/spanbix` brand assets long-cache headers in `next.config.mjs`.
+- **GSC**: ownership file `spanbix-web/public/googlebc2ab882feaaad60.html` (HTML-file method, www property).
+
+### 7.2 About page = founder-only (decision)
+- SEO Phase 1 briefly re-added `<Mentors/>` (instructor carousel) to `/about` for an E-E-A-T grid. **REVERTED** — About is intentionally **founder-only** (PageHero → Founder Story → company facts → CTA). Do NOT re-add the instructor carousel to About.
+
+### 7.3 SAP Ads landing page `/sap-course` — DEPLOYED
+- Dedicated Google Ads lead-gen page. `metadata.robots = { index:false, follow:true }` (paid LP, kept out of organic). Stripped chrome — own minimal sticky header + footer, NOT `SpanbixLayout` (no nav escape links). All under `.spanbix-scope` so `sx-*` tokens apply.
+- Files: `src/app/sap-course/{page.jsx, SapCourseLanding.jsx, LpLeadForm.jsx}`, `src/components/spanbix/lp/CallFloater.jsx`, `src/lib/track.js`.
+- **Video hero** (homepage `/spanbix/herosection-video.mp4` + gradient stack). Sections (all redesigned, premium): why-SAP bento (`f500-boardroom.jpg` + "hired at" partner logos), why-Spanbix split (`CONSULTANT_15YR.png` + 5-item list), course highlights (icon cards + ghost numbers, no photos), audience cards (navy glass, BEST-FIT track chips), reviews carousel, **zigzag** process timeline (alt above/below on desktop, vertical on mobile), batch details (pulse urgency), FAQ (2-col: navy "prefer to ask?" card + accordion), final capture (badge + trust + reassurance).
+- **Reviews carousel** merges CURATED (4 real alumni + 3 real Google reviews pasted by user: Aditya Yadav, Sonu Singh, Ruchikas Singh) with optional live Google reviews. Google-source cards show the G badge; no time text. Avatars: photos where available else initials. Live Google pull = `src/lib/googleReviews.js` via Places API, **off unless** `GOOGLE_PLACES_API_KEY` + `GOOGLE_PLACE_ID` env set (currently curated-only; user deprioritised live pull).
+- **Floaters**: `CallFloater` (navy, click-to-call) stacked above the existing green `WhatsAppFloater` (now fires `whatsapp_click`). Both on the LP. **CTA strips** (`CtaStrip`, bright citron) after why-Spanbix and after reviews; each = Enroll + Call + WhatsApp.
+- **Lead form** (`LpLeadForm`, hero + final): posts under `formId: 'spanbix-sap-lp'` + `customFields.source: 'google-ads-sap-lp'` → separate filterable section in admin. Track chips styled inline (light + dark) — `sx-role-chip` is light-only and was invisible on the navy form.
+
+### 7.4 Tracking (GTM) — code DEPLOYED, waiting on IDs
+- `src/lib/track.js` = unified dispatch: pushes to `window.dataLayer` (for GTM/GA4/Ads) AND mirrors to backend analytics. Events: `cta_click`, `call_click`, `whatsapp_click`, `generate_lead`. `generate_lead` fires only on confirmed lead — backend already emits the authoritative `form_submit`, so do NOT re-emit form_submit client-side.
+- `src/components/GoogleTagManager.jsx` (`GtmScript` + `GtmNoScript`) mounted sitewide in `app/layout.js`. Env-driven `NEXT_PUBLIC_GTM_ID` — no-op when unset. CSP in `next.config.mjs` opened for googletagmanager / google-analytics / analytics.google / doubleclick / googleadservices (script-src, connect-src, frame-src).
+- **GA4 + Google Ads conversions are configured in the GTM UI, not in code.** PENDING from the ads/analytics person: GA4 `G-…`, GTM `GTM-…`, Ads `AW-…` + conversion label. Then: set `NEXT_PUBLIC_GTM_ID` on the spanbix-web Vercel project + redeploy; build the importable GTM container JSON; wire Enhanced Conversions.
+
+### 7.5 Legal pages + DPDP consent — DEPLOYED
+- `/privacy`, `/terms`, `/refund` via `src/components/spanbix/LegalPage.jsx` (data-driven `sections`). DPDP Act 2023 aware; general/comprehensive, **no overcommitting** (refund policy has no hard fee numbers or fixed-day promises). Governing law = courts at Gautam Buddh Nagar (Greater Noida), UP. SAP trademark disclaimer (independent, not affiliated). **No CIN/GST/foundingDate** — unverified, do NOT add placeholders. Founder named: LalitMohan Parihar.
+- **Mandatory consent** on EVERY lead form via `src/components/spanbix/ConsentCheckbox.jsx` (`CONSENT_RECORD` constant). Blocks submit when unchecked (native `required` + JS guard). Writes `customFields.consent` → admin `LeadList` auto-renders it per NEW submission (old leads untouched). Wired into ContactForm, EnquireForm, LpLeadForm (hero+final). Footer Legal links fixed (`/about#…` dead anchors → real routes); LP footer also links Privacy/Terms/Refund (Google Ads requires a privacy link on the LP).
+
+### 7.6 Ad attribution + spam guard — DEPLOYED
+- `src/lib/attribution.js`: FIRST-TOUCH capture of `gclid/gbraid/wbraid` + `utm_*` (+`fbclid`) into sessionStorage on first load (survives navigation), merged into every lead's `customFields` (verified rendering in admin). Captured via `SpanbixLayout` (site pages) + `SapCourseLanding` (LP). Real ad clicks carry `gclid` automatically (Ads auto-tagging). No backend change — sanitizer accepts arbitrary customFields keys.
+- `src/components/spanbix/Honeypot.jsx`: hidden `company_website` field on all 3 forms; if filled (bot) → submit shows success UI but never POSTs. Cuts paid-traffic junk leads.
+
+### 7.7 Lead-alert notification — TRIED + REVERTED (do not rebuild without explicit ask)
+- A `leadNotifier` service (WhatsApp-gateway/Telegram/webhook) + controller hook was built then **reverted at user request** (commit reverted; backend clean). User decided **no automated lead alert** for now. Note: official WhatsApp Cloud API CANNOT post to groups — group delivery needs a 3rd-party gateway. Do NOT add lead notifications/alerts again unless the user explicitly asks.
+
+### Phase 7 invariants (do not regress)
+- `/sap-course` is a **noindex** Ads LP with its OWN minimal chrome (not SpanbixLayout); leads use `formId: 'spanbix-sap-lp'`. No pricing anywhere on it.
+- **Every Spanbix lead form must include the `ConsentCheckbox`** (blocks submit, writes `customFields.consent`). New tenant/forms going forward must too — DPDP requirement.
+- **Every lead form captures attribution** via `getAttribution()` spread into `customFields` + renders the `Honeypot`. Keep both when adding/editing forms.
+- `track.js` events go to BOTH dataLayer and backend; never client-emit `form_submit` (server-authoritative). `generate_lead` is the Ads conversion signal.
+- GTM is env-driven (`NEXT_PUBLIC_GTM_ID`); GA4/Ads live in the GTM UI. CSP must list any new Google/3rd-party tag host before it loads.
+- About page is founder-only — no instructor carousel.
+- Legal facts: founder LalitMohan Parihar; office Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Greater Noida, UP 201009; centres Greater Noida + Lucknow; phone +91 93107 93790; email contact@spanbix.com. No CIN/GST/founding year until verified.
+- Lead alerts/notifications: user-declined — do not build without an explicit new request.
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>
