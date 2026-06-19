@@ -687,8 +687,11 @@ function LpFooter() {
           <a href="https://www.spanbix.com" style={{ color: 'rgba(255,255,255,0.75)' }}>www.spanbix.com</a>
         </div>
       </div>
-      <div className="sx-container" style={{ marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
-        © 2026 Spanbix. All rights reserved.
+      <div className="sx-container flex flex-wrap items-center gap-x-5 gap-y-2" style={{ marginTop: 18, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>
+        <span>© 2026 Spanbix. All rights reserved.</span>
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.65)' }}>Privacy Policy</a>
+        <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.65)' }}>Terms</a>
+        <a href="/refund" target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.65)' }}>Refund Policy</a>
       </div>
     </footer>
   );

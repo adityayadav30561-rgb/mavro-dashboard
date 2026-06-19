@@ -100,9 +100,9 @@ const COLUMNS = [
   {
     label: 'Legal',
     links: [
-      { label: 'Privacy', to: '/about#privacy' },
-      { label: 'Terms', to: '/about#terms' },
-      { label: 'Refund', to: '/about#refunds' },
+      { label: 'Privacy', to: '/privacy' },
+      { label: 'Terms', to: '/terms' },
+      { label: 'Refund', to: '/refund' },
     ],
   },
 ];

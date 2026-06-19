@@ -6,6 +6,7 @@ import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
+import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 
 const COORDINATES = [
   { icon: Mail,    label: 'Email',     value: 'contact@spanbix.com' },
@@ -35,6 +36,7 @@ export default function ContactForm() {
     name: '', email: '', phone: '', company: '',
     audience: 'Student', interest: '', education: '', message: '',
   });
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState('idle');
   const [serverError, setServerError] = useState('');
 
@@ -58,6 +60,11 @@ export default function ContactForm() {
       setStatus('error');
       return;
     }
+    if (!consent) {
+      setServerError('Please agree to the Privacy Policy to continue.');
+      setStatus('error');
+      return;
+    }
     if (!websiteId) {
       setServerError('Still connecting — try again in a moment.');
       setStatus('error');
@@ -77,6 +84,7 @@ export default function ContactForm() {
           ...(form.audience ? { audience: form.audience } : {}),
           ...(form.education.trim() ? { education: form.education.trim() } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
+          consent: CONSENT_RECORD,
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
@@ -85,6 +93,7 @@ export default function ContactForm() {
       });
       setStatus('success');
       setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', education: '', message: '' });
+      setConsent(false);
     } catch (err) {
       setServerError(err?.response?.data?.message || 'Submission failed. Please try again.');
       setStatus('error');
@@ -270,6 +279,8 @@ export default function ContactForm() {
                     <span>{serverError}</span>
                   </div>
                 )}
+
+                <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} error={status === 'error' && !consent} />
 
                 <div className="flex items-center justify-end mt-2">
                   <button type="submit" disabled={status === 'loading'} className="sx-btn sx-btn-dark" style={{ minWidth: 220 }}>

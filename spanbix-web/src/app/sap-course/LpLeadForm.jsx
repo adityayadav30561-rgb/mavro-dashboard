@@ -6,6 +6,7 @@ import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
 import { track, trackLead } from '@/lib/track';
+import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 
 // Lead form for the SAP Ads landing page. Leads land under formId
 // `spanbix-sap-lp` so the admin LeadList can filter them apart from organic
@@ -17,6 +18,7 @@ const TRACKS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
 export default function LpLeadForm({ location = 'hero', dark = false }) {
   const [websiteId, setWebsiteId] = useState(null);
   const [form, setForm] = useState({ name: '', phone: '', email: '', interest: '' });
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
@@ -32,6 +34,11 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim()) {
       setError('Name and phone are required.');
+      setStatus('error');
+      return;
+    }
+    if (!consent) {
+      setError('Please agree to the Privacy Policy to continue.');
       setStatus('error');
       return;
     }
@@ -52,6 +59,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
         customFields: {
           ...(form.interest ? { interest: form.interest } : {}),
           source: 'google-ads-sap-lp',
+          consent: CONSENT_RECORD,
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
@@ -63,6 +71,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       trackLead({ form: LP_FORM_ID, location, interest: form.interest || 'unspecified' });
       setStatus('success');
       setForm({ name: '', phone: '', email: '', interest: '' });
+      setConsent(false);
     } catch (err) {
       setError(err?.response?.data?.message || 'Submission failed. Please try again.');
       setStatus('error');
@@ -125,6 +134,8 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
           <span>{error}</span>
         </div>
       )}
+
+      <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} dark={dark} error={status === 'error' && !consent} />
 
       <button
         type="submit"

@@ -6,6 +6,7 @@ import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
+import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 
 // EnquireForm — pure lead-capture component for /enquire.
 //
@@ -39,6 +40,7 @@ export default function EnquireForm() {
     name: '', email: '', phone: '', company: '',
     audience: 'Student', interest: '', education: '', message: '',
   });
+  const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState('idle');
   const [serverError, setServerError] = useState('');
 
@@ -59,6 +61,11 @@ export default function EnquireForm() {
     }
     if (!form.education.trim()) {
       setServerError('Please enter your highest education qualification.');
+      setStatus('error');
+      return;
+    }
+    if (!consent) {
+      setServerError('Please agree to the Privacy Policy to continue.');
       setStatus('error');
       return;
     }
@@ -85,6 +92,7 @@ export default function EnquireForm() {
           ...(form.audience ? { audience: form.audience } : {}),
           ...(form.education.trim() ? { education: form.education.trim() } : {}),
           ...(form.interest ? { interest: form.interest } : {}),
+          consent: CONSENT_RECORD,
         },
         sourcePage: typeof window !== 'undefined' ? window.location.href : undefined,
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
@@ -93,6 +101,7 @@ export default function EnquireForm() {
       });
       setStatus('success');
       setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', education: '', message: '' });
+      setConsent(false);
     } catch (err) {
       setServerError(err?.response?.data?.message || 'Submission failed. Please try again.');
       setStatus('error');
@@ -254,6 +263,8 @@ export default function EnquireForm() {
                   <span>{serverError}</span>
                 </div>
               )}
+
+              <ConsentCheckbox checked={consent} onChange={(e) => setConsent(e.target.checked)} error={status === 'error' && !consent} />
 
               <div className="flex items-center justify-end mt-2">
                 <button
