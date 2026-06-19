@@ -802,6 +802,37 @@ All changes below are in `spanbix-web/` (Next 16) unless noted. Backend untouche
 
 ---
 
+## Phase 7.8 — Playwright E2E suite (June 19, 2026)
+
+End-to-end test suite at repo root (`e2e/` + `playwright.config.ts`). Targets the
+DEPLOYED sites. No app/source code changed — the only fixes were in the test code
+(see gotchas below). devDependency `@playwright/test` added to root `package.json`
+with `test:e2e*` scripts.
+
+### Layout
+- `playwright.config.ts` — projects: `spanbix-{chromium,webkit,mobile-chromium,mobile-webkit}` (baseURL `SPANBIX_BASE_URL`, default https://www.spanbix.com) + `admin-{setup,chromium,webkit}` (only when `ADMIN_BASE_URL` set). Records **video + screenshot + trace ON for every test** → `outputDir: e2e/recordings`; HTML report → `e2e/report`. retries:1.
+- `e2e/support/` — `data.ts` (routes/forms/selectors), `mock.ts` (`mockLeadSubmit`, `gotoReady`, `autoClosePopups`, `dataLayerEvents`), `fixtures.ts` (banner-suppressing `test`).
+- `e2e/spanbix/` — `smoke` (routes + sitemap/robots), `seo` (canonical/hreflang/noindex/JSON-LD incl. Course offers-no-price), `forms` (consent gate, mocked-submit payload incl. gclid/utm, honeypot), `tracking` (dataLayer events), `sap-course` (no-nav/floaters/CTA strips/no-₹), `responsive` (no horizontal overflow).
+- `e2e/admin/` — `admin.setup.ts` (login once → `e2e/.auth/admin.json` storageState) + `admin.spec.ts` (read-only: leads list/detail, core pages, logged-out redirect). Env-gated.
+- `.gitignore`: `e2e/recordings/`, `e2e/report/`, `e2e/.auth/`, `test-results/`, `playwright/.cache/` (local artifacts only).
+
+### Hard rule
+**Lead submits are ALWAYS mocked** (`page.route('**/api/leads/submit')` in `mockLeadSubmit`) so tests NEVER write a real lead to the prod DB — even running against prod. The read-only `**/api/websites/public/**` lookup is left to pass so the form gets a real websiteId. Admin tests are READ-ONLY (no create/edit/delete). Creds come from env (`ADMIN_EMAIL`/`ADMIN_PASSWORD`) — never hardcoded.
+
+### Two gotchas (fixed in test code — reuse, don't re-discover)
+1. **First-visit cohort banner is a modal that intercepts pointer events** → blocks form clicks. Suppressed by `e2e/support/fixtures.ts`, which `addInitScript`s `localStorage['spanbix-cohort-banner-dismissed-2'] = Date.now()` before every load. ALL Spanbix specs import `{ test, expect }` from `../support/fixtures` (not `@playwright/test`) to get this.
+2. **Forms fetch `websiteId` async on mount** (`GET /api/websites/public/<slug>`); submitting before it resolves trips the "Still connecting" guard → no success. `gotoReady(page, url)` waits for that response (+300ms React-commit settle) before interacting. Use it for any test that actually submits a form.
+
+### Status (June 19, 2026)
+- Spanbix: **40/40 pass** on chromium desktop, **7/7** on mobile chromium, against prod. Zero real leads created.
+- WebKit projects not yet run (only chromium installed locally) — `npx playwright install` adds WebKit/Firefox for the full 4-project matrix.
+- Admin projects not yet validated — need `ADMIN_BASE_URL` + `ADMIN_EMAIL`/`ADMIN_PASSWORD`. Admin selectors are resilient but may need tuning to the live login/leads UI.
+
+### Run
+`npm run test:e2e` (all) · `:spanbix` · `:admin` · `:ui` (headed) · `:report` (open HTML report) · `:trace`.
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>

@@ -562,6 +562,12 @@ Code is shipped; these are blocked on third-party IDs/accounts or are explicit n
 ### Declined (do not build without an explicit new ask)
 - ⛔ **Automated lead-alert notifications** (WhatsApp/Telegram/email/SMS) — a `leadNotifier` service was built and **reverted at user request**. Note: official WhatsApp Cloud API cannot post to groups (needs a 3rd-party gateway); free single-recipient options surveyed: Email (Brevo/Resend/Gmail SMTP), CallMeBot (unofficial WhatsApp), Telegram bot, ntfy.sh. SMS is not realistically free in India (DLT + paid gateway).
 
+### E2E testing follow-ups (Phase 7.8)
+- 🔜 **Run the full browser matrix** — `npx playwright install` to add WebKit + Firefox, then the `spanbix-webkit` / `spanbix-mobile-webkit` projects run (only chromium validated so far: 40/40 desktop, 7/7 mobile vs prod).
+- 🔜 **Wire admin tests** — set `ADMIN_BASE_URL` + `ADMIN_EMAIL`/`ADMIN_PASSWORD`; verify `admin.setup.ts` login + `admin.spec.ts` selectors against the live admin UI (resilient but unvalidated).
+- 🔜 **CI** — optional GitHub Actions workflow: install browsers, run `npm run test:e2e`, upload `e2e/report` as an artifact. Keep lead submits mocked.
+- 🕒 As the public site evolves, keep `e2e/support/data.ts` (routes/selectors) in sync; reuse `fixtures.ts` (banner suppression) + `gotoReady` (form-submit race) for new specs.
+
 ---
 
 *End of roadmap.*

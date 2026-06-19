@@ -394,4 +394,34 @@ curl -X POST https://www.spanbix.com/api/revalidate -H "Content-Type: applicatio
 
 ---
 
+## 9. E2E tests (Playwright) — Phase 7.8
+
+Suite at repo root (`e2e/` + `playwright.config.ts`), runs against the DEPLOYED sites.
+
+**Setup (once):**
+```
+npm install                 # @playwright/test is a root devDependency
+npx playwright install      # download browsers (WebKit/Firefox needed for the full matrix)
+```
+
+**Env vars:**
+```
+SPANBIX_BASE_URL   # default https://www.spanbix.com
+ADMIN_BASE_URL     # deployed admin URL — admin projects only run when set
+ADMIN_EMAIL        # admin login (read by the auth setup project)
+ADMIN_PASSWORD     # admin login
+```
+
+**Run:** `npm run test:e2e` (all) · `test:e2e:spanbix` · `test:e2e:admin` ·
+`test:e2e:ui` (headed) · `test:e2e:report` (open HTML report) · `test:e2e:trace`.
+
+**Artifacts (git-ignored):** per-test video + screenshot + trace → `e2e/recordings/`;
+browsable HTML report → `e2e/report/`; admin auth state → `e2e/.auth/`.
+
+**Guardrail:** lead submits are always mocked (no real prod leads); admin tests are
+read-only. See PROJECT_CONTEXT.md §Phase 7.8 for the banner-suppression + `gotoReady`
+test gotchas.
+
+---
+
 *End of deployment readiness document. Update before each subsequent deploy.*

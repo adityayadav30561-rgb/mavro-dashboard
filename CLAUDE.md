@@ -347,6 +347,19 @@ Invariants from this phase (all in `spanbix-web/` unless noted). Full record: PR
 
 ---
 
+## Phase 7.8 — Playwright E2E suite (June 19, 2026)
+
+Suite at repo root: `e2e/` + `playwright.config.ts`. Targets DEPLOYED prod. Full record: PROJECT_CONTEXT.md §Phase 7.8.
+
+- **Lead submits are ALWAYS mocked** — `mockLeadSubmit` (`e2e/support/mock.ts`) intercepts `**/api/leads/submit` so tests NEVER create a real lead, even against prod. The website-lookup (`**/api/websites/public/**`) passes through. Admin tests are READ-ONLY; creds come from env (`ADMIN_EMAIL`/`ADMIN_PASSWORD`), never hardcoded. Keep these rules for any new test.
+- **All Spanbix specs import `{ test, expect }` from `e2e/support/fixtures`**, NOT `@playwright/test`. The fixture suppresses the first-visit cohort banner (a modal that intercepts pointer events) by seeding `localStorage['spanbix-cohort-banner-dismissed-2']`. New Spanbix specs must do the same or clicks will be blocked.
+- **Use `gotoReady(page, url)` for any test that submits a form** — forms resolve `websiteId` from an async `/api/websites/public/` call on mount; submitting earlier trips the "Still connecting" guard.
+- Recording is video + screenshot + trace ON for every test → `e2e/recordings/`; HTML report → `e2e/report/`. These plus `e2e/.auth/` are git-ignored (local artifacts — never commit).
+- Admin projects only run when `ADMIN_BASE_URL` is set; admin selectors are resilient but may need tuning to the live admin UI. WebKit needs `npx playwright install`.
+- Run: `npm run test:e2e` (+ `:spanbix` / `:admin` / `:ui` / `:report` / `:trace`).
+
+---
+
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>
