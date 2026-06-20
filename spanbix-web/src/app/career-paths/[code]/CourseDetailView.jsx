@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Clock, Globe, Users, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, Globe, Users, CheckCircle2, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import { Arrow } from '@/components/spanbix/redesign/Arrow';
@@ -168,6 +168,28 @@ export default function CourseDetailView({ track }) {
                     </Link>
                   </>
                 )}
+
+                {/* Download brochure — course outline PDF, available in both modes */}
+                <a
+                  href={`/brochures/${track.code}-course-outline.pdf`}
+                  download
+                  target="_blank"
+                  rel="noopener"
+                  onClick={() => trackCtaClick('Download Brochure', { location: 'course-detail', track: track.code })}
+                  className="mt-3 inline-flex items-center justify-center gap-2"
+                  style={{
+                    width: '100%',
+                    padding: '11px 18px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(255,255,255,0.28)',
+                    background: 'rgba(255,255,255,0.06)',
+                    color: '#fff',
+                    fontFamily: 'var(--sx-sans)', fontSize: 13.5, fontWeight: 500,
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  <Download size={15} /> Download brochure
+                </a>
 
                 <div className="mt-5 pt-5 grid gap-2.5 text-[12.5px]" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                   <Detail icon={Clock}  label={track.duration} />

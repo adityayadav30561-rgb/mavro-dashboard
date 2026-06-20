@@ -7,7 +7,7 @@ import {
   Radio, Briefcase, BadgeCheck, GraduationCap, Users, ArrowRight, ArrowLeft,
   CheckCircle2, Clock, MonitorPlay, CalendarClock, Star, Quote, Plus,
   Layers, Workflow, Database, BarChart3, MessagesSquare, Lightbulb,
-  BookOpen, Repeat, LineChart, Cpu,
+  BookOpen, Repeat, LineChart, Cpu, FileText, Download,
 } from 'lucide-react';
 import LpLeadForm from './LpLeadForm';
 import { trackCta, trackWhatsApp, trackCall } from '@/lib/track';
@@ -47,6 +47,15 @@ const HIGHLIGHTS = [
   { icon: BarChart3, t: 'Reporting & Analytics', d: 'Pull decision-ready insight out of SAP data.' },
   { icon: MessagesSquare, t: 'Communication Skills', d: 'Present and defend your work like a consultant.' },
   { icon: Lightbulb, t: 'Problem Solving', d: 'Tackle real implementation scenarios end-to-end.' },
+];
+
+// Course outlines — one downloadable PDF per SAP track. Files live in
+// /public/brochures/<code>-course-outline.pdf.
+const TRACKS = [
+  { code: 'fico', name: 'SAP FICO', sub: 'Finance & Controlling', d: 'GL, AP/AR, asset accounting, and period-end close in a live S/4HANA system.' },
+  { code: 'mm', name: 'SAP MM', sub: 'Materials Management', d: 'Procurement, inventory, vendor management, and the full procure-to-pay cycle.' },
+  { code: 'sd', name: 'SAP SD', sub: 'Sales & Distribution', d: 'Order-to-cash, pricing, billing, and delivery across the sales process.' },
+  { code: 'abap', name: 'SAP ABAP', sub: 'Technical Development', d: 'Reports, enhancements, and custom objects — the developer side of SAP.' },
 ];
 
 const WHO = [
@@ -274,6 +283,35 @@ export default function SapCourseLanding({ googleReviews = [], googleRating = nu
               );
             })}
           </div>
+        </div>
+      </Section>
+
+      {/* ── COURSE OUTLINES (downloadable brochures) ── */}
+      <Section tone="cream" title={<>Get the full <em>course outline</em>.</>} subtitle="Download a detailed module-by-module brochure for any track — no form required.">
+        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {TRACKS.map((t, i) => (
+            <motion.div key={t.code} {...reveal} transition={{ ...reveal.transition, delay: i * 0.05 }}
+              className="group flex flex-col transition-all duration-300 hover:-translate-y-1.5"
+              style={{ background: '#fff', border: '1px solid var(--sx-hairline)', borderRadius: 18, padding: 24, boxShadow: '0 22px 46px -36px rgba(16,44,86,0.5)' }}>
+              <span className="inline-grid place-items-center" style={{ width: 50, height: 50, borderRadius: 13, background: 'linear-gradient(135deg, var(--sx-navy), #2764e4)', color: 'var(--sx-citron)', marginBottom: 16 }}>
+                <FileText size={22} />
+              </span>
+              <div style={{ fontWeight: 700, color: 'var(--sx-navy)', fontSize: 18.5 }}>{t.name}</div>
+              <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', fontSize: 11, margin: '4px 0 10px' }}>{t.sub.toUpperCase()}</div>
+              <p style={{ color: 'var(--sx-ink-2)', fontSize: 14, lineHeight: 1.5, margin: '0 0 18px', flex: 1 }}>{t.d}</p>
+              <a
+                href={`/brochures/${t.code}-course-outline.pdf`}
+                download
+                target="_blank"
+                rel="noopener"
+                onClick={() => trackCta(`brochure_${t.code}`)}
+                className="inline-flex items-center justify-center gap-2 transition-colors"
+                style={{ width: '100%', padding: '11px 16px', borderRadius: 999, border: '1px solid var(--sx-navy)', background: '#fff', color: 'var(--sx-navy)', fontWeight: 600, fontSize: 14 }}
+              >
+                <Download size={15} /> Download outline
+              </a>
+            </motion.div>
+          ))}
         </div>
       </Section>
 
