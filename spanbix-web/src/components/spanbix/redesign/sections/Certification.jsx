@@ -72,7 +72,7 @@ export default function Certification() {
                 This is to certify that
               </div>
               <div style={{ fontFamily: 'var(--sx-serif)', fontSize: 'clamp(24px, 5vw, 34px)', color: '#fff', marginTop: 4, letterSpacing: '-0.01em' }}>
-                Priya Sharma
+                Poonam Parihar
               </div>
               <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14.5, marginTop: 4 }}>
                 has completed the SAP FICO Consultant Track

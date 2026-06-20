@@ -71,9 +71,9 @@ const PROCESS = [
 // live Google reviews (passed as props) in the carousel below.
 const CURATED = [
   { name: 'Tushar Aggarwal', track: 'SAP SD', rating: 5, image: '/spanbix/tushar.jpeg', source: 'student', text: 'I came in straight out of a B.Com with zero SAP background. The SD track + mock interviews got me an offer at EY.' },
-  { name: 'Priya Sharma', track: 'SAP FICO', rating: 5, image: '/spanbix/priya.png', source: 'student', text: "Spanbix's structured FICO path got me into a consulting role with a real implementation team within five months." },
-  { name: 'Rahul Verma', track: 'SAP MM', rating: 5, image: '/spanbix/rahul.png', source: 'student', text: 'The mentor reviews were the difference. Working consultants walked me through every realistic interview scenario.' },
-  { name: 'Anjali Iyer', track: 'SAP ABAP', rating: 5, image: '/spanbix/anjali.png', source: 'student', text: 'The capstone projects gave me a portfolio recruiters could verify — that closed the offer.' },
+  { name: 'Poonam Parihar', track: 'SAP FICO', rating: 5, image: '/spanbix/poonam-parihar.jpeg', source: 'student', text: "Spanbix's structured FICO path got me into a consulting role with a real implementation team within five months." },
+  { name: 'Piyush Srivastava', track: 'SAP MM', rating: 5, image: '/spanbix/piyush-srivastava.jpeg', source: 'student', text: 'The mentor reviews were the difference. Working consultants walked me through every realistic interview scenario.' },
+  { name: 'Ankur Srivastava', track: 'SAP ABAP', rating: 5, image: '/spanbix/ankur-srivastava.jpeg', source: 'student', text: 'The capstone projects gave me a portfolio recruiters could verify — that closed the offer.' },
   // Real Google reviews (provided by the business). No profile photos via paste,
   // so the carousel renders an initial-avatar fallback for these.
   { name: 'Aditya Yadav', rating: 5, source: 'google', text: "I'd tried two free SAP courses before this and bounced off both. The Spanbix FICO track was the first time the configuration actually clicked — going from GL setup to a period-end close in a real S/4HANA sandbox made the interviews feel like revision, not a test." },
