@@ -41,14 +41,14 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com data:",
   // GA4 measurement + Google Ads beacons post here; GTM container fetch + the
   // doubleclick endpoints handle conversion + remarketing pings.
-  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.g.doubleclick.net https://www.google.com`,
+  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://www.googleadservices.com https://www.google.com`,
   "media-src 'self'",
   "object-src 'none'",
   // Google Maps embed on /contact uses an iframe served from www.google.com
   // (and a couple of map subdomains it loads internally). googletagmanager +
   // doubleclick are needed for GTM preview mode + Ads conversion iframes.
   // Keep the allow-list tight — no broad wildcards.
-  "frame-src 'self' https://www.google.com https://maps.google.com https://www.googletagmanager.com https://td.doubleclick.net",
+  "frame-src 'self' https://www.google.com https://maps.google.com https://www.googletagmanager.com https://*.doubleclick.net https://www.googleadservices.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
