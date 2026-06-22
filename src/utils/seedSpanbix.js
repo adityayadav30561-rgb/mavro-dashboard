@@ -81,6 +81,14 @@ const SPANBIX_STATIC_PAGES = [
     sitemapChangefreq: 'monthly',
   },
   {
+    pagePath: '/career-paths/ai',
+    pageType: 'service',
+    title: 'AI Mastery Course — Practical AI for Work & Creation | Spanbix',
+    description: 'Master how to use AI effectively — prompt engineering, AI image and video generation, content automation, and building real apps with AI. No coding required.',
+    sitemapPriority: 0.9,
+    sitemapChangefreq: 'monthly',
+  },
+  {
     pagePath: '/campus-programs',
     pageType: 'landing',
     title: 'Campus Programs — Institutional Partnerships | Spanbix',

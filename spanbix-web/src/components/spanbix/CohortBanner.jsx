@@ -14,7 +14,7 @@ import Link from 'next/link';
 //   - Bumping DISMISS_KEY (suffix the version) invalidates every existing
 //     dismissal next time the user loads the site.
 
-const DISMISS_KEY = 'spanbix-cohort-banner-dismissed-2';
+const DISMISS_KEY = 'spanbix-cohort-banner-dismissed-3';
 const SUPPRESS_MS = 24 * 60 * 60 * 1000;
 const SHOW_DELAY_MS = 400;
 
@@ -225,7 +225,7 @@ export default function CohortBanner() {
             color: 'var(--sx-navy, #0b1730)',
           }}
         >
-          Batch starts <span style={{ fontStyle: 'italic' }}>15 June 2026.</span>
+          Batch starts <span style={{ fontStyle: 'italic' }}>30 June 2026.</span>
         </h2>
 
         <div
@@ -238,8 +238,8 @@ export default function CohortBanner() {
             marginBottom: 18,
           }}
         >
-          <Row icon="📅" label="STARTS" value="Monday · 15 June 2026" />
-          <Row icon="🎯" label="TRACKS OPEN" value="SAP FICO · MM · SD · ABAP" />
+          <Row icon="📅" label="STARTS" value="Tuesday · 30 June 2026" />
+          <Row icon="🎯" label="TRACKS OPEN" value="SAP FICO · MM · SD · ABAP · AI Mastery" />
           <Row icon="🪑" label="SEATS" value="Limited · cohort-capped" />
         </div>
 

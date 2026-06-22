@@ -26,11 +26,13 @@ import { Arrow } from '../Arrow';
 const TABS = [
   { id: 'functional', label: 'Functional Tracks' },
   { id: 'technical', label: 'Technical Tracks' },
+  { id: 'ai', label: 'AI Mastery' },
   { id: 'campus', label: 'Campus Programs' },
 ];
 
 const functional = SPANBIX_CAREER_PATHS.filter((p) => p.category === 'functional').slice(0, 3);
 const technical = SPANBIX_CAREER_PATHS.filter((p) => p.category === 'technical');
+const ai = SPANBIX_CAREER_PATHS.filter((p) => p.category === 'ai');
 
 export default function Tracks() {
   const [active, setActive] = useState('functional');
@@ -42,15 +44,15 @@ export default function Tracks() {
           <div className="sx-stack-md">
             <span className="sx-eyebrow">Programs Built for Outcomes</span>
             <h2 className="sx-display sx-h2 sx-reveal">
-              Four programs.<br />
+              Five programs.<br />
               Two ways to learn.<br />
-              <em>One outcome</em> — placed.
+              <em>One outcome</em> — ahead.
             </h2>
           </div>
           <p className="sx-lead sx-reveal">
-            Four ERP tracks (SAP-led) with the deepest hiring pipelines in India. Each runs as a
-            self-paced individual program or as a campus cohort. Every course includes a
-            complimentary personality development module.
+            Four ERP tracks (SAP-led) with the deepest hiring pipelines in India, plus a new AI
+            Mastery program for the age of AI. Each runs as a self-paced individual program or as a
+            campus cohort. Every course includes a complimentary personality development module.
           </p>
         </div>
 
@@ -101,6 +103,7 @@ export default function Tracks() {
           >
             {active === 'functional' && <TrackGrid tracks={functional} />}
             {active === 'technical' && <TrackGrid tracks={technical} />}
+            {active === 'ai' && <TrackGrid tracks={ai} />}
             {active === 'campus' && <CampusCard />}
           </motion.div>
         </AnimatePresence>

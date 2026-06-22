@@ -29,12 +29,12 @@ export default function CareerPathsPage() {
       <SpanbixLayout>
         <PageHero
           eyebrow="Career Paths"
-          title={<>Pick the ERP track that fits <em>your background</em>.</>}
-          subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP. Each path is a self-contained career layer with curriculum, mentor reviews, sandbox practice, and a capstone. Functional tracks for commerce + MBA grads, technical for engineering."
+          title={<>Pick the track that fits <em>your future</em>.</>}
+          subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP — plus a new AI Mastery program for the age of AI. Each path is a self-contained career layer with curriculum, mentor reviews, hands-on practice, and a capstone. Functional tracks for commerce + MBA grads, technical for engineering, and AI for everyone."
           meta={[
-            { value: '4', label: 'Active ERP tracks' },
-            { value: '3 mo', label: 'Course duration' },
-            { value: '2', label: 'Categories — Functional + Technical' },
+            { value: '5', label: 'Programs' },
+            { value: 'Live', label: 'Mentor-led + recorded' },
+            { value: '3', label: 'Categories — Functional, Technical, AI' },
           ]}
         />
         <Tracks />

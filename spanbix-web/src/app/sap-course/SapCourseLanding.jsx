@@ -315,6 +315,22 @@ export default function SapCourseLanding({ googleReviews = [], googleRating = nu
         </div>
       </Section>
 
+      {/* ── AI MASTERY CROSS-SELL ── */}
+      <Section title={<>New — master <em>AI</em>, not just SAP.</>} subtitle="Beyond SAP: a practical program on using AI like a pro — prompting, image & video, content, and building real apps.">
+        <motion.div {...reveal} className="flex flex-col sm:flex-row items-center justify-between gap-5"
+          style={{ background: 'linear-gradient(135deg, var(--sx-navy), #102c56)', borderRadius: 20, padding: 'clamp(22px, 3vw, 34px)', boxShadow: '0 40px 80px -50px rgba(16,44,86,0.7)' }}>
+          <div>
+            <div className="sx-mono" style={{ color: 'var(--sx-citron)', fontSize: 11, marginBottom: 10, letterSpacing: '0.1em' }}>AI MASTERY · 8 WEEKS · NO CODING NEEDED</div>
+            <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 15.5, lineHeight: 1.55, margin: 0, maxWidth: 580 }}>
+              Prompt engineering, AI image & video generation, content & research automation, and building real apps with AI — everything you need to get the maximum out of AI in your work and creative life.
+            </p>
+          </div>
+          <a href="/career-paths/ai" onClick={() => trackCta('ai_crosssell')} className="sx-btn" style={{ background: 'var(--sx-citron)', color: 'var(--sx-navy)', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Explore AI Mastery <ArrowRight size={16} />
+          </a>
+        </motion.div>
+      </Section>
+
       {/* ── WHO CAN JOIN ── */}
       <Section tone="navy" title={<>Built for <em>your background</em>.</>} subtitle="No coding degree required. If you're driven, there's a track for you." dark>
         <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">

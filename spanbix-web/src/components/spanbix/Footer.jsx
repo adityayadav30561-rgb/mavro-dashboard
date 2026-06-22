@@ -78,6 +78,7 @@ const COLUMNS = [
       { label: 'SAP MM Track', to: '/career-paths/mm' },
       { label: 'SAP SD Track', to: '/career-paths/sd' },
       { label: 'SAP ABAP Track', to: '/career-paths/abap' },
+      { label: 'AI Mastery', to: '/career-paths/ai' },
     ],
   },
   {

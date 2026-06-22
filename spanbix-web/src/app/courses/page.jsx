@@ -31,12 +31,12 @@ export default function CoursesPage() {
       <SpanbixLayout>
         <PageHero
           eyebrow="The Spanbix Catalog"
-          title={<>Four programs. Two ways to learn. <em>One outcome</em> — placed.</>}
-          subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP. Each runs as a self-paced individual program or as a campus cohort. Every course includes a complimentary personality development module."
+          title={<>Five programs. Two ways to learn. <em>One outcome</em> — ahead.</>}
+          subtitle="Four ERP tracks (SAP-led) — FICO, MM, SD, ABAP — plus a new AI Mastery program. Each runs as a self-paced individual program or as a campus cohort. Every course includes a complimentary personality development module."
           meta={[
-            { value: '4', label: 'Active ERP tracks' },
-            { value: '3 mo', label: 'Course duration' },
+            { value: '5', label: 'Programs' },
             { value: 'Live', label: 'Mentor-led + recorded' },
+            { value: '2', label: 'Ways to learn' },
           ]}
         />
         <Tracks />
