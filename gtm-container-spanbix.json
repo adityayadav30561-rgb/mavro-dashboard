@@ -1,0 +1,201 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-06-20 00:00:00",
+  "containerVersion": {
+    "path": "accounts/6361809459/containers/255993999/versions/0",
+    "accountId": "6361809459",
+    "containerId": "255993999",
+    "containerVersionId": "0",
+    "container": {
+      "path": "accounts/6361809459/containers/255993999",
+      "accountId": "6361809459",
+      "containerId": "255993999",
+      "name": "spanbix",
+      "publicId": "GTM-WW4R4C8P",
+      "usageContext": ["WEB"],
+      "fingerprint": "0",
+      "tagManagerUrl": "https://tagmanager.google.com/"
+    },
+    "tag": [
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "20",
+        "name": "Google Tag - GA4 (pageviews)",
+        "type": "googtag",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "tagId", "value": "G-CSG5H7FDG7" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "21",
+        "name": "GA4 Event - cta_click",
+        "type": "gaawe",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "eventName", "value": "cta_click" },
+          { "type": "TEMPLATE", "key": "measurementIdOverride", "value": "G-CSG5H7FDG7" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["10"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "22",
+        "name": "GA4 Event - call_click",
+        "type": "gaawe",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "eventName", "value": "call_click" },
+          { "type": "TEMPLATE", "key": "measurementIdOverride", "value": "G-CSG5H7FDG7" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["11"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "23",
+        "name": "GA4 Event - whatsapp_click",
+        "type": "gaawe",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "eventName", "value": "whatsapp_click" },
+          { "type": "TEMPLATE", "key": "measurementIdOverride", "value": "G-CSG5H7FDG7" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["12"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "24",
+        "name": "GA4 Event - generate_lead (CONVERSION)",
+        "type": "gaawe",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "eventName", "value": "generate_lead" },
+          { "type": "TEMPLATE", "key": "measurementIdOverride", "value": "G-CSG5H7FDG7" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["13"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "25",
+        "name": "Conversion Linker",
+        "type": "gclidw",
+        "parameter": [],
+        "fingerprint": "0",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "26",
+        "name": "Google Ads Conversion - Lead (generate_lead)",
+        "type": "awct",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "conversionId", "value": "18231051715" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "hXXrCKL9lMIcEMOLn_VD" },
+          { "type": "BOOLEAN", "key": "enableConversionLinker", "value": "true" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["13"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "tagId": "27",
+        "name": "Google Tag - Google Ads (AW base)",
+        "type": "googtag",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "tagId", "value": "AW-18231051715" }
+        ],
+        "fingerprint": "0",
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      }
+    ],
+    "trigger": [
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "triggerId": "10",
+        "name": "CE - cta_click",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cta_click" }
+            ]
+          }
+        ],
+        "fingerprint": "0"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "triggerId": "11",
+        "name": "CE - call_click",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "call_click" }
+            ]
+          }
+        ],
+        "fingerprint": "0"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "triggerId": "12",
+        "name": "CE - whatsapp_click",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
+            ]
+          }
+        ],
+        "fingerprint": "0"
+      },
+      {
+        "accountId": "6361809459",
+        "containerId": "255993999",
+        "triggerId": "13",
+        "name": "CE - generate_lead",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "generate_lead" }
+            ]
+          }
+        ],
+        "fingerprint": "0"
+      }
+    ],
+    "fingerprint": "0"
+  }
+}

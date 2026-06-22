@@ -568,6 +568,20 @@ Code is shipped; these are blocked on third-party IDs/accounts or are explicit n
 - 🔜 **CI** — optional GitHub Actions workflow: install browsers, run `npm run test:e2e`, upload `e2e/report` as an artifact. Keep lead submits mocked.
 - 🕒 As the public site evolves, keep `e2e/support/data.ts` (routes/selectors) in sync; reuse `fixtures.ts` (banner suppression) + `gotoReady` (form-submit race) for new specs.
 
+### Analytics follow-ups (Phase 8)
+- 🔜 **GA4: mark `generate_lead` as a Key event** — GA4 → Admin → Events → Recent events → star (appears ~24h after first event). User-side manual step; Ads conversion independent of it.
+- 🔜 **Confirm first real Ads conversion** — campaign shows "No recent conversions" until a real ad-driven lead arrives; status then flips to "Recording". Watch over 24–48h.
+- 🔜 **Top up Google Ads budget** — ₹600/day vs ~₹1,000 funded; activate the ₹20k-spend → ₹20k-credit offer so the learning phase isn't starved.
+- 💡 **Optional: count ALL leads as GA4 conversions** — currently only `/sap-course` `LpLeadForm` fires `generate_lead`. Wire `trackLead` into Contact/Enquire forms if every lead should count (ask first).
+- 💡 **Later Ads:** GA4↔Ads link, Enhanced Conversions, GA4↔Search Console link, switch bid strategy to Maximise clicks for the first week to gather data.
+
+### Render keep-warm (Phase 8 — discussed, NOT implemented)
+- Free Render backend sleeps after 15 min → cold start can fail a form submit / slow sitemap. Options surveyed (awaiting user decision): **(a)** upgrade to Render Starter $7/mo (no sleep — the clean fix for a paid-ads lead-gen site); **(b)** free external uptime pinger (cron-job.org / UptimeRobot) hitting `/api/health` every ~10 min; **(c)** GitHub Actions cron; plus **(d)** code resilience I can add either way — warm-up `GET /api/health` on form-page mount + submit retry with 60s timeout so a cold start doesn't show "failed".
+
+### AI Mastery course follow-ups (Phase 8)
+- 🔜 **AI course brochure** — no `public/brochures/ai-course-outline.pdf` yet; download button is gated off for `ai`. Drop a PDF + add `'ai'` to the brochure-code allow-lists (`CourseDetailView.jsx` + `/sap-course` TRACKS) to enable it.
+- 🕒 AI course content/instructor persona is marketing copy — refresh as the real program firms up.
+
 ---
 
 *End of roadmap.*

@@ -833,6 +833,34 @@ with `test:e2e*` scripts.
 
 ---
 
+## Phase 8 — Analytics live + AI Mastery course + banner (June 22, 2026)
+
+### Analytics wired end-to-end (GTM-first, verified in Tag Assistant)
+- **Architecture decision: one GTM container drives GA4 + Google Ads.** No raw `gtag.js` on the site — everything is added inside the GTM web UI. Repeatedly declined Google's in-product nudges to "install a Google tag / paste code" (they cause double-tagging).
+- **IDs:** GTM `GTM-WW4R4C8P` · GA4 `G-CSG5H7FDG7` · Google Ads conversion `AW-18231051715` + label `hXXrCKL9lMIcEMOLn_VD` (conversion action "Submit lead form", set up "Manually with code → Use Google Tag Manager").
+- **GTM container (8 tags), authored as an importable JSON at repo root `gtm-container-spanbix.json`:** Google Tag (GA4 pageviews, All Pages) · 4 GA4 Event tags (`cta_click`/`call_click`/`whatsapp_click`/`generate_lead`, each on a Custom-Event trigger) · Conversion Linker (All Pages) · Google Ads Conversion (on `generate_lead`) · Google Ads base Google Tag (`AW-…`, All Pages — clears Ads' "missing Google tag"/limited-serving warning, enables remarketing/enhanced conversions; does NOT fire the conversion, so no double count). Imported via GTM Admin → Import Container → Merge/Overwrite → Publish (live as Version 4). First import failed "File format is invalid" until the placeholder account/container IDs were replaced with the real ones (`6361809459`/`255993999`) + a bad param removed.
+- **Vercel:** `NEXT_PUBLIC_GTM_ID=GTM-WW4R4C8P` on spanbix-web (Production + Preview) → redeploy baked it in (`GoogleTagManager.jsx` env-driven, no-op otherwise). Verified `GTM-WW4R4C8P` in live page source.
+- **CSP fix (`next.config.mjs`):** Tag Assistant showed the Ads conversion ping to `https://ad.doubleclick.net/ccm/s/collect` blocked by `connect-src` (old allow-list only had `*.g.doubleclick.net`). Broadened `connect-src` + `frame-src` to `https://*.doubleclick.net` + `https://www.googleadservices.com`. After redeploy: Tag Assistant `generate_lead` → both **GA4 Event - generate_lead** and **Google Ads Conversion - Lead** fired & **Succeeded**, Console clean.
+- **Event ownership:** `track.js` pushes `cta_click`/`call_click`/`whatsapp_click`/`generate_lead` to `dataLayer`; `form_submit` stays server-authoritative (lead controller). `generate_lead` (the conversion) fires ONLY on `LpLeadForm` (`/sap-course`) success — Contact/Enquire forms don't, so the GA4/Ads conversion counts LP leads only.
+- **Pending (manual, user's accounts):** (1) GA4 → mark `generate_lead` as **Key event** (Recent events → star; appears ~24h after first event; Ads conversion independent of it). (2) Google Ads conversion shows "No recent conversions" until a real ad-driven lead arrives (campaign launched 20 Jun, `Maximise conversions`, ₹600/day, ~₹1,000 funded — flagged to top up / use the ₹20k credit). (3) Free-Render-keep-warm options were discussed (paid Starter $7/mo = real fix; free uptime pinger every ~10 min on `/api/health`; GitHub Actions cron; plus client warm-up ping + submit retry) — **no decision made, nothing implemented.**
+
+### "How to read my tracking" (for the user)
+- **GA4** = on-site behavior: Realtime (live), Pages and screens (visits + avg engagement time, filter `sap-course`), Events (`cta_click`/`call_click`/`whatsapp_click`/`generate_lead`), Traffic acquisition (source). For per-page "everything", build an **Explore** filtered to `page path contains sap-course`.
+- **Search Console** = search/indexing (queries, ranking, indexed pages, sitemap). The actual keywords live ONLY in GSC, not GA4.
+- **Mavro `/leads`** = the actual lead records (name/phone/consent/gclid) to follow up. GA4 = counts; `/leads` = people.
+- Data lag: brand-new GA4 property → Realtime works now; standard reports/Explore fill within 24–48h.
+
+### AI Mastery course (new, non-SAP)
+- New catalog entry `code:'ai'`, `category:'ai'` in `spanbix-web/src/lib/spanbixSeo.js → SPANBIX_CAREER_PATHS` — a **how-to-USE-AI** course (prompt engineering · AI images/design · AI video/voice · content & research automation · building apps & automations with AI · capstone), 8 weeks, no coding, full schema (individual + campus timelines, instructor "Kabir Anand", includes/requirements/highlights incl. the complimentary personality module). NOT an AI-development course.
+- One entry auto-surfaces everywhere via existing mappers: `/career-paths/ai` detail (CourseDetailView), `/courses`, `/career-paths`, homepage `Tracks` (new "AI Mastery" tab + "Five programs" copy), Footer link, `/sap-course` AI cross-sell strip (→ `/career-paths/ai`, `cta_click:ai_crosssell`), and `courseLd` JSON-LD. Backend `seedSpanbix.js → SPANBIX_STATIC_PAGES` adds `/career-paths/ai` (sitemap, priority 0.9). Brochure button gated to SAP codes (no AI PDF). Detail metadata made track-aware (dropped hardcoded "3-month S/4HANA"). Build verified — `/career-paths/[code]` prerenders 5 paths.
+
+### Cohort banner + testimonials + brochures
+- Banner date 15 → **30 June 2026** (Tuesday); `DISMISS_KEY` bumped `-2`→`-3` (re-shows for all); `e2e/support/fixtures.ts` seed updated to `-3` to keep tests' banner-suppression working.
+- Testimonials → real alumni: **Poonam Parihar** (FICO · Capgemini), **Piyush Srivastava** (MM · Tech Mahindra), **Ankur Srivastava** (ABAP · HCL Technologies); photos `public/spanbix/<slug>.jpeg`; surfaces Outcomes / Certification / `/sap-course` reviews.
+- SAP brochures: `public/brochures/<code>-course-outline.pdf` + download buttons on `/career-paths/[code]` and `/sap-course`.
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>

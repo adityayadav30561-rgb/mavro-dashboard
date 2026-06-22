@@ -360,6 +360,22 @@ Suite at repo root: `e2e/` + `playwright.config.ts`. Targets DEPLOYED prod. Full
 
 ---
 
+## Phase 8 — Analytics live (GTM/GA4/Ads) + AI Mastery course + banner (June 22, 2026)
+
+Full record: PROJECT_CONTEXT.md §Phase 8.
+
+- **All Google tracking flows through GTM — NEVER add a raw `gtag.js`/AW snippet to the site** (double-tagging → double-counted conversions). IDs: GTM `GTM-WW4R4C8P`, GA4 `G-CSG5H7FDG7`, Google Ads conversion `AW-18231051715` + label `hXXrCKL9lMIcEMOLn_VD`. The GTM container has **8 tags**: Google Tag (GA4 pageviews), 4 GA4 event tags (`cta_click`/`call_click`/`whatsapp_click`/`generate_lead`), Conversion Linker, Google Ads Conversion (on `generate_lead`), Google Ads base Google Tag (AW). Importable container JSON lives at repo root `gtm-container-spanbix.json` (helper/source-of-truth for the GTM setup — not deployed, not loaded by the app). Any Google/3rd-party tag is added INSIDE GTM, not in code.
+- **`NEXT_PUBLIC_GTM_ID=GTM-WW4R4C8P`** is set on the spanbix-web Vercel project (Production + Preview). `GoogleTagManager.jsx` stays env-driven (no-op unless set) — do not hardcode the ID.
+- **CSP allows the Google Ads conversion hosts** (`next.config.mjs`): `connect-src` + `frame-src` include `https://*.doubleclick.net` + `https://www.googleadservices.com`. The Ads ping to `ad.doubleclick.net/ccm/s/collect` was CSP-blocked under the old narrower `*.g.doubleclick.net`. Do NOT narrow back. Adding any new tag host = widen the CSP first.
+- **`generate_lead` fires ONLY on the `/sap-course` `LpLeadForm` success** (`track.js → trackLead`). Contact/Enquire forms do NOT fire it → the Ads/GA4 conversion counts **LP leads only** (correct for the ad campaign). To count every lead as a GA4 conversion, wire `trackLead` into Contact/Enquire too — NOT done; ask first.
+- **PENDING (manual, user's GA4 account, I can't do it):** mark `generate_lead` as a **Key event** (GA4 → Admin → Events → **Recent events** → star). Only appears ~24h after the first event. The Google Ads conversion does NOT depend on this star.
+- **AI Mastery course** (`code: 'ai'`, `category: 'ai'` in `spanbixSeo.js → SPANBIX_CAREER_PATHS`) is a **how-to-USE-AI course** (prompt engineering, AI image/video, content automation, building apps with AI) — **NOT an AI-development course**, 8 weeks, no coding. One catalog entry auto-flows to: `/career-paths/ai` detail, `/courses`, `/career-paths`, Footer, homepage `Tracks` ("AI Mastery" tab), and `courseLd` JSON-LD. Backend `seedSpanbix.js` static pages includes `/career-paths/ai` (sitemap). **The "SAP catalog = 4 tracks only" invariant is now extended:** AI is a 5th, **non-SAP** program — keep it `category: 'ai'` so SAP-specific filters (`Tracks.jsx` functional/technical) don't absorb it. Brochure download is gated to SAP codes (`fico/mm/sd/abap`) — AI has no PDF.
+- **Cohort banner** (`CohortBanner.jsx`): batch date **30 June 2026**; `DISMISS_KEY = 'spanbix-cohort-banner-dismissed-3'`. **Bumping the key invalidates all prior dismissals** (banner re-shows) AND must be mirrored in `e2e/support/fixtures.ts` (it seeds the same key to suppress the modal in tests) — both are now `-3`. Change one → change both.
+- **Testimonials use real alumni** (names/photos/employers): Poonam Parihar (FICO · Capgemini), Piyush Srivastava (MM · Tech Mahindra), Ankur Srivastava (ABAP · HCL Technologies). Photos at `public/spanbix/<slug>.jpeg`. Surfaces: `Outcomes`, `Certification`, `/sap-course` reviews. Don't revert to the old placeholder names / generic employer labels.
+- **SAP course brochures**: PDFs at `public/brochures/<code>-course-outline.pdf`; download buttons on `/career-paths/[code]` (enrolment panel) + `/sap-course` "course outlines" section. Adding a brochure = drop the slugged PDF + the code is already wired.
+
+---
+
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>

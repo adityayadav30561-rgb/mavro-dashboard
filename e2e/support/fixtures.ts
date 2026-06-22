@@ -9,7 +9,7 @@ export const test = base.extend({
   page: async ({ page }, use) => {
     await page.addInitScript(() => {
       try {
-        localStorage.setItem('spanbix-cohort-banner-dismissed-2', String(Date.now()));
+        localStorage.setItem('spanbix-cohort-banner-dismissed-3', String(Date.now()));
       } catch {
         /* sessionStorage/localStorage blocked — ignore */
       }

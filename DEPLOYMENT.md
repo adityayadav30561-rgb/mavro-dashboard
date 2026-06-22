@@ -424,4 +424,19 @@ test gotchas.
 
 ---
 
+## Analytics env + CSP (Phase 8 — June 22, 2026)
+
+**spanbix-web Vercel env (Production + Preview):**
+```
+NEXT_PUBLIC_GTM_ID = GTM-WW4R4C8P     # loads GTM; no-op if unset. Requires REDEPLOY to bake in.
+```
+- GA4 (`G-CSG5H7FDG7`) + Google Ads (`AW-18231051715` + label `hXXrCKL9lMIcEMOLn_VD`) are configured **inside GTM**, not via env/code.
+- GTM container source-of-truth: repo-root `gtm-container-spanbix.json` (importable; 8 tags). Re-import via GTM Admin → Import Container → Merge/Overwrite → Publish.
+- **CSP (`spanbix-web/next.config.mjs`)** must keep `https://*.doubleclick.net` + `https://www.googleadservices.com` in `connect-src` AND `frame-src`, plus `googletagmanager.com` in `script-src` — required for the Google Ads conversion ping (`ad.doubleclick.net/ccm/s/collect`) + GTM. Narrowing breaks Ads conversion recording.
+- **NEVER** paste a raw `gtag.js`/AW snippet into the site — GTM is the only loader (double-tagging double-counts).
+
+**Backend (Render) note:** free tier sleeps after 15 min idle → cold start (~30–60s) can fail a form submit / slow the sitemap. Fix options (none implemented yet): upgrade to Starter ($7/mo, no sleep); free uptime pinger every ~10 min on `/api/health`; GitHub Actions cron; + client warm-up ping + submit-retry. See FUTURE_ROADMAP.
+
+---
+
 *End of deployment readiness document. Update before each subsequent deploy.*
