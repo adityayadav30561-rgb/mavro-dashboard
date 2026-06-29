@@ -17,7 +17,9 @@ export async function fetchBlogList({ page = 1, query = '', limit = 9 } = {}) {
   const qs = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (query) qs.set('search', query);
   const url = apiPath(`/api/blogs/website/${SPANBIX_SITE.slug}?${qs.toString()}`);
-  const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+  // Tagged 'blog' so api/revalidate can bust list + detail bodies on publish
+  // (revalidatePath alone re-renders the route but reuses the cached fetch).
+  const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ['blog'] } });
   if (!res.ok) return { blogs: [], pagination: { page, totalPages: 1, total: 0 } };
   const json = await res.json().catch(() => null);
   return {
@@ -30,7 +32,7 @@ export async function fetchBlogList({ page = 1, query = '', limit = 9 } = {}) {
 // Any other non-OK status throws so it surfaces as a 500 rather than a silent 404.
 export async function fetchBlogDetail(slug) {
   const url = apiPath(`/api/blogs/website/${SPANBIX_SITE.slug}/${encodeURIComponent(slug)}`);
-  const res = await fetch(url, { next: { revalidate: REVALIDATE } });
+  const res = await fetch(url, { next: { revalidate: REVALIDATE, tags: ['blog', `blog:${slug}`] } });
   if (res.status === 404) return { blog: null };
   if (!res.ok) throw new Error(`Blog fetch failed (${res.status})`);
   const json = await res.json().catch(() => null);

@@ -41,7 +41,11 @@ export async function POST(request) {
   revalidatePath('/blog');
   if (slug && typeof slug === 'string') {
     revalidatePath('/blog/' + slug);
+    revalidateTag('blog:' + slug);
   }
+  // Bust the cached backend fetch bodies (list + detail) — revalidatePath only
+  // re-renders the routes and would otherwise reuse the stale cached fetch.
+  revalidateTag('blog');
 
   // sitemap + robots are ISR-cached proxies of the backend (300s and 3600s
   // respectively). When the backend's canonical host or static-page set
