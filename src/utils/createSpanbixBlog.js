@@ -77,7 +77,13 @@ const DEFAULT_BLOG = 'sap-module-comparison-fico-mm-sd-abap-2026';
     }
 
     const status = isDraft ? 'draft' : 'published';
-    let blog = await Blog.findOne({ slug: data.slug, targetWebsite: website._id });
+    // Match on slug OR title so a re-run finds the post even if a previous run's
+    // slug got rewritten by the model's pre-validate hook — keeps this idempotent
+    // and lets a re-run correct a mangled slug instead of creating a duplicate.
+    let blog = await Blog.findOne({
+      targetWebsite: website._id,
+      $or: [{ slug: data.slug }, { title: data.title }],
+    });
     const isNew = !blog;
     if (!blog) blog = new Blog();
 
@@ -105,6 +111,15 @@ const DEFAULT_BLOG = 'sap-module-comparison-fico-mm-sd-abap-2026';
     if (!isDraft && !blog.publishedAt) blog.publishedAt = new Date();
 
     await blog.save();
+
+    // The Blog pre-validate hook regenerates the slug from the title whenever the
+    // title is modified (always true on create), which clobbers an explicit slug.
+    // Re-assert the desired slug once the title is no longer dirty so the clean,
+    // hand-picked URL wins. Title is unchanged here, so the hook stays out of it.
+    if (data.slug && blog.slug !== data.slug) {
+      blog.slug = data.slug;
+      await blog.save();
+    }
 
     console.log(`${isNew ? '✨ Created' : '♻️  Updated'} blog [${status}]:`);
     console.log(`   title: ${blog.title}`);

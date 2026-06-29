@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 // On-demand ISR revalidation. The Express backend POSTs here the moment a blog
 // flips to `published` so the corresponding static page regenerates within
@@ -50,6 +50,12 @@ export async function POST(request) {
   // dashboard editors from needing to know the difference.
   revalidatePath('/sitemap.xml');
   revalidatePath('/robots.txt');
+  // revalidatePath re-renders the route but the proxied bodies live in the fetch
+  // Data Cache — invalidate those entries by tag, or the regenerated routes just
+  // re-serve the stale backend XML/text (this is why a new blog can render yet be
+  // missing from the sitemap).
+  revalidateTag('sitemap');
+  revalidateTag('robots');
 
   return NextResponse.json({ revalidated: true, slug: slug || null, now: Date.now() });
 }

@@ -11,7 +11,8 @@ export const revalidate = 3600;
 export async function GET() {
   const upstream = `${apiBase()}/robots/spanbix.txt`;
   try {
-    const res = await fetch(upstream, { next: { revalidate: 3600 } });
+    // Tagged so api/revalidate can bust this proxied body via revalidateTag('robots').
+    const res = await fetch(upstream, { next: { revalidate: 3600, tags: ['robots'] } });
     if (!res.ok) {
       return new Response('User-agent: *\nAllow: /\n', {
         status: 200,

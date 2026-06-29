@@ -11,7 +11,11 @@ export const revalidate = 300;
 export async function GET() {
   const upstream = `${apiBase()}/sitemap/spanbix.xml`;
   try {
-    const res = await fetch(upstream, { next: { revalidate: 300 } });
+    // Tagged so the publish webhook (api/revalidate) can bust this proxied
+    // backend body on demand via revalidateTag('sitemap'). revalidatePath alone
+    // re-renders the route but reuses the cached upstream fetch — the tag is
+    // what actually invalidates the fetch Data Cache entry.
+    const res = await fetch(upstream, { next: { revalidate: 300, tags: ['sitemap'] } });
     if (!res.ok) {
       return new Response('Sitemap unavailable', { status: 502 });
     }
