@@ -12,6 +12,7 @@
     "seed": "node src/utils/seeder.js",
     "seed:spanbix": "node src/utils/seedSpanbix.js",
     "set:spanbix-author": "node src/utils/setSpanbixAuthor.js",
+    "create:spanbix-blog": "node src/utils/createSpanbixBlog.js",
     "worker": "node src/workers/scheduler-worker.js",
     "worker:dev": "nodemon src/workers/scheduler-worker.js",
     "build:client": "cd client && npm install && npm run build",

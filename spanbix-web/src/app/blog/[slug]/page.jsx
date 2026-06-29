@@ -25,7 +25,7 @@ import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
 import JsonLd from '@/components/JsonLd';
 import { buildMetadata } from '@/lib/seoMeta';
 import { fetchBlogDetail, fetchAllBlogSlugs } from '@/lib/blogApi';
-import { SPANBIX_SITE, blogPostingLd, breadcrumbLd } from '@/lib/spanbixSeo';
+import { SPANBIX_SITE, blogPostingLd, breadcrumbLd, faqPageLd } from '@/lib/spanbixSeo';
 
 function formatDate(iso) {
   try {
@@ -147,7 +147,8 @@ export default async function BlogDetailPage({ params }) {
       { name: blog.title, url },
     ]),
     blogPostingLd(blog, url),
-  ];
+    faqPageLd(blog.faq),
+  ].filter(Boolean);
 
   return (
     <>
@@ -223,7 +224,7 @@ export default async function BlogDetailPage({ params }) {
         <section className="sx-section sx-section-paper" style={{ paddingTop: 'clamp(40px, 5vw, 64px)' }}>
           <div className="sx-container">
             <article
-              className="mx-auto"
+              className="mx-auto sx-blog-content"
               style={{
                 maxWidth: 760,
                 fontFamily: 'var(--sx-sans)',

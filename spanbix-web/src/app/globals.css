@@ -15,3 +15,79 @@
   --sx-sans: var(--font-geist), "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
   --sx-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Blog prose — styles raw HTML returned by the backend (rendered via
+   dangerouslySetInnerHTML in app/blog/[slug]/page.jsx). Tailwind's preflight
+   strips default element margins/borders, so every blog post would otherwise
+   render as an unstyled wall of text. Scoped to `.sx-blog-content` so it never
+   touches the rest of the marketing site. Reusable across every future post.
+   ──────────────────────────────────────────────────────────────────────── */
+.sx-blog-content h2 {
+  font-family: var(--sx-serif);
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--sx-ink-1, #0f1f3a);
+  margin: 2.2em 0 0.7em;
+}
+.sx-blog-content h3 {
+  font-family: var(--sx-sans);
+  font-weight: 650;
+  font-size: clamp(18px, 2.2vw, 21px);
+  line-height: 1.25;
+  color: var(--sx-ink-1, #0f1f3a);
+  margin: 1.8em 0 0.5em;
+}
+.sx-blog-content p { margin: 0 0 1.15em; }
+.sx-blog-content a {
+  color: var(--sx-navy, #102c56);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.sx-blog-content a:hover { text-decoration-thickness: 2px; }
+.sx-blog-content strong { color: var(--sx-ink-1, #0f1f3a); font-weight: 650; }
+.sx-blog-content ul,
+.sx-blog-content ol { margin: 0 0 1.2em; padding-left: 1.4em; }
+.sx-blog-content li { margin: 0 0 0.5em; padding-left: 0.2em; }
+.sx-blog-content ul li { list-style: disc; }
+.sx-blog-content ol li { list-style: decimal; }
+.sx-blog-content hr {
+  border: 0;
+  border-top: 1px solid rgba(16, 44, 86, 0.14);
+  margin: 2.4em 0;
+}
+.sx-blog-content blockquote {
+  margin: 1.6em 0;
+  padding: 0.4em 0 0.4em 1.1em;
+  border-left: 3px solid var(--sx-citron, #c8e000);
+  color: var(--sx-ink-1, #0f1f3a);
+  font-style: italic;
+}
+/* Tables — the comparison/decision-matrix blocks are the core extractable
+   assets for AI Overviews, so they must render cleanly and scroll on mobile. */
+.sx-blog-content .sx-table-wrap { overflow-x: auto; margin: 1.6em 0; }
+.sx-blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+  min-width: 560px;
+}
+.sx-blog-content thead th {
+  background: var(--sx-navy, #102c56);
+  color: #fff;
+  font-family: var(--sx-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 11px 14px;
+}
+.sx-blog-content tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid rgba(16, 44, 86, 0.10);
+  vertical-align: top;
+}
+.sx-blog-content tbody tr:nth-child(even) { background: rgba(16, 44, 86, 0.035); }
+.sx-blog-content tbody td:first-child { font-weight: 600; color: var(--sx-ink-1, #0f1f3a); }

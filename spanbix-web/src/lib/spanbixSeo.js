@@ -1383,6 +1383,25 @@ export function blogPostingLd(blog, url) {
   };
 }
 
+// schema.org/FAQPage — emitted only when a blog ships a structured `faq`
+// array. The questions/answers MUST mirror a visible FAQ section in the
+// article body (Google rich-result policy). Answers are plain text; strip any
+// HTML before passing in so the markup stays valid.
+export function faqPageLd(faq) {
+  if (!Array.isArray(faq) || faq.length === 0) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq
+      .filter((f) => f && f.question && f.answer)
+      .map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+  };
+}
+
 export function blogListLd(blogs, baseUrl) {
   return {
     '@context': 'https://schema.org',

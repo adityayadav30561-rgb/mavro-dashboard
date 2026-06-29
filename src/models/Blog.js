@@ -76,6 +76,18 @@ const blogSchema = new mongoose.Schema(
       default: '',
     },
 
+    // ----- AEO / GEO: structured Q&A -----
+    // Drives schema.org/FAQPage on the public Next site. Mirror the visible
+    // FAQ section in `content` so the markup matches what readers see (Google
+    // rich-result requirement). Empty array = no FAQPage emitted.
+    faq: [
+      {
+        _id: false,
+        question: { type: String, trim: true },
+        answer: { type: String, trim: true },
+      },
+    ],
+
     // ----- Relationships -----
     targetWebsite: {
       type: mongoose.Schema.Types.ObjectId,
