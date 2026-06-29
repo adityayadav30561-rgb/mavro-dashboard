@@ -33,6 +33,28 @@ function formatDate(iso) {
   } catch { return ''; }
 }
 
+// Build an anchor-linked Table of Contents from the post body. Every blog whose
+// content uses `<h2 id="...">` headings (the house convention — see
+// BLOG_PUBLISHING.md) gets a TOC automatically; no per-post wiring. Inner markup
+// is stripped so a heading with inline tags still yields clean link text.
+function extractToc(html) {
+  if (!html) return [];
+  const out = [];
+  const re = /<h2[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const id = m[1];
+    const text = m[2]
+      .replace(/<[^>]+>/g, '')
+      .replace(/&amp;/g, '&')
+      .replace(/&rarr;/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (id && text) out.push({ id, text });
+  }
+  return out;
+}
+
 /**
  * Public author bio block. Renders below the article body when the populated
  * author doc has at minimum a `name`. Each optional field (avatar, jobTitle,
@@ -140,6 +162,7 @@ export default async function BlogDetailPage({ params }) {
   if (!blog) notFound();
 
   const url = `${SPANBIX_SITE.url}/blog/${slug}`;
+  const toc = extractToc(blog.content);
   const ld = [
     breadcrumbLd([
       { name: 'Home', url: `${SPANBIX_SITE.url}/` },
@@ -223,6 +246,18 @@ export default async function BlogDetailPage({ params }) {
         {/* Article body — backend returns sanitized HTML; render verbatim. */}
         <section className="sx-section sx-section-paper" style={{ paddingTop: 'clamp(40px, 5vw, 64px)' }}>
           <div className="sx-container">
+            {toc.length >= 3 && (
+              <nav className="sx-blog-toc mx-auto" aria-label="Table of contents">
+                <div className="sx-blog-toc-title">On this page</div>
+                <ol>
+                  {toc.map((t) => (
+                    <li key={t.id}>
+                      <a href={`#${t.id}`}>{t.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+            )}
             <article
               className="mx-auto sx-blog-content"
               style={{

@@ -30,7 +30,52 @@
   letter-spacing: -0.01em;
   color: var(--sx-ink-1, #0f1f3a);
   margin: 2.2em 0 0.7em;
+  scroll-margin-top: 96px; /* anchor jumps clear the fixed navbar */
 }
+
+/* Table of contents — auto-generated from the post's h2[id] headings
+   (app/blog/[slug]/page.jsx → extractToc). Anchor-linked for mobile UX +
+   SERP jump-to links on long-form content. */
+.sx-blog-toc {
+  max-width: 760px;
+  margin: 0 auto clamp(28px, 4vw, 44px);
+  padding: 20px 24px;
+  border: 1px solid rgba(16, 44, 86, 0.12);
+  border-left: 3px solid var(--sx-citron, #c8e000);
+  border-radius: 14px;
+  background: rgba(16, 44, 86, 0.035);
+}
+.sx-blog-toc-title {
+  font-family: var(--sx-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sx-ink-3, #5b6b85);
+  margin-bottom: 12px;
+}
+.sx-blog-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  counter-reset: toc;
+}
+.sx-blog-toc li { counter-increment: toc; }
+.sx-blog-toc li a {
+  font-family: var(--sx-sans);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--sx-navy, #102c56);
+  text-decoration: none;
+}
+.sx-blog-toc li a::before {
+  content: counter(toc) '. ';
+  color: var(--sx-ink-3, #5b6b85);
+  font-family: var(--sx-mono);
+  font-size: 12px;
+}
+.sx-blog-toc li a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .sx-blog-content h3 {
   font-family: var(--sx-sans);
   font-weight: 650;

@@ -182,7 +182,7 @@ const content = `
   <li>The top hiring companies for SAP freshers include Infosys, Wipro, TCS, HCL, Accenture, Deloitte, and regional SAP implementation partners</li>
   <li>SAP demand in Pune, Bengaluru, Hyderabad, and Chennai is significantly higher than in Tier 2 cities for all four modules</li>
 </ul>
-<p>The current S/4HANA migration cycle is the dominant hiring driver. SAP ECC mainstream maintenance ended in 2027 for most customers, which means companies have no option but to migrate and hire accordingly. Freshers trained on S/4HANA-era content are entering the market at exactly the right time. You can sanity-check live demand any day on <a href="https://www.naukri.com/sap-jobs" target="_blank" rel="noopener">Naukri</a> and <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">LinkedIn Jobs</a>.</p>
+<p>The current S/4HANA migration cycle is the dominant hiring driver. SAP ECC mainstream maintenance ends in 2027 for most customers, which means companies have no option but to migrate and hire accordingly. Freshers trained on S/4HANA-era content are entering the market at exactly the right time. You can sanity-check live demand any day on <a href="https://www.naukri.com/sap-jobs" target="_blank" rel="noopener">Naukri</a> and <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">LinkedIn Jobs</a>.</p>
 
 <h2 id="mistakes">5 Mistakes Indian Freshers Make When Choosing an SAP Module</h2>
 <h3>1. Choosing by popularity, not background</h3>
