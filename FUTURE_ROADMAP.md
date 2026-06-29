@@ -579,8 +579,8 @@ Code is shipped; these are blocked on third-party IDs/accounts or are explicit n
 - Free Render backend sleeps after 15 min → cold start can fail a form submit / slow sitemap. Options surveyed (awaiting user decision): **(a)** upgrade to Render Starter $7/mo (no sleep — the clean fix for a paid-ads lead-gen site); **(b)** free external uptime pinger (cron-job.org / UptimeRobot) hitting `/api/health` every ~10 min; **(c)** GitHub Actions cron; plus **(d)** code resilience I can add either way — warm-up `GET /api/health` on form-page mount + submit retry with 60s timeout so a cold start doesn't show "failed".
 
 ### AI Mastery course follow-ups (Phase 8)
-- 🔜 **AI course brochure** — no `public/brochures/ai-course-outline.pdf` yet; download button is gated off for `ai`. Drop a PDF + add `'ai'` to the brochure-code allow-lists (`CourseDetailView.jsx` + `/sap-course` TRACKS) to enable it.
-- 🕒 AI course content/instructor persona is marketing copy — refresh as the real program firms up.
+- ✅ **AI course aligned to the official brochure** (June 22, 2026) — 12 weeks / 3 months, 13 modules (prompt engineering · generative AI text/image/video/audio · just-enough Python · ML basics · AI agents & no-code automation · ethics · Copilot · 3 capstones), 12th-pass eligibility, 50+ tools. Brochure download WIRED: `'ai'` added to the `CourseDetailView.jsx` allow-list + a "Course outline" download button on the `/sap-course` AI cross-sell strip, both pointing at `/brochures/ai-course-outline.pdf`.
+- ⚠️ **AI brochure PDF binary must be dropped in by hand** at `spanbix-web/public/brochures/ai-course-outline.pdf` and committed — it can't be generated from a chat attachment. Until the file is committed, the AI download 404s (SAP downloads unaffected).
 
 ---
 

@@ -320,14 +320,21 @@ export default function SapCourseLanding({ googleReviews = [], googleRating = nu
         <motion.div {...reveal} className="flex flex-col sm:flex-row items-center justify-between gap-5"
           style={{ background: 'linear-gradient(135deg, var(--sx-navy), #102c56)', borderRadius: 20, padding: 'clamp(22px, 3vw, 34px)', boxShadow: '0 40px 80px -50px rgba(16,44,86,0.7)' }}>
           <div>
-            <div className="sx-mono" style={{ color: 'var(--sx-citron)', fontSize: 11, marginBottom: 10, letterSpacing: '0.1em' }}>AI MASTERY · 8 WEEKS · NO CODING NEEDED</div>
+            <div className="sx-mono" style={{ color: 'var(--sx-citron)', fontSize: 11, marginBottom: 10, letterSpacing: '0.1em' }}>AI MASTERY · 12 WEEKS · NO CODING BACKGROUND NEEDED</div>
             <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: 15.5, lineHeight: 1.55, margin: 0, maxWidth: 580 }}>
-              Prompt engineering, AI image & video generation, content & research automation, and building real apps with AI — everything you need to get the maximum out of AI in your work and creative life.
+              Prompt engineering, generative AI (text, image, video & audio), just-enough Python & ML, AI agents and no-code automation, plus 3 capstone projects — 50+ AI tools, built for beginners.
             </p>
           </div>
-          <a href="/career-paths/ai" onClick={() => trackCta('ai_crosssell')} className="sx-btn" style={{ background: 'var(--sx-citron)', color: 'var(--sx-navy)', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
-            Explore AI Mastery <ArrowRight size={16} />
-          </a>
+          <div className="flex flex-col sm:flex-row gap-3" style={{ flexShrink: 0 }}>
+            <a href="/brochures/ai-course-outline.pdf" download target="_blank" rel="noopener" onClick={() => trackCta('brochure_ai')}
+              className="inline-flex items-center justify-center gap-2"
+              style={{ padding: '11px 18px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 14, fontWeight: 600, whiteSpace: 'nowrap' }}>
+              <Download size={15} /> Course outline
+            </a>
+            <a href="/career-paths/ai" onClick={() => trackCta('ai_crosssell')} className="sx-btn" style={{ background: 'var(--sx-citron)', color: 'var(--sx-navy)', fontWeight: 700, whiteSpace: 'nowrap' }}>
+              Explore AI Mastery <ArrowRight size={16} />
+            </a>
+          </div>
         </motion.div>
       </Section>
 

@@ -169,8 +169,8 @@ export default function CourseDetailView({ track }) {
                   </>
                 )}
 
-                {/* Download brochure — course outline PDF (SAP tracks only) */}
-                {['fico', 'mm', 'sd', 'abap'].includes(track.code) && (
+                {/* Download brochure — course outline PDF (tracks with a committed PDF) */}
+                {['fico', 'mm', 'sd', 'abap', 'ai'].includes(track.code) && (
                   <a
                     href={`/brochures/${track.code}-course-outline.pdf`}
                     download
