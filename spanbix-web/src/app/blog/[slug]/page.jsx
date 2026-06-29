@@ -33,26 +33,47 @@ function formatDate(iso) {
   } catch { return ''; }
 }
 
-// Build an anchor-linked Table of Contents from the post body. Every blog whose
-// content uses `<h2 id="...">` headings (the house convention — see
-// BLOG_PUBLISHING.md) gets a TOC automatically; no per-post wiring. Inner markup
-// is stripped so a heading with inline tags still yields clean link text.
-function extractToc(html) {
-  if (!html) return [];
-  const out = [];
-  const re = /<h2[^>]*\bid="([^"]+)"[^>]*>([\s\S]*?)<\/h2>/g;
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    const id = m[1];
-    const text = m[2]
-      .replace(/<[^>]+>/g, '')
-      .replace(/&amp;/g, '&')
-      .replace(/&rarr;/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (id && text) out.push({ id, text });
-  }
-  return out;
+// Build an anchor-linked Table of Contents AND inject a slug `id` onto every
+// <h2> at render time. Deriving ids from the heading text (rather than trusting
+// ids stored in the content) keeps the TOC working even when the admin Quill
+// editor strips id attributes on save — which it does. Returns the rewritten
+// HTML (with ids) plus the TOC entries. See BLOG_PUBLISHING.md.
+function tocText(inner) {
+  return inner
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&rarr;/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function slugifyHeading(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function buildTocAndInjectIds(html) {
+  if (!html) return { html: '', toc: [] };
+  const toc = [];
+  const used = new Set();
+  const rewritten = html.replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (full, attrs, inner) => {
+    const text = tocText(inner);
+    if (!text) return full;
+    let id = slugifyHeading(text);
+    if (!id) return full;
+    let unique = id;
+    let n = 2;
+    while (used.has(unique)) unique = `${id}-${n++}`;
+    used.add(unique);
+    toc.push({ id: unique, text });
+    const cleanedAttrs = attrs.replace(/\s*\bid="[^"]*"/i, '');
+    return `<h2${cleanedAttrs} id="${unique}">${inner}</h2>`;
+  });
+  return { html: rewritten, toc };
 }
 
 /**
@@ -162,7 +183,7 @@ export default async function BlogDetailPage({ params }) {
   if (!blog) notFound();
 
   const url = `${SPANBIX_SITE.url}/blog/${slug}`;
-  const toc = extractToc(blog.content);
+  const { html: articleHtml, toc } = buildTocAndInjectIds(blog.content);
   const ld = [
     breadcrumbLd([
       { name: 'Home', url: `${SPANBIX_SITE.url}/` },
@@ -267,7 +288,7 @@ export default async function BlogDetailPage({ params }) {
                 lineHeight: 1.7,
                 color: 'var(--sx-ink-2)',
               }}
-              dangerouslySetInnerHTML={{ __html: blog.content || '' }}
+              dangerouslySetInnerHTML={{ __html: articleHtml }}
             />
           </div>
         </section>
