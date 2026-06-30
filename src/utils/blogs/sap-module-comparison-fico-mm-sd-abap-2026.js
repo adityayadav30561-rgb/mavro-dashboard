@@ -36,7 +36,7 @@ const content = `
   <li>Your starting salary band and the ceiling you can realistically reach</li>
   <li>How relevant your skills remain as SAP migrates from ECC to <a href="https://www.sap.com/india/products/erp/s4hana.html" target="_blank" rel="noopener">S/4HANA</a></li>
 </ul>
-<p>India is currently in the middle of a large S/4HANA migration wave. Companies that ran SAP ECC for a decade or more are now being forced to upgrade, and they need trained consultants across all four modules. The demand window is real, but it rewards people who trained in the right module for their background.</p>
+<p>India is currently in the middle of a large S/4HANA migration wave. Companies that ran SAP ECC for a decade or more are now being forced to upgrade, and they need trained consultants across all four modules. The demand window is real, but it rewards people who trained in the right module for their background. (Wondering whether SAP itself is worth it in the first place? Read our honest, data-backed take: <a href="/blog/is-sap-a-good-career-2026">Is SAP a Good Career in 2026?</a>)</p>
 
 <h2 id="comparison-table">SAP Module Comparison Table (2026)</h2>
 <div class="sx-table-wrap">
