@@ -7,6 +7,15 @@ Spanbix blogs are **database content**, not git-tracked pages. You write a small
 data file, run one command, and the live Next.js site (`www.spanbix.com`) renders
 it server-side with all SEO/AEO/GEO wiring applied automatically.
 
+> ## ⛔ NEVER edit a CLI-published post in the admin Blog Editor
+> The admin editor uses **Quill**, which **destroys** this HTML on save: it merges
+> table `<th>`/`<td>` cells, converts every space to `&nbsp;` (breaks mobile
+> wrapping), and strips heading `id`s. A post that took an hour to wire renders
+> broken after one accidental save there.
+> **Edit the data file (`src/utils/blogs/<slug>.js`) and re-run the CLI. Always.**
+> If a post already got mangled, just re-run the CLI — it overwrites the DB content
+> with the clean data-file version.
+
 ---
 
 ## TL;DR
@@ -15,7 +24,7 @@ it server-side with all SEO/AEO/GEO wiring applied automatically.
 # 1. Copy the template to a new file named after the URL slug you want:
 cp src/utils/blogs/_TEMPLATE.js src/utils/blogs/my-post-slug.js
 
-# 2. Edit my-post-slug.js — fill in title, meta, content (with <h2 id> headings), faq[].
+# 2. Edit my-post-slug.js — fill in title, meta, content (semantic HTML, <h2> sections), faq[].
 
 # 3. Publish:
 npm run create:spanbix-blog -- my-post-slug
@@ -49,8 +58,10 @@ shape (see `_TEMPLATE.js` for a working skeleton):
 
 ### Content conventions (load-bearing)
 
-- **Every `<h2>` MUST have an `id`** → `<h2 id="quick-answer">…</h2>`.
-  This powers the auto Table of Contents + in-page anchor links. No id = no TOC entry.
+- **Use clear `<h2>` headings for each section.** The Table of Contents + anchor
+  links are generated automatically — the page derives an `id` from each `<h2>`'s
+  text at render time, so you do **not** need to add `id` attributes yourself
+  (and it wouldn't matter if the editor stripped them). Just write good `<h2>`s.
 - **Wrap tables** in `<div class="sx-table-wrap">…</div>` so they scroll on mobile.
 - **Internal links**: relative, to real Spanbix pages —
   `/career-paths/fico`, `/career-paths/mm`, `/career-paths/sd`, `/career-paths/abap`,
@@ -69,7 +80,7 @@ Running the command + the deployed site handle all of this:
 
 - **JSON-LD schema** (SSR, in `<head>`): `BlogPosting` + `Person` author +
   `FAQPage` (from `faq[]`) + `BreadcrumbList`.
-- **Table of Contents**: generated from your `<h2 id>` headings.
+- **Table of Contents**: generated from your `<h2>` headings (ids auto-injected at render).
 - **Prose styling**: headings, tables, lists, links, blockquotes via `.sx-blog-content`.
 - **Sitemap**: the post is added to `/sitemap.xml` automatically.
 - **Canonical + OG + Twitter** meta tags.
@@ -82,7 +93,7 @@ Running the command + the deployed site handle all of this:
 ## Pre-publish checklist
 
 - [ ] `seoTitle` ≤ 70 chars, `seoDescription` ≤ 160 chars
-- [ ] Every `<h2>` has a unique `id`
+- [ ] Each section has a clear `<h2>` (TOC + anchors auto-generated — no manual ids)
 - [ ] `faq[]` mirrors the visible FAQ section exactly
 - [ ] **Dates/tense are correct as of today** (e.g. "ends in 2027", not "ended")
 - [ ] Any stats/numbers are current — refresh on publish day if time-sensitive
@@ -108,7 +119,16 @@ Then verify:
 2. Google **Rich Results Test** on that URL → expect `BlogPosting`, `FAQPage`,
    `BreadcrumbList`, no errors.
 3. `https://www.spanbix.com/sitemap.xml` lists the post.
-4. Google Search Console → URL Inspection → **Request Indexing**.
+4. Google Search Console → URL Inspection → paste the blog URL → **Request Indexing**.
+
+### Google Search Console — one-time only
+
+Submit the sitemap **once**, ever: GSC → Sitemaps → `sitemap.xml` → Submit.
+After that you **never resubmit** — the sitemap is generated live and every new
+post appears in it automatically; Google rechecks the same URL on its own schedule.
+A freshly verified property shows "Couldn't fetch" / "unknown to Google" for ~1–2
+days — that's Google's crawl latency, not a fault. Per new post, just Request
+Indexing on the post URL for a priority crawl (optional; speeds it up).
 
 ---
 
@@ -130,6 +150,10 @@ Use the **full name** ("Lalit Mohan Parihar") for a stronger `Person` entity.
 
 ## Troubleshooting
 
+- **Tables collapsed / spaces became `&nbsp;` / TOC vanished** → the post was
+  opened + saved in the admin Blog Editor (Quill mangles the HTML). Fix: re-run
+  `npm run create:spanbix-blog` — it overwrites the DB with the clean data-file
+  content. Then never open it in that editor again.
 - **Post is live but missing from the sitemap** → it's a `draft`. Re-run the
   command **without** `--draft`. Confirm `[published]`.
 - **Edits/sitemap not reflecting on the live site within ~5 min** → the
@@ -145,7 +169,10 @@ Use the **full name** ("Lalit Mohan Parihar") for a stronger `Person` entity.
 
 ## Do NOT
 
+- **Don't EVER edit a CLI-published post in the admin Blog Editor (Quill).** It
+  merges table cells, `&nbsp;`-ifies spaces, strips ids. Data file + CLI only.
 - Don't pass `--draft` for a normal publish.
+- Don't resubmit the sitemap in GSC — submit once, it auto-updates forever.
 - Don't hand-write JSON-LD, sitemap entries, or a TOC — all automatic.
 - Don't hardcode the URL anywhere; the `slug` field is the single source.
 - Don't stuff form/SEO data into `content` that belongs in the typed fields.

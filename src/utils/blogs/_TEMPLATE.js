@@ -2,9 +2,13 @@
  * Spanbix blog TEMPLATE — copy this file to publish a new post.
  *
  *   1. Copy to:  src/utils/blogs/<your-clean-slug>.js
- *   2. Fill in the fields below (keep the h2 `id="..."` convention — it powers
- *      the auto Table of Contents + in-page anchors).
+ *   2. Fill in the fields below. Just write clear <h2> sections — the Table of
+ *      Contents + anchor ids are generated automatically at render (you don't
+ *      need to add id="..." yourself; the `id`s in this template are optional).
  *   3. Publish:  npm run create:spanbix-blog -- <your-clean-slug>
+ *
+ *   ⛔ Edit this data file + re-run the CLI to update. NEVER open the post in the
+ *      admin Blog Editor — Quill mangles the HTML (tables, spaces, ids).
  *
  * What you get automatically (do NOT hand-build these):
  *   - schema.org BlogPosting + Person author  (blogPostingLd)
