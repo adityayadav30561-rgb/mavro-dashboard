@@ -34,7 +34,13 @@ export default function SpanbixLayout({ children }) {
 
   useEffect(() => {
     const hash = typeof window !== 'undefined' ? window.location.hash : '';
-    if (hash) {
+    // Blog articles always open at the top. A section hash (e.g.
+    // #frequently-asked-questions) carried over from a TOC click or browser
+    // history would otherwise drop readers mid-article on load. In-page TOC
+    // clicks still scroll natively — they don't change `pathname`, so this
+    // effect doesn't re-run and doesn't fight the native anchor jump.
+    const isBlogArticle = typeof pathname === 'string' && pathname.startsWith('/blog/');
+    if (hash && !isBlogArticle) {
       const el = document.querySelector(hash);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
