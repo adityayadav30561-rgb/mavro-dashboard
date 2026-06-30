@@ -67,6 +67,15 @@ shape (see `_TEMPLATE.js` for a working skeleton):
   `/career-paths/fico`, `/career-paths/mm`, `/career-paths/sd`, `/career-paths/abap`,
   `/career-paths/ai`, `/courses`, `/about`, `/contact`.
 - **External links**: `target="_blank" rel="noopener"`, to authoritative sources only.
+- **Hyperlink every named source.** In a "Sources Used" section (or inline), a
+  source that is named but not linked (Gartner, Glassdoor, NASSCOM, SAP News
+  Center, …) carries less weight with AI crawlers and human fact-checkers. Link
+  each one to the real page; verify the URL resolves before shipping (a broken
+  outbound link is worse than an unlinked name).
+- **Single named author.** The closing attribution must credit the **byline
+  author** ("written by &lt;Author&gt;"), never "the Spanbix team". One named
+  author is the stronger E-E-A-T signal and must match the byline + LinkedIn.
+  Don't mix a named byline with a "prepared by the team" closing line.
 - **Open with a "Quick Answer"** `<h2>` — 2-3 sentence direct answer. This is the
   passage Google AI Overviews and LLMs extract. Non-negotiable for GEO/AEO.
 - **Do NOT put the FAQ in `content`.** Fill the `faq[]` array only — the FAQ is

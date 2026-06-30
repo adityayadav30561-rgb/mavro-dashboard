@@ -213,7 +213,7 @@ const content = `
 <p>Not sure which fits your background? <a href="/contact">Talk to the Spanbix placement team</a> and we will map your degree to the right module.</p>
 
 <hr />
-<p><em>This guide was prepared by the Spanbix Career Team using job-market data from Naukri and LinkedIn, curriculum-design experience across 200+ student placements, and SAP module eligibility patterns observed from 2023 to 2026. Salary figures are indicative ranges and vary by city, employer size, and candidate profile.</em></p>
+<p><em>This guide was written by Lalit Mohan Parihar, drawing on 18+ years in SAP and curriculum-design experience across 200+ student placements, using job-market data from <a href="https://www.naukri.com/sap-jobs" target="_blank" rel="noopener">Naukri</a> and <a href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener">LinkedIn</a> and SAP module eligibility patterns observed from 2023 to 2026. Salary figures are indicative ranges and vary by city, employer size, and candidate profile.</em></p>
 `;
 
 const faq = [

@@ -51,9 +51,16 @@ to authoritative sources.</p>
   <li>Step two</li>
 </ol>
 
+<h2 id="sources">Sources Used in This Guide</h2>
+<p>Name every external data source AND hyperlink it — e.g.
+<a href="https://www.gartner.com" target="_blank" rel="noopener">Gartner</a>,
+<a href="https://www.glassdoor.co.in" target="_blank" rel="noopener">Glassdoor</a>.
+Named-but-unlinked sources carry less weight with AI crawlers and fact-checkers.</p>
+
 <hr />
-<p><em>Closing attribution line. State the experience / data behind the post —
-this is a citable E-E-A-T signal (e.g. "prepared by the Spanbix team using …").</em></p>
+<p><em>Closing attribution — use the SINGLE named author (the byline author, e.g.
+"written by Lalit Mohan Parihar"), never "the Spanbix team". One named author is
+the stronger E-E-A-T signal and must match the byline + LinkedIn.</em></p>
 `;
 
 // FAQ. Do NOT put the FAQ in `content` — it is rendered automatically as
