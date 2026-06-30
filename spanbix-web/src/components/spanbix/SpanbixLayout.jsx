@@ -45,6 +45,14 @@ export default function SpanbixLayout({ children }) {
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       window.scrollTo({ top: 0, behavior: 'instant' });
+      // Blog articles open at their canonical URL. Strip a leftover section hash
+      // (carried over from a prior TOC click or browser history) on load so a
+      // refresh/reopen shows the clean URL, not …#some-section. replaceState
+      // avoids a reload + a new history entry. In-page TOC clicks don't change
+      // `pathname`, so this effect doesn't re-run and won't undo a live click.
+      if (isBlogArticle && hash && typeof window !== 'undefined') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     }
   }, [pathname]);
 
