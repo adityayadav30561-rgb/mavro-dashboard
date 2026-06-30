@@ -45,11 +45,6 @@ to authoritative sources.</p>
 </table>
 </div>
 
-<h2 id="faq">Frequently Asked Questions</h2>
-<h3>First question here?</h3>
-<p>Answer in plain prose. Mirror this exactly in the faq[] array below so the
-visible FAQ and the FAQPage schema match (Google requirement).</p>
-
 <h2 id="next-steps">Your Next Steps</h2>
 <ol>
   <li>Step one</li>
@@ -61,9 +56,12 @@ visible FAQ and the FAQPage schema match (Google requirement).</p>
 this is a citable E-E-A-T signal (e.g. "prepared by the Spanbix team using …").</em></p>
 `;
 
-// MUST mirror the visible FAQ <h3>/<p> pairs above. Drives schema.org/FAQPage.
+// FAQ. Do NOT put the FAQ in `content` — it is rendered automatically as
+// accordion dropdowns from this array (after the article) AND drives the
+// schema.org/FAQPage JSON-LD. Just fill the Q&A here.
 const faq = [
-  { question: 'First question here?', answer: 'Answer in plain prose. Mirror this exactly in the visible FAQ section.' },
+  { question: 'First question here?', answer: 'Answer in plain prose. Keep it self-contained and citable.' },
+  { question: 'Second question?', answer: 'Another answer.' },
 ];
 
 module.exports = {

@@ -76,6 +76,60 @@
   font-size: 12px;
 }
 .sx-blog-toc li a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* FAQ accordions — rendered from faq[] in app/blog/[slug]/page.jsx. Native
+   <details>/<summary> dropdowns, one per question. Mirrors the FAQPage JSON-LD. */
+.sx-faq-heading {
+  font-family: var(--sx-serif);
+  font-size: clamp(26px, 3.4vw, 34px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--sx-ink-1, #0f1f3a);
+  margin: 0 0 1em;
+  scroll-margin-top: 96px;
+}
+.sx-faq {
+  border: 1px solid rgba(16, 44, 86, 0.12);
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.sx-faq > summary {
+  list-style: none;
+  cursor: pointer;
+  position: relative;
+  padding: 16px 50px 16px 18px;
+  font-family: var(--sx-sans);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--sx-ink-1, #0f1f3a);
+}
+.sx-faq > summary::-webkit-details-marker { display: none; }
+.sx-faq > summary::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 22px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--sx-navy, #102c56);
+  border-bottom: 2px solid var(--sx-navy, #102c56);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.sx-faq[open] > summary::after { transform: rotate(-135deg); top: 26px; }
+.sx-faq[open] > summary { color: var(--sx-navy, #102c56); }
+.sx-faq-answer {
+  padding: 0 18px 16px;
+  font-family: var(--sx-sans);
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--sx-ink-2, #38445a);
+}
+.sx-faq-answer p { margin: 0; }
+.sx-faq-answer a { color: var(--sx-navy, #102c56); text-decoration: underline; text-underline-offset: 3px; }
 .sx-blog-content h3 {
   font-family: var(--sx-sans);
   font-weight: 650;

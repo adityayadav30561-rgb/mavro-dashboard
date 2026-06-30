@@ -183,7 +183,16 @@ export default async function BlogDetailPage({ params }) {
   if (!blog) notFound();
 
   const url = `${SPANBIX_SITE.url}/blog/${slug}`;
-  const { html: articleHtml, toc } = buildTocAndInjectIds(blog.content);
+  const { html: articleHtml, toc: contentToc } = buildTocAndInjectIds(blog.content);
+  // FAQ renders as accordions from the structured faq[] (same source as the
+  // FAQPage schema), appended after the article. Add it to the TOC so the
+  // jump-link still works even though it's no longer inside the content HTML.
+  const faqEntries = Array.isArray(blog.faq)
+    ? blog.faq.filter((f) => f && f.question && f.answer)
+    : [];
+  const toc = faqEntries.length
+    ? [...contentToc, { id: 'frequently-asked-questions', text: 'Frequently Asked Questions' }]
+    : contentToc;
   const ld = [
     breadcrumbLd([
       { name: 'Home', url: `${SPANBIX_SITE.url}/` },
@@ -292,6 +301,29 @@ export default async function BlogDetailPage({ params }) {
             />
           </div>
         </section>
+
+        {/* FAQ accordions — rendered from the structured faq[] (same source as
+            the FAQPage JSON-LD). Native <details> so it works without client JS;
+            each question is its own collapsible dropdown. */}
+        {faqEntries.length > 0 && (
+          <section className="sx-section sx-section-paper" style={{ paddingTop: 0 }}>
+            <div className="sx-container">
+              <div className="mx-auto" style={{ maxWidth: 760 }}>
+                <h2 id="frequently-asked-questions" className="sx-faq-heading">
+                  Frequently Asked Questions
+                </h2>
+                {faqEntries.map((f, i) => (
+                  <details key={i} className="sx-faq">
+                    <summary>{f.question}</summary>
+                    <div className="sx-faq-answer">
+                      <p>{f.answer}</p>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Author byline block — establishes the Person entity behind the post
             (avatar + jobTitle + bio + LinkedIn). Mirrors the schema.org/Person

@@ -196,28 +196,6 @@ const content = `
 <h3>5. Skipping integration basics</h3>
 <p>Every live SAP project runs on cross-module integration. An MM consultant who understands how their work connects to FICO and SD is more valuable on any project team.</p>
 
-<h2 id="faq">Frequently Asked Questions</h2>
-<h3>Which SAP module is best for freshers in India?</h3>
-<p>SAP FICO is the best choice for freshers from commerce or finance backgrounds because it has the highest job demand among functional modules. SAP ABAP is the best choice for IT backgrounds because it offers the highest starting salaries and long-term differentiation from generic developers.</p>
-<h3>Can I learn SAP without prior work experience?</h3>
-<p>Yes. SAP functional modules (FICO, MM, SD) require domain knowledge but no prior corporate or IT experience. SAP ABAP requires basic programming familiarity. No module requires prior SAP work experience before training.</p>
-<h3>Which SAP module has the highest salary for freshers?</h3>
-<p>SAP ABAP developers earn the highest fresher salaries in India, typically &#8377;4.5&ndash;9 LPA. Among functional modules, SAP FICO freshers earn &#8377;4&ndash;8 LPA, the highest in the functional category.</p>
-<h3>Is SAP FICO better than SAP MM?</h3>
-<p>Neither is universally better. FICO is better for commerce graduates. MM is better for engineering or supply chain graduates. The right answer depends entirely on your academic background.</p>
-<h3>How long does SAP training take?</h3>
-<p>Most SAP module training programmes take 3 to 5 months, including project simulation. SAP ABAP training typically runs 4 to 5 months because of the technical depth involved.</p>
-<h3>Can an arts graduate learn SAP?</h3>
-<p>Yes, with the right module. SAP SD is the most accessible for arts graduates with strong communication and business skills. SAP FICO requires accounting fundamentals that most arts backgrounds do not provide, unless supplemented with separate learning.</p>
-<h3>Which SAP module is the easiest to learn?</h3>
-<p>SAP SD is generally the most accessible for freshers with a business background. SAP ABAP is the most difficult for anyone without prior programming experience.</p>
-<h3>Does SAP certification from SAP SE guarantee a job?</h3>
-<p>No. SAP certification improves your profile but does not replace practical training with system access and project simulation. Indian employers consistently prefer candidates with hands-on exposure over those with only a certificate.</p>
-<h3>What is S/4HANA and why does it matter for module choice?</h3>
-<p>S/4HANA is SAP's current-generation ERP platform, replacing the older ECC system. All four modules exist in S/4HANA but with architectural changes, especially FICO and MM. Training on S/4HANA content is now a practical requirement for being competitive in the job market.</p>
-<h3>Can I learn two SAP modules at once?</h3>
-<p>It is not recommended for freshers. Master one module first, build placement-ready skills, and then learn integration with a second module. Trying to learn two simultaneously reduces depth in both.</p>
-
 <h2 id="next-steps">Your Next Steps</h2>
 <ol>
   <li>Identify your background category in the decision matrix above.</li>

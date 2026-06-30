@@ -69,8 +69,9 @@ shape (see `_TEMPLATE.js` for a working skeleton):
 - **External links**: `target="_blank" rel="noopener"`, to authoritative sources only.
 - **Open with a "Quick Answer"** `<h2>` — 2-3 sentence direct answer. This is the
   passage Google AI Overviews and LLMs extract. Non-negotiable for GEO/AEO.
-- **`faq[]` must mirror the visible FAQ** `<h3>`/`<p>` pairs verbatim — Google
-  rejects FAQPage schema that doesn't match on-page content.
+- **Do NOT put the FAQ in `content`.** Fill the `faq[]` array only — the FAQ is
+  rendered automatically as accordion dropdowns after the article AND drives the
+  FAQPage schema. One source, no duplication.
 
 ---
 
@@ -80,6 +81,8 @@ Running the command + the deployed site handle all of this:
 
 - **JSON-LD schema** (SSR, in `<head>`): `BlogPosting` + `Person` author +
   `FAQPage` (from `faq[]`) + `BreadcrumbList`.
+- **FAQ accordions**: rendered from `faq[]` as collapsible dropdowns after the
+  article (don't write FAQ HTML in `content`).
 - **Table of Contents**: generated from your `<h2>` headings (ids auto-injected at render).
 - **Prose styling**: headings, tables, lists, links, blockquotes via `.sx-blog-content`.
 - **Sitemap**: the post is added to `/sitemap.xml` automatically.
@@ -94,7 +97,7 @@ Running the command + the deployed site handle all of this:
 
 - [ ] `seoTitle` ≤ 70 chars, `seoDescription` ≤ 160 chars
 - [ ] Each section has a clear `<h2>` (TOC + anchors auto-generated — no manual ids)
-- [ ] `faq[]` mirrors the visible FAQ section exactly
+- [ ] `faq[]` filled (renders as accordions + FAQPage schema — not in `content`)
 - [ ] **Dates/tense are correct as of today** (e.g. "ends in 2027", not "ended")
 - [ ] Any stats/numbers are current — refresh on publish day if time-sensitive
 - [ ] `featuredImage` set (blank = no social card image, weaker `BlogPosting.image`)
