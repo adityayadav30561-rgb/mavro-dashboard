@@ -206,7 +206,7 @@ export default function CampusVisitForm() {
                 style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}
               >
                 <Field label="Name of person attending *" placeholder="Priya Sharma" value={form.name} onChange={update('name')} required />
-                <Field label="College Name *" placeholder="IIMT College of Engineering" value={form.college} onChange={update('college')} required />
+                <Field label="College Name *" placeholder="Your college / institute name" value={form.college} onChange={update('college')} required />
                 <Field label="Mobile Number *" placeholder="+91 98XXXXXXXX" value={form.phone} onChange={update('phone')} required type="tel" />
                 <Field label="Email *" placeholder="priya@example.com" value={form.email} onChange={update('email')} required type="email" />
               </div>
