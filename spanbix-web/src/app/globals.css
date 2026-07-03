@@ -139,6 +139,14 @@
   margin: 1.8em 0 0.5em;
 }
 .sx-blog-content p { margin: 0 0 1.15em; }
+.sx-blog-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.8em auto;
+  border-radius: 12px;
+  border: 1px solid rgba(16, 44, 86, 0.08);
+}
 .sx-blog-content a {
   color: var(--sx-navy, #102c56);
   text-decoration: underline;

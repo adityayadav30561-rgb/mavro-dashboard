@@ -58,6 +58,8 @@ const content = `
 </table>
 </div>
 
+<img src="/blog-images/which-sap-module-body-1.webp" alt="Comparison of SAP FICO, MM, SD and ABAP modules by background, salary and job demand for Indian graduates" width="900" height="600" loading="lazy" />
+
 <h2 id="sap-fico">SAP FICO: Best for Commerce and Finance Backgrounds</h2>
 <p>SAP FICO stands for Financial Accounting (FI) and Controlling (CO). It is the most widely implemented SAP module globally and consistently tops job-demand charts in India.</p>
 <h3>What an SAP FICO consultant does</h3>
@@ -174,6 +176,8 @@ const content = `
 </div>
 <p><strong>The core rule:</strong> Functional candidates (non-IT backgrounds) should choose the module closest to their domain. IT candidates should choose ABAP for the highest salary ceiling and the clearest differentiation from commodity developer roles.</p>
 
+<img src="/blog-images/which-sap-module-body-2.webp" alt="SAP module decision matrix mapping academic background to FICO, MM, SD or ABAP" width="900" height="600" loading="lazy" />
+
 <h2 id="job-market">SAP Job Market in India: What the Data Shows in 2026</h2>
 <p>India is the second-largest SAP talent market globally after Germany. Key figures from job-portal data:</p>
 <ul>
@@ -248,8 +252,8 @@ module.exports = {
     'sap abap salary',
   ],
   readingTime: 9,
-  featuredImage: '',
-  ogImage: '',
+  featuredImage: '/blog-images/which-sap-module-featured.webp',
+  ogImage: '/blog-images/which-sap-module-featured.webp',
   content: content.trim(),
   faq,
 };
