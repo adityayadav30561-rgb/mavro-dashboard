@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import WhatsAppFloater from './WhatsAppFloater';
+import CallFloater from './lp/CallFloater';
 import CohortBanner from './CohortBanner';
 import useScrollReveal from './redesign/useScrollReveal';
 import useTrackPageView from '@/hooks/useTrackPageView';
@@ -67,9 +68,11 @@ export default function SpanbixLayout({ children }) {
       <main className="relative z-10 pt-16 sm:pt-20 md:pt-24 lg:pt-24">{children}</main>
       <Footer />
 
-      {/* Floating WhatsApp affordance (every page, every breakpoint) +
-          first-visit cohort-launch banner. Both are 'use client' and
-          self-mount; SpanbixLayout only owns their placement. */}
+      {/* Floating call + WhatsApp affordances (every page, every breakpoint;
+          CallFloater self-positions one button above WhatsApp) + first-visit
+          cohort-launch banner. All are 'use client' and self-mount;
+          SpanbixLayout only owns their placement. */}
+      <CallFloater />
       <WhatsAppFloater />
       <CohortBanner />
     </div>
