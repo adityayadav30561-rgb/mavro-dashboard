@@ -376,6 +376,24 @@ Full record: PROJECT_CONTEXT.md §Phase 8.
 
 ---
 
+## Phase 9 — Spanbix blog publishing pipeline (July 3, 2026)
+
+Full process doc: **[BLOG_PUBLISHING.md](./BLOG_PUBLISHING.md)** (repo root). Invariants:
+
+- **Spanbix blogs are DB content authored via a CLI, not git pages, not the admin editor.** Each post is a data module `src/utils/blogs/<slug>.js` (copy `_TEMPLATE.js`) published with `npm run create:spanbix-blog -- <slug>`. The runner (`src/utils/createSpanbixBlog.js`) resolves the Spanbix `Website` + author `AdminUser`, upserts the `Blog` (idempotent — matches on slug **or** title so a re-run corrects a mangled slug instead of duplicating), sets `status:'published'`, and fires `revalidateService.revalidateBlog(slug)`. `--draft` holds it for review.
+- **⛔ NEVER open a CLI-published post in the admin Blog Editor (Quill).** Quill merges table cells, converts spaces to `&nbsp;` (breaks mobile wrap), and strips heading ids — it destroys the HTML on save. Fix a mangled post by re-running the CLI (overwrites `content` from the data file). Edit the data file, never the editor.
+- **The `Blog` pre-validate hook regenerates `slug` from `title` on create**, clobbering an explicit slug — `createSpanbixBlog` re-asserts the chosen slug after save (title no longer dirty). Keep that post-save correction.
+- **`Blog.faq` (structured `[{question,answer}]`) is the single FAQ source.** It drives BOTH the `schema.org/FAQPage` JSON-LD (`faqPageLd` in `spanbix-web/src/lib/spanbixSeo.js`) AND the visible **accordion dropdowns** rendered from `faq[]` in `blog/[slug]/page.jsx` (native `<details>`, appended after the article, added to the TOC). Do NOT put FAQ markup in `content` — one source, no duplication.
+- **The blog Table of Contents is auto-generated at render.** `buildTocAndInjectIds` in `blog/[slug]/page.jsx` derives a slug `id` from each `<h2>`'s text and injects it (heading ids in stored content are NOT trusted — Quill strips them). Don't require manual `<h2 id>`.
+- **Blog article pages open at the canonical URL + top.** `SpanbixLayout` scroll effect force-scrolls top for `/blog/*` and strips any leftover `#section` hash via `history.replaceState` on load (a TOC click leaves a hash the browser preserves across refresh). In-page TOC clicks still work (they don't change `pathname`, so the effect doesn't re-run). Non-blog deep-links (`/about#faqs`, `/contact#contact-form`) keep their hash-scroll — do not remove the `!isBlogArticle` guard.
+- **The sitemap/robots/blog proxy fetches are cache-TAGGED so publishes bust them.** `spanbix-web` sitemap.xml + robots.txt routes fetch the backend with `next.tags: ['sitemap']` / `['robots']`; `blogApi` fetches carry `['blog']` (+ `blog:<slug>`). `api/revalidate` calls `revalidateTag(...)` for each — `revalidatePath` alone re-renders the route but reuses the stale cached fetch body (this is why a published blog could render yet be missing from the sitemap). Keep the tags + `revalidateTag` calls paired.
+- **`REVALIDATE_SECRET` must match across Render backend + Vercel spanbix-web + local `.env`** for instant on-publish cache-busting. When it mismatches, the CLI's revalidate 401s and changes fall back to the 300s ISR timer OR need a redeploy (an empty commit). Single biggest cause of "my edit isn't showing" — align the secret.
+- **Author identity is one shared `AdminUser`, set via `npm run set:spanbix-author`** (env-driven fields). Feeds the byline block AND the `Person` JSON-LD (`blogPostingLd`) on every post. Current: name "Lalit Mohan Parihar", jobTitle "SAP Entrepreneur · Spanbix", LinkedIn `…/lalitmohan-parihar-495753149/`. Blog pages cache the populated author at render — changing it needs a cache flush (redeploy while the secret is unaligned).
+- **Blog content SEO/AEO/GEO conventions** (enforced in `_TEMPLATE.js` + BLOG_PUBLISHING.md): open with a "Quick Answer" `<h2>`; wrap tables in `<div class="sx-table-wrap">`; hyperlink EVERY named source (verify the URL resolves — a broken outbound link is worse than an unlinked name); closing attribution credits the **single named byline author**, never "the Spanbix team". Prose styling lives in `.sx-blog-content` (globals.css); FAQ accordion styling in `.sx-faq*`.
+- **Sitemap in GSC is submit-once.** Backend generates it live from published blogs; new posts appear automatically and Google rechecks the same URL. Never resubmit. A freshly verified property showing "Couldn't fetch"/"unknown to Google" is crawl latency, not a fault.
+
+---
+
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>
