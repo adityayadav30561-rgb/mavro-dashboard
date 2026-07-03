@@ -253,7 +253,7 @@ module.exports = {
   ],
   readingTime: 9,
   featuredImage: '/blog-images/which-sap-module-featured.webp',
-  ogImage: '/blog-images/which-sap-module-featured.webp',
+  ogImage: '/blog-images/which-sap-module-featured.jpg',
   content: content.trim(),
   faq,
 };

@@ -67,6 +67,13 @@ shape (see `_TEMPLATE.js` for a working skeleton):
   `/career-paths/fico`, `/career-paths/mm`, `/career-paths/sd`, `/career-paths/abap`,
   `/career-paths/ai`, `/courses`, `/about`, `/contact`.
 - **External links**: `target="_blank" rel="noopener"`, to authoritative sources only.
+- **Images**: put files in `spanbix-web/public/blog-images/` (hyphenated lowercase
+  names, NO spaces — spaces break URLs on Vercel/Linux). Optimize to WebP, resize
+  (hero ≤1200px, body ≤900px), keep each ≤150 KB (`sharp`). Reference with a
+  leading `/blog-images/…`. In-body `<img>` needs `alt`, `loading="lazy"`, and
+  explicit `width`/`height` (CLS). **`featuredImage` may be WebP** (on-page cover),
+  but **`ogImage` MUST be JPG or PNG at 1200×630** — WhatsApp and most chat
+  scrapers do NOT render WebP OG images. Generate a `.jpg` twin for `ogImage`.
 - **Hyperlink every named source.** In a "Sources Used" section (or inline), a
   source that is named but not linked (Gartner, Glassdoor, NASSCOM, SAP News
   Center, …) carries less weight with AI crawlers and human fact-checkers. Link

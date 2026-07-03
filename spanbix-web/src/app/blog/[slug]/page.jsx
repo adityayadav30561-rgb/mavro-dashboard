@@ -172,7 +172,13 @@ export async function generateMetadata({ params }) {
       ? blog.keywords
       : (blog.tags?.length ? blog.tags : SPANBIX_SITE.keywords),
     canonical: blog.canonicalUrl || url,
-    ogImage: blog.ogImage || blog.featuredImage || SPANBIX_SITE.logo,
+    // OG image must be JPG/PNG (WhatsApp won't render WebP) — so use blog.ogImage
+    // (the raster OG asset) and fall back to the logo, NOT blog.featuredImage
+    // (which is WebP). When we have a dedicated ogImage, declare 1200x630 + type
+    // so scrapers show a large preview.
+    ogImage: blog.ogImage
+      ? { url: blog.ogImage, width: 1200, height: 630, type: blog.ogImage.endsWith('.png') ? 'image/png' : 'image/jpeg' }
+      : SPANBIX_SITE.logo,
     ogType: 'article',
   });
 }

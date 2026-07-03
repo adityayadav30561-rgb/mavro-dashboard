@@ -11,6 +11,10 @@ export function buildMetadata({
   ogImage,
   ogType = 'website',
 }) {
+  // ogImage may be a plain URL string OR an object { url, width, height, type }.
+  // Declaring width/height/type lets WhatsApp/Facebook render a large preview
+  // (and the format must be JPG/PNG — WhatsApp does not render WebP OG images).
+  const ogImg = !ogImage ? undefined : (typeof ogImage === 'string' ? { url: ogImage } : ogImage);
   return {
     title,
     description,
@@ -30,13 +34,13 @@ export function buildMetadata({
       url: canonical,
       siteName: 'Spanbix',
       type: ogType,
-      images: ogImage ? [{ url: ogImage }] : undefined,
+      images: ogImg ? [ogImg] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      images: ogImg ? [ogImg.url] : undefined,
     },
   };
 }

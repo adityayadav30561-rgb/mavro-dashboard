@@ -81,8 +81,8 @@ module.exports = {
   tags: ['tag-one', 'tag-two'],
   keywords: ['primary keyword', 'secondary keyword', 'long-tail variant'],
   readingTime: 8,                                    // minutes (approx)
-  featuredImage: '',                                 // e.g. '/blog-images/<slug>.jpg' — fills BlogPosting.image + cover
-  ogImage: '',                                       // defaults to featuredImage when blank
+  featuredImage: '',                                 // on-page cover — WebP OK, e.g. '/blog-images/<slug>.webp'
+  ogImage: '',                                       // social card — MUST be JPG/PNG (WhatsApp won't render WebP), 1200x630
   content: content.trim(),
   faq,
 };
