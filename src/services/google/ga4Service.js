@@ -132,13 +132,14 @@ function applyScopes(requests, hostSpec, brandLabel) {
  * hostScope (optional): { matchType, value } — restrict to one website.
  * brandLabel (optional): source label for bare-title 404 exclusion.
  */
-async function getMbrReport({ current, previous }, propertyId, hostScope, brandLabel) {
-  const bothRanges = [current, previous];
+async function getMbrReport({ current, previous, previous2 }, propertyId, hostScope, brandLabel) {
+  // GA4 accepts up to 4 dateRanges per request — the third period is free.
+  const compareRanges = [current, previous, previous2].filter(Boolean);
 
   const requests = [
-    // 0 — audience overview, both ranges (MoM comes free)
+    // 0 — audience overview, all periods (MoM + 3-month comparison free)
     {
-      dateRanges: bothRanges,
+      dateRanges: compareRanges,
       metrics: [
         metric('totalUsers'),
         metric('newUsers'),
@@ -149,13 +150,13 @@ async function getMbrReport({ current, previous }, propertyId, hostScope, brandL
         metric('screenPageViews'),
       ],
     },
-    // 1 — daily trend (current range)
+    // 1 — daily trend, all periods (compare chart aligns by day-of-period)
     {
-      dateRanges: [current],
+      dateRanges: compareRanges,
       dimensions: [dimension('date')],
       metrics: [metric('activeUsers'), metric('sessions')],
       orderBys: [{ dimension: { dimensionName: 'date' } }],
-      limit: 400,
+      limit: 1200,
     },
     // 2 — channel mix (current)
     {
@@ -173,9 +174,9 @@ async function getMbrReport({ current, previous }, propertyId, hostScope, brandL
       orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
       limit: 15,
     },
-    // 4 — AI referral traffic, both ranges (the GEO scoreboard)
+    // 4 — AI referral traffic, all periods (the GEO scoreboard)
     {
-      dateRanges: bothRanges,
+      dateRanges: compareRanges,
       dimensions: [dimension('sessionSource')],
       metrics: [metric('sessions'), metric('totalUsers')],
       dimensionFilter: {
@@ -196,9 +197,9 @@ async function getMbrReport({ current, previous }, propertyId, hostScope, brandL
       orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
       limit: 200,
     },
-    // 6 — conversion events, both ranges
+    // 6 — conversion events, all periods
     {
-      dateRanges: bothRanges,
+      dateRanges: compareRanges,
       dimensions: [dimension('eventName')],
       metrics: [metric('eventCount'), metric('totalUsers')],
       dimensionFilter: eventFilter(TRACKED_EVENTS),
@@ -254,9 +255,26 @@ async function getMbrReport({ current, previous }, propertyId, hostScope, brandL
     pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,
   ] = reports.map(parseReport);
 
+  // Daily trend rows carry the dateRange dimension (multi-range request):
+  // keep `trend` = current period (back-compat) + `trendCompare` per period.
+  const trendRows = trendR.map((r) => ({
+    range: r.dateRange || 'date_range_0',
+    date: r.date,
+    users: r.activeUsers,
+    sessions: r.sessions,
+  }));
+  const trendFor = (key) =>
+    trendRows.filter((r) => r.range === key).sort((a, b) => a.date.localeCompare(b.date))
+      .map(({ date, users, sessions }) => ({ date, users, sessions }));
+
   return {
     overview: splitByRange(overviewR, reports[0]),
-    trend: trendR.map((r) => ({ date: r.date, users: r.activeUsers, sessions: r.sessions })),
+    trend: trendFor('date_range_0'),
+    trendCompare: {
+      current: trendFor('date_range_0'),
+      previous: trendFor('date_range_1'),
+      previous2: trendFor('date_range_2'),
+    },
     channels: channelsR.map((r) => ({
       channel: r.sessionDefaultChannelGroup, sessions: r.sessions, users: r.totalUsers,
     })),
@@ -290,6 +308,7 @@ function splitByRange(rows, rawReport) {
   const hasRangeDim = (rawReport?.dimensionHeaders || []).some((h) => h.name === 'dateRange');
   const cur = hasRangeDim ? pick('date_range_0') : rows[0] || {};
   const prev = hasRangeDim ? pick('date_range_1') : {};
+  const prev2 = hasRangeDim ? pick('date_range_2') : {};
   const shape = (r) => ({
     users: r.totalUsers || 0,
     newUsers: r.newUsers || 0,
@@ -299,39 +318,49 @@ function splitByRange(rows, rawReport) {
     avgEngagementSec: r.totalUsers > 0 ? Math.round((r.userEngagementDuration || 0) / r.totalUsers) : 0,
     pageViews: r.screenPageViews || 0,
   });
-  return { current: shape(cur), previous: shape(prev) };
+  return { current: shape(cur), previous: shape(prev), previous2: shape(prev2) };
 }
 
 function splitAiByRange(rows) {
   const current = [];
   let currentTotal = 0;
   let previousTotal = 0;
+  let previous2Total = 0;
   rows.forEach((r) => {
-    const isCurrent = !r.dateRange || r.dateRange === 'date_range_0';
-    if (isCurrent) {
+    const range = r.dateRange || 'date_range_0';
+    if (range === 'date_range_0') {
       current.push({ source: r.sessionSource, sessions: r.sessions, users: r.totalUsers });
       currentTotal += r.sessions;
-    } else {
+    } else if (range === 'date_range_1') {
       previousTotal += r.sessions;
+    } else {
+      previous2Total += r.sessions;
     }
   });
-  return { sources: current, currentSessions: currentTotal, previousSessions: previousTotal };
+  return {
+    sources: current,
+    currentSessions: currentTotal,
+    previousSessions: previousTotal,
+    previous2Sessions: previous2Total,
+  };
 }
 
 function splitEventsByRange(rows) {
   const out = {};
   TRACKED_EVENTS.forEach((e) => {
-    out[e] = { current: 0, previous: 0, users: 0 };
+    out[e] = { current: 0, previous: 0, previous2: 0, users: 0 };
   });
   rows.forEach((r) => {
     const bucket = out[r.eventName];
     if (!bucket) return;
-    const isCurrent = !r.dateRange || r.dateRange === 'date_range_0';
-    if (isCurrent) {
+    const range = r.dateRange || 'date_range_0';
+    if (range === 'date_range_0') {
       bucket.current += r.eventCount;
       bucket.users += r.totalUsers;
-    } else {
+    } else if (range === 'date_range_1') {
       bucket.previous += r.eventCount;
+    } else {
+      bucket.previous2 += r.eventCount;
     }
   });
   return out;

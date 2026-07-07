@@ -49,10 +49,26 @@ function cacheSet(key, value) {
 // Date-range resolution
 // ===================================
 const fmt = (d) => d.toISOString().slice(0, 10);
+const rangeLabel = (startDate) =>
+  new Date(`${startDate}T00:00:00Z`).toLocaleDateString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 
+/**
+ * Always resolves THREE periods (current, previous, previous2) — GA4 takes
+ * them in one request, so the third month costs nothing and powers the
+ * Apr|May|Jun-style comparison in the page + export.
+ */
 function resolveRanges(query) {
   const today = new Date();
   const todayStr = fmt(today);
+
+  const finish = (ranges) => ({
+    ...ranges,
+    labels: {
+      current: rangeLabel(ranges.current.startDate),
+      previous: rangeLabel(ranges.previous.startDate),
+      previous2: rangeLabel(ranges.previous2.startDate),
+    },
+  });
 
   const monthParam = String(query.month || '').trim();
   if (/^\d{4}-\d{2}$/.test(monthParam)) {
@@ -60,17 +76,21 @@ function resolveRanges(query) {
     const monthStart = new Date(Date.UTC(y, m - 1, 1));
     const monthEnd = new Date(Date.UTC(y, m, 0)); // last day of month
     const curEnd = fmt(monthEnd) < todayStr ? fmt(monthEnd) : todayStr;
-    const prevStart = new Date(Date.UTC(y, m - 2, 1));
-    const prevEnd = new Date(Date.UTC(y, m - 1, 0));
-    // Partial current month (month-to-date) → clamp previous to the same
+    // Partial current month (month-to-date) → clamp prior months to the same
     // day-count so MoM deltas compare like-for-like, not MTD vs full month.
     const curDays = Math.round((new Date(`${curEnd}T00:00:00Z`) - monthStart) / 86400000) + 1;
-    const prevEndClamped = new Date(Math.min(prevEnd.getTime(), prevStart.getTime() + (curDays - 1) * 86400000));
-    return {
-      current: { startDate: fmt(monthStart), endDate: curEnd },
-      previous: { startDate: fmt(prevStart), endDate: fmt(prevEndClamped) },
-      label: monthParam,
+    const monthAgo = (offset) => {
+      const s = new Date(Date.UTC(y, m - 1 - offset, 1));
+      const e = new Date(Date.UTC(y, m - offset, 0));
+      const eClamped = new Date(Math.min(e.getTime(), s.getTime() + (curDays - 1) * 86400000));
+      return { startDate: fmt(s), endDate: fmt(eClamped) };
     };
+    return finish({
+      current: { startDate: fmt(monthStart), endDate: curEnd },
+      previous: monthAgo(1),
+      previous2: monthAgo(2),
+      label: monthParam,
+    });
   }
 
   const startParam = String(query.start || '').trim();
@@ -79,17 +99,23 @@ function resolveRanges(query) {
     const start = new Date(`${startParam}T00:00:00Z`);
     const end = new Date(`${endParam}T00:00:00Z`);
     const days = Math.round((end - start) / 86400000) + 1;
-    const prevEnd = new Date(start.getTime() - 86400000);
-    const prevStart = new Date(prevEnd.getTime() - (days - 1) * 86400000);
-    return {
-      current: { startDate: startParam, endDate: endParam <= todayStr ? endParam : todayStr },
-      previous: { startDate: fmt(prevStart), endDate: fmt(prevEnd) },
-      label: `${startParam}..${endParam}`,
+    const windowBefore = (anchorStart) => {
+      const e = new Date(anchorStart.getTime() - 86400000);
+      const s = new Date(e.getTime() - (days - 1) * 86400000);
+      return { startDate: fmt(s), endDate: fmt(e), _start: s };
     };
+    const prev = windowBefore(start);
+    const prev2 = windowBefore(prev._start);
+    return finish({
+      current: { startDate: startParam, endDate: endParam <= todayStr ? endParam : todayStr },
+      previous: { startDate: prev.startDate, endDate: prev.endDate },
+      previous2: { startDate: prev2.startDate, endDate: prev2.endDate },
+      label: `${startParam}..${endParam}`,
+    });
   }
 
   // Default: current calendar month (delegates to the month branch above,
-  // which clamps to today + aligns the previous window to the same day-count)
+  // which clamps to today + aligns the previous windows to the same day-count)
   const y = today.getUTCFullYear();
   const m = today.getUTCMonth();
   return resolveRanges({ month: `${y}-${String(m + 1).padStart(2, '0')}` });
@@ -122,7 +148,7 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:v2:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v3:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
@@ -142,7 +168,7 @@ const getGscReport = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `Search Console not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GSC_SITE_URL)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `gsc:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `gsc:v3:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });

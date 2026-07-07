@@ -130,11 +130,67 @@ function Card({ title, caption, icon: Icon, children, className }) {
   );
 }
 
-function SectionHeading({ children }) {
+function SectionHeading({ children, id }) {
   return (
-    <h2 className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground mt-8 mb-3">
+    <h2 id={id} className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground mt-8 mb-3 scroll-mt-24">
       {children}
     </h2>
+  );
+}
+
+// Sticky jump-bar for the long source report, with scroll-spy highlighting.
+const SOURCE_SECTIONS = [
+  { id: 'sec-audience', label: 'Audience' },
+  { id: 'sec-acquisition', label: 'Acquisition' },
+  { id: 'sec-conversions', label: 'Conversions' },
+  { id: 'sec-content', label: 'Content' },
+  { id: 'sec-search', label: 'Search' },
+  { id: 'sec-geography', label: 'Geography' },
+];
+
+function SectionNav() {
+  const [active, setActive] = useState(SOURCE_SECTIONS[0].id);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Topmost visible heading wins
+        const visible = entries.filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '-80px 0px -70% 0px' }
+    );
+    SOURCE_SECTIONS.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  const jump = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <div className="sticky top-2 z-20 mb-2">
+      <div className="inline-flex flex-wrap gap-1 rounded-xl border border-border bg-card/95 backdrop-blur px-1.5 py-1.5 shadow-sm">
+        {SOURCE_SECTIONS.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => jump(s.id)}
+            className={cn(
+              'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors',
+              active === s.id
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]'
+            )}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -439,6 +495,7 @@ export default function MbrReport() {
   const [blogsList, setBlogsList] = useState([]);
   const [itemsTick, setItemsTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [compare3, setCompare3] = useState(false);
 
   const rangeParams = customRange ? { start: customRange.start, end: customRange.end } : { month };
   const period = customRange ? customRange.start.slice(0, 7) : month;
@@ -526,6 +583,25 @@ export default function MbrReport() {
     () => (ga4?.trend || []).map((r) => ({ date: r.date, Users: r.users, Sessions: r.sessions })),
     [ga4]
   );
+
+  const periodLabels = ga4?.ranges?.labels || { current: 'Current', previous: 'Previous', previous2: 'Previous-2' };
+
+  // 3-period users trend aligned by day-of-period (dates differ across months)
+  const compareTrendData = useMemo(() => {
+    const tc = ga4?.trendCompare;
+    if (!tc) return [];
+    const maxLen = Math.max(tc.current.length, tc.previous.length, tc.previous2.length);
+    const rows = [];
+    for (let i = 0; i < maxLen; i += 1) {
+      rows.push({
+        day: i + 1,
+        [periodLabels.current]: tc.current[i]?.users ?? null,
+        [periodLabels.previous]: tc.previous[i]?.users ?? null,
+        [periodLabels.previous2]: tc.previous2[i]?.users ?? null,
+      });
+    }
+    return rows;
+  }, [ga4]); // eslint-disable-line
 
   // Pivot the event daily trend into one row per date, fixed entity → color.
   const eventTrendData = useMemo(() => {
@@ -625,6 +701,20 @@ export default function MbrReport() {
             >
               {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
               Download MBR
+            </button>
+          )}
+          {isSourceView && !isPagesView && (
+            <button
+              onClick={() => setCompare3((v) => !v)}
+              className={cn(
+                'h-9 px-3 rounded-xl border text-xs font-semibold transition-colors',
+                compare3
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-violet-500/50'
+              )}
+              title="Overlay the two preceding periods — comparison table + 3-line chart"
+            >
+              Compare 3 months
             </button>
           )}
           <select
@@ -739,8 +829,10 @@ export default function MbrReport() {
 
       {!loading && ga4 && !isPagesView && (
         <>
+          <SectionNav />
+
           {/* ============ AUDIENCE ============ */}
-          <SectionHeading>Audience — {monthLabel}</SectionHeading>
+          <SectionHeading id="sec-audience">Audience — {monthLabel}</SectionHeading>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <StatTile i={0} icon={Users} label="Total users" value={fmtNum(ov.current.users)} delta={deltaPct(ov.current.users, ov.previous.users)} />
             <StatTile i={1} icon={UserPlus} label="New users" value={fmtNum(ov.current.newUsers)} delta={deltaPct(ov.current.newUsers, ov.previous.newUsers)} />
@@ -750,14 +842,80 @@ export default function MbrReport() {
             <StatTile i={5} icon={Clock} label="Avg time / user" value={fmtDuration(ov.current.avgEngagementSec)} delta={deltaPct(ov.current.avgEngagementSec, ov.previous.avgEngagementSec)} />
           </div>
 
+          {compare3 && (
+            <div className="mt-3">
+              <Card caption="3-month comparison" title={`${periodLabels.previous2} → ${periodLabels.previous} → ${periodLabels.current}`} icon={BarChart3}>
+                <DataTable
+                  columns={['Metric', periodLabels.current, periodLabels.previous, periodLabels.previous2, 'MoM %']}
+                  rows={[
+                    { name: 'Total users', cur: ov.current.users, prev: ov.previous.users, prev2: ov.previous2?.users },
+                    { name: 'New users', cur: ov.current.newUsers, prev: ov.previous.newUsers, prev2: ov.previous2?.newUsers },
+                    { name: 'Sessions', cur: ov.current.sessions, prev: ov.previous.sessions, prev2: ov.previous2?.sessions },
+                    { name: 'Page views', cur: ov.current.pageViews, prev: ov.previous.pageViews, prev2: ov.previous2?.pageViews },
+                    { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round(ov.previous.engagementRate * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%`, pct: deltaPct(ov.current.engagementRate, ov.previous.engagementRate) },
+                    { name: 'AI referral sessions', cur: ai?.currentSessions, prev: ai?.previousSessions, prev2: ai?.previous2Sessions },
+                    ...eventTiles.map((t) => ({
+                      name: t.label, cur: events[t.key]?.current, prev: events[t.key]?.previous, prev2: events[t.key]?.previous2,
+                    })),
+                    ...(gsc ? [
+                      { name: 'Search clicks (GSC)', cur: gsc.totals.current.clicks, prev: gsc.totals.previous.clicks, prev2: gsc.totals.previous2?.clicks },
+                      { name: 'Search impressions', cur: gsc.totals.current.impressions, prev: gsc.totals.previous.impressions, prev2: gsc.totals.previous2?.impressions },
+                    ] : []),
+                  ]}
+                  renderRow={(r, idx) => {
+                    const numeric = typeof r.cur === 'number';
+                    const pct = r.pct !== undefined ? r.pct : (numeric ? deltaPct(r.cur, r.prev) : null);
+                    return (
+                      <tr key={r.name} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                        <Td>{r.name}</Td>
+                        <Td right mono className="font-semibold">{numeric ? fmtNum(r.cur) : r.cur}</Td>
+                        <Td right mono>{typeof r.prev === 'number' ? fmtNum(r.prev) : r.prev}</Td>
+                        <Td right mono>{typeof r.prev2 === 'number' ? fmtNum(r.prev2) : (r.prev2 ?? '—')}</Td>
+                        <Td right><Trend delta={pct} /></Td>
+                      </tr>
+                    );
+                  }}
+                />
+              </Card>
+            </div>
+          )}
+
           <div className="mt-3">
-            <Card caption="Daily" title="Users & Sessions" icon={Activity}>
+            <Card
+              caption="Daily"
+              title={compare3 ? 'Users — 3-month overlay (by day of period)' : 'Users & Sessions'}
+              icon={Activity}
+            >
               <div className="px-5 pt-3 flex gap-4">
-                <LegendDot color={C.violet} label="Users" />
-                <LegendDot color={C.cyan} label="Sessions" />
+                {compare3 ? (
+                  <>
+                    <LegendDot color={C.violet} label={periodLabels.current} />
+                    <LegendDot color={C.cyan} label={periodLabels.previous} />
+                    <LegendDot color={C.green} label={periodLabels.previous2} />
+                  </>
+                ) : (
+                  <>
+                    <LegendDot color={C.violet} label="Users" />
+                    <LegendDot color={C.cyan} label="Sessions" />
+                  </>
+                )}
               </div>
               <div className="px-2 pb-4 pt-1 h-[240px]">
-                {trendData.length === 0 ? <EmptyNote /> : (
+                {compare3 ? (
+                  compareTrendData.length === 0 ? <EmptyNote /> : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={compareTrendData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                        <CartesianGrid strokeDasharray="3 6" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
+                        <XAxis dataKey="day" tickFormatter={(d) => `Day ${d}`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} minTickGap={28} />
+                        <YAxis tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} tickLine={false} axisLine={false} width={40} allowDecimals={false} />
+                        <Tooltip content={<ChartTip labelFormatter={(d) => `Day ${d} of period`} />} />
+                        <Area type="monotone" dataKey={periodLabels.current} stroke={C.violet} strokeWidth={2} fill="none" dot={false} activeDot={{ r: 4, fill: C.violet, strokeWidth: 0 }} connectNulls />
+                        <Area type="monotone" dataKey={periodLabels.previous} stroke={C.cyan} strokeWidth={2} fill="none" dot={false} activeDot={{ r: 4, fill: C.cyan, strokeWidth: 0 }} connectNulls />
+                        <Area type="monotone" dataKey={periodLabels.previous2} stroke={C.green} strokeWidth={2} fill="none" dot={false} activeDot={{ r: 4, fill: C.green, strokeWidth: 0 }} connectNulls />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  )
+                ) : trendData.length === 0 ? <EmptyNote /> : (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={trendData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                       <defs>
@@ -784,7 +942,7 @@ export default function MbrReport() {
           </div>
 
           {/* ============ ACQUISITION ============ */}
-          <SectionHeading>Acquisition</SectionHeading>
+          <SectionHeading id="sec-acquisition">Acquisition</SectionHeading>
           <div className="grid lg:grid-cols-3 gap-3">
             <Card caption="Channels" title="Where traffic comes from" icon={Globe}>
               <BarRows rows={(ga4.channels || []).map((c) => ({ label: c.channel, value: c.sessions }))} />
@@ -828,7 +986,7 @@ export default function MbrReport() {
           </div>
 
           {/* ============ CONVERSIONS ============ */}
-          <SectionHeading>Conversion actions</SectionHeading>
+          <SectionHeading id="sec-conversions">Conversion actions</SectionHeading>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {eventTiles.map((t, i) => {
               const e = events[t.key] || { current: 0, previous: 0 };
@@ -899,7 +1057,7 @@ export default function MbrReport() {
           )}
 
           {/* ============ CONTENT ============ */}
-          <SectionHeading>Content</SectionHeading>
+          <SectionHeading id="sec-content">Content</SectionHeading>
           <Card caption="Pages" title="Top pages" icon={Eye}>
             <DataTable
               columns={['Page', 'Views', 'Users', 'Avg time']}
@@ -916,7 +1074,7 @@ export default function MbrReport() {
           </Card>
 
           {/* ============ SEARCH ============ */}
-          <SectionHeading>Google Search</SectionHeading>
+          <SectionHeading id="sec-search">Google Search</SectionHeading>
           {!gsc ? (
             <NotConfiguredCard
               what="Search Console"
@@ -991,7 +1149,7 @@ export default function MbrReport() {
           )}
 
           {/* ============ AUDIENCE DETAIL ============ */}
-          <SectionHeading>Audience detail</SectionHeading>
+          <SectionHeading id="sec-geography">Geography &amp; devices</SectionHeading>
           <div className="grid lg:grid-cols-3 gap-3">
             <Card caption="Geography" title="Users by country" icon={Globe} className="lg:col-span-2">
               <GeoMap countries={ga4.countries || []} />
