@@ -23,6 +23,7 @@ const {
   getPageBounce,
   getAnomalies,
   getBlogTrends,
+  getPulse,
 } = require('../controllers/analyticsController');
 const { protect } = require('../middleware');
 
@@ -78,6 +79,7 @@ router.get('/page-conversion',    getPageConversion);
 router.get('/page-bounce',        getPageBounce);
 router.get('/anomalies',          getAnomalies);
 router.get('/blog-trends',        getBlogTrends);
+router.get('/pulse',              getPulse);
 router.get('/_debug',             getDebug);
 
 module.exports = router;

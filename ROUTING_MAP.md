@@ -175,6 +175,7 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | GET | `/page-bounce` | protected | **Phase 2.0** per-page bounce rate (first-page landing) |
 | GET | `/anomalies` | protected | **Phase 2.0** 7-detector anomaly engine — severity-sorted output |
 | GET | `/blog-trends` | protected | **Phase 3.1** per-blog current vs previous-window view + session deltas (drives Content Decay engine) |
+| GET | `/pulse` | protected | **Phase 10.5** real system-status signals — age of newest event + events today (dashboard System Pulse card; replaced the hardcoded LIVE list) |
 | GET | `/_debug` | protected | Diagnostic: storage state, window, timeseries preview |
 
 ### `/api/ai` — `src/routes/aiRoutes.js`

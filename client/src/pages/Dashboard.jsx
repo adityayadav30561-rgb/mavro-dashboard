@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import {
   Globe, FileText, BookOpen, Users, ArrowRight, Zap,
   Rss, TrendingUp, TrendingDown, Eye, MousePointerClick, Activity,
-  ExternalLink, Smartphone, Laptop, Tablet, Bot, HelpCircle,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -12,7 +11,6 @@ import {
 
 import { GlassCard, GlassPanel } from '@/components/cyber/GlassCard';
 import MetricOrb from '@/components/cyber/MetricOrb';
-import ActivityRail from '@/components/cyber/ActivityRail';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
 import IndexTabs from '@/components/ui/IndexTabs';
@@ -23,12 +21,13 @@ import { getBlogs } from '@/api/blogs';
 import { getBlogStats } from '@/api/blogs';
 import { getLeads } from '@/api/leads';
 import { getLeadStats } from '@/api/leads';
+import { getMbrStatus } from '@/api/mbr';
 import { useTenant } from '@/context/TenantContext';
 import {
   getAnalyticsOverview,
   getAnalyticsTimeseries,
   getAnalyticsTopPages,
-  getAnalyticsBreakdown,
+  getAnalyticsPulse,
 } from '@/api/analytics';
 
 // ===================================
@@ -97,7 +96,24 @@ function customTooltip(range) {
   };
 }
 
-const DEVICE_ICON = { desktop: Laptop, mobile: Smartphone, tablet: Tablet, bot: Bot, unknown: HelpCircle };
+// Real status row for the System Pulse card — green when healthy, amber when
+// degraded, red when broken. No hardcoded LIVEs; every state is measured.
+function PulseRow({ label, ok, warn = false, state, detail }) {
+  const tone = ok && !warn ? 'text-emerald-400' : warn ? 'text-amber-400' : 'text-rose-400';
+  const dot = ok && !warn ? 'bg-emerald-400' : warn ? 'bg-amber-400' : 'bg-rose-400';
+  return (
+    <div className="flex items-center justify-between py-1">
+      <div className="min-w-0">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        {detail && <span className="text-[10px] text-muted-foreground/60 ml-2">{detail}</span>}
+      </div>
+      <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className={cn('w-2 h-2 rounded-full', dot)} />
+        <span className={cn('text-[10px] font-semibold font-mono', tone)}>{state}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const { selected: tenantSlug, selectedWebsite, websites: allWebsites } = useTenant();
@@ -106,7 +122,8 @@ export default function Dashboard() {
   const [overview, setOverview] = useState(null);
   const [series, setSeries] = useState([]);
   const [topPages, setTopPages] = useState([]);
-  const [breakdown, setBreakdown] = useState({ devices: [], referrers: [] });
+  const [pulse, setPulse] = useState(undefined); // undefined=loading, null=API down
+  const [mbrSources, setMbrSources] = useState([]);
   const [recentBlogs, setRecentBlogs] = useState([]);
   const [recentLeads, setRecentLeads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -167,20 +184,30 @@ export default function Dashboard() {
     Promise.all([
       getAnalyticsOverview(analyticsParams),
       getAnalyticsTimeseries(analyticsParams),
-      getAnalyticsTopPages({ range, limit: 6 }),
-      getAnalyticsBreakdown({ range }),
+      getAnalyticsTopPages({ range, limit: 5 }),
     ])
-      .then(([ov, ts, tp, bk]) => {
+      .then(([ov, ts, tp]) => {
         if (cancelled) return;
         setOverview(ov.data?.data || null);
         setSeries(ts.data?.data?.series || []);
         setTopPages(tp.data?.data?.pages || []);
-        setBreakdown(bk.data?.data || { devices: [], referrers: [] });
       })
       .catch((e) => console.error('Analytics fetch failed:', e))
       .finally(() => !cancelled && setLoading(false));
     return () => { cancelled = true; };
   }, [range, tenantSlug]);
+
+  // System pulse — real signals, fetched once per visit
+  useEffect(() => {
+    let cancelled = false;
+    getAnalyticsPulse()
+      .then((r) => { if (!cancelled) setPulse(r.data?.data || null); })
+      .catch(() => { if (!cancelled) setPulse(null); });
+    getMbrStatus()
+      .then((r) => { if (!cancelled) setMbrSources(r.data?.data?.sources || []); })
+      .catch(() => { if (!cancelled) setMbrSources([]); });
+    return () => { cancelled = true; };
+  }, []);
 
   const chartData = useMemo(
     () => series.map((s) => ({ ts: s.ts, views: s.views, sessions: s.sessions })),
@@ -188,24 +215,27 @@ export default function Dashboard() {
   );
 
   const m = overview?.metrics || {};
-  const deviceMax = breakdown.devices.reduce((max, d) => Math.max(max, d.count), 0) || 1;
 
+  // Blogs + leads interleaved chronologically — the one Activity feed
   const activityItems = [
-    ...recentBlogs.slice(0, 3).map((b) => ({
-      type: 'publish',
-      action: 'Published',
+    ...recentBlogs.slice(0, 4).map((b) => ({
+      type: 'blog',
+      id: b._id,
       target: b.title,
       website: b.targetWebsite?.name,
-      time: new Date(b.createdAt).toLocaleDateString(),
+      status: b.status,
+      at: b.createdAt,
     })),
     ...recentLeads.slice(0, 3).map((l) => ({
       type: 'lead',
-      action: 'New lead',
-      target: l.name,
+      id: l._id,
+      target: l.name || l.email,
       website: l.website?.name,
-      time: new Date(l.createdAt).toLocaleDateString(),
+      at: l.createdAt,
     })),
-  ];
+  ]
+    .sort((a, b) => new Date(b.at) - new Date(a.at))
+    .map((i) => ({ ...i, time: new Date(i.at).toLocaleDateString() }));
 
   return (
     <div className="space-y-8">
@@ -372,19 +402,19 @@ export default function Dashboard() {
       </div>
 
       {/* ═══════════════════════════════════════════
-          SECOND ROW — Top Pages + Activity + Devices
+          SECOND ROW — Top Pages + Activity + System Pulse
           ═══════════════════════════════════════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
 
-        {/* ── Top Pages (5 cols) ── */}
-        <div className="lg:col-span-5">
+        {/* ── Top Pages (4 cols, top 5) ── */}
+        <div className="lg:col-span-4">
           <GlassPanel title="Top Pages" caption="Traffic Sources" delay={0.3}>
             <div className="max-h-[300px] overflow-y-auto pr-1 -mr-1 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border))_transparent]">
               {topPages.length === 0 ? (
                 <p className="text-sm text-muted-foreground/50 py-8 text-center">No tracked page views yet</p>
               ) : (
                 <ul className="space-y-1.5">
-                  {topPages.map((p, i) => {
+                  {topPages.slice(0, 5).map((p, i) => {
                     const max = topPages[0].views;
                     const pct = max ? (p.views / max) * 100 : 0;
                     return (
@@ -414,198 +444,106 @@ export default function Dashboard() {
           </GlassPanel>
         </div>
 
-        {/* ── Publishing & Lead Feed (4 cols) ── */}
+        {/* ── Activity (4 cols) — blogs + leads, chronological ── */}
         <div className="lg:col-span-4">
-          <GlassPanel title="Publishing Feed" caption="Activity" delay={0.35}>
-            <div className="max-h-[300px] overflow-y-auto pr-1 -mr-1 [scrollbar-width:thin] [scrollbar-color:hsl(var(--border))_transparent]">
-              {activityItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground/50 py-6 text-center">No recent activity</p>
-              ) : (
-                <ActivityRail items={activityItems} />
-              )}
-            </div>
-          </GlassPanel>
-        </div>
-
-        {/* ── Devices breakdown (3 cols) ── */}
-        <div className="lg:col-span-3">
-          <GlassCard className="p-5" glow="cyan" delay={0.4}>
-            <p className="text-caption text-cyan-400/60 mb-4">Device Mix</p>
-            {breakdown.devices.length === 0 ? (
-              <p className="text-xs text-muted-foreground/50 text-center py-4">No device data</p>
-            ) : (
-              <div className="space-y-2.5">
-                {breakdown.devices.map((d) => {
-                  const Icon = DEVICE_ICON[d.device] || HelpCircle;
-                  const pct = ((d.count / deviceMax) * 100).toFixed(0);
-                  return (
-                    <div key={d.device}>
-                      <div className="flex items-center justify-between text-[12px] mb-1">
-                        <span className="flex items-center gap-1.5 capitalize">
-                          <Icon size={12} className="text-violet-400" />
-                          {d.device}
-                        </span>
-                        <span className="font-mono text-muted-foreground">{d.count}</span>
-                      </div>
-                      <div className="h-1 rounded-full bg-foreground/[0.06] overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${pct}%` }}
-                          transition={{ duration: 0.6, ease: 'easeOut' }}
-                          className="h-full bg-gradient-to-r from-violet-500 to-cyan-400"
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Top referrers */}
-            {breakdown.referrers.length > 0 && (
-              <div className="mt-5 pt-4 border-t border-border/60">
-                <p className="text-caption text-amber-400/60 mb-3">Top Referrers</p>
-                <ul className="space-y-1.5">
-                  {breakdown.referrers.slice(0, 4).map((r) => (
-                    <li key={r.source} className="flex items-center justify-between text-[12px]">
-                      <span className="truncate flex items-center gap-1.5">
-                        <ExternalLink size={10} className="text-muted-foreground/60 flex-shrink-0" />
-                        {r.source}
-                      </span>
-                      <span className="font-mono text-muted-foreground">{r.count}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </GlassCard>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════
-          THIRD ROW — Recent content + system status
-          ═══════════════════════════════════════════ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-7">
-          <GlassCard delay={0.45}>
+          <GlassCard delay={0.35}>
             <div className="px-5 pt-5 pb-3 flex items-center justify-between">
               <div>
-                <p className="text-caption text-emerald-400/60">Content</p>
-                <h3 className="text-title mt-1">Recent Publications</h3>
+                <p className="text-caption text-emerald-400/60">Activity</p>
+                <h3 className="text-title mt-1">Latest across everything</h3>
               </div>
               <Link to="/blogs" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
                 View all <ArrowRight size={12} />
               </Link>
             </div>
-            <div className="px-2 pb-3">
-              {recentBlogs.length === 0 ? (
-                <p className="text-sm text-muted-foreground/50 py-8 text-center">No published content yet</p>
+            <div className="px-2 pb-3 max-h-[300px] overflow-y-auto [scrollbar-width:thin] [scrollbar-color:hsl(var(--border))_transparent]">
+              {activityItems.length === 0 ? (
+                <p className="text-sm text-muted-foreground/50 py-8 text-center">No recent activity</p>
               ) : (
-                recentBlogs.slice(0, 4).map((blog, i) => (
-                  <motion.div
-                    key={blog._id}
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + i * 0.06 }}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-foreground/[0.03] transition-colors group cursor-pointer"
-                  >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500/20 to-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                      <FileText size={14} className="text-violet-300" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate group-hover:text-violet-300 transition-colors">{blog.title}</p>
-                      <p className="text-[11px] text-muted-foreground/60 mt-0.5">
-                        {blog.targetWebsite?.name || '—'} · {new Date(blog.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant={blog.status === 'published' ? 'success' : 'secondary'} className="text-[10px] px-1.5 py-0">
-                      {blog.status}
-                    </Badge>
-                  </motion.div>
+                activityItems.map((item, i) => (
+                  <Link key={`${item.type}-${item.id}`} to={item.type === 'lead' ? '/leads' : '/blogs'} className="block">
+                    <motion.div
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + i * 0.05 }}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-foreground/[0.03] transition-colors group"
+                    >
+                      <div className={cn(
+                        'w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 border border-border bg-foreground/[0.03]'
+                      )}>
+                        {item.type === 'lead'
+                          ? <Users size={13} className="text-rose-400" />
+                          : <FileText size={13} className="text-emerald-400" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{item.target}</p>
+                        <p className="text-[11px] text-muted-foreground/60 mt-0.5">
+                          {item.website || '—'} · {item.time}
+                        </p>
+                      </div>
+                      {item.type === 'lead'
+                        ? <span className="stamp text-rose-400 text-[8.5px]">Lead</span>
+                        : <Badge variant={item.status || 'draft'} className="text-[8.5px]">{item.status}</Badge>}
+                    </motion.div>
+                  </Link>
                 ))
               )}
             </div>
           </GlassCard>
         </div>
 
-        <div className="lg:col-span-5">
-          <GlassCard className="p-5" glow="violet" delay={0.5}>
-            <p className="text-caption text-violet-400/60 mb-3">System Status</p>
+        {/* ── System Pulse (4 cols) — real checks, no hardcoded LIVE ── */}
+        <div className="lg:col-span-4">
+          <GlassCard className="p-5" delay={0.4}>
+            <p className="text-caption text-violet-400/60 mb-4">System Pulse</p>
             <div className="space-y-3">
-              {[
-                { label: 'Analytics Ingestion', status: 'live' },
-                { label: 'Sitemap Generation', status: 'live' },
-                { label: 'Robots.txt Serving', status: 'live' },
-                { label: 'Search Engine Ping', status: 'live' },
-                { label: 'Lead Capture API', status: 'live' },
-              ].map((item, i) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.55 + i * 0.05 }}
-                  className="flex items-center justify-between py-1"
-                >
-                  <span className="text-xs text-muted-foreground">{item.label}</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(95_35%_45%/0.6)]" />
-                    <span className="text-[10px] font-medium text-emerald-400/80">LIVE</span>
-                  </div>
-                </motion.div>
+              {/* API — reaching this means the fetch round-tripped */}
+              <PulseRow
+                label="Admin API"
+                ok={pulse !== undefined}
+                state={pulse === null ? 'DOWN' : pulse === undefined ? '…' : 'LIVE'}
+              />
+              {/* Analytics ingestion — age of the newest event */}
+              <PulseRow
+                label="Analytics ingestion"
+                ok={pulse?.minutesAgo != null && pulse.minutesAgo < 24 * 60}
+                warn={pulse?.minutesAgo != null && pulse.minutesAgo >= 120 && pulse.minutesAgo < 24 * 60}
+                state={
+                  pulse?.minutesAgo == null
+                    ? 'NO EVENTS'
+                    : pulse.minutesAgo < 60
+                      ? `${pulse.minutesAgo}m ago`
+                      : `${Math.round(pulse.minutesAgo / 60)}h ago`
+                }
+                detail={pulse?.eventsToday != null ? `${pulse.eventsToday} events today` : null}
+              />
+              {/* Google integrations per MBR source */}
+              {(mbrSources || []).map((s) => (
+                <PulseRow
+                  key={s.key}
+                  label={`${s.label} · GA4 + Search Console`}
+                  ok={s.ga4 && s.gsc}
+                  warn={s.ga4 !== s.gsc}
+                  state={s.ga4 && s.gsc ? 'CONNECTED' : s.ga4 || s.gsc ? 'PARTIAL' : 'NOT SET'}
+                />
               ))}
             </div>
 
-            <div className="mt-5 pt-4 border-t border-border/60">
-              <Link
-                to="/leads"
-                className="group flex items-center justify-between mb-3 hover:text-foreground transition-colors"
-              >
-                <span className="text-caption text-amber-400/60 group-hover:text-amber-400 transition-colors">Lead Intelligence</span>
-                <ArrowRight size={12} className="text-amber-400/40 group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all" />
+            <div className="mt-5 pt-4 border-t border-border/60 flex items-center gap-4">
+              <Link to="/leads" className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-400/90 hover:text-rose-400 transition-colors">
+                Leads <ArrowRight size={10} />
               </Link>
-              {recentLeads.length === 0 ? (
-                <Link
-                  to="/leads"
-                  className="block text-xs text-muted-foreground/50 hover:text-muted-foreground text-center py-3 transition-colors"
-                >
-                  No leads captured · view all →
-                </Link>
-              ) : (
-                <>
-                  {recentLeads.slice(0, 3).map((lead, i) => (
-                    <Link
-                      key={lead._id}
-                      to="/leads"
-                      className="block"
-                    >
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.7 + i * 0.06 }}
-                        className="flex items-center gap-2 py-1.5 px-1 -mx-1 rounded-md hover:bg-foreground/[0.04] transition-colors cursor-pointer group"
-                      >
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-500/30 to-orange-500/30 flex items-center justify-center flex-shrink-0">
-                          <Users size={10} className="text-amber-300" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium truncate group-hover:text-amber-300 transition-colors">{lead.name}</p>
-                          <p className="text-[10px] text-muted-foreground/60 truncate">{lead.email}</p>
-                        </div>
-                      </motion.div>
-                    </Link>
-                  ))}
-                  <Link
-                    to="/leads"
-                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-400/80 hover:text-amber-400 transition-colors"
-                  >
-                    View all leads <ArrowRight size={10} />
-                  </Link>
-                </>
-              )}
+              <Link to="/mbr" className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-400/90 hover:text-violet-400 transition-colors">
+                MBR Report <ArrowRight size={10} />
+              </Link>
+              <Link to="/analytics" className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-400/90 hover:text-cyan-400 transition-colors">
+                Analytics <ArrowRight size={10} />
+              </Link>
             </div>
           </GlassCard>
         </div>
       </div>
+
     </div>
   );
 }

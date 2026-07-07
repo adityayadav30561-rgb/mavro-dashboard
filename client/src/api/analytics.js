@@ -46,3 +46,6 @@ export const getAnalyticsAnomalies = (params) =>
 // Content decay — per-blog trend deltas (current vs previous window)
 export const getAnalyticsBlogTrends = (params) =>
   api.get('/analytics/blog-trends', { params });
+
+// System pulse — last ingest age + today's event count (dashboard status card)
+export const getAnalyticsPulse = () => api.get('/analytics/pulse');

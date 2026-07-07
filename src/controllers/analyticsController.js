@@ -319,6 +319,30 @@ const getBlogTrends = asyncHandler(async (req, res) => {
   return ApiResponse.success(res, { blogs: data });
 });
 
+// ===================================
+// GET /api/analytics/pulse — real system-status signals for the dashboard.
+// Replaces the old hardcoded "LIVE" list: actual last-ingest age + today's
+// event count. API reachability is implied by the request succeeding.
+// ===================================
+const getPulse = asyncHandler(async (req, res) => {
+  const [last, todayCount] = await Promise.all([
+    AnalyticsEvent.findOne().sort({ timestamp: -1 }).select('timestamp eventType websiteSlug').lean(),
+    AnalyticsEvent.countDocuments({
+      timestamp: { $gte: new Date(new Date().setUTCHours(0, 0, 0, 0)) },
+    }),
+  ]);
+
+  const minutesAgo = last ? Math.round((Date.now() - new Date(last.timestamp).getTime()) / 60000) : null;
+
+  return ApiResponse.success(res, {
+    lastEventAt: last?.timestamp || null,
+    lastEventType: last?.eventType || null,
+    lastEventTenant: last?.websiteSlug || null,
+    minutesAgo,
+    eventsToday: todayCount,
+  });
+});
+
 module.exports = {
   trackEvent,
   getOverview,
@@ -340,4 +364,5 @@ module.exports = {
   getPageBounce,
   getAnomalies,
   getBlogTrends,
+  getPulse,
 };
