@@ -792,15 +792,45 @@ export default function MbrReport() {
         />
       )}
 
-      {/* ============ PAGES VIEW — every page on the site ============ */}
+      {/* ============ PAGES VIEW — deliverables first, inventory second ============ */}
       {!loading && ga4 && isPagesView && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatTile i={0} icon={Eye} label="Page views" value={fmtNum(ov.current.pageViews)} delta={deltaPct(ov.current.pageViews, ov.previous.pageViews)} />
-            <StatTile i={1} icon={Users} label="Users" value={fmtNum(ov.current.users)} delta={deltaPct(ov.current.users, ov.previous.users)} />
-            <StatTile i={2} icon={Activity} label="Pages tracked" value={fmtNum((ga4.topPages || []).length)} hint="pages with ≥1 view this period" />
+            <StatTile i={0} icon={Plus} label={`Pages built — ${monthLabel}`} value={fmtNum((ga4.newPages || []).length)} hint="first-ever traffic this period" />
+            <StatTile i={1} icon={Eye} label="Page views" value={fmtNum(ov.current.pageViews)} delta={deltaPct(ov.current.pageViews, ov.previous.pageViews)} />
+            <StatTile i={2} icon={Activity} label="Pages live" value={fmtNum((ga4.topPages || []).length)} hint="pages with ≥1 view this period" />
             <StatTile i={3} icon={Clock} label="Avg time / user" value={fmtDuration(ov.current.avgEngagementSec)} delta={deltaPct(ov.current.avgEngagementSec, ov.previous.avgEngagementSec)} />
           </div>
+
+          {/* Pages BUILT this period — the deliverable list */}
+          <div className="mt-3">
+            <Card caption="Deliverables · auto-detected" title={`Pages built — ${monthLabel}`} icon={Plus}>
+              {(ga4.newPages || []).length === 0 ? (
+                <EmptyState
+                  note={`no new pages went live in ${monthLabel.toLowerCase()}`}
+                  hint="pages appear here the month they first receive traffic"
+                />
+              ) : (
+                <DataTable
+                  columns={['#', 'Page', 'Views', 'Users', 'Avg time']}
+                  rows={ga4.newPages}
+                  renderRow={(r, idx) => (
+                    <tr key={r.path} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                      <Td mono className="text-muted-foreground">{idx + 1}</Td>
+                      <Td className="max-w-[420px] font-mono text-[10px]">{r.path}</Td>
+                      <Td right mono>{fmtNum(r.views)}</Td>
+                      <Td right mono>{fmtNum(r.users)}</Td>
+                      <Td right mono>{fmtDuration(r.avgEngagementSec)}</Td>
+                    </tr>
+                  )}
+                />
+              )}
+              <p className="px-5 pb-3 text-[10px] text-muted-foreground/60">
+                Detected from GA4: a page counts as “built” the month it first receives traffic. Pages live before analytics started won't appear.
+              </p>
+            </Card>
+          </div>
+
           <div className="mt-3 pb-8">
             <Card caption="GA4 · current period" title={`All pages — ${monthLabel}`} icon={Eye}>
               <DataTable

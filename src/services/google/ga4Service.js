@@ -65,6 +65,14 @@ function parseReport(report) {
 
 const metric = (name) => ({ name });
 const dimension = (name) => ({ name });
+const dayBefore = (isoDate) => {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
+// Normalize a pagePath for first-seen comparison (query strings + trailing
+// slashes would otherwise make the same page look "new")
+const normPath = (p) => String(p || '').split('?')[0].replace(/\/+$/, '') || '/';
 
 const eventFilter = (events) => ({
   filter: {
@@ -249,12 +257,22 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
       orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
       limit: 250,
     },
+    // 12 — every page seen BEFORE the current period. GA4 has no "page
+    // created" date, so "pages built this month" = pages whose first-ever
+    // traffic falls inside the month: current pages minus this prior set.
+    // 2015-08-14 is GA4's minimum queryable date.
+    {
+      dateRanges: [{ startDate: '2015-08-14', endDate: dayBefore(current.startDate) }],
+      dimensions: [dimension('pagePath')],
+      metrics: [metric('screenPageViews')],
+      limit: 5000,
+    },
   ];
 
   const reports = await batchRunReports(applyScopes(requests, hostScope, brandLabel), propertyId, credsEnv);
   const [
     overviewR, trendR, channelsR, sourcesR, aiR,
-    pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,
+    pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR, priorPagesR,
   ] = reports.map(parseReport);
 
   // Daily trend rows carry the dateRange dimension (multi-range request).
@@ -304,6 +322,20 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
       users: r.activeUsers,
       avgEngagementSec: r.activeUsers > 0 ? Math.round(r.userEngagementDuration / r.activeUsers) : 0,
     })),
+    // Pages whose first-ever traffic falls inside the current period —
+    // the "pages built this month" deliverable list.
+    newPages: (() => {
+      const priorSet = new Set(priorPagesR.map((r) => normPath(r.pagePath)));
+      const isRealPage = (p) => !/\.(xml|txt|json|ico|pdf)$/i.test(p) && !p.includes('sitemap');
+      return pagesR
+        .filter((r) => isRealPage(normPath(r.pagePath)) && !priorSet.has(normPath(r.pagePath)))
+        .map((r) => ({
+          path: r.pagePath,
+          views: r.screenPageViews,
+          users: r.activeUsers,
+          avgEngagementSec: r.activeUsers > 0 ? Math.round(r.userEngagementDuration / r.activeUsers) : 0,
+        }));
+    })(),
     events: splitEventsByRange(eventsR),
     eventTrend: eventTrendR.map((r) => ({ date: r.date, event: r.eventName, count: r.eventCount })),
     fileDownloads: downloadsR.map((r) => ({ file: r.fileName || '(unknown)', count: r.eventCount })),

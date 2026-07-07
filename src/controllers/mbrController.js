@@ -153,7 +153,7 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:v5:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v6:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
