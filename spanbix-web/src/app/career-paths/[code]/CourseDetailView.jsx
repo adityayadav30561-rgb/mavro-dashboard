@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, Globe, Users, CheckCircle2, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import SpanbixLayout from '@/components/spanbix/SpanbixLayout';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
+import BlogStrip from '@/components/spanbix/BlogStrip';
 import { Arrow } from '@/components/spanbix/redesign/Arrow';
 import { trackCtaClick } from '@/lib/analytics';
 
@@ -15,7 +16,7 @@ import { trackCtaClick } from '@/lib/analytics';
 //   - Campus mode:     pricing hidden + campusTimeline
 // Initial mode honours the ?mode=campus deep-link (read once on mount to keep
 // the page statically prerenderable — no useSearchParams CSR bailout).
-export default function CourseDetailView({ track }) {
+export default function CourseDetailView({ track, relatedBlogs = [] }) {
   const [mode, setMode] = useState('individual');
 
   useEffect(() => {
@@ -361,6 +362,13 @@ export default function CourseDetailView({ track }) {
           </div>
         </div>
       </section>
+
+      <BlogStrip
+        blogs={relatedBlogs}
+        heading={`${track.name} articles & guides`}
+        eyebrow={`${track.name} · CAREER BLOG`}
+        tone="cream"
+      />
 
       <FinalCta />
     </SpanbixLayout>

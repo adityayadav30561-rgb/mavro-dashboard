@@ -17,6 +17,72 @@
 }
 
 /* ────────────────────────────────────────────────────────────────────────
+   Blog strip — horizontal-scroll "related articles" carousel (BlogStrip.jsx)
+   used on the homepage + track pages. Plain CSS overflow (no JS, no sx-reveal).
+   ──────────────────────────────────────────────────────────────────────── */
+.sx-blog-strip {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.sx-blog-strip-card {
+  flex: 0 0 clamp(272px, 80vw, 356px);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  background: var(--sx-white, #fff);
+  border: 1px solid var(--sx-hairline, rgba(16, 44, 86, 0.12));
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sx-blog-strip-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px -22px rgba(16, 44, 86, 0.35);
+}
+.sx-blog-strip-cover { aspect-ratio: 16 / 10; position: relative; overflow: hidden; }
+.sx-blog-strip-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sx-blog-strip-cover-rose { background: linear-gradient(135deg, #e7c4bd, #d6a59b); }
+.sx-blog-strip-cover-olive { background: linear-gradient(135deg, #b9c39a, #97a879); }
+.sx-blog-strip-cover-sand { background: linear-gradient(135deg, #e6dcc2, #d3c39c); }
+.sx-blog-strip-cover-sky { background: linear-gradient(135deg, #bcd0e4, #93b4d4); }
+.sx-blog-strip-cover-cream { background: linear-gradient(135deg, #ece3d0, #dccdae); }
+.sx-blog-strip-body { padding: 18px 20px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.sx-blog-strip-meta {
+  font-family: var(--sx-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--sx-ink-3, #5b6b85);
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.sx-blog-strip-body h3 {
+  font-family: var(--sx-sans);
+  font-weight: 650;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--sx-ink-1, #0f1f3a);
+  margin: 0;
+}
+.sx-blog-strip-body p {
+  font-family: var(--sx-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sx-ink-2, #38445a);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sx-blog-strip-more { margin-top: auto; font-family: var(--sx-sans); font-size: 13px; font-weight: 600; color: var(--sx-navy, #102c56); }
+
+/* ────────────────────────────────────────────────────────────────────────
    Blog prose — styles raw HTML returned by the backend (rendered via
    dangerouslySetInnerHTML in app/blog/[slug]/page.jsx). Tailwind's preflight
    strips default element margins/borders, so every blog post would otherwise

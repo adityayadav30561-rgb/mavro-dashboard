@@ -39,6 +39,36 @@ export async function fetchBlogDetail(slug) {
   return { blog: json?.data?.blog || null };
 }
 
+// Per-module keyword sets for surfacing relevant blogs on track pages. Matched
+// as whole words against a blog's title + tags + keywords + category (so 'mm'
+// hits "SAP MM" but not "programming"). Extend when a new module ships.
+export const MODULE_BLOG_MATCH = {
+  fico: ['fico', 'financial', 'finance', 'accounting', 'commerce'],
+  mm: ['mm', 'materials', 'procurement', 'supply chain'],
+  sd: ['sd', 'sales', 'distribution'],
+  abap: ['abap', 'programming', 'developer', 'technical'],
+  ai: ['ai', 'artificial intelligence'],
+};
+
+// Fetch published blogs, optionally filtered to a set of match words, for the
+// "related articles" strips on the homepage + track pages. Returns [] on error.
+export async function fetchRelatedBlogs({ matchWords = null, limit = 6, excludeSlug = null } = {}) {
+  let blogs = [];
+  try {
+    ({ blogs } = await fetchBlogList({ limit: 30 }));
+  } catch {
+    return [];
+  }
+  if (excludeSlug) blogs = blogs.filter((b) => b.slug !== excludeSlug);
+  if (Array.isArray(matchWords) && matchWords.length) {
+    const re = new RegExp(`\\b(${matchWords.join('|')})\\b`, 'i');
+    blogs = blogs.filter((b) =>
+      re.test([b.title, (b.tags || []).join(' '), (b.keywords || []).join(' '), b.category || ''].join(' '))
+    );
+  }
+  return blogs.slice(0, limit);
+}
+
 // Walk all paginated pages to collect every published slug for generateStaticParams.
 export async function fetchAllBlogSlugs() {
   const slugs = [];

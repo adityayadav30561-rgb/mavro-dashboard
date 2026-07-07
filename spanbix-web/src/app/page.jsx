@@ -11,6 +11,7 @@ import Outcomes from '@/components/spanbix/redesign/sections/Outcomes';
 import Campus from '@/components/spanbix/redesign/sections/Campus';
 import FAQ from '@/components/spanbix/redesign/sections/FAQ';
 import FinalCta from '@/components/spanbix/redesign/sections/FinalCta';
+import RelatedBlogs from '@/components/spanbix/RelatedBlogs';
 import { buildMetadata } from '@/lib/seoMeta';
 import {
   SPANBIX_SITE,
@@ -53,6 +54,7 @@ export default function HomePage() {
         <Placement />
         <Outcomes />
         <Campus />
+        <RelatedBlogs heading="From the SAP career blog" limit={6} tone="cream" />
         <FAQ />
         <FinalCta />
       </SpanbixLayout>

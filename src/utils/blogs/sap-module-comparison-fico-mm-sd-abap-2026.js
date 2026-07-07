@@ -70,7 +70,7 @@ const content = `
 </ul>
 <h3>Who should choose FICO</h3>
 <ul>
-  <li>B.Com or M.Com graduates with basic accounting knowledge</li>
+  <li>B.Com or M.Com graduates with basic accounting knowledge (see our <a href="/blog/sap-career-path-commerce-graduates">SAP career path for commerce graduates</a>)</li>
   <li>CA or CMA aspirants who want an ERP consulting career path</li>
   <li>MBA Finance graduates targeting SAP implementation roles</li>
   <li>Anyone comfortable reading a balance sheet or P&amp;L statement</li>

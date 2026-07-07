@@ -9,6 +9,7 @@ import {
   courseLd,
 } from '@/lib/spanbixSeo';
 import CourseDetailView from './CourseDetailView';
+import { fetchRelatedBlogs, MODULE_BLOG_MATCH } from '@/lib/blogApi';
 
 // Prerender one static page per active track (fico / mm / sd / abap).
 export function generateStaticParams() {
@@ -51,10 +52,18 @@ export default async function CourseDetailPage({ params }) {
     courseLd(track),
   ];
 
+  // Surface blogs relevant to this module (e.g. all FICO articles on the FICO
+  // page). Fetched server-side + passed into the client view so it renders
+  // inside the page layout.
+  const relatedBlogs = await fetchRelatedBlogs({
+    matchWords: MODULE_BLOG_MATCH[track.code] || [track.code],
+    limit: 6,
+  });
+
   return (
     <>
       <JsonLd data={ld} />
-      <CourseDetailView track={track} />
+      <CourseDetailView track={track} relatedBlogs={relatedBlogs} />
     </>
   );
 }
