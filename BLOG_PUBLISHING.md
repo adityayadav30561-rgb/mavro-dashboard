@@ -195,3 +195,45 @@ Use the **full name** ("Lalit Mohan Parihar") for a stronger `Person` entity.
 - Don't hand-write JSON-LD, sitemap entries, or a TOC — all automatic.
 - Don't hardcode the URL anywhere; the `slug` field is the single source.
 - Don't stuff form/SEO data into `content` that belongs in the typed fields.
+
+---
+
+# Publishing a SaiSatwik Blog (WordPress)
+
+SaiSatwik blogs live in the client's WordPress install (saisatwik.com), not the Mavro DB. A CLI mirrors the Spanbix flow but pushes over the WordPress REST API using an Application Password.
+
+## TL;DR
+
+```bash
+# 1. Copy the template:
+#    src/utils/saisatwik-blogs/_TEMPLATE.js → src/utils/saisatwik-blogs/<slug>.js
+# 2. Fill in title, slug, excerpt, categories[], tags[], content (semantic HTML, Quick Answer h2 first).
+# 3. Push as DRAFT (default — review in wp-admin before it goes live):
+npm run create:saisatwik-blog -- <slug>
+# 4. Publish: hit Publish inside wp-admin, or re-run with the flag:
+npm run create:saisatwik-blog -- <slug> --publish
+```
+
+## Behavior
+
+- **Upsert by slug** — re-running updates the same WordPress post (typo fixes = edit the data file, re-run). Never duplicates.
+- **Categories/tags by name** — resolved via the WP API, created if missing.
+- **Draft-first by default** — `--publish` opts into straight-to-live.
+- The post is a normal WP post, so it automatically appears on the site, in the MBR "SaiSatwik Blogs" view (reads WP live), and in the MBR export.
+- Content conventions match Spanbix (Quick Answer `<h2>` first, `<h2>`/`<h3>` structure, no `<h1>`, every named source hyperlinked). WordPress theme owns typography — no inline styles.
+- `src/utils/saisatwik-blogs/wp-connection-test.js` is a permanent connectivity probe (`npm run create:saisatwik-blog -- wp-connection-test` → creates/updates a draft titled "connection test — safe to delete").
+
+## Auth + hosting gotcha
+
+- Env (local `.env` only — this is a CLI, Render never needs it): `SAISATWIK_WP_URL`, `SAISATWIK_WP_USER` (wp-admin LOGIN name), `SAISATWIK_WP_APP_PASSWORD` (wp-admin → Users → Profile → Application Passwords).
+- **saisatwik.com runs LiteSpeed, which strips the `Authorization` header** until this is added at the TOP of the WordPress `.htaccess`:
+
+```apache
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+```
+
+- The runner diagnoses the three failure modes distinctly: `rest_not_logged_in` = header stripped (fix above) · `invalid_username` = use the wp-admin login name · `incorrect_password` = regenerate the Application Password.
