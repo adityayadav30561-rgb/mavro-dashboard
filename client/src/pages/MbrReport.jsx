@@ -226,6 +226,11 @@ function NotConfiguredCard({ what, detail }) {
 export default function MbrReport() {
   const months = useMemo(() => lastMonths(13), []);
   const [month, setMonth] = useState(months[0].value);
+  // Custom range mode — backend already accepts ?start=&end= (YYYY-MM-DD)
+  const [customOpen, setCustomOpen] = useState(false);
+  const [draftStart, setDraftStart] = useState('');
+  const [draftEnd, setDraftEnd] = useState('');
+  const [customRange, setCustomRange] = useState(null); // { start, end } once applied
   const [status, setStatus] = useState(null);
   const [ga4, setGa4] = useState(null);
   const [gsc, setGsc] = useState(null);
@@ -238,7 +243,7 @@ export default function MbrReport() {
     let alive = true;
     (async () => {
       setLoading(true);
-      const params = { month };
+      const params = customRange ? { start: customRange.start, end: customRange.end } : { month };
       const errs = {};
 
       const [st, g4, gs, bt] = await Promise.allSettled([
@@ -264,7 +269,7 @@ export default function MbrReport() {
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [month, refreshTick]);
+  }, [month, customRange, refreshTick]);
 
   const ov = ga4?.overview;
   const ai = ga4?.aiReferrals;
@@ -302,7 +307,25 @@ export default function MbrReport() {
     { key: 'file_download', icon: FileDown, label: 'Brochure downloads' },
   ];
 
-  const monthLabel = months.find((m) => m.value === month)?.label || month;
+  const fmtRangeDate = (iso) =>
+    new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  const monthLabel = customRange
+    ? `${fmtRangeDate(customRange.start)} – ${fmtRangeDate(customRange.end)}`
+    : months.find((m) => m.value === month)?.label || month;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const customValid = draftStart && draftEnd && draftStart <= draftEnd && draftStart <= today;
+
+  const applyCustom = () => {
+    if (!customValid) return;
+    setCustomRange({ start: draftStart, end: draftEnd > today ? today : draftEnd });
+  };
+  const clearCustom = () => {
+    setCustomOpen(false);
+    setCustomRange(null);
+    setDraftStart('');
+    setDraftEnd('');
+  };
 
   return (
     <div className="space-y-1">
@@ -315,19 +338,63 @@ export default function MbrReport() {
             Growth Report
           </h1>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            GA4 + Search Console + Mavro events · vs previous month · GSC data lags ~2–3 days
+            GA4 + Search Console + Mavro events · vs {customRange ? 'preceding period of same length' : 'previous month'} · GSC data lags ~2–3 days
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
+            value={customOpen ? '__custom' : month}
+            onChange={(e) => {
+              if (e.target.value === '__custom') {
+                setCustomOpen(true);
+              } else {
+                clearCustom();
+                setMonth(e.target.value);
+              }
+            }}
             className="h-9 rounded-xl bg-card border border-border px-3 text-xs font-medium outline-none focus:border-violet-500/50"
           >
             {months.map((m) => (
               <option key={m.value} value={m.value}>{m.label}</option>
             ))}
+            <option value="__custom">Custom range…</option>
           </select>
+
+          {customOpen && (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="date"
+                value={draftStart}
+                max={today}
+                onChange={(e) => setDraftStart(e.target.value)}
+                className="h-9 rounded-xl bg-card border border-border px-2.5 text-xs outline-none focus:border-violet-500/50"
+              />
+              <span className="text-xs text-muted-foreground">to</span>
+              <input
+                type="date"
+                value={draftEnd}
+                min={draftStart || undefined}
+                max={today}
+                onChange={(e) => setDraftEnd(e.target.value)}
+                className="h-9 rounded-xl bg-card border border-border px-2.5 text-xs outline-none focus:border-violet-500/50"
+              />
+              <button
+                onClick={applyCustom}
+                disabled={!customValid}
+                className="h-9 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              >
+                Apply
+              </button>
+              <button
+                onClick={clearCustom}
+                className="h-9 px-2.5 rounded-xl bg-card border border-border text-xs text-muted-foreground hover:border-violet-500/50 transition-colors"
+                title="Back to month view"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <button
             onClick={() => setRefreshTick((t) => t + 1)}
             className="h-9 w-9 rounded-xl bg-card border border-border flex items-center justify-center hover:border-violet-500/50 transition-colors"
