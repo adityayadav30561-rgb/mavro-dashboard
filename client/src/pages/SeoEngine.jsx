@@ -222,7 +222,7 @@ export default function SeoEngine() {
         className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4"
       >
         <div>
-          <p className="text-caption text-violet-400/80 mb-2">Search Operations Center</p>
+          <p className="text-caption text-amber-400/80 mb-2">Search Operations Center</p>
           <h1 className="text-display">SEO Engine</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Multi-tenant SEO intelligence · sitemap operations · indexing telemetry · content audit

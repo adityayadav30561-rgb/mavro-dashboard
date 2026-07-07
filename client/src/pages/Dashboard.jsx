@@ -15,6 +15,7 @@ import MetricOrb from '@/components/cyber/MetricOrb';
 import ActivityRail from '@/components/cyber/ActivityRail';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/button';
+import IndexTabs from '@/components/ui/IndexTabs';
 import { cn } from '@/lib/utils';
 
 import { getWebsites } from '@/api/websites';
@@ -42,22 +43,11 @@ const RANGES = [
 
 function RangeFilter({ value, onChange }) {
   return (
-    <div className="inline-flex items-center p-1 rounded-xl bg-card/60 backdrop-blur-xl border border-border/70">
-      {RANGES.map((r) => (
-        <button
-          key={r.key}
-          onClick={() => onChange(r.key)}
-          className={cn(
-            'relative px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] rounded-lg transition-colors',
-            value === r.key
-              ? 'bg-violet-500/15 text-violet-300 ring-1 ring-violet-500/40'
-              : 'text-muted-foreground hover:text-foreground'
-          )}
-        >
-          {r.label}
-        </button>
-      ))}
-    </div>
+    <IndexTabs
+      tabs={RANGES.map((r) => ({ value: r.key, label: r.label }))}
+      value={value}
+      onChange={onChange}
+    />
   );
 }
 

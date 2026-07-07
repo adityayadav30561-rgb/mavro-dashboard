@@ -13,6 +13,12 @@ const badgeVariants = cva(
         outline: 'text-foreground',
         success: 'border-transparent bg-emerald-500/15 text-emerald-700 dark:text-emerald-400',
         warning: 'border-transparent bg-amber-500/15 text-amber-700 dark:text-amber-400',
+        // Rubber-stamp publish-state chips (Paper Ledger) — used as
+        // <Badge variant={blog.status}>. .stamp lives in index.css.
+        published: 'stamp !rounded-[3px] !border-current text-emerald-600 dark:text-emerald-400',
+        draft: 'stamp !rounded-[3px] !border-current text-muted-foreground',
+        scheduled: 'stamp !rounded-[3px] !border-current text-amber-600 dark:text-amber-400',
+        archived: 'stamp !rounded-[3px] !border-current text-muted-foreground/60',
       },
     },
     defaultVariants: {

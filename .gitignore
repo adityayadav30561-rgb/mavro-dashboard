@@ -38,3 +38,8 @@ e2e/report/
 e2e/.auth/
 test-results/
 playwright/.cache/
+
+# Local MBR source workbooks + screenshot tooling — not for the repo
+SaiSatwik_MBR_*.xlsx
+screenshots/
+desktop.ini

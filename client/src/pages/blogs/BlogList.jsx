@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Trash2, Eye, Pencil, FileEdit } from 'lucide-react';
+import { Plus, Search, Trash2, Eye, Pencil, FileEdit, FileText } from 'lucide-react';
 import { getBlogs, deleteBlog, publishBlog, unpublishBlog } from '../../api/blogs';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
+import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
 import toast from 'react-hot-toast';
 
@@ -107,13 +108,14 @@ export default function BlogList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="page-title">Blogs</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Manage blog posts across all websites</p>
-        </div>
-        <Link to="/blogs/new" className="btn-primary"><Plus size={16} /> New Blog</Link>
-      </div>
+      <PageHeader
+        ink="olive"
+        icon={FileText}
+        eyebrow="Content Ops"
+        title="Publications"
+        subtitle="Manage blog posts across all websites"
+        actions={<Link to="/blogs/new" className="btn-primary"><Plus size={16} /> New Blog</Link>}
+      />
 
       {/* Filters */}
       <div className="card p-4">

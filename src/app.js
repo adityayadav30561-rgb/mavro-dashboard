@@ -19,7 +19,6 @@ const {
   aiRoutes,
   mbrRoutes,
 } = require('./routes');
-const { routes: schedulerRoutes } = require('./modules/scheduler');
 
 const app = express();
 
@@ -174,10 +173,6 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/mbr', mbrRoutes);
-
-// Scheduler module — JWT-protected admin surface + unauthenticated public booking surface
-app.use('/api/scheduler', schedulerRoutes.schedulerRoutes);
-app.use('/api/public', schedulerRoutes.schedulerPublicRoutes);
 
 // Sitemap (public, clean URLs — no /api prefix)
 app.use('/sitemap', sitemapRoutes);

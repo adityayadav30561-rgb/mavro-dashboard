@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
+import PageHeader from '@/components/ui/PageHeader';
+import EmptyState from '@/components/ui/EmptyState';
 import {
   getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons,
   getMbrSections, getMbrItems, createMbrItem, updateMbrItem, deleteMbrItem,
@@ -174,17 +176,12 @@ function SectionNav() {
 
   return (
     <div className="sticky top-2 z-20 mb-2">
-      <div className="inline-flex flex-wrap gap-1 rounded-xl border border-border bg-card/95 backdrop-blur px-1.5 py-1.5 shadow-sm">
+      <div className="index-tabs index-tabs-sm rounded-lg bg-background/90 backdrop-blur px-1 pt-1" style={{ borderBottomColor: 'hsl(var(--border))' }}>
         {SOURCE_SECTIONS.map((s) => (
           <button
             key={s.id}
             onClick={() => jump(s.id)}
-            className={cn(
-              'px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors',
-              active === s.id
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]'
-            )}
+            className={cn('index-tab', active === s.id && 'index-tab-active')}
           >
             {s.label}
           </button>
@@ -381,7 +378,11 @@ function WorkstreamTile({ section, items, period, onChanged }) {
           </thead>
           <tbody>
             {items.length === 0 && (
-              <tr><td colSpan={section.columns.length + 1} className="px-4 py-5 text-center text-muted-foreground">Nothing recorded for this month yet</td></tr>
+              <tr>
+                <td colSpan={section.columns.length + 1} className="px-4 py-2">
+                  <EmptyState note={`nothing logged for ${period} yet`} hint="add your first entry" />
+                </td>
+              </tr>
             )}
             {items.map((item) => (
               <tr key={item._id} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02] group">
@@ -670,27 +671,17 @@ export default function MbrReport() {
   return (
     <div className="space-y-1">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <div>
-          {!isHub && (
-            <button
-              onClick={() => navigate('/mbr')}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-400 hover:opacity-80 transition mb-1"
-            >
-              <ArrowLeft size={12} /> All workstreams
-            </button>
-          )}
-          <p className="text-caption text-violet-400/70">Monthly Business Review</p>
-          <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
-            <BarChart3 size={18} className="text-violet-400" />
-            {pageTitle}
-          </h1>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
-            {isHub
-              ? 'All workstreams & active projects · pick a tile to open its report'
-              : `vs ${customRange ? 'preceding period of same length' : 'previous month'} · GSC data lags ~2–3 days`}
-          </p>
-        </div>
+      <PageHeader
+        ink="vermilion"
+        icon={BarChart3}
+        eyebrow="Monthly Business Review"
+        title={pageTitle}
+        subtitle={isHub
+          ? 'All workstreams & active projects · pick a tile to open its report'
+          : `vs ${customRange ? 'preceding period of same length' : 'previous month'} · GSC data lags ~2–3 days`}
+        backTo={isHub ? undefined : '/mbr'}
+        backLabel="All workstreams"
+        actions={
         <div className="flex flex-wrap items-center gap-2">
           {isHub && (
             <button
@@ -778,12 +769,19 @@ export default function MbrReport() {
             <RefreshCw size={13} className={cn('text-muted-foreground', loading && 'animate-spin')} />
           </button>
         </div>
-      </div>
+        }
+      />
 
       {loading && (
-        <div className="flex items-center justify-center py-24 text-muted-foreground">
-          <Loader2 size={20} className="animate-spin mr-2" />
-          <span className="text-sm">Pulling {monthLabel} from Google…</span>
+        <div className="space-y-3 pt-2">
+          <p className="font-hand text-[19px] text-muted-foreground/70">pulling {monthLabel} from Google…</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            {[0, 1, 2, 3, 4, 5].map((i) => <div key={i} className="skeleton-slip h-24" style={{ rotate: i % 2 ? '0.4deg' : '-0.4deg' }} />)}
+          </div>
+          <div className="skeleton-slip h-56" />
+          <div className="grid lg:grid-cols-3 gap-3">
+            {[0, 1, 2].map((i) => <div key={i} className="skeleton-slip h-40" style={{ rotate: i % 2 ? '0.3deg' : '-0.3deg' }} />)}
+          </div>
         </div>
       )}
 

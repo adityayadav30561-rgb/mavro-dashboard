@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2 } from 'lucide-react';
+import { Search, Eye, Trash2, Users } from 'lucide-react';
 import { getLeads, updateLeadStatus, deleteLead } from '../../api/leads';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
+import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
@@ -50,10 +51,13 @@ export default function LeadList() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="page-title">Leads</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Form submissions from all websites</p>
-      </div>
+      <PageHeader
+        ink="madder"
+        icon={Users}
+        eyebrow="Intelligence"
+        title="Lead Capture"
+        subtitle="Form submissions from all websites"
+      />
 
       {/* Filters */}
       <div className="card p-4">

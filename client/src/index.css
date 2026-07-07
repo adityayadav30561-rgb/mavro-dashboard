@@ -294,6 +294,19 @@
 
   * { @apply border-border; }
 
+  /* Ledger numerals — every table figure aligns in columns */
+  table { font-variant-numeric: tabular-nums; }
+
+  /* Respect reduced-motion: kill decorative animation, keep functionality */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   /* Paper atmosphere — fiber grain + faint dot grid (both modes) */
   body::before {
     content: '';
@@ -406,6 +419,18 @@
   [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):nth-child(even) {
     rotate: 0.35deg;
   }
+  /* Note-lift on hover — the card straightens and rises, like picking the
+     note off the desk. rotate is the independent property, so this composes
+     with framer-motion's transform untouched. */
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *) {
+    transition: rotate 180ms ease, box-shadow 180ms ease;
+  }
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):hover {
+    rotate: 0deg;
+    box-shadow:
+      0 2px 4px hsl(34 30% 22% / 0.12),
+      0 16px 32px -10px hsl(34 35% 22% / 0.34);
+  }
   /* Masking-tape strip — half emerges over the top edge; clips cleanly
      even on overflow-hidden cards */
   [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *)::before {
@@ -439,6 +464,75 @@
     left: 66%;
     rotate: -1.1deg;
     width: 64px;
+  }
+
+  /* File-folder index tabs — physical tab control (IndexTabs.jsx).
+     Active tab is a raised paper tab fused to the content below. */
+  .index-tabs {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 0 4px;
+    border-bottom: 1.5px solid hsl(var(--border));
+  }
+  .index-tab {
+    position: relative;
+    padding: 7px 14px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: hsl(var(--muted-foreground));
+    background: hsl(var(--muted) / 0.5);
+    border: 1.5px solid hsl(var(--border));
+    border-bottom: none;
+    border-radius: 7px 7px 0 0;
+    transform: translateY(1.5px);
+    transition: background 150ms ease, color 150ms ease, padding 150ms ease;
+  }
+  .index-tab:hover { color: hsl(var(--foreground)); background: hsl(var(--muted) / 0.8); }
+  .index-tab-active {
+    color: hsl(var(--primary));
+    background: hsl(var(--card));
+    padding-top: 9px;
+    padding-bottom: 7px;
+    border-color: hsl(var(--border));
+    box-shadow: 0 -2px 6px -2px hsl(34 30% 22% / 0.12);
+  }
+  .index-tabs-sm .index-tab { padding: 5px 10px 4px; font-size: 10px; }
+  .index-tabs-sm .index-tab-active { padding-top: 7px; padding-bottom: 5px; }
+
+  /* Rubber-stamp status chip — PUBLISHED / DRAFT / OVERDUE, faintly rotated,
+     double-ring border like an ink stamp. Color via style={{color}} or a
+     text-* class; everything else derives from currentColor. */
+  .stamp {
+    display: inline-block;
+    padding: 1px 7px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px hsl(var(--card)), inset 0 0 0 2px currentColor;
+    rotate: -2deg;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  /* Paper-slip loading skeleton */
+  .skeleton-slip {
+    border-radius: 3px;
+    background: linear-gradient(100deg,
+      hsl(var(--muted) / 0.7) 40%,
+      hsl(var(--card)) 50%,
+      hsl(var(--muted) / 0.7) 60%);
+    background-size: 200% 100%;
+    animation: slip-shimmer 1.4s ease-in-out infinite;
+    box-shadow: 0 1px 2px hsl(34 30% 22% / 0.08);
+  }
+  @keyframes slip-shimmer {
+    from { background-position: 120% 0; }
+    to { background-position: -80% 0; }
   }
 
   /* Hand-drawn red circle — the signature. Wrap a title:

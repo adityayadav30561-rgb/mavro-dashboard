@@ -4,48 +4,41 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Globe, FileText, Users, Search as SearchIcon,
   Settings, X, Hexagon, ChevronLeft, ChevronDown, ChevronRight,
-  BarChart3, Zap, Calendar as CalendarIcon
+  BarChart3, Calendar as CalendarIcon, FileSpreadsheet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { inkColor } from '@/lib/inks';
 
+// Domain inks give each section wayfinding — the active item's icon + rail
+// pick up its section color (command=vermilion, content=olive,
+// analytics=teal, leads=madder, seo=ochre).
 const navGroups = [
   {
     label: 'Command',
     items: [
-      { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
+      { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true, ink: 'vermilion' },
     ],
   },
   {
     label: 'Content Ops',
     items: [
-      { to: '/websites', icon: Globe, label: 'Properties' },
-      { to: '/blogs', icon: FileText, label: 'Publications' },
-      { to: '/calendar', icon: CalendarIcon, label: 'Calendar', badge: 'New' },
+      { to: '/websites', icon: Globe, label: 'Properties', ink: 'vermilion' },
+      { to: '/blogs', icon: FileText, label: 'Publications', ink: 'olive' },
+      { to: '/calendar', icon: CalendarIcon, label: 'Calendar', ink: 'olive' },
     ],
   },
   {
     label: 'Intelligence',
     items: [
-      { to: '/leads', icon: Users, label: 'Lead Capture' },
-      { to: '/seo', icon: SearchIcon, label: 'SEO Engine', badge: 'New' },
-      { to: '/analytics', icon: BarChart3, label: 'Analytics' },
-      { to: '/mbr', icon: BarChart3, label: 'MBR Report', badge: 'New' },
-    ],
-  },
-  {
-    label: 'Scheduler',
-    items: [
-      { to: '/scheduler/event-types', icon: Zap, label: 'Event Types', badge: 'Beta' },
-      { to: '/scheduler/bookings', icon: CalendarIcon, label: 'Bookings' },
-      { to: '/scheduler/workflows', icon: Zap, label: 'Workflows' },
-      { to: '/scheduler/workflow-history', icon: Zap, label: 'Workflow History' },
-      { to: '/scheduler/routing-forms', icon: Zap, label: 'Routing Forms' },
-      { to: '/scheduler/calendar-connections', icon: CalendarIcon, label: 'Calendar Connections' },
+      { to: '/leads', icon: Users, label: 'Lead Capture', ink: 'madder' },
+      { to: '/seo', icon: SearchIcon, label: 'SEO Engine', ink: 'ochre' },
+      { to: '/analytics', icon: BarChart3, label: 'Analytics', ink: 'teal' },
+      { to: '/mbr', icon: FileSpreadsheet, label: 'MBR Report', badge: 'New', ink: 'vermilion' },
     ],
   },
 ];
 
-function NavItem({ to, icon: Icon, label, end, collapsed, badge, onClick }) {
+function NavItem({ to, icon: Icon, label, end, collapsed, badge, ink = 'vermilion', onClick }) {
   return (
     <NavLink
       to={to}
@@ -66,11 +59,12 @@ function NavItem({ to, icon: Icon, label, end, collapsed, badge, onClick }) {
           {isActive && !collapsed && (
             <motion.div
               layoutId="nav-glow"
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-violet-400 rounded-r-full shadow-[0_0_8px_hsl(14_73%_58%/0.6)]"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 rounded-r-full"
+              style={{ background: inkColor(ink), boxShadow: `0 0 8px ${inkColor(ink, 0.5)}` }}
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
           )}
-          <Icon size={16} className={cn('flex-shrink-0', isActive && 'text-violet-300')} />
+          <Icon size={16} className="flex-shrink-0" style={isActive ? { color: inkColor(ink) } : undefined} />
           {!collapsed && <span className="truncate">{label}</span>}
           {!collapsed && badge && (
             <span className="ml-auto postit font-hand text-[12px] leading-none font-semibold px-1.5 py-0.5">

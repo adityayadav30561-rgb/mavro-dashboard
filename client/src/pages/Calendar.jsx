@@ -152,7 +152,7 @@ export default function Calendar() {
         className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4"
       >
         <div>
-          <p className="text-caption text-violet-400/80 mb-2">Editorial Operations</p>
+          <p className="text-caption text-emerald-400/80 mb-2">Editorial Operations</p>
           <h1 className="text-display">Content Calendar</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Plan · schedule · pipeline · campaigns — multi-tenant editorial cockpit

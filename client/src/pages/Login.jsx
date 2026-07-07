@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Hexagon, Eye, EyeOff } from 'lucide-react';
+import { Hexagon, Eye, EyeOff, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// Paper Ledger login — a signed note on the desk. Tape strip, micro-tilt,
+// hand-circled wordmark; the desk texture comes from body::before.
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -26,53 +28,98 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-brand-950 to-indigo-950 relative overflow-hidden">
-      {/* Decorative orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-brand-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">
+      <div className="w-full max-w-sm animate-slide-up relative">
+        {/* The note */}
+        <div
+          className="relative bg-card border border-border/60 px-8 pt-10 pb-8"
+          style={{
+            borderRadius: 4,
+            rotate: '-0.6deg',
+            boxShadow: '0 2px 4px hsl(34 30% 22% / 0.1), 0 18px 40px -12px hsl(34 35% 22% / 0.3)',
+          }}
+        >
+          {/* Masking tape */}
+          <div
+            className="absolute -top-3 left-1/2 w-24 h-6 pointer-events-none"
+            style={{
+              translate: '-50% 0',
+              rotate: '-2.5deg',
+              background: 'hsl(47 60% 80% / 0.6)',
+              borderLeft: '1px dashed hsl(40 30% 60% / 0.35)',
+              borderRight: '1px dashed hsl(40 30% 60% / 0.35)',
+              boxShadow: '0 1px 2px hsl(34 30% 22% / 0.12)',
+            }}
+          />
 
-      <div className="w-full max-w-md animate-slide-up relative">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 shadow-xl shadow-brand-500/30 mb-4">
-            <Hexagon className="text-white" size={28} />
+          {/* Wordmark */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary shadow-md mb-4">
+              <Hexagon className="text-primary-foreground" size={24} />
+            </div>
+            <h1 className="text-display text-[32px]">
+              <span className="hand-circle">Mavro</span>
+            </h1>
+            <p className="mt-2.5 text-caption">Operations Console</p>
           </div>
-          <h1 className="text-3xl font-bold text-white">Mavro Admin</h1>
-          <p className="mt-1 text-sm text-slate-400">Multi-Website SEO Management</p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                required
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-background/60 border border-border text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition"
+                placeholder="admin@mavro.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPw ? 'text' : 'password'}
+                  required
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-background/60 border border-border text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition pr-10"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition"
+                >
+                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 shadow-md"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 size={15} className="animate-spin" /> Signing in…
+                </span>
+              ) : (
+                'Sign in'
+              )}
+            </button>
+          </form>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
-            <input type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/10 text-white placeholder:text-slate-500 focus:border-brand-500 focus:ring-brand-500 text-sm"
-              placeholder="admin@mavro.com" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
-            <div className="relative">
-              <input type={showPw ? 'text' : 'password'} required value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/10 border border-white/10 text-white placeholder:text-slate-500 focus:border-brand-500 focus:ring-brand-500 text-sm pr-10"
-                placeholder="••••••••" />
-              <button type="button" onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300">
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" disabled={loading}
-            className="w-full py-2.5 rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-semibold text-sm hover:from-brand-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 shadow-lg shadow-brand-500/25">
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Signing in...
-              </span>
-            ) : 'Sign In'}
-          </button>
-        </form>
+        <p className="font-hand text-center text-[19px] text-muted-foreground/70 mt-5 rotate-[-1deg]">
+          the whole operation, on one desk
+        </p>
       </div>
     </div>
   );

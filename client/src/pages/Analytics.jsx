@@ -164,7 +164,7 @@ export default function Analytics() {
         className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4"
       >
         <div>
-          <p className="text-caption text-violet-400/80 mb-2">Operational Telemetry</p>
+          <p className="text-caption text-cyan-400/80 mb-2">Operational Telemetry</p>
           <h1 className="text-display">Analytics Intelligence</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Multi-tenant traffic, conversion, content, and SEO telemetry — derived from real events only

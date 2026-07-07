@@ -22,9 +22,6 @@ import HrmsBlogDetail from './pages/hrms/HrmsBlogDetail';
 import TicketsLanding from './pages/tickets/TicketsLanding';
 import TicketsBlogList from './pages/tickets/TicketsBlogList';
 import TicketsBlogDetail from './pages/tickets/TicketsBlogDetail';
-import PublicBookingAvailabilityPage from './modules/scheduler/pages/PublicBookingAvailabilityPage';
-import BookingManagePage from './modules/scheduler/pages/BookingManagePage';
-import PublicRoutingPage from './modules/scheduler/pages/PublicRoutingPage';
 import NotFound from './pages/NotFound';
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -50,13 +47,6 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const MbrReport = lazy(() => import('./pages/MbrReport'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const PremiumTestDashboard = lazy(() => import('./pages/PremiumTestDashboard'));
-const CalendarConnectionsPage = lazy(() => import('./modules/scheduler/pages/CalendarConnectionsPage'));
-const EventTypesPage = lazy(() => import('./modules/scheduler/pages/EventTypesPage'));
-const EventTypeEditorPage = lazy(() => import('./modules/scheduler/pages/EventTypeEditorPage'));
-const BookingsPage = lazy(() => import('./modules/scheduler/pages/BookingsPage'));
-const WorkflowEditorPage = lazy(() => import('./modules/scheduler/pages/WorkflowEditorPage'));
-const WorkflowHistoryPage = lazy(() => import('./modules/scheduler/pages/WorkflowHistoryPage'));
-const RoutingFormsPage = lazy(() => import('./modules/scheduler/pages/RoutingFormsPage'));
 
 // Lightweight Suspense fallback for the lazy admin chunks. Matches the
 // AuthContext's loading spinner so the visual is consistent.
@@ -105,12 +95,6 @@ export default function App() {
       <Route path="/spanbix/*" element={<SpanbixLegacyRedirect />} />
       <Route path="/spanbix" element={<SpanbixLegacyRedirect />} />
 
-      {/* ──────── Public scheduler booking (Phase 4 availability viewer) ──────── */}
-      <Route path="/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
-      <Route path="/:tenantSlug/book/:eventSlug" element={<PublicBookingAvailabilityPage />} />
-      <Route path="/manage/:token" element={<BookingManagePage />} />
-      <Route path="/route/:slug" element={<PublicRoutingPage />} />
-
       {/* ──────── Admin surfaces (code-split, lazy-loaded) ──────── */}
       <Route
         path="/login"
@@ -147,14 +131,6 @@ export default function App() {
         <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />
         <Route path="mbr/:view?/:sub?" element={<Suspense fallback={<AdminFallback />}><MbrReport /></Suspense>} />
         <Route path="calendar" element={<Suspense fallback={<AdminFallback />}><Calendar /></Suspense>} />
-        <Route path="scheduler/calendar-connections" element={<Suspense fallback={<AdminFallback />}><CalendarConnectionsPage /></Suspense>} />
-        <Route path="scheduler/event-types" element={<Suspense fallback={<AdminFallback />}><EventTypesPage /></Suspense>} />
-        <Route path="scheduler/event-types/new" element={<Suspense fallback={<AdminFallback />}><EventTypeEditorPage /></Suspense>} />
-        <Route path="scheduler/event-types/:id/edit" element={<Suspense fallback={<AdminFallback />}><EventTypeEditorPage /></Suspense>} />
-        <Route path="scheduler/bookings" element={<Suspense fallback={<AdminFallback />}><BookingsPage /></Suspense>} />
-        <Route path="scheduler/workflows" element={<Suspense fallback={<AdminFallback />}><WorkflowEditorPage /></Suspense>} />
-        <Route path="scheduler/workflow-history" element={<Suspense fallback={<AdminFallback />}><WorkflowHistoryPage /></Suspense>} />
-        <Route path="scheduler/routing-forms" element={<Suspense fallback={<AdminFallback />}><RoutingFormsPage /></Suspense>} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
