@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons } from '@/api/mbr';
+import GeoMap from '@/components/mbr/GeoMap';
 
 // Series palette — validated (dataviz six checks, light + dark surfaces).
 // Color follows the entity, fixed assignment, never cycled.
@@ -604,22 +605,46 @@ export default function MbrReport() {
 
           {/* ============ AUDIENCE DETAIL ============ */}
           <SectionHeading>Audience detail</SectionHeading>
-          <div className="grid lg:grid-cols-2 gap-3 pb-8">
-            <Card caption="Devices" title="Device split" icon={MonitorSmartphone}>
-              <BarRows rows={(ga4.devices || []).map((d) => ({ label: d.device, value: d.users }))} />
+          <div className="grid lg:grid-cols-3 gap-3">
+            <Card caption="Geography" title="Users by country" icon={Globe} className="lg:col-span-2">
+              <GeoMap countries={ga4.countries || []} />
             </Card>
             <Card caption="Geography" title="Top cities" icon={MapPin}>
               <DataTable
-                columns={['City', 'Country', 'Users', 'Sessions']}
-                rows={(ga4.geo || []).slice(0, 10)}
+                columns={['City', 'Users', 'Sessions']}
+                rows={(ga4.geo || []).filter((r) => r.city && r.city !== '(not set)').slice(0, 9)}
                 renderRow={(r, idx) => (
                   <tr key={`${r.city}-${idx}`} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
-                    <Td>{r.city || '(not set)'}</Td>
-                    <Td right>{r.country}</Td>
+                    <Td>
+                      {r.city}
+                      <span className="text-muted-foreground/60 ml-1.5 text-[10px]">{r.country}</span>
+                    </Td>
                     <Td right mono>{fmtNum(r.users)}</Td>
                     <Td right mono>{fmtNum(r.sessions)}</Td>
                   </tr>
                 )}
+              />
+            </Card>
+          </div>
+          <div className="grid lg:grid-cols-3 gap-3 mt-3 pb-8">
+            <Card caption="Devices" title="Device split" icon={MonitorSmartphone}>
+              <BarRows rows={(ga4.devices || []).map((d) => ({ label: d.device, value: d.users }))} />
+            </Card>
+            <Card caption="Geography" title="Top countries" icon={Globe} className="lg:col-span-2">
+              <DataTable
+                columns={['Country', 'Users', 'Sessions', 'Share']}
+                rows={(ga4.countries || []).filter((c) => c.country && c.country !== '(not set)').slice(0, 8)}
+                renderRow={(r, idx) => {
+                  const total = (ga4.countries || []).reduce((s, c) => s + c.users, 0) || 1;
+                  return (
+                    <tr key={`${r.country}-${idx}`} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                      <Td>{r.country}</Td>
+                      <Td right mono>{fmtNum(r.users)}</Td>
+                      <Td right mono>{fmtNum(r.sessions)}</Td>
+                      <Td right mono>{`${Math.round((r.users / total) * 100)}%`}</Td>
+                    </tr>
+                  );
+                }}
               />
             </Card>
           </div>

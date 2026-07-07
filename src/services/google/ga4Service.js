@@ -185,12 +185,20 @@ async function getMbrReport({ current, previous }) {
       orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
       limit: 5,
     },
+    // 11 — country totals (current) — feeds the choropleth map
+    {
+      dateRanges: [current],
+      dimensions: [dimension('country'), dimension('countryId')],
+      metrics: [metric('activeUsers'), metric('sessions')],
+      orderBys: [{ metric: { metricName: 'activeUsers' }, desc: true }],
+      limit: 250,
+    },
   ];
 
   const reports = await batchRunReports(requests);
   const [
     overviewR, trendR, channelsR, sourcesR, aiR,
-    pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR,
+    pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,
   ] = reports.map(parseReport);
 
   return {
@@ -212,6 +220,9 @@ async function getMbrReport({ current, previous }) {
     fileDownloads: downloadsR.map((r) => ({ file: r.fileName || '(unknown)', count: r.eventCount })),
     geo: geoR.map((r) => ({ city: r.city, country: r.country, users: r.activeUsers, sessions: r.sessions })),
     devices: devicesR.map((r) => ({ device: r.deviceCategory, users: r.activeUsers, sessions: r.sessions })),
+    countries: countriesR.map((r) => ({
+      country: r.country, countryId: r.countryId, users: r.activeUsers, sessions: r.sessions,
+    })),
   };
 }
 
