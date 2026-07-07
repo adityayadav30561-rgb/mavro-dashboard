@@ -73,6 +73,55 @@ const eventFilter = (events) => ({
   },
 });
 
+/**
+ * Hostname scoping. A GA4 property can receive hits from multiple websites
+ * (extra data streams, the same measurement tag pasted on another site) and
+ * `pagePath` has no domain — foreign pages silently pollute every report.
+ * When a hostname is known for the source, every request gets a hostName
+ * filter, AND-composed with the request's own dimensionFilter.
+ *
+ * spec: { matchType: 'EXACT'|'ENDS_WITH', value } — ENDS_WITH covers
+ * sc-domain properties where the exact subdomain (www vs apex) is unknown.
+ */
+const hostFilter = (spec) => ({
+  filter: {
+    fieldName: 'hostName',
+    stringFilter: { matchType: spec.matchType, value: spec.value, caseSensitive: false },
+  },
+});
+
+/**
+ * 404 exclusion. Requests to non-existent URLs (stale backlinks, bots
+ * probing paths from whatever previously lived on the domain) still render
+ * the not-found page, which fires a GA4 page_view — ghost pages pollute
+ * every report. Excluded by page title: anything containing "404" /
+ * "not found", plus the bare brand label (Next's fallback title when the
+ * not-found page declares no metadata of its own).
+ */
+function not404Filter(brandLabel) {
+  const expressions = [
+    { filter: { fieldName: 'pageTitle', stringFilter: { matchType: 'CONTAINS', value: '404', caseSensitive: false } } },
+    { filter: { fieldName: 'pageTitle', stringFilter: { matchType: 'CONTAINS', value: 'not found', caseSensitive: false } } },
+  ];
+  if (brandLabel) {
+    expressions.push({ filter: { fieldName: 'pageTitle', stringFilter: { matchType: 'EXACT', value: brandLabel } } });
+  }
+  return { notExpression: { orGroup: { expressions } } };
+}
+
+function applyScopes(requests, hostSpec, brandLabel) {
+  const scopeExprs = [not404Filter(brandLabel)];
+  if (hostSpec?.value) scopeExprs.push(hostFilter(hostSpec));
+  return requests.map((r) => ({
+    ...r,
+    dimensionFilter: {
+      andGroup: {
+        expressions: r.dimensionFilter ? [...scopeExprs, r.dimensionFilter] : scopeExprs,
+      },
+    },
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // Report assembly
 // ---------------------------------------------------------------------------
@@ -80,8 +129,10 @@ const eventFilter = (events) => ({
 /**
  * Full GA4 slice of the MBR report.
  * current / previous: { startDate, endDate } — previous powers MoM deltas.
+ * hostScope (optional): { matchType, value } — restrict to one website.
+ * brandLabel (optional): source label for bare-title 404 exclusion.
  */
-async function getMbrReport({ current, previous }, propertyId) {
+async function getMbrReport({ current, previous }, propertyId, hostScope, brandLabel) {
   const bothRanges = [current, previous];
 
   const requests = [
@@ -197,7 +248,7 @@ async function getMbrReport({ current, previous }, propertyId) {
     },
   ];
 
-  const reports = await batchRunReports(requests, propertyId);
+  const reports = await batchRunReports(applyScopes(requests, hostScope, brandLabel), propertyId);
   const [
     overviewR, trendR, channelsR, sourcesR, aiR,
     pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,

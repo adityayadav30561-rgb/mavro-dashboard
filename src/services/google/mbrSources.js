@@ -32,6 +32,7 @@ function getSources() {
             ga4PropertyId: s.ga4PropertyId ? String(s.ga4PropertyId) : null,
             gscSiteUrl: s.gscSiteUrl || null,
             websiteSlug: s.websiteSlug || null,
+            hostname: s.hostname || null,
           }));
         return cached;
       }
@@ -58,4 +59,24 @@ function getSource(key) {
   return sources.find((s) => s.key === k) || sources[0] || null;
 }
 
-module.exports = { getSources, getSource };
+/**
+ * GA4 hostName scope for a source — keeps multi-site GA4 properties clean
+ * (the same measurement tag on a second website merges its pages into every
+ * report otherwise). Explicit `hostname` in MBR_SOURCES wins; else derived
+ * from gscSiteUrl: URL-prefix → EXACT hostname, sc-domain → ENDS_WITH domain.
+ */
+function getHostScope(source) {
+  if (!source) return null;
+  if (source.hostname) return { matchType: 'EXACT', value: String(source.hostname).toLowerCase() };
+  const site = source.gscSiteUrl || '';
+  if (site.startsWith('sc-domain:')) {
+    return { matchType: 'ENDS_WITH', value: site.slice('sc-domain:'.length).toLowerCase() };
+  }
+  try {
+    const host = new URL(site).hostname;
+    if (host) return { matchType: 'EXACT', value: host.toLowerCase() };
+  } catch { /* no usable site url */ }
+  return null;
+}
+
+module.exports = { getSources, getSource, getHostScope };

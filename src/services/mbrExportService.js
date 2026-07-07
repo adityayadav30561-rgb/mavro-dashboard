@@ -16,7 +16,7 @@ const MbrItem = require('../models/MbrItem');
 const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
 const ga4Service = require('./google/ga4Service');
 const gscService = require('./google/gscService');
-const { getSources } = require('./google/mbrSources');
+const { getSources, getHostScope } = require('./google/mbrSources');
 
 // ---------------------------------------------------------------------------
 // Style system
@@ -305,7 +305,7 @@ async function buildWorkbook(ranges, period) {
     let ga4 = null;
     let gsc = null;
     if (ga4Service.isConfigured(src.ga4PropertyId) && src.ga4PropertyId) {
-      try { ga4 = await ga4Service.getMbrReport(ranges, src.ga4PropertyId); }
+      try { ga4 = await ga4Service.getMbrReport(ranges, src.ga4PropertyId, getHostScope(src), src.label); }
       catch (err) { console.error(`[mbrExport] GA4 failed for ${src.key}:`, err.message); }
     }
     if (gscService.isConfigured(src.gscSiteUrl) && src.gscSiteUrl) {

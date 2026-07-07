@@ -22,7 +22,7 @@ const Blog = require('../models/Blog');
 const { asyncHandler, ApiResponse } = require('../utils');
 const ga4Service = require('../services/google/ga4Service');
 const gscService = require('../services/google/gscService');
-const { getSources, getSource } = require('../services/google/mbrSources');
+const { getSources, getSource, getHostScope } = require('../services/google/mbrSources');
 const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
 const mbrExportService = require('../services/mbrExportService');
 
@@ -122,12 +122,12 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v2:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
 
-  const report = await ga4Service.getMbrReport(ranges, source.ga4PropertyId);
+  const report = await ga4Service.getMbrReport(ranges, source.ga4PropertyId, getHostScope(source), source.label);
   const payload = { ranges, source: source.key, ...report };
   cacheSet(cacheKey, payload);
   return ApiResponse.success(res, payload);
