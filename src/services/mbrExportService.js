@@ -113,17 +113,18 @@ function buildSourceSheet(wb, label, ga4, gsc, rangeLabel, periodLabels) {
     addDataRow(ws, ['GA4 not configured / not reachable for this source.']);
   } else {
     const ov = ga4.overview;
+    const ovPrev = ov.previousFull || ov.previous;
     const ov2 = ov.previous2 || {};
     addSectionBanner(ws, 'A. Audience & Engagement (GA4)', 7);
     addHeaderRow(ws, ['Metric', L.current, L.previous, L.previous2, 'MoM Δ', 'MoM %', 'Notes']);
     const metrics = [
-      ['Total users', ov.current.users, ov.previous.users, ov2.users],
-      ['New users', ov.current.newUsers, ov.previous.newUsers, ov2.newUsers],
-      ['Sessions', ov.current.sessions, ov.previous.sessions, ov2.sessions],
-      ['Engaged sessions', ov.current.engagedSessions, ov.previous.engagedSessions, ov2.engagedSessions],
-      ['Engagement rate', `${Math.round(ov.current.engagementRate * 100)}%`, `${Math.round(ov.previous.engagementRate * 100)}%`, `${Math.round((ov2.engagementRate || 0) * 100)}%`, ov.current.engagementRate - ov.previous.engagementRate],
-      ['Avg engagement / user', fmtDur(ov.current.avgEngagementSec), fmtDur(ov.previous.avgEngagementSec), fmtDur(ov2.avgEngagementSec), ov.current.avgEngagementSec - ov.previous.avgEngagementSec],
-      ['Page views', ov.current.pageViews, ov.previous.pageViews, ov2.pageViews],
+      ['Total users', ov.current.users, ovPrev.users, ov2.users],
+      ['New users', ov.current.newUsers, ovPrev.newUsers, ov2.newUsers],
+      ['Sessions', ov.current.sessions, ovPrev.sessions, ov2.sessions],
+      ['Engaged sessions', ov.current.engagedSessions, ovPrev.engagedSessions, ov2.engagedSessions],
+      ['Engagement rate', `${Math.round(ov.current.engagementRate * 100)}%`, `${Math.round(ovPrev.engagementRate * 100)}%`, `${Math.round((ov2.engagementRate || 0) * 100)}%`, ov.current.engagementRate - ovPrev.engagementRate],
+      ['Avg engagement / user', fmtDur(ov.current.avgEngagementSec), fmtDur(ovPrev.avgEngagementSec), fmtDur(ov2.avgEngagementSec), ov.current.avgEngagementSec - ovPrev.avgEngagementSec],
+      ['Page views', ov.current.pageViews, ovPrev.pageViews, ov2.pageViews],
     ];
     metrics.forEach(([name, cur, prev, prev2, rawDelta], i) => {
       const numeric = typeof cur === 'number';
@@ -147,16 +148,16 @@ function buildSourceSheet(wb, label, ga4, gsc, rangeLabel, periodLabels) {
     } else {
       ga4.aiReferrals.sources.forEach((s, i) => addDataRow(ws, [s.source, s.sessions, s.users, '', '', '', ''], { zebra: i % 2 === 1 }));
     }
-    const aiTotal = addDataRow(ws, ['TOTAL', ga4.aiReferrals.currentSessions, ga4.aiReferrals.previousSessions, ga4.aiReferrals.previous2Sessions || 0, '', '', `${L.current} | ${L.previous} | ${L.previous2}`]);
+    const aiTotal = addDataRow(ws, ['TOTAL', ga4.aiReferrals.currentSessions, (ga4.aiReferrals.previousFullSessions ?? ga4.aiReferrals.previousSessions), ga4.aiReferrals.previous2Sessions || 0, '', '', `${L.current} | ${L.previous} | ${L.previous2}`]);
     aiTotal.getCell(1).font = { name: 'Calibri', size: 10, bold: true, color: { argb: C.ink } };
     ws.addRow([]);
 
     addSectionBanner(ws, 'D. Conversion Events (GA4)', 7);
     addHeaderRow(ws, ['Event', L.current, L.previous, L.previous2, 'MoM Δ', 'MoM %', '']);
     Object.entries(ga4.events).forEach(([event, e], i) => {
-      const pct = pctOf(e.current, e.previous);
-      const r = addDataRow(ws, [event, e.current, e.previous, e.previous2 || 0, e.current - e.previous, fmtPct(pct), ''], { zebra: i % 2 === 1 });
-      deltaCellStyle(r.getCell(5), e.current - e.previous);
+      const pct = pctOf(e.current, e.previousFull ?? e.previous);
+      const r = addDataRow(ws, [event, e.current, e.previousFull ?? e.previous, e.previous2 || 0, e.current - (e.previousFull ?? e.previous), fmtPct(pct), ''], { zebra: i % 2 === 1 });
+      deltaCellStyle(r.getCell(5), e.current - (e.previousFull ?? e.previous));
       deltaCellStyle(r.getCell(6), pct);
     });
     ws.addRow([]);
@@ -185,12 +186,13 @@ function buildSourceSheet(wb, label, ga4, gsc, rangeLabel, periodLabels) {
     addSectionBanner(ws, 'H. Google Search Performance (Search Console)', 7);
     addHeaderRow(ws, ['Metric', L.current, L.previous, L.previous2, 'MoM Δ', 'MoM %', 'Notes']);
     const t = gsc.totals;
+    const tPrev = t.previousFull || t.previous;
     const t2 = t.previous2 || {};
     const rows = [
-      ['Clicks', t.current.clicks, t.previous.clicks, t2.clicks],
-      ['Impressions', t.current.impressions, t.previous.impressions, t2.impressions],
-      ['CTR', `${(t.current.ctr * 100).toFixed(1)}%`, `${(t.previous.ctr * 100).toFixed(1)}%`, `${((t2.ctr || 0) * 100).toFixed(1)}%`, t.current.ctr - t.previous.ctr],
-      ['Avg position', t.current.position, t.previous.position, t2.position || 0, t.previous.position ? t.previous.position - t.current.position : null, null, 'lower is better'],
+      ['Clicks', t.current.clicks, tPrev.clicks, t2.clicks],
+      ['Impressions', t.current.impressions, tPrev.impressions, t2.impressions],
+      ['CTR', `${(t.current.ctr * 100).toFixed(1)}%`, `${(tPrev.ctr * 100).toFixed(1)}%`, `${((t2.ctr || 0) * 100).toFixed(1)}%`, t.current.ctr - tPrev.ctr],
+      ['Avg position', t.current.position, tPrev.position, t2.position || 0, tPrev.position ? tPrev.position - t.current.position : null, null, 'lower is better'],
     ];
     rows.forEach(([name, cur, prev, prev2, rawDelta, _p, note], i) => {
       const numeric = typeof cur === 'number';

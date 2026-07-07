@@ -848,18 +848,18 @@ export default function MbrReport() {
                 <DataTable
                   columns={['Metric', periodLabels.current, periodLabels.previous, periodLabels.previous2, 'MoM %']}
                   rows={[
-                    { name: 'Total users', cur: ov.current.users, prev: ov.previous.users, prev2: ov.previous2?.users },
-                    { name: 'New users', cur: ov.current.newUsers, prev: ov.previous.newUsers, prev2: ov.previous2?.newUsers },
-                    { name: 'Sessions', cur: ov.current.sessions, prev: ov.previous.sessions, prev2: ov.previous2?.sessions },
-                    { name: 'Page views', cur: ov.current.pageViews, prev: ov.previous.pageViews, prev2: ov.previous2?.pageViews },
-                    { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round(ov.previous.engagementRate * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%`, pct: deltaPct(ov.current.engagementRate, ov.previous.engagementRate) },
-                    { name: 'AI referral sessions', cur: ai?.currentSessions, prev: ai?.previousSessions, prev2: ai?.previous2Sessions },
+                    { name: 'Total users', cur: ov.current.users, prev: ov.previousFull?.users, prev2: ov.previous2?.users },
+                    { name: 'New users', cur: ov.current.newUsers, prev: ov.previousFull?.newUsers, prev2: ov.previous2?.newUsers },
+                    { name: 'Sessions', cur: ov.current.sessions, prev: ov.previousFull?.sessions, prev2: ov.previous2?.sessions },
+                    { name: 'Page views', cur: ov.current.pageViews, prev: ov.previousFull?.pageViews, prev2: ov.previous2?.pageViews },
+                    { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round((ov.previousFull?.engagementRate || 0) * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%`, pct: deltaPct(ov.current.engagementRate, ov.previousFull?.engagementRate) },
+                    { name: 'AI referral sessions', cur: ai?.currentSessions, prev: ai?.previousFullSessions, prev2: ai?.previous2Sessions },
                     ...eventTiles.map((t) => ({
-                      name: t.label, cur: events[t.key]?.current, prev: events[t.key]?.previous, prev2: events[t.key]?.previous2,
+                      name: t.label, cur: events[t.key]?.current, prev: events[t.key]?.previousFull, prev2: events[t.key]?.previous2,
                     })),
                     ...(gsc ? [
-                      { name: 'Search clicks (GSC)', cur: gsc.totals.current.clicks, prev: gsc.totals.previous.clicks, prev2: gsc.totals.previous2?.clicks },
-                      { name: 'Search impressions', cur: gsc.totals.current.impressions, prev: gsc.totals.previous.impressions, prev2: gsc.totals.previous2?.impressions },
+                      { name: 'Search clicks (GSC)', cur: gsc.totals.current.clicks, prev: gsc.totals.previousFull?.clicks, prev2: gsc.totals.previous2?.clicks },
+                      { name: 'Search impressions', cur: gsc.totals.current.impressions, prev: gsc.totals.previousFull?.impressions, prev2: gsc.totals.previous2?.impressions },
                     ] : []),
                   ]}
                   renderRow={(r, idx) => {

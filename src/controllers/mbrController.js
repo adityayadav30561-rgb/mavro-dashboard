@@ -79,16 +79,20 @@ function resolveRanges(query) {
     // Partial current month (month-to-date) → clamp prior months to the same
     // day-count so MoM deltas compare like-for-like, not MTD vs full month.
     const curDays = Math.round((new Date(`${curEnd}T00:00:00Z`) - monthStart) / 86400000) + 1;
-    const monthAgo = (offset) => {
+    const monthAgo = (offset, clamp) => {
       const s = new Date(Date.UTC(y, m - 1 - offset, 1));
       const e = new Date(Date.UTC(y, m - offset, 0));
-      const eClamped = new Date(Math.min(e.getTime(), s.getTime() + (curDays - 1) * 86400000));
-      return { startDate: fmt(s), endDate: fmt(eClamped) };
+      const eFinal = clamp ? new Date(Math.min(e.getTime(), s.getTime() + (curDays - 1) * 86400000)) : e;
+      return { startDate: fmt(s), endDate: fmt(eFinal) };
     };
+    // previous (clamped) powers like-for-like MoM deltas on the tiles;
+    // previousFull / previous2 (full months) power the 3-month comparison —
+    // a partial current month must not zero out completed months.
     return finish({
       current: { startDate: fmt(monthStart), endDate: curEnd },
-      previous: monthAgo(1),
-      previous2: monthAgo(2),
+      previous: monthAgo(1, true),
+      previousFull: monthAgo(1, false),
+      previous2: monthAgo(2, false),
       label: monthParam,
     });
   }
@@ -109,6 +113,7 @@ function resolveRanges(query) {
     return finish({
       current: { startDate: startParam, endDate: endParam <= todayStr ? endParam : todayStr },
       previous: { startDate: prev.startDate, endDate: prev.endDate },
+      previousFull: { startDate: prev.startDate, endDate: prev.endDate },
       previous2: { startDate: prev2.startDate, endDate: prev2.endDate },
       label: `${startParam}..${endParam}`,
     });
@@ -148,7 +153,7 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:v3:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v4:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
@@ -168,7 +173,7 @@ const getGscReport = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `Search Console not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GSC_SITE_URL)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `gsc:v3:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `gsc:v4:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });

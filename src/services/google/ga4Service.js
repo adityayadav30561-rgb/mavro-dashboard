@@ -132,9 +132,11 @@ function applyScopes(requests, hostSpec, brandLabel) {
  * hostScope (optional): { matchType, value } — restrict to one website.
  * brandLabel (optional): source label for bare-title 404 exclusion.
  */
-async function getMbrReport({ current, previous, previous2 }, propertyId, hostScope, brandLabel) {
-  // GA4 accepts up to 4 dateRanges per request — the third period is free.
-  const compareRanges = [current, previous, previous2].filter(Boolean);
+async function getMbrReport({ current, previous, previousFull, previous2 }, propertyId, hostScope, brandLabel) {
+  // GA4 accepts up to 4 dateRanges per request — all four slots used:
+  //   0 current · 1 previous (clamped, MoM deltas) · 2 previousFull ·
+  //   3 previous2 (full) — the last two power the 3-month comparison.
+  const compareRanges = [current, previous, previousFull || previous, previous2].filter(Boolean);
 
   const requests = [
     // 0 — audience overview, all periods (MoM + 3-month comparison free)
@@ -270,10 +272,11 @@ async function getMbrReport({ current, previous, previous2 }, propertyId, hostSc
   return {
     overview: splitByRange(overviewR, reports[0]),
     trend: trendFor('date_range_0'),
+    // Comparison overlay uses the FULL prior periods (ranges 2 + 3)
     trendCompare: {
       current: trendFor('date_range_0'),
-      previous: trendFor('date_range_1'),
-      previous2: trendFor('date_range_2'),
+      previous: trendFor('date_range_2'),
+      previous2: trendFor('date_range_3'),
     },
     channels: channelsR.map((r) => ({
       channel: r.sessionDefaultChannelGroup, sessions: r.sessions, users: r.totalUsers,
@@ -308,7 +311,8 @@ function splitByRange(rows, rawReport) {
   const hasRangeDim = (rawReport?.dimensionHeaders || []).some((h) => h.name === 'dateRange');
   const cur = hasRangeDim ? pick('date_range_0') : rows[0] || {};
   const prev = hasRangeDim ? pick('date_range_1') : {};
-  const prev2 = hasRangeDim ? pick('date_range_2') : {};
+  const prevFull = hasRangeDim ? pick('date_range_2') : {};
+  const prev2 = hasRangeDim ? pick('date_range_3') : {};
   const shape = (r) => ({
     users: r.totalUsers || 0,
     newUsers: r.newUsers || 0,
@@ -318,37 +322,32 @@ function splitByRange(rows, rawReport) {
     avgEngagementSec: r.totalUsers > 0 ? Math.round((r.userEngagementDuration || 0) / r.totalUsers) : 0,
     pageViews: r.screenPageViews || 0,
   });
-  return { current: shape(cur), previous: shape(prev), previous2: shape(prev2) };
+  return { current: shape(cur), previous: shape(prev), previousFull: shape(prevFull), previous2: shape(prev2) };
 }
 
 function splitAiByRange(rows) {
   const current = [];
-  let currentTotal = 0;
-  let previousTotal = 0;
-  let previous2Total = 0;
+  const totals = { date_range_0: 0, date_range_1: 0, date_range_2: 0, date_range_3: 0 };
   rows.forEach((r) => {
     const range = r.dateRange || 'date_range_0';
     if (range === 'date_range_0') {
       current.push({ source: r.sessionSource, sessions: r.sessions, users: r.totalUsers });
-      currentTotal += r.sessions;
-    } else if (range === 'date_range_1') {
-      previousTotal += r.sessions;
-    } else {
-      previous2Total += r.sessions;
     }
+    if (totals[range] !== undefined) totals[range] += r.sessions;
   });
   return {
     sources: current,
-    currentSessions: currentTotal,
-    previousSessions: previousTotal,
-    previous2Sessions: previous2Total,
+    currentSessions: totals.date_range_0,
+    previousSessions: totals.date_range_1,
+    previousFullSessions: totals.date_range_2,
+    previous2Sessions: totals.date_range_3,
   };
 }
 
 function splitEventsByRange(rows) {
   const out = {};
   TRACKED_EVENTS.forEach((e) => {
-    out[e] = { current: 0, previous: 0, previous2: 0, users: 0 };
+    out[e] = { current: 0, previous: 0, previousFull: 0, previous2: 0, users: 0 };
   });
   rows.forEach((r) => {
     const bucket = out[r.eventName];
@@ -359,6 +358,8 @@ function splitEventsByRange(rows) {
       bucket.users += r.totalUsers;
     } else if (range === 'date_range_1') {
       bucket.previous += r.eventCount;
+    } else if (range === 'date_range_2') {
+      bucket.previousFull += r.eventCount;
     } else {
       bucket.previous2 += r.eventCount;
     }

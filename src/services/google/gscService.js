@@ -38,12 +38,15 @@ const shapeRow = (row, dimNames) => {
  * Full GSC slice of the MBR report.
  * current / previous: { startDate, endDate } for MoM totals.
  */
-async function getMbrReport({ current, previous, previous2 }, siteUrl) {
+async function getMbrReport({ current, previous, previousFull, previous2 }, siteUrl) {
   const base = { type: 'web' };
 
-  const [curTotal, prevTotal, prev2Total, byDate, byQuery, byPage] = await Promise.all([
+  const [curTotal, prevTotal, prevFullTotal, prev2Total, byDate, byQuery, byPage] = await Promise.all([
     query({ ...base, startDate: current.startDate, endDate: current.endDate, rowLimit: 1 }, siteUrl),
     query({ ...base, startDate: previous.startDate, endDate: previous.endDate, rowLimit: 1 }, siteUrl),
+    previousFull
+      ? query({ ...base, startDate: previousFull.startDate, endDate: previousFull.endDate, rowLimit: 1 }, siteUrl)
+      : Promise.resolve([]),
     previous2
       ? query({ ...base, startDate: previous2.startDate, endDate: previous2.endDate, rowLimit: 1 }, siteUrl)
       : Promise.resolve([]),
@@ -74,6 +77,7 @@ async function getMbrReport({ current, previous, previous2 }, siteUrl) {
     totals: {
       current: shapeRow(curTotal[0] || {}, []),
       previous: shapeRow(prevTotal[0] || {}, []),
+      previousFull: shapeRow(prevFullTotal[0] || {}, []),
       previous2: shapeRow(prev2Total[0] || {}, []),
     },
     trend: byDate.map((r) => shapeRow(r, ['date'])),
