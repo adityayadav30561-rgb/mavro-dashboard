@@ -38,6 +38,10 @@ async function wp(pathname, { method = 'GET', body } = {}) {
     method,
     headers: {
       Authorization: AUTH,
+      // The LiteSpeed host strips `Authorization` before PHP sees it; the
+      // .htaccess carries a SetEnvIf that maps this header back onto
+      // HTTP_AUTHORIZATION, which WordPress reads. Belt and braces.
+      'X-WP-Authorization': AUTH,
       'User-Agent': 'MavroPublisher/1.0',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },

@@ -236,4 +236,5 @@ RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>
 ```
 
+- **Current status: PARKED until cPanel access.** WP File Manager 403s on .htaccess writes (WAF); the working fix is one line added via cPanel File Manager as line 1 of .htaccess: `SetEnvIf X-WP-Authorization "(.+)" HTTP_AUTHORIZATION=$1` (SetEnvIf is an always-loaded module — cannot 500 the site). The runner already sends the credential under BOTH `Authorization` and `X-WP-Authorization`, so no code change is needed when the line lands. Then: `npm run create:saisatwik-blog -- wp-connection-test`.
 - The runner diagnoses the three failure modes distinctly: `rest_not_logged_in` = header stripped (fix above) · `invalid_username` = use the wp-admin login name · `incorrect_password` = regenerate the Application Password.
