@@ -136,13 +136,14 @@ async function getMbrReport({ current, previous }, propertyId) {
       orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
       limit: 50,
     },
-    // 5 — top pages (current)
+    // 5 — top pages (current) — high limit so the Pages view can list the
+    // whole site, not just a top-N
     {
       dateRanges: [current],
       dimensions: [dimension('pagePath')],
       metrics: [metric('screenPageViews'), metric('activeUsers'), metric('userEngagementDuration')],
       orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
-      limit: 20,
+      limit: 200,
     },
     // 6 — conversion events, both ranges
     {

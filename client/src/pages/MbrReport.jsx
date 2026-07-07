@@ -419,11 +419,12 @@ export default function MbrReport() {
   const [draftEnd, setDraftEnd] = useState('');
   const [customRange, setCustomRange] = useState(null); // { start, end } once applied
   const [status, setStatus] = useState(null);
-  const { view } = useParams();
+  const { view, sub } = useParams();
   const navigate = useNavigate();
   const isHub = !view;
   const isStaticView = view ? Object.prototype.hasOwnProperty.call(STATIC_VIEWS, view) : false;
   const isSourceView = Boolean(view) && !isStaticView;
+  const isPagesView = isSourceView && sub === 'pages';
   const activeSource = isSourceView ? view : null;
   const [ga4, setGa4] = useState(null);
   const [gsc, setGsc] = useState(null);
@@ -584,9 +585,11 @@ export default function MbrReport() {
   };
   const pageTitle = isHub
     ? 'Work Overview'
-    : isSourceView
-      ? `${sourceLabel} — Traffic, Search & Conversion`
-      : staticTitles[view] || 'MBR';
+    : isPagesView
+      ? `${sourceLabel} — Pages`
+      : isSourceView
+        ? `${sourceLabel} — Traffic, Search & Conversion`
+        : staticTitles[view] || 'MBR';
 
   return (
     <div className="space-y-1">
@@ -701,7 +704,40 @@ export default function MbrReport() {
         />
       )}
 
-      {!loading && ga4 && (
+      {/* ============ PAGES VIEW — every page on the site ============ */}
+      {!loading && ga4 && isPagesView && (
+        <>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatTile i={0} icon={Eye} label="Page views" value={fmtNum(ov.current.pageViews)} delta={deltaPct(ov.current.pageViews, ov.previous.pageViews)} />
+            <StatTile i={1} icon={Users} label="Users" value={fmtNum(ov.current.users)} delta={deltaPct(ov.current.users, ov.previous.users)} />
+            <StatTile i={2} icon={Activity} label="Pages tracked" value={fmtNum((ga4.topPages || []).length)} hint="pages with ≥1 view this period" />
+            <StatTile i={3} icon={Clock} label="Avg time / user" value={fmtDuration(ov.current.avgEngagementSec)} delta={deltaPct(ov.current.avgEngagementSec, ov.previous.avgEngagementSec)} />
+          </div>
+          <div className="mt-3 pb-8">
+            <Card caption="GA4 · current period" title={`All pages — ${monthLabel}`} icon={Eye}>
+              <DataTable
+                columns={['#', 'Page', 'Views', 'Users', 'Avg time', 'Share']}
+                rows={ga4.topPages || []}
+                renderRow={(r, idx) => {
+                  const totalViews = (ga4.topPages || []).reduce((s, p) => s + p.views, 0) || 1;
+                  return (
+                    <tr key={r.path} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                      <Td mono className="text-muted-foreground">{idx + 1}</Td>
+                      <Td className="max-w-[420px] font-mono text-[10px]">{r.path}</Td>
+                      <Td right mono>{fmtNum(r.views)}</Td>
+                      <Td right mono>{fmtNum(r.users)}</Td>
+                      <Td right mono>{fmtDuration(r.avgEngagementSec)}</Td>
+                      <Td right mono>{`${Math.round((r.views / totalViews) * 100)}%`}</Td>
+                    </tr>
+                  );
+                }}
+              />
+            </Card>
+          </div>
+        </>
+      )}
+
+      {!loading && ga4 && !isPagesView && (
         <>
           {/* ============ AUDIENCE ============ */}
           <SectionHeading>Audience — {monthLabel}</SectionHeading>
@@ -1022,10 +1058,10 @@ export default function MbrReport() {
                   i={gi * 3 + 1}
                   icon={Eye}
                   title={`${s.label} Pages`}
-                  description="Page performance & engagement — users, sessions, top pages, geography, devices"
+                  description="Every page on the site — views, users, time on page"
                   statusChip={s.ga4 ? '✅ Auto · live' : '⚠️ Not configured'}
                   statusTone={s.ga4 ? 'auto' : 'off'}
-                  onClick={() => navigate(`/mbr/${s.key}`)}
+                  onClick={() => navigate(`/mbr/${s.key}/pages`)}
                 />
                 <HubTile
                   i={gi * 3 + 2}
