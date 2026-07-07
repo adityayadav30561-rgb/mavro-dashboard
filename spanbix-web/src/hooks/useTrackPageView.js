@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { trackPageView, trackEvent } from '@/lib/analytics';
+import { trackPageView, trackEvent, trackBlogView } from '@/lib/analytics';
 
 /**
  * Fires a page_view (or override eventType) every time the route changes.
@@ -23,6 +23,12 @@ export default function useTrackPageView(eventType = 'page_view', meta) {
     const page = pathname + (search || '');
     if (eventType === 'page_view') {
       trackPageView(page, meta);
+      // Blog articles additionally fire blog_view (feeds the admin
+      // dashboard's Blog Views tile + content-performance reports).
+      // Article pages are Server Components, so the layout hook is the
+      // one client-side place that sees every article route.
+      const blogMatch = pathname.match(/^\/blog\/([^/]+)\/?$/);
+      if (blogMatch) trackBlogView(decodeURIComponent(blogMatch[1]), page);
     } else {
       trackEvent({ eventType, page, meta });
     }
