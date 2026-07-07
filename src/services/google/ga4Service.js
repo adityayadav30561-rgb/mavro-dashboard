@@ -12,8 +12,8 @@
 
 const { googleApiFetch, isConfigured: authConfigured } = require('./googleAuth');
 
-const propertyId = () => (process.env.GA4_PROPERTY_ID || '').trim();
-const isConfigured = () => authConfigured() && Boolean(propertyId());
+const defaultPropertyId = () => (process.env.GA4_PROPERTY_ID || '').trim();
+const isConfigured = (propertyId) => authConfigured() && Boolean(propertyId || defaultPropertyId());
 
 // Referral sources that identify AI assistant / AI search traffic.
 // PARTIAL_REGEXP against sessionSource (e.g. "chatgpt.com", "perplexity.ai").
@@ -33,8 +33,9 @@ const TRACKED_EVENTS = [
 // Low-level helpers
 // ---------------------------------------------------------------------------
 
-async function batchRunReports(requests) {
-  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId()}:batchRunReports`;
+async function batchRunReports(requests, propertyId) {
+  const pid = propertyId || defaultPropertyId();
+  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${pid}:batchRunReports`;
   const out = [];
   // API allows max 5 reports per batch call
   for (let i = 0; i < requests.length; i += 5) {
@@ -80,7 +81,7 @@ const eventFilter = (events) => ({
  * Full GA4 slice of the MBR report.
  * current / previous: { startDate, endDate } — previous powers MoM deltas.
  */
-async function getMbrReport({ current, previous }) {
+async function getMbrReport({ current, previous }, propertyId) {
   const bothRanges = [current, previous];
 
   const requests = [
@@ -195,7 +196,7 @@ async function getMbrReport({ current, previous }) {
     },
   ];
 
-  const reports = await batchRunReports(requests);
+  const reports = await batchRunReports(requests, propertyId);
   const [
     overviewR, trendR, channelsR, sourcesR, aiR,
     pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,

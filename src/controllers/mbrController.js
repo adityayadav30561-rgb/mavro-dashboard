@@ -17,9 +17,14 @@
  */
 
 const AnalyticsEvent = require('../models/AnalyticsEvent');
+const MbrItem = require('../models/MbrItem');
+const Blog = require('../models/Blog');
 const { asyncHandler, ApiResponse } = require('../utils');
 const ga4Service = require('../services/google/ga4Service');
 const gscService = require('../services/google/gscService');
+const { getSources, getSource } = require('../services/google/mbrSources');
+const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
+const mbrExportService = require('../services/mbrExportService');
 
 // ===================================
 // In-memory response cache
@@ -94,11 +99,17 @@ function resolveRanges(query) {
 // GET /api/mbr/status
 // ===================================
 const getStatus = asyncHandler(async (req, res) => {
+  const sources = getSources().map((s) => ({
+    key: s.key,
+    label: s.label,
+    ga4: Boolean(s.ga4PropertyId) && ga4Service.isConfigured(s.ga4PropertyId),
+    gsc: Boolean(s.gscSiteUrl) && gscService.isConfigured(s.gscSiteUrl),
+  }));
   return ApiResponse.success(res, {
-    ga4: ga4Service.isConfigured(),
-    gsc: gscService.isConfigured(),
-    propertyId: ga4Service.isConfigured() ? process.env.GA4_PROPERTY_ID : null,
-    siteUrl: gscService.isConfigured() ? process.env.GSC_SITE_URL : null,
+    sources,
+    // legacy shape (first source) for older clients
+    ga4: sources[0]?.ga4 || false,
+    gsc: sources[0]?.gsc || false,
   });
 });
 
@@ -106,17 +117,18 @@ const getStatus = asyncHandler(async (req, res) => {
 // GET /api/mbr/ga4?month=YYYY-MM | ?start=&end=
 // ===================================
 const getGa4Report = asyncHandler(async (req, res) => {
-  if (!ga4Service.isConfigured()) {
-    return ApiResponse.error(res, 'GA4 not configured (GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)', 503);
+  const source = getSource(req.query.source);
+  if (!source?.ga4PropertyId || !ga4Service.isConfigured(source.ga4PropertyId)) {
+    return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
 
-  const report = await ga4Service.getMbrReport(ranges);
-  const payload = { ranges, ...report };
+  const report = await ga4Service.getMbrReport(ranges, source.ga4PropertyId);
+  const payload = { ranges, source: source.key, ...report };
   cacheSet(cacheKey, payload);
   return ApiResponse.success(res, payload);
 });
@@ -125,17 +137,18 @@ const getGa4Report = asyncHandler(async (req, res) => {
 // GET /api/mbr/gsc?month=YYYY-MM | ?start=&end=
 // ===================================
 const getGscReport = asyncHandler(async (req, res) => {
-  if (!gscService.isConfigured()) {
-    return ApiResponse.error(res, 'Search Console not configured (GSC_SITE_URL / GOOGLE_SERVICE_ACCOUNT_JSON)', 503);
+  const source = getSource(req.query.source);
+  if (!source?.gscSiteUrl || !gscService.isConfigured(source.gscSiteUrl)) {
+    return ApiResponse.error(res, `Search Console not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GSC_SITE_URL)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `gsc:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `gsc:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
 
-  const report = await gscService.getMbrReport(ranges);
-  const payload = { ranges, ...report };
+  const report = await gscService.getMbrReport(ranges, source.gscSiteUrl);
+  const payload = { ranges, source: source.key, ...report };
   cacheSet(cacheKey, payload);
   return ApiResponse.success(res, payload);
 });
@@ -204,4 +217,135 @@ const getButtonBreakdown = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { getStatus, getGa4Report, getGscReport, getButtonBreakdown };
+// ===================================
+// GET /api/mbr/sections — manual workstream definitions (for the tiles UI)
+// ===================================
+const getSections = asyncHandler(async (req, res) => {
+  return ApiResponse.success(res, { sections: MBR_SECTIONS });
+});
+
+// ===================================
+// Manual items CRUD — /api/mbr/items
+// ===================================
+const periodOf = (query) => {
+  const ranges = resolveRanges(query);
+  return ranges.current.startDate.slice(0, 7); // 'YYYY-MM' of range start
+};
+
+const listItems = asyncHandler(async (req, res) => {
+  const period = String(req.query.period || periodOf(req.query));
+  if (!/^\d{4}-\d{2}$/.test(period)) return ApiResponse.error(res, 'Invalid period', 400);
+  const items = await MbrItem.find({ period }).sort({ section: 1, order: 1, createdAt: 1 }).lean();
+  return ApiResponse.success(res, { period, items });
+});
+
+const sanitizeItemData = (sectionKey, data) => {
+  const def = sectionByKey(sectionKey);
+  if (!def) return null;
+  const out = {};
+  def.columns.forEach((c) => {
+    const v = data?.[c.key];
+    if (v != null) out[c.key] = String(v).slice(0, 2000);
+  });
+  return out;
+};
+
+const createItem = asyncHandler(async (req, res) => {
+  const { section, period, data } = req.body || {};
+  if (!sectionByKey(section)) return ApiResponse.error(res, 'Unknown section', 400);
+  if (!/^\d{4}-\d{2}$/.test(String(period || ''))) return ApiResponse.error(res, 'Invalid period (YYYY-MM)', 400);
+  const clean = sanitizeItemData(section, data);
+  const last = await MbrItem.findOne({ section, period }).sort({ order: -1 }).select('order').lean();
+  const item = await MbrItem.create({
+    section,
+    period,
+    data: clean,
+    order: (last?.order || 0) + 1,
+    createdBy: req.user?._id || null,
+  });
+  return ApiResponse.created(res, { item });
+});
+
+const updateItem = asyncHandler(async (req, res) => {
+  const item = await MbrItem.findById(req.params.id);
+  if (!item) return ApiResponse.error(res, 'Item not found', 404);
+  const clean = sanitizeItemData(item.section, req.body?.data);
+  item.data = clean;
+  await item.save();
+  return ApiResponse.success(res, { item });
+});
+
+const deleteItem = asyncHandler(async (req, res) => {
+  const item = await MbrItem.findByIdAndDelete(req.params.id);
+  if (!item) return ApiResponse.error(res, 'Item not found', 404);
+  return ApiResponse.success(res, { deleted: true });
+});
+
+// ===================================
+// GET /api/mbr/blogs — published blogs in range + all-time views
+// ===================================
+const getBlogsReport = asyncHandler(async (req, res) => {
+  const ranges = resolveRanges(req.query);
+  const start = new Date(`${ranges.current.startDate}T00:00:00Z`);
+  const end = new Date(`${ranges.current.endDate}T23:59:59.999Z`);
+
+  const blogs = await Blog.find({ status: 'published', publishedAt: { $gte: start, $lte: end } })
+    .populate('targetWebsite', 'name slug')
+    .select('title slug publishedAt targetWebsite')
+    .sort({ publishedAt: -1 })
+    .lean();
+
+  const pageCounts = await AnalyticsEvent.aggregate([
+    { $match: { eventType: { $in: ['page_view', 'blog_view'] }, page: /\/blog\// } },
+    { $group: { _id: '$page', count: { $sum: 1 } } },
+  ]);
+  const viewsForSlug = (slug) => {
+    let total = 0;
+    for (const p of pageCounts) {
+      const path = String(p._id).split('?')[0].replace(/\/$/, '');
+      if (path.endsWith(`/blog/${slug}`)) total += p.count;
+    }
+    return total;
+  };
+
+  return ApiResponse.success(res, {
+    ranges,
+    blogs: blogs.map((b) => ({
+      title: b.title,
+      slug: b.slug,
+      tenant: b.targetWebsite?.name || b.targetWebsite?.slug || '—',
+      publishedAt: b.publishedAt,
+      views: viewsForSlug(b.slug),
+    })),
+  });
+});
+
+// ===================================
+// GET /api/mbr/export — combined multi-sheet Excel download
+// ===================================
+const exportWorkbook = asyncHandler(async (req, res) => {
+  const ranges = resolveRanges(req.query);
+  const period = ranges.current.startDate.slice(0, 7);
+
+  const wb = await mbrExportService.buildWorkbook(ranges, period);
+
+  const filename = `MBR_${ranges.label.replace(/[^\w.-]+/g, '_')}.xlsx`;
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  await wb.xlsx.write(res);
+  res.end();
+});
+
+module.exports = {
+  getStatus,
+  getGa4Report,
+  getGscReport,
+  getButtonBreakdown,
+  getSections,
+  listItems,
+  createItem,
+  updateItem,
+  deleteItem,
+  getBlogsReport,
+  exportWorkbook,
+};

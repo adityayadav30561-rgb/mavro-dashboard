@@ -11,11 +11,12 @@
 
 const { googleApiFetch, isConfigured: authConfigured } = require('./googleAuth');
 
-const siteUrl = () => (process.env.GSC_SITE_URL || '').trim();
-const isConfigured = () => authConfigured() && Boolean(siteUrl());
+const defaultSiteUrl = () => (process.env.GSC_SITE_URL || '').trim();
+const isConfigured = (siteUrl) => authConfigured() && Boolean(siteUrl || defaultSiteUrl());
 
-async function query(body) {
-  const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl())}/searchAnalytics/query`;
+async function query(body, siteUrl) {
+  const site = siteUrl || defaultSiteUrl();
+  const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`;
   const res = await googleApiFetch(url, { method: 'POST', body });
   return res.rows || [];
 }
@@ -37,33 +38,33 @@ const shapeRow = (row, dimNames) => {
  * Full GSC slice of the MBR report.
  * current / previous: { startDate, endDate } for MoM totals.
  */
-async function getMbrReport({ current, previous }) {
+async function getMbrReport({ current, previous }, siteUrl) {
   const base = { type: 'web' };
 
   const [curTotal, prevTotal, byDate, byQuery, byPage] = await Promise.all([
-    query({ ...base, startDate: current.startDate, endDate: current.endDate, rowLimit: 1 }),
-    query({ ...base, startDate: previous.startDate, endDate: previous.endDate, rowLimit: 1 }),
+    query({ ...base, startDate: current.startDate, endDate: current.endDate, rowLimit: 1 }, siteUrl),
+    query({ ...base, startDate: previous.startDate, endDate: previous.endDate, rowLimit: 1 }, siteUrl),
     query({
       ...base,
       startDate: current.startDate,
       endDate: current.endDate,
       dimensions: ['date'],
       rowLimit: 400,
-    }),
+    }, siteUrl),
     query({
       ...base,
       startDate: current.startDate,
       endDate: current.endDate,
       dimensions: ['query'],
       rowLimit: 25,
-    }),
+    }, siteUrl),
     query({
       ...base,
       startDate: current.startDate,
       endDate: current.endDate,
       dimensions: ['page'],
       rowLimit: 25,
-    }),
+    }, siteUrl),
   ]);
 
   return {

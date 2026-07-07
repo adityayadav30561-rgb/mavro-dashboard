@@ -14,3 +14,17 @@ export const getMbrGsc = (params) =>
 
 export const getMbrButtons = (params) =>
   api.get('/mbr/buttons', { params });
+
+// Manual workstream tiles (PPTs/videos, work log, other projects, manual leads)
+export const getMbrSections = () => api.get('/mbr/sections');
+export const getMbrItems = (params) => api.get('/mbr/items', { params });
+export const createMbrItem = (body) => api.post('/mbr/items', body);
+export const updateMbrItem = (id, body) => api.put(`/mbr/items/${id}`, body);
+export const deleteMbrItem = (id) => api.delete(`/mbr/items/${id}`);
+
+// Published blogs in range (+ all-time views)
+export const getMbrBlogs = (params) => api.get('/mbr/blogs', { params });
+
+// Combined multi-sheet Excel download
+export const downloadMbrExport = (params) =>
+  api.get('/mbr/export', { params, responseType: 'blob', timeout: 120000 });

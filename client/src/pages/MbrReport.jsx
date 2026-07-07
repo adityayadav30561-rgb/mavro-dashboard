@@ -7,10 +7,16 @@ import {
   Users, UserPlus, Eye, Clock, Activity, TrendingUp, TrendingDown,
   Phone, MessageCircle, MousePointerClick, FileDown, Send, Sparkles,
   Search as SearchIcon, Globe, MonitorSmartphone, MapPin, Loader2,
-  AlertTriangle, RefreshCw, BarChart3,
+  AlertTriangle, RefreshCw, BarChart3, Download, Plus, Trash2, Pencil,
+  FileText, ClipboardList, FolderKanban, UserSquare2,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
-import { getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons } from '@/api/mbr';
+import {
+  getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons,
+  getMbrSections, getMbrItems, createMbrItem, updateMbrItem, deleteMbrItem,
+  getMbrBlogs, downloadMbrExport,
+} from '@/api/mbr';
 import GeoMap from '@/components/mbr/GeoMap';
 import { chartSeries } from '@/lib/chartTheme';
 
@@ -210,6 +216,137 @@ function EmptyNote({ text = 'No data in this window' }) {
   return <p className="py-6 text-center text-[11px] text-muted-foreground">{text}</p>;
 }
 
+const SECTION_ICONS = {
+  ppts_videos: FileText,
+  work_log: ClipboardList,
+  other_projects: FolderKanban,
+  manual_leads: UserSquare2,
+};
+
+// Editable manual-workstream tile — table of rows + inline add/edit form.
+function WorkstreamTile({ section, items, period, onChanged }) {
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null); // item being edited
+  const [draft, setDraft] = useState({});
+  const [saving, setSaving] = useState(false);
+  const Icon = SECTION_ICONS[section.key] || ClipboardList;
+
+  const openAdd = () => { setEditing(null); setDraft({}); setFormOpen(true); };
+  const openEdit = (item) => { setEditing(item); setDraft({ ...(item.data || {}) }); setFormOpen(true); };
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (editing) await updateMbrItem(editing._id, { data: draft });
+      else await createMbrItem({ section: section.key, period, data: draft });
+      toast.success(editing ? 'Entry updated' : 'Entry added');
+      setFormOpen(false);
+      onChanged();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Save failed');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (item) => {
+    try {
+      await deleteMbrItem(item._id);
+      toast.success('Entry removed');
+      onChanged();
+    } catch {
+      toast.error('Delete failed');
+    }
+  };
+
+  return (
+    <Card caption="Manual workstream" title={section.label} icon={Icon}>
+      <p className="px-5 pt-2 text-[10px] text-muted-foreground">{section.description}</p>
+      <div className="overflow-x-auto mt-1">
+        <table className="w-full text-[11px]">
+          <thead>
+            <tr className="text-left text-muted-foreground border-b border-border/60">
+              {section.columns.map((c) => (
+                <th key={c.key} className="px-4 py-2 font-medium whitespace-nowrap">{c.label}</th>
+              ))}
+              <th className="px-3 py-2 w-16" />
+            </tr>
+          </thead>
+          <tbody>
+            {items.length === 0 && (
+              <tr><td colSpan={section.columns.length + 1} className="px-4 py-5 text-center text-muted-foreground">Nothing recorded for this month yet</td></tr>
+            )}
+            {items.map((item) => (
+              <tr key={item._id} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02] group">
+                {section.columns.map((c) => (
+                  <td key={c.key} className="px-4 py-2 align-top max-w-[280px]">
+                    <span className="whitespace-pre-wrap break-words">{item.data?.[c.key] || <span className="text-muted-foreground/40">—</span>}</span>
+                  </td>
+                ))}
+                <td className="px-3 py-2 whitespace-nowrap text-right">
+                  <button onClick={() => openEdit(item)} className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground transition" title="Edit">
+                    <Pencil size={12} />
+                  </button>
+                  <button onClick={() => remove(item)} className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-rose-500 transition" title="Delete">
+                    <Trash2 size={12} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="px-4 pb-4 pt-2">
+        {!formOpen ? (
+          <button onClick={openAdd} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-violet-400 hover:opacity-80 transition">
+            <Plus size={12} /> Add entry
+          </button>
+        ) : (
+          <div className="rounded-lg border border-border/70 bg-foreground/[0.02] p-3 space-y-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {editing ? 'Edit entry' : 'New entry'} · {period}
+            </p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {section.columns.map((c) => (
+                <label key={c.key} className={cn('block', (c.key === 'work' || c.key === 'risk' || c.key === 'outcome' || c.key === 'notes' || c.key === 'topic') && 'sm:col-span-2')}>
+                  <span className="text-[10px] text-muted-foreground">{c.label}</span>
+                  {c.type === 'select' ? (
+                    <select
+                      value={draft[c.key] || ''}
+                      onChange={(e) => setDraft((d) => ({ ...d, [c.key]: e.target.value }))}
+                      className="mt-0.5 w-full h-8 rounded-lg bg-card border border-border px-2 text-[11px] outline-none focus:border-violet-500/50"
+                    >
+                      <option value="">—</option>
+                      {c.options.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      type={c.type === 'date' ? 'date' : 'text'}
+                      value={draft[c.key] || ''}
+                      onChange={(e) => setDraft((d) => ({ ...d, [c.key]: e.target.value }))}
+                      className="mt-0.5 w-full h-8 rounded-lg bg-card border border-border px-2 text-[11px] outline-none focus:border-violet-500/50"
+                    />
+                  )}
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-1">
+              <button onClick={save} disabled={saving} className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold disabled:opacity-50">
+                {saving ? 'Saving…' : editing ? 'Update' : 'Add'}
+              </button>
+              <button onClick={() => setFormOpen(false)} className="h-8 px-3 rounded-lg border border-border text-[11px] text-muted-foreground">
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 function NotConfiguredCard({ what, detail }) {
   return (
     <div className="rounded-2xl border border-dashed border-border bg-card/40 p-6 text-center">
@@ -232,6 +369,7 @@ export default function MbrReport() {
   const [draftEnd, setDraftEnd] = useState('');
   const [customRange, setCustomRange] = useState(null); // { start, end } once applied
   const [status, setStatus] = useState(null);
+  const [activeSource, setActiveSource] = useState('spanbix');
   const [ga4, setGa4] = useState(null);
   const [gsc, setGsc] = useState(null);
   const [buttons, setButtons] = useState(null);
@@ -239,18 +377,29 @@ export default function MbrReport() {
   const [errors, setErrors] = useState({});
   const [refreshTick, setRefreshTick] = useState(0);
 
+  // Manual workstream tiles + blogs
+  const [sections, setSections] = useState([]);
+  const [manualItems, setManualItems] = useState([]);
+  const [blogsList, setBlogsList] = useState([]);
+  const [itemsTick, setItemsTick] = useState(0);
+  const [downloading, setDownloading] = useState(false);
+
+  const rangeParams = customRange ? { start: customRange.start, end: customRange.end } : { month };
+  const period = customRange ? customRange.start.slice(0, 7) : month;
+
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      const params = customRange ? { start: customRange.start, end: customRange.end } : { month };
+      const params = { ...rangeParams, source: activeSource };
       const errs = {};
 
-      const [st, g4, gs, bt] = await Promise.allSettled([
+      const [st, g4, gs, bt, bl] = await Promise.allSettled([
         getMbrStatus(),
         getMbrGa4(params),
         getMbrGsc(params),
-        getMbrButtons(params),
+        getMbrButtons(rangeParams),
+        getMbrBlogs(rangeParams),
       ]);
       if (!alive) return;
 
@@ -265,11 +414,47 @@ export default function MbrReport() {
       if (bt.status === 'fulfilled') setButtons(bt.value.data?.data || null);
       else setButtons(null);
 
+      setBlogsList(bl.status === 'fulfilled' ? bl.value.data?.data?.blogs || [] : []);
+
       setErrors(errs);
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [month, customRange, refreshTick]);
+  }, [month, customRange, refreshTick, activeSource]); // eslint-disable-line
+
+  // Section definitions (static) + manual items (per period)
+  useEffect(() => {
+    getMbrSections().then((r) => setSections(r.data?.data?.sections || [])).catch(() => {});
+  }, []);
+  useEffect(() => {
+    let alive = true;
+    getMbrItems({ period })
+      .then((r) => { if (alive) setManualItems(r.data?.data?.items || []); })
+      .catch(() => { if (alive) setManualItems([]); });
+    return () => { alive = false; };
+  }, [period, itemsTick]);
+
+  const handleDownload = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    const tid = toast.loading('Building MBR workbook…');
+    try {
+      const res = await downloadMbrExport(rangeParams);
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `MBR_${customRange ? `${customRange.start}_${customRange.end}` : month}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast.success('MBR downloaded', { id: tid });
+    } catch (e) {
+      toast.error('Export failed — check backend logs', { id: tid });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const ov = ga4?.overview;
   const ai = ga4?.aiReferrals;
@@ -342,6 +527,31 @@ export default function MbrReport() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {(status?.sources?.length || 0) > 1 && (
+            <div className="flex rounded-xl border border-border bg-card overflow-hidden">
+              {status.sources.map((s) => (
+                <button
+                  key={s.key}
+                  onClick={() => setActiveSource(s.key)}
+                  className={cn(
+                    'h-9 px-3 text-xs font-semibold transition-colors',
+                    activeSource === s.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="h-9 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50 transition-opacity"
+            title="Download the combined MBR workbook (all sheets, auto + manual data)"
+          >
+            {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+            Download MBR
+          </button>
           <select
             value={customOpen ? '__custom' : month}
             onChange={(e) => {
@@ -716,6 +926,40 @@ export default function MbrReport() {
                 }}
               />
             </Card>
+          </div>
+        </>
+      )}
+
+      {/* ============ WORKSTREAMS (auto blogs + manual tiles) ============ */}
+      {!loading && (
+        <>
+          <SectionHeading>Workstreams — {period}</SectionHeading>
+
+          <Card caption="Content · auto" title="Blogs published" icon={FileText}>
+            <DataTable
+              columns={['Title', 'Tenant', 'Published', 'Views (all-time)']}
+              rows={blogsList}
+              renderRow={(b) => (
+                <tr key={b.slug} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                  <Td className="max-w-[380px]">{b.title}</Td>
+                  <Td right>{b.tenant}</Td>
+                  <Td right mono>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—'}</Td>
+                  <Td right mono>{fmtNum(b.views)}</Td>
+                </tr>
+              )}
+            />
+          </Card>
+
+          <div className="grid lg:grid-cols-2 gap-3 mt-3 pb-8">
+            {sections.map((s) => (
+              <WorkstreamTile
+                key={s.key}
+                section={s}
+                period={period}
+                items={manualItems.filter((i) => i.section === s.key)}
+                onChanged={() => setItemsTick((t) => t + 1)}
+              />
+            ))}
           </div>
         </>
       )}
