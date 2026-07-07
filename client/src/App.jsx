@@ -145,7 +145,7 @@ export default function App() {
         <Route path="websites" element={<Suspense fallback={<AdminFallback />}><WebsiteList /></Suspense>} />
         <Route path="seo" element={<Suspense fallback={<AdminFallback />}><SeoEngine /></Suspense>} />
         <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />
-        <Route path="mbr" element={<Suspense fallback={<AdminFallback />}><MbrReport /></Suspense>} />
+        <Route path="mbr/:view?" element={<Suspense fallback={<AdminFallback />}><MbrReport /></Suspense>} />
         <Route path="calendar" element={<Suspense fallback={<AdminFallback />}><Calendar /></Suspense>} />
         <Route path="scheduler/calendar-connections" element={<Suspense fallback={<AdminFallback />}><CalendarConnectionsPage /></Suspense>} />
         <Route path="scheduler/event-types" element={<Suspense fallback={<AdminFallback />}><EventTypesPage /></Suspense>} />

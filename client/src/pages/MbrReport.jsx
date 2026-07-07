@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -8,7 +9,7 @@ import {
   Phone, MessageCircle, MousePointerClick, FileDown, Send, Sparkles,
   Search as SearchIcon, Globe, MonitorSmartphone, MapPin, Loader2,
   AlertTriangle, RefreshCw, BarChart3, Download, Plus, Trash2, Pencil,
-  FileText, ClipboardList, FolderKanban, UserSquare2,
+  FileText, ClipboardList, FolderKanban, UserSquare2, ChevronRight, ArrowLeft,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
@@ -223,6 +224,55 @@ const SECTION_ICONS = {
   manual_leads: UserSquare2,
 };
 
+// Static detail views (/mbr/<view>) → manual section key. Any other view
+// value is treated as a GA4/GSC source key (/mbr/spanbix, /mbr/saisatwik…).
+const STATIC_VIEWS = {
+  blogs: null,
+  development: 'work_log',
+  ppts: 'ppts_videos',
+  projects: 'other_projects',
+  leads: 'manual_leads',
+};
+
+// Hub tile — one workstream on the overview grid
+function HubTile({ icon: Icon, title, description, statusChip, statusTone = 'auto', onClick, i = 0 }) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: i * 0.04 }}
+      onClick={onClick}
+      className="text-left rounded-2xl bg-card/70 border border-border/70 p-4 hover:border-violet-500/50 transition-colors group w-full"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="w-9 h-9 rounded-xl bg-foreground/[0.04] border border-border flex items-center justify-center flex-shrink-0">
+          <Icon size={15} className="text-violet-400" />
+        </div>
+        <ChevronRight size={14} className="text-muted-foreground/40 group-hover:text-violet-400 group-hover:translate-x-0.5 transition mt-2" />
+      </div>
+      <p className="text-sm font-semibold mt-3">{title}</p>
+      <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{description}</p>
+      <span className={cn(
+        'inline-block mt-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-full',
+        statusTone === 'auto' && 'bg-emerald-500/15 text-emerald-500',
+        statusTone === 'manual' && 'bg-amber-500/15 text-amber-500',
+        statusTone === 'off' && 'bg-foreground/[0.06] text-muted-foreground'
+      )}>
+        {statusChip}
+      </span>
+    </motion.button>
+  );
+}
+
+function HubGroup({ label, children }) {
+  return (
+    <div>
+      <SectionHeading>{label}</SectionHeading>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{children}</div>
+    </div>
+  );
+}
+
 // Editable manual-workstream tile — table of rows + inline add/edit form.
 function WorkstreamTile({ section, items, period, onChanged }) {
   const [formOpen, setFormOpen] = useState(false);
@@ -369,7 +419,12 @@ export default function MbrReport() {
   const [draftEnd, setDraftEnd] = useState('');
   const [customRange, setCustomRange] = useState(null); // { start, end } once applied
   const [status, setStatus] = useState(null);
-  const [activeSource, setActiveSource] = useState('spanbix');
+  const { view } = useParams();
+  const navigate = useNavigate();
+  const isHub = !view;
+  const isStaticView = view ? Object.prototype.hasOwnProperty.call(STATIC_VIEWS, view) : false;
+  const isSourceView = Boolean(view) && !isStaticView;
+  const activeSource = isSourceView ? view : null;
   const [ga4, setGa4] = useState(null);
   const [gsc, setGsc] = useState(null);
   const [buttons, setButtons] = useState(null);
@@ -391,36 +446,42 @@ export default function MbrReport() {
     let alive = true;
     (async () => {
       setLoading(true);
-      const params = { ...rangeParams, source: activeSource };
       const errs = {};
 
-      const [st, g4, gs, bt, bl] = await Promise.allSettled([
-        getMbrStatus(),
-        getMbrGa4(params),
-        getMbrGsc(params),
-        getMbrButtons(rangeParams),
-        getMbrBlogs(rangeParams),
-      ]);
+      // Hub + static views need only the light calls; GA4/GSC pulled only
+      // inside a source view (avoids burning Google quota on the overview).
+      const calls = [getMbrStatus(), getMbrBlogs(rangeParams)];
+      if (isSourceView) {
+        const params = { ...rangeParams, source: activeSource };
+        calls.push(getMbrGa4(params), getMbrGsc(params), getMbrButtons(rangeParams));
+      }
+
+      const [st, bl, g4, gs, bt] = await Promise.allSettled(calls);
       if (!alive) return;
 
       setStatus(st.status === 'fulfilled' ? st.value.data?.data : null);
-
-      if (g4.status === 'fulfilled') setGa4(g4.value.data?.data || null);
-      else { setGa4(null); errs.ga4 = g4.reason?.response?.data?.message || g4.reason?.message; }
-
-      if (gs.status === 'fulfilled') setGsc(gs.value.data?.data || null);
-      else { setGsc(null); errs.gsc = gs.reason?.response?.data?.message || gs.reason?.message; }
-
-      if (bt.status === 'fulfilled') setButtons(bt.value.data?.data || null);
-      else setButtons(null);
-
       setBlogsList(bl.status === 'fulfilled' ? bl.value.data?.data?.blogs || [] : []);
+
+      if (isSourceView) {
+        if (g4.status === 'fulfilled') setGa4(g4.value.data?.data || null);
+        else { setGa4(null); errs.ga4 = g4.reason?.response?.data?.message || g4.reason?.message; }
+
+        if (gs.status === 'fulfilled') setGsc(gs.value.data?.data || null);
+        else { setGsc(null); errs.gsc = gs.reason?.response?.data?.message || gs.reason?.message; }
+
+        if (bt.status === 'fulfilled') setButtons(bt.value.data?.data || null);
+        else setButtons(null);
+      } else {
+        setGa4(null);
+        setGsc(null);
+        setButtons(null);
+      }
 
       setErrors(errs);
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [month, customRange, refreshTick, activeSource]); // eslint-disable-line
+  }, [month, customRange, refreshTick, activeSource, isSourceView]); // eslint-disable-line
 
   // Section definitions (static) + manual items (per period)
   useEffect(() => {
@@ -512,46 +573,57 @@ export default function MbrReport() {
     setDraftEnd('');
   };
 
+  const sourceLabel = status?.sources?.find((s) => s.key === view)?.label
+    || (isSourceView ? view : null);
+  const staticTitles = {
+    blogs: 'Blogs Published',
+    development: 'Development — Work Log',
+    ppts: 'PPTs & Videos',
+    projects: 'Other Projects',
+    leads: 'Leads — Manual / LinkedIn',
+  };
+  const pageTitle = isHub
+    ? 'Work Overview'
+    : isSourceView
+      ? `${sourceLabel} — Traffic, Search & Conversion`
+      : staticTitles[view] || 'MBR';
+
   return (
     <div className="space-y-1">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div>
+          {!isHub && (
+            <button
+              onClick={() => navigate('/mbr')}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-violet-400 hover:opacity-80 transition mb-1"
+            >
+              <ArrowLeft size={12} /> All workstreams
+            </button>
+          )}
           <p className="text-caption text-violet-400/70">Monthly Business Review</p>
           <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
             <BarChart3 size={18} className="text-violet-400" />
-            Growth Report
+            {pageTitle}
           </h1>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            GA4 + Search Console + Mavro events · vs {customRange ? 'preceding period of same length' : 'previous month'} · GSC data lags ~2–3 days
+            {isHub
+              ? 'All workstreams & active projects · pick a tile to open its report'
+              : `vs ${customRange ? 'preceding period of same length' : 'previous month'} · GSC data lags ~2–3 days`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {(status?.sources?.length || 0) > 1 && (
-            <div className="flex rounded-xl border border-border bg-card overflow-hidden">
-              {status.sources.map((s) => (
-                <button
-                  key={s.key}
-                  onClick={() => setActiveSource(s.key)}
-                  className={cn(
-                    'h-9 px-3 text-xs font-semibold transition-colors',
-                    activeSource === s.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
+          {isHub && (
+            <button
+              onClick={handleDownload}
+              disabled={downloading}
+              className="h-9 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50 transition-opacity"
+              title="Download the combined MBR workbook (all sheets, auto + manual data)"
+            >
+              {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
+              Download MBR
+            </button>
           )}
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="h-9 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50 transition-opacity"
-            title="Download the combined MBR workbook (all sheets, auto + manual data)"
-          >
-            {downloading ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />}
-            Download MBR
-          </button>
           <select
             value={customOpen ? '__custom' : month}
             onChange={(e) => {
@@ -622,10 +694,10 @@ export default function MbrReport() {
         </div>
       )}
 
-      {!loading && !ga4 && (
+      {!loading && isSourceView && !ga4 && (
         <NotConfiguredCard
-          what="Google Analytics 4"
-          detail={errors.ga4 || 'Set GOOGLE_SERVICE_ACCOUNT_JSON + GA4_PROPERTY_ID on the backend, grant the service account Viewer access on the GA4 property, then refresh.'}
+          what={`Google Analytics 4 (${sourceLabel})`}
+          detail={errors.ga4 || 'Add this source to MBR_SOURCES on the backend and grant the service account Viewer access on its GA4 property, then refresh.'}
         />
       )}
 
@@ -930,12 +1002,88 @@ export default function MbrReport() {
         </>
       )}
 
-      {/* ============ WORKSTREAMS (auto blogs + manual tiles) ============ */}
-      {!loading && (
-        <>
-          <SectionHeading>Workstreams — {period}</SectionHeading>
+      {/* ============ HUB — Work Overview grid ============ */}
+      {!loading && isHub && (
+        <div className="space-y-2 pb-8">
+          {(status?.sources || []).map((s, gi) => {
+            const tenantBlogs = blogsList.filter((b) => (b.tenant || '').toLowerCase().includes(s.key)).length;
+            return (
+              <HubGroup key={s.key} label={s.label}>
+                <HubTile
+                  i={gi * 3}
+                  icon={BarChart3}
+                  title={`${s.label} MBR`}
+                  description="Search & acquisition — clicks, impressions, CTR, position, AI referrals, channel mix, conversions"
+                  statusChip={s.ga4 || s.gsc ? '✅ Auto · live' : '⚠️ Not configured'}
+                  statusTone={s.ga4 || s.gsc ? 'auto' : 'off'}
+                  onClick={() => navigate(`/mbr/${s.key}`)}
+                />
+                <HubTile
+                  i={gi * 3 + 1}
+                  icon={Eye}
+                  title={`${s.label} Pages`}
+                  description="Page performance & engagement — users, sessions, top pages, geography, devices"
+                  statusChip={s.ga4 ? '✅ Auto · live' : '⚠️ Not configured'}
+                  statusTone={s.ga4 ? 'auto' : 'off'}
+                  onClick={() => navigate(`/mbr/${s.key}`)}
+                />
+                <HubTile
+                  i={gi * 3 + 2}
+                  icon={FileText}
+                  title={`${s.label} Blogs`}
+                  description="Articles published & their reach"
+                  statusChip={`✅ Auto · ${tenantBlogs} this period`}
+                  statusTone="auto"
+                  onClick={() => navigate('/mbr/blogs')}
+                />
+              </HubGroup>
+            );
+          })}
 
-          <Card caption="Content · auto" title="Blogs published" icon={FileText}>
+          <HubGroup label="Development">
+            <HubTile
+              icon={ClipboardList}
+              title="Work Log"
+              description="SEO / development tasks shipped — with risk & impact analysis (manual input)"
+              statusChip={`📝 ${manualItems.filter((i) => i.section === 'work_log').length} entries`}
+              statusTone="manual"
+              onClick={() => navigate('/mbr/development')}
+            />
+          </HubGroup>
+
+          <HubGroup label="Other Projects">
+            <HubTile
+              icon={FileText}
+              title="PPTs & Videos"
+              description="Decks and videos delivered this period (manual input)"
+              statusChip={`📝 ${manualItems.filter((i) => i.section === 'ppts_videos').length} entries`}
+              statusTone="manual"
+              onClick={() => navigate('/mbr/ppts')}
+            />
+            <HubTile
+              icon={FolderKanban}
+              title="Other Projects"
+              description="Client sites, tooling, one-offs — status & notes (manual input)"
+              statusChip={`📝 ${manualItems.filter((i) => i.section === 'other_projects').length} entries`}
+              statusTone="manual"
+              onClick={() => navigate('/mbr/projects')}
+            />
+            <HubTile
+              icon={UserSquare2}
+              title="Leads Log"
+              description="Website leads auto-pulled in the export · add LinkedIn / manual leads here"
+              statusChip={`📝 ${manualItems.filter((i) => i.section === 'manual_leads').length} manual entries`}
+              statusTone="manual"
+              onClick={() => navigate('/mbr/leads')}
+            />
+          </HubGroup>
+        </div>
+      )}
+
+      {/* ============ STATIC DETAIL VIEWS ============ */}
+      {!loading && view === 'blogs' && (
+        <div className="pb-8">
+          <Card caption="Content · auto" title={`Blogs published — ${monthLabel}`} icon={FileText}>
             <DataTable
               columns={['Title', 'Tenant', 'Published', 'Views (all-time)']}
               rows={blogsList}
@@ -949,20 +1097,24 @@ export default function MbrReport() {
               )}
             />
           </Card>
-
-          <div className="grid lg:grid-cols-2 gap-3 mt-3 pb-8">
-            {sections.map((s) => (
-              <WorkstreamTile
-                key={s.key}
-                section={s}
-                period={period}
-                items={manualItems.filter((i) => i.section === s.key)}
-                onChanged={() => setItemsTick((t) => t + 1)}
-              />
-            ))}
-          </div>
-        </>
+        </div>
       )}
+
+      {!loading && isStaticView && view !== 'blogs' && (() => {
+        const sectionKey = STATIC_VIEWS[view];
+        const sectionDef = sections.find((s) => s.key === sectionKey);
+        if (!sectionDef) return <EmptyNote text="Loading section…" />;
+        return (
+          <div className="pb-8">
+            <WorkstreamTile
+              section={sectionDef}
+              period={period}
+              items={manualItems.filter((i) => i.section === sectionKey)}
+              onChanged={() => setItemsTick((t) => t + 1)}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 }
