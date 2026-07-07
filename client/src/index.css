@@ -14,10 +14,10 @@
   :root {
     color-scheme: light;
 
-    --background: 44 36% 93%;
+    --background: 42 28% 88%;
     --foreground: 34 16% 13%;
 
-    --card: 44 48% 97%;
+    --card: 45 55% 97.5%;
     --card-foreground: 34 16% 13%;
 
     --popover: 44 52% 98%;
@@ -378,6 +378,67 @@
   .dark .postit {
     background: linear-gradient(178deg, hsl(48 70% 70%), hsl(46 65% 62%));
     color: hsl(38 45% 15%);
+  }
+
+  /* ═══════════════════════════════════════════
+     PASTED-NOTE CARD SYSTEM
+     Every admin section card (the shared bg-card…rounded-2xl signature)
+     becomes a paper note pasted on the desk: solid stock, crisp corners,
+     alternating micro-tilt, lifted warm shadow, masking-tape strip.
+     Uses the independent `rotate` property so framer-motion's inline
+     `transform` animations never cancel the tilt.
+     HRMS/Tickets public pages opt out via .legacy-neon.
+     ═══════════════════════════════════════════ */
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *) {
+    position: relative;
+    background: hsl(var(--card));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 4px;
+    border-color: hsl(var(--border) / 0.6);
+    box-shadow:
+      0 1px 2px hsl(34 30% 22% / 0.1),
+      0 10px 22px -8px hsl(34 35% 22% / 0.28);
+  }
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):nth-child(odd) {
+    rotate: -0.4deg;
+  }
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):nth-child(even) {
+    rotate: 0.35deg;
+  }
+  /* Masking-tape strip — half emerges over the top edge; clips cleanly
+     even on overflow-hidden cards */
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *)::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    width: 72px;
+    height: 18px;
+    translate: -50% 0;
+    rotate: -2deg;
+    background: hsl(47 60% 80% / 0.55);
+    border-left: 1px dashed hsl(40 30% 60% / 0.35);
+    border-right: 1px dashed hsl(40 30% 60% / 0.35);
+    box-shadow: 0 1px 2px hsl(34 30% 22% / 0.1);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .dark [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *)::before {
+    background: hsl(45 30% 45% / 0.35);
+    border-left-color: hsl(45 25% 65% / 0.25);
+    border-right-color: hsl(45 25% 65% / 0.25);
+  }
+  /* Vary tape placement/angle so sibling rows don't look rubber-stamped */
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):nth-child(3n)::before {
+    left: 30%;
+    rotate: 1.6deg;
+    width: 58px;
+  }
+  [class*="bg-card"][class*="rounded-2xl"]:not(.legacy-neon *):nth-child(3n+1)::before {
+    left: 66%;
+    rotate: -1.1deg;
+    width: 64px;
   }
 
   /* Hand-drawn red circle — the signature. Wrap a title:
