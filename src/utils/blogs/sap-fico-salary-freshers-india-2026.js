@@ -27,6 +27,8 @@ const content = `
 <p><strong>Employer type changes the ceiling.</strong> Big 4 firms and top-tier global consulting companies pay a premium for the same fresher profile compared to smaller regional SAP implementation partners. This is true across almost every SAP module, not just FICO.</p>
 <p><strong>City changes both the floor and the ceiling,</strong> which is the focus of the next section.</p>
 
+<img src="/blog-images/fico-salary-body-1.webp" alt="SAP FICO fresher salary by city in India 2026 — Bengaluru, Pune, Hyderabad, Delhi NCR, Chennai" width="900" height="473" loading="lazy" />
+
 <h2 id="fico-salary-by-city">SAP FICO Salary by City in India: What the Data Actually Shows</h2>
 <p>Because reliable city-specific data on fresher salaries specifically is limited (most salary aggregators simply do not have enough fresher-level submissions to be statistically meaningful in every city), the most defensible way to build a city table is to combine a reliable national baseline with documented city-level salary differentials from a larger, more stable sample of the broader SAP FICO Consultant role.</p>
 <p>According to <a href="https://www.glassdoor.co.in/Salaries/sap-fico-consultant-salary-SRCH_KO0,19.htm" target="_blank" rel="noopener">Glassdoor</a>, based on 251 salaries submitted for the SAP FICO Consultant role in Bengaluru as of April 2026, the average annual salary in Bengaluru is Rs 7,54,000, which the platform notes is 4 percent below the reported national average for the same role, implying a national average close to Rs 7,85,000 across all experience levels. Separately, city salary variance data compiled from SAP FICO consultant profiles shows Bengaluru salaries running approximately 32 percent above the national average, Pune approximately 7.5 percent above, Hyderabad approximately 2 percent above, and Gurgaon (Delhi NCR) approximately 3.3 percent above, while Delhi city specifically runs about 29.7 percent below the national average and Chennai about 19.9 percent below (<a href="https://www.henryharvin.com" target="_blank" rel="noopener">Henry Harvin</a> industry data).</p>
@@ -73,6 +75,8 @@ const content = `
 </table>
 </div>
 <p>The jump between the fresher band and the 2 to 4 year band is the steepest part of the curve, and it is earned specifically by completing at least one full end-to-end implementation or migration project. This is a recurring pattern across nearly every SAP module, not unique to FICO, but it applies particularly strongly here because FICO consultants who can demonstrate real client-facing finance transformation experience are difficult for employers to find.</p>
+
+<img src="/blog-images/fico-salary-body-2.webp" alt="SAP FICO salary growth by experience level in India, and the S/4HANA skills premium" width="900" height="564" loading="lazy" />
 
 <h2 id="s4hana-salary-premium">The S/4HANA SAP FICO Salary Premium</h2>
 <p>A specific factor worth calling out for FICO in 2026 is the S/4HANA transition premium. Because SAP is ending mainstream maintenance for its older ECC platform on December 31, 2027, companies across India are actively migrating, and this has created a documented salary premium for consultants who can demonstrate S/4HANA-specific FICO skills. Industry sources tracking SAP FICO compensation trends put this premium at approximately 20 to 30 percent over consultants who know only classic ECC FICO configuration.</p>
@@ -131,8 +135,8 @@ module.exports = {
   ],
   readingTime: 11,
   publishedAt: '2026-07-07',
-  featuredImage: '',
-  ogImage: '',
+  featuredImage: '/blog-images/fico-salary-featured.webp',
+  ogImage: '/blog-images/fico-salary-featured.jpg',
   content: content.trim(),
   faq,
 };

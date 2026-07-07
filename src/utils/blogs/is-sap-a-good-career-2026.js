@@ -28,6 +28,8 @@ const content = `
 <h3>3. AI is reshaping SAP roles, not eliminating them</h3>
 <p>SAP's own Q1 2026 Business AI release reported more than 30 specialized Joule AI agents and over 2,500 Joule Skills now in production across S/4HANA, SuccessFactors, and Ariba. This is changing what SAP consultants spend their time on, covered in detail later in this guide. It is not reducing the need for trained SAP professionals; if anything, it is creating a new layer of AI-literate SAP roles that did not exist two years ago.</p>
 
+<img src="/blog-images/is-sap-good-career-body-1.webp" alt="SAP career snapshot 2026 — worldwide customers, S/4HANA adoption gap, active job postings and market size" width="900" height="600" loading="lazy" />
+
 <h2 id="the-numbers">The Honest Numbers: SAP Career Snapshot 2026</h2>
 <div class="sx-table-wrap">
 <table>
@@ -74,6 +76,8 @@ const content = `
 <p><strong>If your training is ECC-only.</strong> Employers in 2026 are filtering specifically for S/4HANA knowledge. A training programme that has not updated its curriculum past ECC will leave you at a disadvantage before you reach the interview stage.</p>
 <p><strong>If you are not prepared for an in-office or hybrid role in a hub city.</strong> The large majority of fresher SAP roles are based out of Pune, Bengaluru, Hyderabad, Chennai, Delhi NCR, and Mumbai, where the bulk of consulting firms and GCCs are concentrated. Fully remote fresher SAP roles are uncommon.</p>
 <p><strong>On competition from other ERPs.</strong> SAP is not the only enterprise platform expanding in 2026. Oracle and Microsoft Dynamics are both growing aggressively, and Oracle's pure ERP product revenue overtook SAP's for the first time in 2024 according to some industry trackers. This does not change the core argument in this guide, since the migration wave covered above is specific to SAP's own installed base and its own fixed 2027 deadline, but it is worth knowing that "SAP" and "enterprise software" are not synonymous, and the competitive landscape is real.</p>
+
+<img src="/blog-images/is-sap-good-career-body-2.webp" alt="How SAP Joule AI agents are reshaping SAP consultant roles in 2026" width="900" height="600" loading="lazy" />
 
 <h2 id="ai-impact">Will AI Replace SAP Jobs? The Honest Answer</h2>
 <p>This is the question every fresher should be asking in 2026, and most SAP training content avoids it entirely.</p>
@@ -139,8 +143,8 @@ module.exports = {
     'sap career after 2027',
   ],
   readingTime: 12,
-  featuredImage: '',
-  ogImage: '',
+  featuredImage: '/blog-images/is-sap-good-career-featured.webp',
+  ogImage: '/blog-images/is-sap-good-career-featured.jpg',
   content: content.trim(),
   faq,
 };

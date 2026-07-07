@@ -28,6 +28,8 @@ const content = `
 <p>SAP does offer an Extended Maintenance option, available through December 31, 2030, at a premium of approximately 2 percentage points on top of the existing Enterprise Support fee. For large ECC installations, that translates into several crore rupees per year in additional cost for a support tier that still does not include new innovations, clean architecture, or access to SAP's AI features. It is a holding pattern, not a solution.</p>
 <p>The full detail on maintenance phases is published at <a href="https://www.sap.com/products/erp/s4hana.html" target="_blank" rel="noopener">sap.com</a> and documented in SAP Note 2881788, which SAP support requires customers to reference when planning their migration timeline.</p>
 
+<img src="/blog-images/why-sap-jobs-body-1.webp" alt="The 39 percent SAP S/4HANA migration gap driving consultant demand in 2026" width="900" height="473" loading="lazy" />
+
 <h2 id="the-39-percent-gap">The 39 Percent Gap: The Real Driver of SAP Migration Demand</h2>
 <p>Here is the number that every SAP career discussion should start with, and almost none of them do.</p>
 <p>According to <a href="https://www.gartner.com" target="_blank" rel="noopener">Gartner</a> estimates, as of the end of 2024, only about 39 percent of SAP's ECC customer base had licensed SAP S/4HANA. That means roughly 61 percent, a clear majority of the installed base, had not yet committed to the platform that replaces the one losing support in December 2027.</p>
@@ -57,6 +59,8 @@ const content = `
 <p><strong>Phase 3: Testing and User Acceptance (months 12 to 18).</strong> Functional consultants run integration testing, support end users, and handle defect resolution. This phase often requires a second wave of contractor hiring.</p>
 <p><strong>Phase 4: Go-Live and Hypercare (months 18 to 24 and beyond).</strong> Post-go-live support roles are typically filled by a combination of in-house hires trained during the project and junior consultants who have built project experience.</p>
 <p>Each of these phases is happening simultaneously across hundreds of Indian and multinational companies right now, because every organization on an EHP 6-8 system that has not started migration is either already in Phase 1 or in the planning stage. The 2026 calendar is the last realistic window to begin a migration and reach go-live before December 2027.</p>
+
+<img src="/blog-images/why-sap-jobs-body-2.webp" alt="SAP roles hiring in 2026 — FICO, ABAP on HANA, MM and SD across the S/4HANA migration wave" width="900" height="476" loading="lazy" />
 
 <h2 id="sap-roles-hiring-now">The SAP Roles That Are Hiring Right Now in 2026</h2>
 <p>The S/4HANA migration wave is not evenly distributed across SAP skill sets. Some roles are under significantly more demand than others in 2026.</p>
@@ -128,8 +132,8 @@ module.exports = {
     'sap ecc to s/4hana deadline',
   ],
   readingTime: 10,
-  featuredImage: '',
-  ogImage: '',
+  featuredImage: '/blog-images/why-sap-jobs-featured.webp',
+  ogImage: '/blog-images/why-sap-jobs-featured.jpg',
   content: content.trim(),
   faq,
 };

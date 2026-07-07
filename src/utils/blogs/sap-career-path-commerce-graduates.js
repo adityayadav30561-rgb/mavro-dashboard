@@ -19,6 +19,8 @@ const content = `
 <p>The only SAP track that is coding-dependent is SAP ABAP, the technical development module. Commerce and management graduates generally should not choose ABAP unless they also have programming exposure, but that still leaves three full career tracks that are built for exactly this audience.</p>
 <p>According to eligibility guidance published across major <a href="https://www.sap.com/india/training-certification.html" target="_blank" rel="noopener">SAP training and certification</a> platforms in 2026, a bachelor's degree in commerce, business administration, or a related field is standard entry criteria for SAP FICO specifically, while technical modules like SAP ABAP typically require a Computer Science or IT background. This is not a soft preference. It reflects how differently the two categories of work actually function inside a live SAP project.</p>
 
+<img src="/blog-images/commerce-body-1.webp" alt="Which SAP module fits which commerce background — B.Com, BBA and MBA mapped to FICO, SD and MM" width="900" height="473" loading="lazy" />
+
 <h2 id="which-module-fits-which-background">Which SAP Module Fits Which Commerce Background (B.Com, BBA, MBA)</h2>
 <p>The right module depends on which specific commerce or management background a graduate is coming from, since B.Com, BBA, and MBA cover meaningfully different skill sets even though they get grouped together as "non-technical."</p>
 <p><strong>B.Com and M.Com graduates</strong> typically have direct exposure to accounting principles, taxation, and financial statements. This maps almost exactly onto SAP FICO, which handles general ledger accounting, accounts payable and receivable, asset accounting, and cost controlling. A B.Com graduate walking into SAP FICO training already understands what a trial balance or a cost centre is, which removes a large chunk of the learning curve that a non-finance background would otherwise face.</p>
@@ -50,6 +52,8 @@ const content = `
 <p>For SAP FICO specifically, this includes configuring the chart of accounts, setting up automatic account determination, running month-end and year-end closing processes, and in the S/4HANA-specific curriculum, working with the Universal Journal architecture that merged the separate FI and CO ledgers used in the older ECC system. A commerce graduate with strong fundamentals in double-entry bookkeeping and cost accounting can typically follow this configuration logic faster than someone without that background, precisely because they already understand what the system is trying to represent.</p>
 <p>For SAP SD, training covers the order-to-cash cycle: creating and managing sales orders, configuring pricing procedures, setting up delivery and shipping processes, and billing document generation. For SAP MM, training covers the procure-to-pay cycle: purchase requisitions, purchase orders, goods receipt, invoice verification, and inventory management.</p>
 <p>None of this requires writing a single line of code. It requires understanding a business process well enough to translate it into a configured system, which is exactly the skill set a commerce or management degree is built to produce.</p>
+
+<img src="/blog-images/commerce-body-2.webp" alt="SAP fresher salary expectations for commerce graduates across FICO, MM and SD" width="900" height="600" loading="lazy" />
 
 <h2 id="salary-expectations">Salary Expectations for Commerce Graduates in SAP</h2>
 <p>Salary expectations should be grounded in realistic, sourced figures rather than the inflated numbers some training marketing uses. Across SAP FICO, the fresher starting range in India in 2026 sits between Rs 3.5 and 6 LPA for most B.Com and general commerce backgrounds, based on <a href="https://www.ambitionbox.com/profile/sap-consultant-salary" target="_blank" rel="noopener">AmbitionBox</a> and Glassdoor salary data. CA and CA-Inter candidates entering SAP FICO tend to start meaningfully higher, in the Rs 6 to 10 LPA range, particularly at large consulting firms such as Deloitte, EY, Accenture, or Capgemini.</p>
@@ -110,8 +114,8 @@ module.exports = {
     'sap without coding',
   ],
   readingTime: 10,
-  featuredImage: '',
-  ogImage: '',
+  featuredImage: '/blog-images/commerce-featured.webp',
+  ogImage: '/blog-images/commerce-featured.jpg',
   content: content.trim(),
   faq,
 };
