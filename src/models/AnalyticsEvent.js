@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
-const ALLOWED_EVENTS = ['page_view', 'blog_view', 'form_submit', 'cta_click'];
+// call_click / whatsapp_click / generate_lead mirror the GTM dataLayer events
+// from spanbix-web's track.js — without them here, the backend mirror of those
+// clicks was silently rejected by the enum (they existed only in GA4).
+const ALLOWED_EVENTS = ['page_view', 'blog_view', 'form_submit', 'cta_click', 'call_click', 'whatsapp_click', 'generate_lead'];
 
 const analyticsEventSchema = new mongoose.Schema(
   {

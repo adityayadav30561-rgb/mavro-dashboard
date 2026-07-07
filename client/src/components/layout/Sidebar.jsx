@@ -29,6 +29,7 @@ const navGroups = [
       { to: '/leads', icon: Users, label: 'Lead Capture' },
       { to: '/seo', icon: SearchIcon, label: 'SEO Engine', badge: 'New' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/mbr', icon: BarChart3, label: 'MBR Report', badge: 'New' },
     ],
   },
   {

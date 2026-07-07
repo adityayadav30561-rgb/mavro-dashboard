@@ -47,6 +47,7 @@ const LeadList = lazy(() => import('./pages/leads/LeadList'));
 const WebsiteList = lazy(() => import('./pages/websites/WebsiteList'));
 const SeoEngine = lazy(() => import('./pages/SeoEngine'));
 const Analytics = lazy(() => import('./pages/Analytics'));
+const MbrReport = lazy(() => import('./pages/MbrReport'));
 const Calendar = lazy(() => import('./pages/Calendar'));
 const PremiumTestDashboard = lazy(() => import('./pages/PremiumTestDashboard'));
 const CalendarConnectionsPage = lazy(() => import('./modules/scheduler/pages/CalendarConnectionsPage'));
@@ -144,6 +145,7 @@ export default function App() {
         <Route path="websites" element={<Suspense fallback={<AdminFallback />}><WebsiteList /></Suspense>} />
         <Route path="seo" element={<Suspense fallback={<AdminFallback />}><SeoEngine /></Suspense>} />
         <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />
+        <Route path="mbr" element={<Suspense fallback={<AdminFallback />}><MbrReport /></Suspense>} />
         <Route path="calendar" element={<Suspense fallback={<AdminFallback />}><Calendar /></Suspense>} />
         <Route path="scheduler/calendar-connections" element={<Suspense fallback={<AdminFallback />}><CalendarConnectionsPage /></Suspense>} />
         <Route path="scheduler/event-types" element={<Suspense fallback={<AdminFallback />}><EventTypesPage /></Suspense>} />

@@ -7,6 +7,7 @@ const seoRoutes = require('./seoRoutes');
 const analyticsRoutes = require('./analyticsRoutes');
 const campaignRoutes = require('./campaignRoutes');
 const aiRoutes = require('./aiRoutes');
+const mbrRoutes = require('./mbrRoutes');
 
 module.exports = {
   authRoutes,
@@ -18,4 +19,5 @@ module.exports = {
   analyticsRoutes,
   campaignRoutes,
   aiRoutes,
+  mbrRoutes,
 };
