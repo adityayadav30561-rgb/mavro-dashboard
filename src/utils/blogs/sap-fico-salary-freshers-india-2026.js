@@ -130,7 +130,7 @@ module.exports = {
     'sap fico salary india 2026',
   ],
   readingTime: 11,
-  publishedAt: '2026-07-11',
+  publishedAt: '2026-07-07',
   featuredImage: '',
   ogImage: '',
   content: content.trim(),
