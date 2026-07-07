@@ -194,11 +194,9 @@ Phase 5.6 magazine redesign — strictly scoped to `.spanbix-scope`, zero leak i
 - **`useScrollReveal.js`** — mount-only IntersectionObserver for `.sx-reveal`, with 1.6s force-reveal safety net. NEVER wrap a tab-switched card with `.sx-reveal` — IO disconnects after mount.
 - **`sections/*`** — 13 homepage / subpage sections (HiringPartners, MarketValidation, WhySap, Tracks, Mentors, LearningExperience, Placement, Outcomes, Campus, Certification, DemoVideos, FAQ, FinalCta). Tracks tab switcher mirrors the `/courses` layout: sliding pill via `motion.span layoutId` + AnimatePresence content swap; Mentors carousel reveals "CURRENTLY SHIPPING" hover overlay per faculty card.
 
-### 7.2b Mavro Scheduler primitives (`client/src/modules/scheduler/`)
+### 7.2b Mavro Scheduler primitives — ⛔ REMOVED (July 7, 2026)
 
-- **Admin pages** — CalendarConnectionsPage, EventTypesPage, EventTypeEditorPage (5-tab editor: Core / Schedule / Booking rules / Intake form / Team beta), BookingsPage (filter + detail drawer), WorkflowEditorPage (per-step config), WorkflowHistoryPage (execution audit + replay), RoutingFormsPage (rule editor).
-- **Public pages** — PublicBookingAvailabilityPage at `/book/:eventSlug` (3-stage flow: slots → form → confirmed), BookingManagePage at `/manage/:token` (token-based cancel + reschedule), PublicRoutingPage at `/route/:slug` (rule-evaluated redirect to event type).
-- **Components** — `AvailabilityEditor`, `BlackoutDatesEditor`, `FormQuestionsEditor`.
+The scheduler feature (admin + public pages, all components) was deleted at user request. Historical record only.
 
 ### 7.3 Tickets-specific primitives (`client/src/components/tickets/`)
 
@@ -470,6 +468,27 @@ Fraunces (display/headlines, `.text-display`/`.text-headline`) · Inter (body/da
 - **Chart series:** `client/src/lib/chartTheme.js` only (validated per surface). Fixed entity→color; never cycle.
 - **Signatures:** `.hand-circle` (one per page max) + `.postit` badges. Paper grain + dot grid on `body::before`.
 - Legacy class names (`.glass`, `.glow-*`, `--glow-*`) survive with paper values — components didn't change.
+
+### 15.1 UI primitives (Phase 10.5) — use these, don't hand-roll
+
+- **`PageHeader`** — eyebrow caption + Fraunces title + subtitle + actions slot + optional `backTo`. `ink` prop applies the section's domain accent.
+- **`PaperButton`** — primary (vermilion) / secondary (paper) / ghost / danger; sm/md/lg; `icon` + `loading` built in.
+- **`PaperTable`** — ledger table: hairline rules, caps header, right-aligned tabular numerals, EmptyState-backed empty row.
+- **`StatTile`** — icon + big number + label + MoM delta + optional inline sparkline; `ink` accent.
+- **`EmptyState`** — Caveat handwritten note + hand-drawn arrow + optional action. Empty screens are annotations, not icon+text blocks.
+- **`IndexTabs`** — file-folder tab control (`.index-tabs` CSS); active tab rises and fuses with content. Used for Dashboard range switch + MBR section nav.
+- **`Badge` stamp variants** — `published`/`draft`/`scheduled`/`archived` render as slightly-rotated rubber stamps (`.stamp`).
+
+### 15.2 Domain inks (`client/src/lib/inks.js`)
+
+command/MBR = vermilion · analytics = teal · content (blogs/calendar) = olive · leads = madder · SEO = ochre. Consumed by PageHeader, Sidebar active states, section eyebrows. Assignments are wayfinding — keep them stable.
+
+### 15.3 Motion & physical behaviors
+
+- Pasted-note cards **straighten (`rotate: 0`) and lift** (deeper shadow) on hover — picking the note off the desk.
+- Loading = **paper-slip skeletons** (`.skeleton-slip`), not spinners.
+- All tables render **tabular numerals**; `prefers-reduced-motion` collapses all decorative animation.
+- Login is a taped, tilted paper note with the hand-circled wordmark — the theme's first impression.
 
 ---
 

@@ -943,6 +943,13 @@ src/services/google/
 - Frontend: `client/src/pages/MbrReport.jsx` + `client/src/components/mbr/GeoMap.jsx` (bundled 110m GeoJSON as lazy chunk, hand-rolled equirectangular projection — zero map libraries) + `client/src/api/mbr.js` + `client/src/lib/chartTheme.js` (theme-aware validated chart series).
 - Admin visual system is now **Paper Ledger / Midnight Study** (see UI_VISION.md §15) — neon Tailwind scales resolve through `--ink-*` CSS vars; `.legacy-neon` scope preserves HRMS/Tickets originals.
 
+## Phase 10.5 — MBR suite maturation + scheduler removal + design system (July 7, 2026)
+
+- **⛔ Scheduler removed entirely** (user decision — unused): `src/modules/scheduler/`, `src/workers/`, `client/src/modules/scheduler/`, the `/api/scheduler` + `/api/public` booking mounts, `config.scheduler`, worker scripts, and the `bullmq`/`ioredis` deps. `googleapis` retained (used by `indexingService`). All scheduler sections in this file are historical.
+- **MBR is now a suite**: `/mbr` hub (Work Overview tile grid mirroring the hand-made Excel), per-source detail (`/mbr/<key>`, sticky scroll-spy section nav, 3-month comparison), `/mbr/<key>/pages` all-pages view, `/mbr/blogs`, manual workstream views (`development/ppts/projects/leads` — `MbrItem` collection + `src/config/mbrSections.js` single source of truth), combined styled Excel export (`src/services/mbrExportService.js`, exceljs). Multi-source via `MBR_SOURCES` env registry; hostname-scoped + 404-excluded GA4 requests; four dateRanges per request (current / clamped-prev / full-prev / full-prev2).
+- **UI primitive layer** at `client/src/components/ui/`: PageHeader, PaperButton, PaperTable, StatTile, EmptyState, IndexTabs (+ Badge stamp variants) with domain inks from `client/src/lib/inks.js`. New admin surfaces compose these — see UI_VISION.md §15.1–15.3.
+- `DashboardLayout` uses contained scroll (`h-screen` + inner `overflow-auto`) — required for sticky elements; sidebar/topbar stay fixed.
+
 ---
 
 *End of architecture reference.*

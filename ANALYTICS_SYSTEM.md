@@ -537,6 +537,13 @@ The `/mbr` admin page ("Growth Report") complements the self-hosted analytics wi
 
 **Event enum note:** `ALLOWED_EVENTS` gained `call_click`/`whatsapp_click`/`generate_lead` in Phase 10. Backend mirrors of call/WhatsApp clicks before July 7 2026 were rejected by the old enum — historical counts for those live only in GA4.
 
+**Multi-source + report hygiene (Phase 10.5):**
+- `MBR_SOURCES` env registry (`src/services/google/mbrSources.js`) — JSON array of `{key, label, ga4PropertyId, gscSiteUrl, websiteSlug?, hostname?}`; drives hub tiles, `?source=` param, per-source export sheets. Falls back to a single spanbix source from legacy vars.
+- **Hostname scoping:** every GA4 request carries a `hostName` filter derived from the source (URL-prefix → EXACT host; sc-domain → ENDS_WITH). Protects against multi-site GA4 properties (same tag on two sites) merging pages into one report.
+- **404 exclusion:** page titles containing "404"/"not found"/the bare brand label are excluded from every report — bot probes to dead URLs were creating ghost pages and inflating audience counts. spanbix-web ships a branded `not-found.jsx` titled "404 — Page Not Found | Spanbix" so misses stay identifiable.
+- **Three-period ranges:** `resolveRanges` always returns `current` + `previous` (day-count-clamped, powers like-for-like MoM tile deltas) + `previousFull` + `previous2` (complete months, power the 3-month comparison table/overlay/export columns). All four ride one GA4 request (4-dateRange limit exactly used).
+- **Manual workstreams:** `MbrItem` collection (section + period `YYYY-MM` + Mixed data), definitions centralized in `src/config/mbrSections.js`, CRUD at `/api/mbr/items`. `/api/mbr/export` builds the combined styled workbook via `src/services/mbrExportService.js` (exceljs — backend-only dep).
+
 ---
 
 *End of analytics system documentation.*

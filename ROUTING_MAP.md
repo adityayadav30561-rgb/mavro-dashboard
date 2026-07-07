@@ -46,27 +46,9 @@
 - `spanbix-web/next.config.mjs` `headers()` — CSP, HSTS+preload, X-Frame-Options DENY, X-Content-Type-Options nosniff, Referrer-Policy, Permissions-Policy applied to every route.
 - `spanbix-web/next.config.mjs` `redirects()` — legacy `/spanbix` and `/spanbix/<page>` → root (308, page paths only).
 
-### Scheduler — Public (no auth, `/api/public/*`)
+### Scheduler — ⛔ REMOVED (July 7, 2026)
 
-The Mavro Scheduler (Phase 5.7 Calendly clone) ships both admin + public surfaces. Public routes serve the booker (invitee) flow without auth.
-
-| Path | Component | Notes |
-|---|---|---|
-| `/book/:eventSlug` | `client/src/modules/scheduler/pages/PublicBookingAvailabilityPage.jsx` | Available-slots picker for a public event type. Each slot carries an HMAC-signed hash. Booking POST re-runs the availability engine inside `bookingService` and maps the 4 race-loss cases to a 409 (`SLOT_ALREADY_BOOKED` / `SLOT_UNAVAILABLE` / `STALE_SLOT`). |
-| `/manage/:token` | `client/src/modules/scheduler/pages/BookingManagePage.jsx` | Invitee manage view (reschedule / cancel) gated by a single-use signed token. Cancellation window enforced. |
-| `/route/:slug` | `client/src/modules/scheduler/pages/PublicRoutingPage.jsx` | Routing form: invitee answers, server-side rule engine evaluates (whitelisted ops, first-match wins, required-field gate, fallback target), returns the matched event type to book. |
-
-### Scheduler — Admin (`/scheduler/*`, protected via `ProtectedRoute`)
-
-| Path | Component | Notes |
-|---|---|---|
-| `/scheduler/connections` | `pages/scheduler/CalendarConnectionsPage.jsx` | Google Calendar OAuth + token-storage (AES-256-GCM, v1 envelope). Outlook stub for Phase 8. |
-| `/scheduler/event-types` | `pages/scheduler/EventTypesPage.jsx` | Event-type list, soft-delete, public-link copy. |
-| `/scheduler/event-types/:id` | `pages/scheduler/EventTypeEditorPage.jsx` | Editor: availability, override dates, blackouts, booking rules, team strategy, intake form. |
-| `/scheduler/bookings` | `pages/scheduler/BookingsPage.jsx` | Booking inbox + filters + status transitions. Mongo partial unique index `race_guard_confirmed` protects against double-booking. |
-| `/scheduler/workflows` | `pages/scheduler/WorkflowEditorPage.jsx` | Trigger + step builder (send_email / send_sms / send_slack / wait / webhook). Cumulative delay computed across the chain. |
-| `/scheduler/workflows/history` | `pages/scheduler/WorkflowHistoryPage.jsx` | Per-execution audit feed (90-day TTL on `WorkflowExecution`). |
-| `/scheduler/routing` | `pages/scheduler/RoutingFormsPage.jsx` | Routing-form editor: questions, ordered rules, fallback target. |
+The entire scheduler (Calendly-clone) surface was deleted at user request — all `/book/*`, `/manage/:token`, `/route/:slug`, `/scheduler/*` frontend routes and the `/api/scheduler` + `/api/public` booking mounts no longer exist. `/api/websites/public/:slug` (tenant lookup) was never part of the scheduler and is unaffected. Do not reintroduce without an explicit ask.
 
 ### Public marketing — Spanbix (LEGACY Vite tree — DELETED in Phase 6.7)
 
@@ -87,7 +69,7 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | `/websites` | `pages/websites/WebsiteList.jsx` | Tenant management, Visit Website |
 | `/seo` | `pages/SeoEngine.jsx` | Weighted v3 SEO audit + sitemap + robots + content intelligence |
 | `/analytics` | `pages/Analytics.jsx` | **Analytics Intelligence** — overview/funnel/tenant/content/realtime/SEO/insights |
-| `/mbr` | `pages/MbrReport.jsx` | **MBR Growth Report** (Phase 10) — GA4 + Search Console + own-DB click detail; month picker + custom date range; world-map geography |
+| `/mbr/:view?/:sub?` | `pages/MbrReport.jsx` | **MBR suite** (Phase 10) — hub ("Work Overview" tile grid) at `/mbr`; `/mbr/<sourceKey>` full GA4/GSC report (sticky section nav, 3-month comparison toggle); `/mbr/<sourceKey>/pages` all-pages view; `/mbr/blogs` published blogs + views; `/mbr/development|ppts|projects|leads` editable manual workstream tiles. Download MBR (combined Excel) on the hub. |
 | `/calendar` | `pages/Calendar.jsx` | **Content Calendar** — Month/Agenda/Editorial Kanban views, Campaign panel, Velocity strip, Planning recommendations, Activity feed |
 
 ### Standalone
@@ -211,12 +193,17 @@ All AI routes share a dedicated `aiLimiter` (`20/min/IP`, prod-only) mounted bef
 ### `/api/mbr` — `src/routes/mbrRoutes.js` (Phase 10)
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET | `/status` | protected | `{ga4, gsc, propertyId, siteUrl}` — which Google integrations are configured |
-| GET | `/ga4` | protected | Full GA4 slice (overview MoM, daily trend, channels, sources, AI referrals, top pages, events + trend, file downloads, geo, devices, countries). Params: `?month=YYYY-MM` OR `?start=&end=` |
-| GET | `/gsc` | protected | Search Console slice (totals MoM, daily clicks trend, top queries, top pages). Same range params |
-| GET | `/buttons` | protected | Own-DB `AnalyticsEvent` aggregation — per-button (`meta.cta`/`meta.ctaName`) + per-location (`meta.location`) clicks. `?websiteSlug=` (default `spanbix`) |
+| GET | `/status` | protected | `{sources: [{key, label, ga4, gsc}]}` — configured MBR sources (from `MBR_SOURCES` env registry) |
+| GET | `/ga4` | protected | Full GA4 slice for `?source=` (overview + previousFull/previous2, trend + trendCompare, channels, sources, AI referrals, top pages ×200, events, event trend, file downloads, geo, devices, countries). `?month=YYYY-MM` OR `?start=&end=`. Hostname-scoped + 404-title-excluded per source |
+| GET | `/gsc` | protected | Search Console slice for `?source=` (totals incl. previousFull/previous2, daily clicks, top queries, top pages) |
+| GET | `/buttons` | protected | Own-DB `AnalyticsEvent` aggregation — per-button + per-location clicks. `?websiteSlug=` (default `spanbix`) |
+| GET | `/sections` | protected | Manual workstream definitions (`src/config/mbrSections.js`) — drives tiles UI + export sheets |
+| GET | `/items` | protected | Manual rows for `?period=YYYY-MM` |
+| POST/PUT/DELETE | `/items(/:id)` | protected | CRUD manual rows (`MbrItem` collection: section + period + Mixed data) |
+| GET | `/blogs` | protected | Published blogs in range per tenant + all-time views |
+| GET | `/export` | protected | Combined styled multi-sheet .xlsx (Work Overview · per-source sheets with 3-month columns · Blogs · Work Log · PPTs & Videos · Other Projects · Leads Log = website leads + manual rows merged) |
 
-Range resolution in `mbrController.resolveRanges`: month → calendar month clamped to today, previous month clamped to same day-count (like-for-like MoM); custom start/end → previous = same-length preceding window. GA4/GSC responses cached in-memory 1h per range. Google auth = zero-dep service-account JWT (`src/services/google/googleAuth.js`); env `GOOGLE_SERVICE_ACCOUNT_JSON` (base64 or raw JSON) + `GA4_PROPERTY_ID` + `GSC_SITE_URL`. Unconfigured → 503 with setup guidance.
+Range resolution (`resolveRanges`): always yields `current` + `previous` (clamped to current's day-count — like-for-like MoM deltas) + `previousFull` + `previous2` (full months — 3-month comparison). GA4 takes all four in one request's `dateRanges`. Responses cached in-memory 1h per (source, range); cache keys versioned. Google auth = zero-dep service-account JWT (`src/services/google/googleAuth.js`); env `GOOGLE_SERVICE_ACCOUNT_JSON` (base64 or raw) + `MBR_SOURCES` (or legacy `GA4_PROPERTY_ID`/`GSC_SITE_URL`). Every GA4 request is scoped by `hostName` (derived from the source's site URL) and excludes 404-titled hits — multi-site GA4 properties and bot probes to dead URLs can't pollute reports.
 
 ### `/api/campaigns` — `src/routes/campaignRoutes.js`
 | Method | Path | Auth | Notes |
