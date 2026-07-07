@@ -919,6 +919,32 @@ Other publish paths wire the same call: `blogController.updateWorkflowStatus` (w
 
 ---
 
+## Phase 10 — Google data layer (`src/services/google/`) + MBR module (July 7, 2026)
+
+New backend layer for read-only Google integrations, consumed by the `/mbr` admin page:
+
+```
+src/services/google/
+├── googleAuth.js   # Zero-dep service-account OAuth: RS256 JWT via node:crypto →
+│                   # token exchange, in-memory cache to expiry. Parses
+│                   # GOOGLE_SERVICE_ACCOUNT_JSON (raw or base64). Exposes
+│                   # isConfigured() + googleApiFetch(url, {method, body}).
+├── ga4Service.js   # GA4 Data API v1beta batchRunReports (5 reports/call, 12 total).
+│                   # Two dateRanges per request → MoM deltas in one round-trip.
+│                   # AI-referral regex filter on sessionSource. GA4_PROPERTY_ID env.
+└── gscService.js   # Search Console searchAnalytics.query — totals/trend/queries/pages.
+                    # GSC_SITE_URL env (must match verified property exactly).
+```
+
+- Routes: `/api/mbr/{status,ga4,gsc,buttons}` (`mbrRoutes.js`, JWT-protected). `buttons` aggregates own `AnalyticsEvent.meta` for per-button/per-location clicks — no Google dependency.
+- `mbrController` owns range resolution (month clamped like-for-like vs custom same-length-previous) and a 1h in-memory response cache (bounded, clears at 200 entries).
+- Design rule: **no googleapis/google-auth-library dependency** — the JWT flow is ~40 lines of node:crypto; keeps Render build light. If a future integration needs write scopes or token refresh flows beyond service accounts, revisit.
+- `AnalyticsEvent.ALLOWED_EVENTS` extended with `call_click` / `whatsapp_click` / `generate_lead` (spanbix-web mirrors were silently 400-rejected before; historical counts pre-July-2026 exist only in GA4).
+- Frontend: `client/src/pages/MbrReport.jsx` + `client/src/components/mbr/GeoMap.jsx` (bundled 110m GeoJSON as lazy chunk, hand-rolled equirectangular projection — zero map libraries) + `client/src/api/mbr.js` + `client/src/lib/chartTheme.js` (theme-aware validated chart series).
+- Admin visual system is now **Paper Ledger / Midnight Study** (see UI_VISION.md §15) — neon Tailwind scales resolve through `--ink-*` CSS vars; `.legacy-neon` scope preserves HRMS/Tickets originals.
+
+---
+
 *End of architecture reference.*
 </content>
 </invoke>

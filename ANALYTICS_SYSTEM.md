@@ -42,6 +42,9 @@ timestamp     Date    default Date.now
 | `blog_view` | Blog detail page loads + blog fetched OK | Frontend (`HrmsBlogDetail`/`TicketsBlogDetail`) |
 | `cta_click` | Hero / Navbar CTA buttons clicked | Frontend (`trackCtaClick` in Hero, CommandNavbar, OperationsNavbar) |
 | `form_submit` | Lead document created | **Backend** (`leadController.submitLead` → `emitFormSubmitEvent`) |
+| `call_click` | Phone-number tap (spanbix-web `trackCall`, `meta.location`) | Frontend (`track.js` mirror — added to enum Phase 10; earlier mirrors were silently rejected and exist only in GA4) |
+| `whatsapp_click` | WhatsApp button tap (spanbix-web `trackWhatsApp`, `meta.location`) | Frontend (`track.js` mirror — added Phase 10, same caveat) |
+| `generate_lead` | Reserved — GTM/GA4 conversion event; NOT mirrored to backend (`trackLead` pushes to dataLayer only; `form_submit` stays server-authoritative) | Enum-allowed Phase 10 for future use |
 
 **Why form_submit is server-side:** guarantees `Lead.count == AnalyticsEvent.count(eventType:form_submit)`. Client-side tracking can be dropped (page-unload race, ad-blocker, network failure). Earlier implementation had this skew. Resolved by moving emission to the controller.
 
@@ -514,6 +517,25 @@ Endpoint: `GET /api/analytics/blog-trends?websiteSlug=<slug>&range=month` (auth 
 - **Real-time WebSocket feed** — emit to admin sockets when high-priority events fire (form_submit, error events).
 - **Anomaly detection** — server-side cron compares current-window vs trailing-7-day baseline, flags traffic spikes/drops.
 - **Geographic enrichment** — populate `country` field via IP geolocation on ingestion.
+
+---
+
+## 13. MBR Report — GA4 + Search Console integration (Phase 10, July 2026)
+
+The `/mbr` admin page ("Growth Report") complements the self-hosted analytics with the Google-side view. It replaces the manual monthly Excel MBR.
+
+**Data sources (three, deliberately complementary):**
+1. **GA4 Data API** (`src/services/google/ga4Service.js`) — audience, acquisition channels/sources, AI-assistant referrals (regex on `sessionSource`: chatgpt/perplexity/gemini/copilot/claude/…), conversion events (`call_click`, `whatsapp_click`, `cta_click`, `generate_lead`, `form_submit`, `file_download` incl. per-file brochure counts), geo/devices/countries. 12 reports per pull via `batchRunReports` (5 per call); two `dateRanges` per request give MoM deltas in one round-trip (GA4 injects a `dateRange` dimension, split by `date_range_0/1`).
+2. **Search Console API** (`gscService.js`) — clicks/impressions/CTR/position totals + daily trend + top queries + top pages. GSC data lags ~2–3 days; the controller does not shift dates.
+3. **Own `AnalyticsEvent` store** (`/api/mbr/buttons`) — per-button + per-location click aggregation from `meta.cta`/`meta.ctaName`/`meta.location`. This detail exists in GA4 only behind registered custom dimensions; our Mixed `meta` has it from day one.
+
+**Auth:** zero-dependency service-account OAuth in `googleAuth.js` — RS256 JWT signed with `node:crypto`, exchanged at `oauth2.googleapis.com/token`, cached to expiry. Scopes: `analytics.readonly` + `webmasters.readonly`. Env: `GOOGLE_SERVICE_ACCOUNT_JSON` (raw or base64), `GA4_PROPERTY_ID` (numeric, `541588648`), `GSC_SITE_URL` (`https://www.spanbix.com/`). Unconfigured → 503; the page renders a setup card.
+
+**Ranges:** `?month=YYYY-MM` (calendar month, end clamped to today, previous month clamped to the same day-count so MTD compares like-for-like) or `?start=&end=` (previous = same-length preceding window). Responses cached in-memory 1h per `(kind, range)`.
+
+**Geography map:** `client/src/components/mbr/GeoMap.jsx` — zero map libraries. Bundled 110m GeoJSON (`client/src/assets/world-countries.geo.json`, lazy JS chunk — NOT `public/`, the Vercel SPA-fallback rewrite would swallow it), equirectangular projection, sqrt-scaled opacity ramp, GA4→GeoJSON name aliases, centroid dots for microstates missing from 110m geometry (Singapore, Hong Kong…).
+
+**Event enum note:** `ALLOWED_EVENTS` gained `call_click`/`whatsapp_click`/`generate_lead` in Phase 10. Backend mirrors of call/WhatsApp clicks before July 7 2026 were rejected by the old enum — historical counts for those live only in GA4.
 
 ---
 

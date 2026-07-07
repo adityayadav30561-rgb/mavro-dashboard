@@ -861,6 +861,25 @@ with `test:e2e*` scripts.
 
 ---
 
+## Phase 10 — GA4/GSC MBR dashboard + Paper Ledger admin retheme (July 7, 2026)
+
+### MBR Growth Report (`/mbr`)
+- **Goal:** replace the manual monthly Excel MBR. Admin page pulls Google Analytics 4 + Google Search Console + own-DB click detail into one report: audience tiles with MoM deltas, daily users/sessions chart, channel mix, top sources, **AI-assistant referral scoreboard** (chatgpt/perplexity/gemini/copilot/claude regex on `sessionSource`), conversion event tiles (call/WhatsApp/CTA/form/LP-lead/brochure `file_download` with per-file breakdown), contact-intent daily trend, per-button + per-location click tables (own Mongo — GA4 keeps custom params only behind registered custom dimensions), top pages, GSC totals/trend/queries/pages, device split, **world-map geography** + top cities/countries tables.
+- **Backend:** `src/services/google/googleAuth.js` (zero-dependency RS256 service-account JWT → OAuth token, cached; env `GOOGLE_SERVICE_ACCOUNT_JSON` raw-or-base64), `ga4Service.js` (12 reports via `batchRunReports`, two `dateRanges` per request → MoM free), `gscService.js` (searchAnalytics.query ×5). `mbrController` + `/api/mbr/{status,ga4,gsc,buttons}` (JWT). 1h in-memory cache per range. `resolveRanges`: `?month=` → calendar month clamped to today, previous month clamped to same day-count (like-for-like MoM); `?start=&end=` → previous = same-length preceding window. **Custom date range** UI in the header ("Custom range…" option → date inputs + Apply).
+- **Live config (July 7):** GA4 property `541588648`, GSC property `https://www.spanbix.com/`, service account `mavro-dashboard@spanbix-analytics.iam.gserviceaccount.com` (Viewer on GA4, Full on GSC). Env on Render + local `.env`. Verified live: June = 132 users / 174 sessions; GSC 50 clicks @ avg position 4.9.
+- **GeoMap:** no map library. Bundled 110m GeoJSON at `client/src/assets/world-countries.geo.json` imported as a **lazy JS chunk** (deliberately NOT `client/public/` — the admin Vercel SPA-fallback rewrite would serve index.html for it). Equirectangular projection, sqrt-scaled vermilion opacity ramp, hover tooltip, name-alias table for GA4↔GeoJSON naming, `MICRO_CENTROIDS` dots for microstates the 110m geometry drops (Singapore, Hong Kong…).
+- **Event enum extension:** `AnalyticsEvent.ALLOWED_EVENTS` += `call_click`, `whatsapp_click`, `generate_lead`. Before this, spanbix-web `track.js` mirrors of call/WhatsApp clicks were silently 400-rejected — historical counts exist ONLY in GA4.
+
+### Paper Ledger retheme (cyberpunk retired)
+- **Light = "Paper Ledger"** (cream desk `hsl(42 28% 88%)`, paper cards, warm ink, vermilion `hsl(14 73% 44%)` primary), **dark = "Midnight Study"** (warm charcoal, cream ink, same vermilion). Fraunces display + Inter body + Caveat hand + JetBrains Mono. Paper grain + dot-grid `body::before`; glass → vellum; neon glows → soft ink shadows (class names preserved).
+- **Mechanism — neon-scale indirection:** Tailwind `violet/fuchsia/indigo/cyan/emerald/amber/rose/purple/blue/sky/green` scales resolve to `rgb(var(--ink-<hue>-<step>) / <alpha-value>)`. `:root` holds paper-ink values; **`.legacy-neon`** (on `HrmsLayout`/`TicketsLayout` roots) restores original Tailwind neon so HRMS/Tickets public pages are visually untouched. ~600 hardcoded utility usages repainted without editing components; 25 files with inline `hsl(263…)`/hex literals swapped by script. The light-mode repaint block in `index.css` was updated to paper values (kept — it deepens pale 300/400 text steps on light surfaces).
+- **Pasted-note card system:** one CSS rule on the shared `bg-card…rounded-2xl` signature turns every admin section card into a paper note — solid stock, 4px corners, alternating micro-tilt via the **independent `rotate` property** (framer-motion's inline `transform` can't cancel it), lifted warm shadow, masking-tape `::before` strip with nth-child position/angle variation. Page background darkened to read as the desk.
+- **Charts:** validated series in `client/src/lib/chartTheme.js` — light `#c2431f/#0889a6/#5f7a34`, dark `#d2643a/#2ba3bd/#7f9a4b` (dataviz six-checks pass per surface). `--glow-*` vars persist by name, hold paper hues.
+- **Signature elements:** `.hand-circle` (red hand-drawn SVG ellipse — Dashboard "Command Center") + `.postit` (sidebar New/Beta badges, Caveat). Use sparingly.
+- Verified via Playwright screenshots (Dashboard/Analytics/Blogs/MBR, both themes) before deploy. Commits: `79a4d91` (MBR), `9f22447` (GeoMap), `6977be5` (retheme), `39903b1` (pasted notes), `1bc43f4` (custom range).
+
+---
+
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>

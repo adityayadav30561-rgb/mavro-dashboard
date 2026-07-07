@@ -87,6 +87,7 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | `/websites` | `pages/websites/WebsiteList.jsx` | Tenant management, Visit Website |
 | `/seo` | `pages/SeoEngine.jsx` | Weighted v3 SEO audit + sitemap + robots + content intelligence |
 | `/analytics` | `pages/Analytics.jsx` | **Analytics Intelligence** — overview/funnel/tenant/content/realtime/SEO/insights |
+| `/mbr` | `pages/MbrReport.jsx` | **MBR Growth Report** (Phase 10) — GA4 + Search Console + own-DB click detail; month picker + custom date range; world-map geography |
 | `/calendar` | `pages/Calendar.jsx` | **Content Calendar** — Month/Agenda/Editorial Kanban views, Campaign panel, Velocity strip, Planning recommendations, Activity feed |
 
 ### Standalone
@@ -206,6 +207,16 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | POST | `/blog/meta-descriptions` | protected | 7-category AI meta descriptions (`feature: 'meta_descriptions'`) |
 
 All AI routes share a dedicated `aiLimiter` (`20/min/IP`, prod-only) mounted before the router. Keys are backend-only; the orchestrator (`AIProviderService`) resolves the model chain via `modelRegistry` + `routingStrategy`. Frontend never sees provider credentials.
+
+### `/api/mbr` — `src/routes/mbrRoutes.js` (Phase 10)
+| Method | Path | Auth | Notes |
+|---|---|---|---|
+| GET | `/status` | protected | `{ga4, gsc, propertyId, siteUrl}` — which Google integrations are configured |
+| GET | `/ga4` | protected | Full GA4 slice (overview MoM, daily trend, channels, sources, AI referrals, top pages, events + trend, file downloads, geo, devices, countries). Params: `?month=YYYY-MM` OR `?start=&end=` |
+| GET | `/gsc` | protected | Search Console slice (totals MoM, daily clicks trend, top queries, top pages). Same range params |
+| GET | `/buttons` | protected | Own-DB `AnalyticsEvent` aggregation — per-button (`meta.cta`/`meta.ctaName`) + per-location (`meta.location`) clicks. `?websiteSlug=` (default `spanbix`) |
+
+Range resolution in `mbrController.resolveRanges`: month → calendar month clamped to today, previous month clamped to same day-count (like-for-like MoM); custom start/end → previous = same-length preceding window. GA4/GSC responses cached in-memory 1h per range. Google auth = zero-dep service-account JWT (`src/services/google/googleAuth.js`); env `GOOGLE_SERVICE_ACCOUNT_JSON` (base64 or raw JSON) + `GA4_PROPERTY_ID` + `GSC_SITE_URL`. Unconfigured → 503 with setup guidance.
 
 ### `/api/campaigns` — `src/routes/campaignRoutes.js`
 | Method | Path | Auth | Notes |

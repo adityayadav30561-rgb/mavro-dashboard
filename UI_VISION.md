@@ -451,6 +451,28 @@ About subpage tone sequence: Hero (navy) → MarketValidation founder-story (cre
 
 ---
 
+## 15. Paper Ledger Design System (Phase 10, July 2026) — CURRENT
+
+**⚠️ Supersedes §3 (Cyber Editorial / Pastel Atelier) for the ADMIN console.** HRMS + Tickets public pages keep their original identities (scoped via `.legacy-neon`). Spanbix lives in `spanbix-web/` with its own system.
+
+The admin is now analog-inspired: **notes pasted on a desk**, not a sci-fi console.
+
+### Tokens
+- **Light — "Paper Ledger":** desk `hsl(42 28% 88%)`, card stock `hsl(45 55% 97.5%)`, warm near-black ink `hsl(34 16% 13%)`, primary **vermilion** `hsl(14 73% 44%)` (the hand-drawn-circle red). Support inks: inkwell teal `188 45%`, olive `95 32%`, ochre `36 72%`, madder `352 55%`.
+- **Dark — "Midnight Study":** warm charcoal `hsl(30 10% 8%)`, cream ink `hsl(42 32% 89%)`, vermilion `hsl(14 74% 54%)`. A desk lamp at 1am — never neon.
+
+### Typography
+Fraunces (display/headlines, `.text-display`/`.text-headline`) · Inter (body/data) · Caveat (`.font-hand`, annotations/badges) · JetBrains Mono (numbers).
+
+### Mechanism (load-bearing — do not bypass)
+- **Neon-scale indirection:** Tailwind `violet/fuchsia/indigo/cyan/emerald/amber/rose/purple/blue/sky/green` resolve to `rgb(var(--ink-<hue>-<step>))` (tailwind.config.js → index.css). `:root` = paper inks; `.legacy-neon` (HrmsLayout/TicketsLayout roots) = original neon. Never hardcode raw neon hex/hsl in admin components.
+- **Pasted-note cards:** central rule on the `bg-card…rounded-2xl` signature — solid stock, 4px corners, alternating micro-tilt via independent `rotate` property (framer-motion-safe), warm lifted shadow, masking-tape `::before` with nth-child position/angle variation.
+- **Chart series:** `client/src/lib/chartTheme.js` only (validated per surface). Fixed entity→color; never cycle.
+- **Signatures:** `.hand-circle` (one per page max) + `.postit` badges. Paper grain + dot grid on `body::before`.
+- Legacy class names (`.glass`, `.glow-*`, `--glow-*`) survive with paper values — components didn't change.
+
+---
+
 *This document is the source of truth for Mavro's frontend identity. Read it. Internalize it. Build it.*
 </content>
 </invoke>
