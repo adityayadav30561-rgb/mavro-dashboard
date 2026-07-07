@@ -22,41 +22,49 @@ const SCOPES = [
   'https://www.googleapis.com/auth/webmasters.readonly',
 ].join(' ');
 
-let cachedCreds; // undefined = not parsed yet, null = parsed + missing/invalid
-let cachedToken = null; // { accessToken, expiresAt }
+// Multi-account support: each MBR source may point at its own service account
+// via `credentialsEnv` in MBR_SOURCES (e.g. GOOGLE_SERVICE_ACCOUNT_JSON_SAISATWIK).
+// Default env var serves sources that don't specify one.
+const DEFAULT_CREDS_ENV = 'GOOGLE_SERVICE_ACCOUNT_JSON';
+const credsCache = new Map(); // envName → { clientEmail, privateKey } | null
+const tokenCache = new Map(); // envName → { accessToken, expiresAt }
 
 const b64url = (input) =>
   Buffer.from(input).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
-function loadServiceAccount() {
-  if (cachedCreds !== undefined) return cachedCreds;
-  cachedCreds = null;
+function loadServiceAccount(credsEnv) {
+  const envName = credsEnv || DEFAULT_CREDS_ENV;
+  if (credsCache.has(envName)) return credsCache.get(envName);
 
-  const raw = (process.env.GOOGLE_SERVICE_ACCOUNT_JSON || '').trim();
-  if (!raw) return cachedCreds;
-
-  try {
-    const json = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
-    const parsed = JSON.parse(json);
-    if (parsed.client_email && parsed.private_key) {
-      cachedCreds = { clientEmail: parsed.client_email, privateKey: parsed.private_key };
-    } else {
-      console.error('❌ [googleAuth] GOOGLE_SERVICE_ACCOUNT_JSON missing client_email/private_key');
+  let creds = null;
+  const raw = (process.env[envName] || '').trim();
+  if (raw) {
+    try {
+      const json = raw.startsWith('{') ? raw : Buffer.from(raw, 'base64').toString('utf8');
+      const parsed = JSON.parse(json);
+      if (parsed.client_email && parsed.private_key) {
+        creds = { clientEmail: parsed.client_email, privateKey: parsed.private_key };
+      } else {
+        console.error(`❌ [googleAuth] ${envName} missing client_email/private_key`);
+      }
+    } catch (err) {
+      console.error(`❌ [googleAuth] Failed to parse ${envName}:`, err.message);
     }
-  } catch (err) {
-    console.error('❌ [googleAuth] Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:', err.message);
   }
-  return cachedCreds;
+  credsCache.set(envName, creds);
+  return creds;
 }
 
-const isConfigured = () => Boolean(loadServiceAccount());
+const isConfigured = (credsEnv) => Boolean(loadServiceAccount(credsEnv));
 
-async function getAccessToken() {
-  const creds = loadServiceAccount();
+async function getAccessToken(credsEnv) {
+  const envName = credsEnv || DEFAULT_CREDS_ENV;
+  const creds = loadServiceAccount(envName);
   if (!creds) {
-    throw new Error('Google service account not configured (GOOGLE_SERVICE_ACCOUNT_JSON)');
+    throw new Error(`Google service account not configured (${envName})`);
   }
 
+  const cachedToken = tokenCache.get(envName);
   if (cachedToken && cachedToken.expiresAt > Date.now() + 60 * 1000) {
     return cachedToken.accessToken;
   }
@@ -95,16 +103,17 @@ async function getAccessToken() {
   }
 
   const data = await res.json();
-  cachedToken = {
+  const fresh = {
     accessToken: data.access_token,
     expiresAt: Date.now() + (data.expires_in || 3600) * 1000,
   };
-  return cachedToken.accessToken;
+  tokenCache.set(envName, fresh);
+  return fresh.accessToken;
 }
 
 /** Authenticated JSON fetch against a Google API. Throws on non-2xx. */
-async function googleApiFetch(url, { method = 'GET', body } = {}) {
-  const token = await getAccessToken();
+async function googleApiFetch(url, { method = 'GET', body, credsEnv } = {}) {
+  const token = await getAccessToken(credsEnv);
   const res = await fetch(url, {
     method,
     headers: {

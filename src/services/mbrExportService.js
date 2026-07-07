@@ -309,12 +309,12 @@ async function buildWorkbook(ranges, period) {
   for (const src of sources) {
     let ga4 = null;
     let gsc = null;
-    if (ga4Service.isConfigured(src.ga4PropertyId) && src.ga4PropertyId) {
-      try { ga4 = await ga4Service.getMbrReport(ranges, src.ga4PropertyId, getHostScope(src), src.label); }
+    if (ga4Service.isConfigured(src.ga4PropertyId, src.credentialsEnv) && src.ga4PropertyId) {
+      try { ga4 = await ga4Service.getMbrReport(ranges, src.ga4PropertyId, getHostScope(src), src.label, src.credentialsEnv); }
       catch (err) { console.error(`[mbrExport] GA4 failed for ${src.key}:`, err.message); }
     }
-    if (gscService.isConfigured(src.gscSiteUrl) && src.gscSiteUrl) {
-      try { gsc = await gscService.getMbrReport(ranges, src.gscSiteUrl); }
+    if (gscService.isConfigured(src.gscSiteUrl, src.credentialsEnv) && src.gscSiteUrl) {
+      try { gsc = await gscService.getMbrReport(ranges, src.gscSiteUrl, src.credentialsEnv); }
       catch (err) { console.error(`[mbrExport] GSC failed for ${src.key}:`, err.message); }
     }
     sourceReports.push({ src, ga4, gsc });

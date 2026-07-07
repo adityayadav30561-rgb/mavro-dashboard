@@ -13,7 +13,7 @@
 const { googleApiFetch, isConfigured: authConfigured } = require('./googleAuth');
 
 const defaultPropertyId = () => (process.env.GA4_PROPERTY_ID || '').trim();
-const isConfigured = (propertyId) => authConfigured() && Boolean(propertyId || defaultPropertyId());
+const isConfigured = (propertyId, credsEnv) => authConfigured(credsEnv) && Boolean(propertyId || defaultPropertyId());
 
 // Referral sources that identify AI assistant / AI search traffic.
 // PARTIAL_REGEXP against sessionSource (e.g. "chatgpt.com", "perplexity.ai").
@@ -33,14 +33,14 @@ const TRACKED_EVENTS = [
 // Low-level helpers
 // ---------------------------------------------------------------------------
 
-async function batchRunReports(requests, propertyId) {
+async function batchRunReports(requests, propertyId, credsEnv) {
   const pid = propertyId || defaultPropertyId();
   const url = `https://analyticsdata.googleapis.com/v1beta/properties/${pid}:batchRunReports`;
   const out = [];
   // API allows max 5 reports per batch call
   for (let i = 0; i < requests.length; i += 5) {
     const chunk = requests.slice(i, i + 5);
-    const res = await googleApiFetch(url, { method: 'POST', body: { requests: chunk } });
+    const res = await googleApiFetch(url, { method: 'POST', body: { requests: chunk }, credsEnv });
     out.push(...(res.reports || []));
   }
   return out;
@@ -132,7 +132,7 @@ function applyScopes(requests, hostSpec, brandLabel) {
  * hostScope (optional): { matchType, value } — restrict to one website.
  * brandLabel (optional): source label for bare-title 404 exclusion.
  */
-async function getMbrReport({ current, previous, previousFull, previous2 }, propertyId, hostScope, brandLabel) {
+async function getMbrReport({ current, previous, previousFull, previous2 }, propertyId, hostScope, brandLabel, credsEnv) {
   // GA4 accepts up to 4 dateRanges per request — all four slots used:
   //   0 current · 1 previous (clamped, MoM deltas) · 2 previousFull ·
   //   3 previous2 (full) — the last two power the 3-month comparison.
@@ -251,23 +251,38 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
     },
   ];
 
-  const reports = await batchRunReports(applyScopes(requests, hostScope, brandLabel), propertyId);
+  const reports = await batchRunReports(applyScopes(requests, hostScope, brandLabel), propertyId, credsEnv);
   const [
     overviewR, trendR, channelsR, sourcesR, aiR,
     pagesR, eventsR, eventTrendR, downloadsR, geoR, devicesR, countriesR,
   ] = reports.map(parseReport);
 
-  // Daily trend rows carry the dateRange dimension (multi-range request):
-  // keep `trend` = current period (back-compat) + `trendCompare` per period.
+  // Daily trend rows carry the dateRange dimension (multi-range request).
+  // GA4 zero-pads each range across the UNION of all requested dates, so a
+  // July range gets 0-value rows for June dates — clamp each series to its
+  // own range bounds or prior-month zeros bleed into the chart.
   const trendRows = trendR.map((r) => ({
     range: r.dateRange || 'date_range_0',
     date: r.date,
     users: r.activeUsers,
     sessions: r.sessions,
   }));
-  const trendFor = (key) =>
-    trendRows.filter((r) => r.range === key).sort((a, b) => a.date.localeCompare(b.date))
+  const rangeBounds = {
+    date_range_0: current,
+    date_range_1: previous,
+    date_range_2: previousFull || previous,
+    date_range_3: previous2,
+  };
+  const trendFor = (key) => {
+    const b = rangeBounds[key];
+    if (!b) return [];
+    const lo = b.startDate.replace(/-/g, '');
+    const hi = b.endDate.replace(/-/g, '');
+    return trendRows
+      .filter((r) => r.range === key && r.date >= lo && r.date <= hi)
+      .sort((a, b2) => a.date.localeCompare(b2.date))
       .map(({ date, users, sessions }) => ({ date, users, sessions }));
+  };
 
   return {
     overview: splitByRange(overviewR, reports[0]),

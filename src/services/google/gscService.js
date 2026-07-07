@@ -12,12 +12,12 @@
 const { googleApiFetch, isConfigured: authConfigured } = require('./googleAuth');
 
 const defaultSiteUrl = () => (process.env.GSC_SITE_URL || '').trim();
-const isConfigured = (siteUrl) => authConfigured() && Boolean(siteUrl || defaultSiteUrl());
+const isConfigured = (siteUrl, credsEnv) => authConfigured(credsEnv) && Boolean(siteUrl || defaultSiteUrl());
 
-async function query(body, siteUrl) {
+async function query(body, siteUrl, credsEnv) {
   const site = siteUrl || defaultSiteUrl();
   const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`;
-  const res = await googleApiFetch(url, { method: 'POST', body });
+  const res = await googleApiFetch(url, { method: 'POST', body, credsEnv });
   return res.rows || [];
 }
 
@@ -38,17 +38,17 @@ const shapeRow = (row, dimNames) => {
  * Full GSC slice of the MBR report.
  * current / previous: { startDate, endDate } for MoM totals.
  */
-async function getMbrReport({ current, previous, previousFull, previous2 }, siteUrl) {
+async function getMbrReport({ current, previous, previousFull, previous2 }, siteUrl, credsEnv) {
   const base = { type: 'web' };
 
   const [curTotal, prevTotal, prevFullTotal, prev2Total, byDate, byQuery, byPage] = await Promise.all([
-    query({ ...base, startDate: current.startDate, endDate: current.endDate, rowLimit: 1 }, siteUrl),
-    query({ ...base, startDate: previous.startDate, endDate: previous.endDate, rowLimit: 1 }, siteUrl),
+    query({ ...base, startDate: current.startDate, endDate: current.endDate, rowLimit: 1 }, siteUrl, credsEnv),
+    query({ ...base, startDate: previous.startDate, endDate: previous.endDate, rowLimit: 1 }, siteUrl, credsEnv),
     previousFull
-      ? query({ ...base, startDate: previousFull.startDate, endDate: previousFull.endDate, rowLimit: 1 }, siteUrl)
+      ? query({ ...base, startDate: previousFull.startDate, endDate: previousFull.endDate, rowLimit: 1 }, siteUrl, credsEnv)
       : Promise.resolve([]),
     previous2
-      ? query({ ...base, startDate: previous2.startDate, endDate: previous2.endDate, rowLimit: 1 }, siteUrl)
+      ? query({ ...base, startDate: previous2.startDate, endDate: previous2.endDate, rowLimit: 1 }, siteUrl, credsEnv)
       : Promise.resolve([]),
     query({
       ...base,
@@ -56,21 +56,21 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, site
       endDate: current.endDate,
       dimensions: ['date'],
       rowLimit: 400,
-    }, siteUrl),
+    }, siteUrl, credsEnv),
     query({
       ...base,
       startDate: current.startDate,
       endDate: current.endDate,
       dimensions: ['query'],
       rowLimit: 25,
-    }, siteUrl),
+    }, siteUrl, credsEnv),
     query({
       ...base,
       startDate: current.startDate,
       endDate: current.endDate,
       dimensions: ['page'],
       rowLimit: 25,
-    }, siteUrl),
+    }, siteUrl, credsEnv),
   ]);
 
   return {

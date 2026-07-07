@@ -33,6 +33,7 @@ function getSources() {
             gscSiteUrl: s.gscSiteUrl || null,
             websiteSlug: s.websiteSlug || null,
             hostname: s.hostname || null,
+            credentialsEnv: s.credentialsEnv || null,
           }));
         return cached;
       }
