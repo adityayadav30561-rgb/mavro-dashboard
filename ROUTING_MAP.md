@@ -69,7 +69,7 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | `/websites` | `pages/websites/WebsiteList.jsx` | Tenant management, Visit Website |
 | `/seo` | `pages/SeoEngine.jsx` | Weighted v3 SEO audit + sitemap + robots + content intelligence |
 | `/analytics` | `pages/Analytics.jsx` | **Analytics Intelligence** — overview/funnel/tenant/content/realtime/SEO/insights |
-| `/mbr/:view?/:sub?` | `pages/MbrReport.jsx` | **MBR suite** (Phase 10) — hub ("Work Overview" tile grid) at `/mbr`; `/mbr/<sourceKey>` full GA4/GSC report (sticky section nav, 3-month comparison toggle); `/mbr/<sourceKey>/pages` all-pages view; `/mbr/blogs` published blogs + views; `/mbr/development|ppts|projects|leads` editable manual workstream tiles. Download MBR (combined Excel) on the hub. |
+| `/mbr/:view?/:sub?` | `pages/MbrReport.jsx` | **MBR suite** (Phase 10) — hub ("Work Overview" tile grid) at `/mbr`; `/mbr/<sourceKey>` full GA4/GSC report (sticky section nav, 3-month comparison toggle); `/mbr/<sourceKey>/pages` pages BUILT in the month (WP publish dates / SeoMetadata registry — deliverables only); `/mbr/blogs/<sourceKey>` per-source blogs (WP posts live for saisatwik, tenant-filtered Mavro DB for spanbix); `/mbr/development|ppts|projects|leads` editable manual workstream tiles. Download MBR (combined Excel) on the hub. |
 | `/calendar` | `pages/Calendar.jsx` | **Content Calendar** — Month/Agenda/Editorial Kanban views, Campaign panel, Velocity strip, Planning recommendations, Activity feed |
 
 ### Standalone
@@ -194,14 +194,15 @@ All AI routes share a dedicated `aiLimiter` (`20/min/IP`, prod-only) mounted bef
 ### `/api/mbr` — `src/routes/mbrRoutes.js` (Phase 10)
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET | `/status` | protected | `{sources: [{key, label, ga4, gsc}]}` — configured MBR sources (from `MBR_SOURCES` env registry) |
+| GET | `/status` | protected | `{sources: [{key, label, ga4, gsc, wordpress}]}` — configured MBR sources (from `MBR_SOURCES` env registry) |
 | GET | `/ga4` | protected | Full GA4 slice for `?source=` (overview + previousFull/previous2, trend + trendCompare, channels, sources, AI referrals, top pages ×200, events, event trend, file downloads, geo, devices, countries). `?month=YYYY-MM` OR `?start=&end=`. Hostname-scoped + 404-title-excluded per source |
 | GET | `/gsc` | protected | Search Console slice for `?source=` (totals incl. previousFull/previous2, daily clicks, top queries, top pages) |
 | GET | `/buttons` | protected | Own-DB `AnalyticsEvent` aggregation — per-button + per-location clicks. `?websiteSlug=` (default `spanbix`) |
 | GET | `/sections` | protected | Manual workstream definitions (`src/config/mbrSections.js`) — drives tiles UI + export sheets |
 | GET | `/items` | protected | Manual rows for `?period=YYYY-MM` |
 | POST/PUT/DELETE | `/items(/:id)` | protected | CRUD manual rows (`MbrItem` collection: section + period + Mixed data) |
-| GET | `/blogs` | protected | Published blogs in range per tenant + all-time views |
+| GET | `/blogs` | protected | Published blogs in range. `?source=`: WordPress sources → posts live from the WP REST API (real publish dates, no views); Mavro sources → Blog collection filtered to that tenant (+ all-time views); no source → all tenants |
+| GET | `/pages` | protected | **Pages BUILT in the period — never blogs, never traffic** (`mbrPagesService`). WordPress sources → `/wp-json/wp/v2/pages` publish dates; registry sources (spanbix) → `SeoMetadata.createdAt` (`/blog*` excluded). Zero Google quota |
 | GET | `/export` | protected | Combined styled multi-sheet .xlsx (Work Overview · per-source sheets with 3-month columns · Blogs · Work Log · PPTs & Videos · Other Projects · Leads Log = website leads + manual rows merged) |
 
 Range resolution (`resolveRanges`): always yields `current` + `previous` (clamped to current's day-count — like-for-like MoM deltas) + `previousFull` + `previous2` (full months — 3-month comparison). GA4 takes all four in one request's `dateRanges`. Responses cached in-memory 1h per (source, range); cache keys versioned. Google auth = zero-dep service-account JWT (`src/services/google/googleAuth.js`), multi-account: each `MBR_SOURCES` entry may set `credentialsEnv` (name of an env var holding its own key — SaiSatwik uses `GOOGLE_SERVICE_ACCOUNT_JSON_SAISATWIK`); default is `GOOGLE_SERVICE_ACCOUNT_JSON` (base64 or raw). Legacy fallback: `GA4_PROPERTY_ID`/`GSC_SITE_URL`. Every GA4 request is scoped by `hostName` (derived from the source's site URL) and excludes 404-titled hits — multi-site GA4 properties and bot probes to dead URLs can't pollute reports.
