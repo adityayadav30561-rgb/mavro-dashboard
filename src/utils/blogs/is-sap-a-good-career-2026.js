@@ -49,7 +49,7 @@ const content = `
 
 <h2 id="salary">What SAP Professionals Actually Earn in India (2026)</h2>
 <p>Salary is where most SAP marketing content gets dishonest, either by quoting the ceiling as if it were the floor, or by quoting one outlier company's offer as the market average. Here is what multiple independent salary aggregators actually report.</p>
-<p>According to Glassdoor India, based on 3,814 salaries reported as of May 2026, the average SAP Consultant salary in India is approximately Rs. 7.9 LPA. The same dataset shows a 25th percentile of Rs. 5.4 LPA, a 75th percentile of Rs. 13.9 LPA, and a 90th percentile of Rs. 20.9 LPA. AmbitionBox reports a closely aligned average of Rs. 7.6 LPA, with starting salaries for freshers around Rs. 3.6 LPA. Indeed's India salary data, based on 357 reported salaries, puts the average slightly higher at roughly Rs. 8.5 LPA.</p>
+<p>According to Glassdoor India, based on 3,814 salaries reported as of May 2026, the average SAP Consultant salary in India is approximately Rs. 7.9 LPA. The same dataset shows a 25th percentile of Rs. 5.4 LPA, a 75th percentile of Rs. 13.9 LPA, and a 90th percentile of Rs. 20.9 LPA. AmbitionBox reports a closely aligned average of Rs. 7.6 LPA, with starting salaries for freshers around Rs. 3.6 LPA. Indeed's India salary data, based on 357 reported salaries, puts the average slightly higher at roughly Rs. 8.5 LPA. For a module-specific, city-wise view, see our <a href="/blog/sap-fico-salary-freshers-india-2026">SAP FICO fresher salary breakdown</a>.</p>
 <div class="sx-table-wrap">
 <table>
   <thead><tr><th>Experience Level</th><th>Realistic Salary Range (India)</th></tr></thead>

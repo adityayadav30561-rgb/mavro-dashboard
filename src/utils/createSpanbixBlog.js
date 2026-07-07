@@ -108,7 +108,12 @@ const DEFAULT_BLOG = 'sap-module-comparison-fico-mm-sd-abap-2026';
 
     blog.status = status;
     blog.editorialStatus = isDraft ? 'review' : 'published';
-    if (!isDraft && !blog.publishedAt) blog.publishedAt = new Date();
+    // Honor an explicit editorial-calendar date (data.publishedAt) when set;
+    // otherwise stamp now on first publish. Lets a post carry its planned date.
+    if (!isDraft) {
+      if (data.publishedAt) blog.publishedAt = new Date(data.publishedAt);
+      else if (!blog.publishedAt) blog.publishedAt = new Date();
+    }
 
     await blog.save();
 

@@ -80,7 +80,7 @@ const content = `
   <li>Engineering graduates with no accounting background (the domain gap shows immediately in interviews)</li>
   <li>Anyone who genuinely dislikes working with financial data</li>
 </ul>
-<p><strong>Realistic fresher salary:</strong> &#8377;4&ndash;5 LPA at mid-size consulting firms; &#8377;6&ndash;8 LPA at Big 4 firms or top SAP implementation partners.</p>
+<p><strong>Realistic fresher salary:</strong> &#8377;4&ndash;5 LPA at mid-size consulting firms; &#8377;6&ndash;8 LPA at Big 4 firms or top SAP implementation partners. For a sourced, city-wise breakdown, see <a href="/blog/sap-fico-salary-freshers-india-2026">SAP FICO Salary for Freshers in India (2026)</a>.</p>
 <p><strong>FICO in the S/4HANA era:</strong> The module has evolved significantly. Universal Journal (the ACDOCA table) and the merged FI-CO architecture in S/4HANA are now standard interview topics. Ensure your training covers S/4HANA FICO, not only ECC.</p>
 <p><a href="/career-paths/fico">View the Spanbix SAP FICO training track &rarr;</a></p>
 
