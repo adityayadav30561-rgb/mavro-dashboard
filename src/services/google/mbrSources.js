@@ -34,6 +34,7 @@ function getSources() {
             websiteSlug: s.websiteSlug || null,
             hostname: s.hostname || null,
             credentialsEnv: s.credentialsEnv || null,
+            wordpressUrl: s.wordpressUrl || null,
           }));
         return cached;
       }

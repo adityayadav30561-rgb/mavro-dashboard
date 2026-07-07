@@ -25,6 +25,7 @@ const gscService = require('../services/google/gscService');
 const { getSources, getSource, getHostScope } = require('../services/google/mbrSources');
 const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
 const mbrExportService = require('../services/mbrExportService');
+const mbrPagesService = require('../services/mbrPagesService');
 
 // ===================================
 // In-memory response cache
@@ -352,6 +353,18 @@ const getBlogsReport = asyncHandler(async (req, res) => {
 });
 
 // ===================================
+// GET /api/mbr/pages?source=&month= — pages BUILT in the period
+// (WordPress publish dates or the SeoMetadata registry — never GA4 traffic)
+// ===================================
+const getBuiltPages = asyncHandler(async (req, res) => {
+  const source = getSource(req.query.source);
+  if (!source) return ApiResponse.error(res, 'Unknown source', 400);
+  const ranges = resolveRanges(req.query);
+  const result = await mbrPagesService.getBuiltPages(source, ranges.current);
+  return ApiResponse.success(res, { ranges, source: source.key, ...result });
+});
+
+// ===================================
 // GET /api/mbr/export — combined multi-sheet Excel download
 // ===================================
 const exportWorkbook = asyncHandler(async (req, res) => {
@@ -378,5 +391,6 @@ module.exports = {
   updateItem,
   deleteItem,
   getBlogsReport,
+  getBuiltPages,
   exportWorkbook,
 };

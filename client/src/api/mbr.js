@@ -25,6 +25,9 @@ export const deleteMbrItem = (id) => api.delete(`/mbr/items/${id}`);
 // Published blogs in range (+ all-time views)
 export const getMbrBlogs = (params) => api.get('/mbr/blogs', { params });
 
+// Pages BUILT in the period (WordPress publish dates / SeoMetadata registry)
+export const getMbrPages = (params) => api.get('/mbr/pages', { params });
+
 // Combined multi-sheet Excel download
 export const downloadMbrExport = (params) =>
   api.get('/mbr/export', { params, responseType: 'blob', timeout: 120000 });

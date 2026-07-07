@@ -12,6 +12,7 @@ const {
   updateItem,
   deleteItem,
   getBlogsReport,
+  getBuiltPages,
   exportWorkbook,
 } = require('../controllers/mbrController');
 const { protect } = require('../middleware');
@@ -25,6 +26,7 @@ router.get('/gsc',      getGscReport);
 router.get('/buttons',  getButtonBreakdown);
 router.get('/sections', getSections);
 router.get('/blogs',    getBlogsReport);
+router.get('/pages',    getBuiltPages);
 router.get('/export',   exportWorkbook);
 
 // Manual workstream rows (PPTs/videos, work log, other projects, manual leads)

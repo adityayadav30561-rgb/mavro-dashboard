@@ -18,7 +18,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import {
   getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons,
   getMbrSections, getMbrItems, createMbrItem, updateMbrItem, deleteMbrItem,
-  getMbrBlogs, downloadMbrExport,
+  getMbrBlogs, getMbrPages, downloadMbrExport,
 } from '@/api/mbr';
 import GeoMap from '@/components/mbr/GeoMap';
 import { chartSeries } from '@/lib/chartTheme';
@@ -494,6 +494,7 @@ export default function MbrReport() {
   const [sections, setSections] = useState([]);
   const [manualItems, setManualItems] = useState([]);
   const [blogsList, setBlogsList] = useState([]);
+  const [builtPages, setBuiltPages] = useState(null); // null=loading, {method,pages} once fetched
   const [itemsTick, setItemsTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const [compare3, setCompare3] = useState(false);
@@ -508,20 +509,29 @@ export default function MbrReport() {
       const errs = {};
 
       // Hub + static views need only the light calls; GA4/GSC pulled only
-      // inside a source view (avoids burning Google quota on the overview).
+      // inside a full source view. The Pages view uses its own endpoint
+      // (WordPress / registry) — no Google quota at all.
       const calls = [getMbrStatus(), getMbrBlogs(rangeParams)];
-      if (isSourceView) {
+      if (isPagesView) {
+        calls.push(getMbrPages({ ...rangeParams, source: activeSource }));
+      } else if (isSourceView) {
         const params = { ...rangeParams, source: activeSource };
         calls.push(getMbrGa4(params), getMbrGsc(params), getMbrButtons(rangeParams));
       }
 
-      const [st, bl, g4, gs, bt] = await Promise.allSettled(calls);
+      const [st, bl, ...rest] = await Promise.allSettled(calls);
       if (!alive) return;
 
       setStatus(st.status === 'fulfilled' ? st.value.data?.data : null);
       setBlogsList(bl.status === 'fulfilled' ? bl.value.data?.data?.blogs || [] : []);
 
-      if (isSourceView) {
+      if (isPagesView) {
+        const [pg] = rest;
+        setBuiltPages(pg.status === 'fulfilled' ? pg.value.data?.data || { method: 'none', pages: [] } : { method: 'error', pages: [] });
+        setGa4(null); setGsc(null); setButtons(null);
+      } else if (isSourceView) {
+        const [g4, gs, bt] = rest;
+        setBuiltPages(null);
         if (g4.status === 'fulfilled') setGa4(g4.value.data?.data || null);
         else { setGa4(null); errs.ga4 = g4.reason?.response?.data?.message || g4.reason?.message; }
 
@@ -531,6 +541,7 @@ export default function MbrReport() {
         if (bt.status === 'fulfilled') setButtons(bt.value.data?.data || null);
         else setButtons(null);
       } else {
+        setBuiltPages(null);
         setGa4(null);
         setGsc(null);
         setButtons(null);
@@ -540,7 +551,7 @@ export default function MbrReport() {
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [month, customRange, refreshTick, activeSource, isSourceView]); // eslint-disable-line
+  }, [month, customRange, refreshTick, activeSource, isSourceView, isPagesView]); // eslint-disable-line
 
   // Section definitions (static) + manual items (per period)
   useEffect(() => {
@@ -785,36 +796,42 @@ export default function MbrReport() {
         </div>
       )}
 
-      {!loading && isSourceView && !ga4 && (
+      {!loading && isSourceView && !isPagesView && !ga4 && (
         <NotConfiguredCard
           what={`Google Analytics 4 (${sourceLabel})`}
           detail={errors.ga4 || 'Add this source to MBR_SOURCES on the backend and grant the service account Viewer access on its GA4 property, then refresh.'}
         />
       )}
 
-      {/* ============ PAGES VIEW — deliverables only (no analytics) ============ */}
-      {!loading && ga4 && isPagesView && (
+      {/* ============ PAGES VIEW — pages BUILT this period (never blogs, never traffic) ============ */}
+      {!loading && isPagesView && builtPages && (
         <div className="pb-8">
-          <Card caption="Deliverables · auto-detected" title={`Pages built — ${monthLabel} · ${(ga4.newPages || []).length}`} icon={Plus}>
-            {(ga4.newPages || []).length === 0 ? (
+          <Card caption="Deliverables" title={`Pages built — ${monthLabel} · ${builtPages.pages.length}`} icon={Plus}>
+            {builtPages.pages.length === 0 ? (
               <EmptyState
-                note={`no new pages went live in ${monthLabel.toLowerCase()}`}
-                hint="pages appear here the month they first receive traffic"
+                note={`no new pages were built in ${monthLabel.toLowerCase()}`}
+                hint="pages appear here the month they go live"
               />
             ) : (
               <DataTable
-                columns={['#', 'Page']}
-                rows={ga4.newPages}
+                columns={['#', 'Page', 'Title', 'Built']}
+                rows={builtPages.pages}
                 renderRow={(r, idx) => (
                   <tr key={r.path} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
                     <Td mono className="text-muted-foreground w-10">{idx + 1}</Td>
-                    <Td className="font-mono text-[11px]">{r.path}</Td>
+                    <Td className="font-mono text-[11px] max-w-[360px]">{r.path}</Td>
+                    <Td right className="max-w-[280px] truncate">{r.title || '—'}</Td>
+                    <Td right mono>{r.builtAt ? new Date(r.builtAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—'}</Td>
                   </tr>
                 )}
               />
             )}
             <p className="px-5 pb-3 pt-1 text-[10px] text-muted-foreground/60">
-              Detected from GA4: a page counts as “built” the month it first receives traffic. Pages live before analytics started won't appear.
+              {builtPages.method === 'wordpress'
+                ? 'Pulled live from the WordPress dashboard (page publish dates). Blog posts are excluded by design.'
+                : builtPages.method === 'registry'
+                  ? 'From the Mavro page registry — a new page pushed from code lands here automatically on its deploy month. Blogs are excluded.'
+                  : 'Page source not configured for this company.'}
             </p>
           </Card>
         </div>
