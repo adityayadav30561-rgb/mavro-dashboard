@@ -392,6 +392,14 @@ Full process doc: **[BLOG_PUBLISHING.md](./BLOG_PUBLISHING.md)** (repo root). In
 - **Blog content SEO/AEO/GEO conventions** (enforced in `_TEMPLATE.js` + BLOG_PUBLISHING.md): open with a "Quick Answer" `<h2>`; wrap tables in `<div class="sx-table-wrap">`; hyperlink EVERY named source (verify the URL resolves — a broken outbound link is worse than an unlinked name); closing attribution credits the **single named byline author**, never "the Spanbix team". Prose styling lives in `.sx-blog-content` (globals.css); FAQ accordion styling in `.sx-faq*`.
 - **Sitemap in GSC is submit-once.** Backend generates it live from published blogs; new posts appear automatically and Google rechecks the same URL. Never resubmit. A freshly verified property showing "Couldn't fetch"/"unknown to Google" is crawl latency, not a fault.
 
+## Phase 10 — MBR dashboard + Paper Ledger admin retheme (July 7, 2026)
+
+- **MBR Report** (`/mbr`, `client/src/pages/MbrReport.jsx`) pulls GA4 Data API + Search Console via `src/services/google/` (zero-dep service-account JWT in `googleAuth.js`; env: `GOOGLE_SERVICE_ACCOUNT_JSON` base64, `GA4_PROPERTY_ID`, `GSC_SITE_URL`). Reports cached 1h in-memory per range. `resolveRanges` clamps the previous window to the current window's day-count — keep MoM like-for-like. GeoMap renders a bundled 110m GeoJSON (`client/src/assets/world-countries.geo.json`, imported as a lazy JS chunk — NOT `public/`, the admin Vercel SPA-fallback rewrites unknown paths to index.html). Microstates missing from 110m geometry (Singapore…) render as centroid dots via `MICRO_CENTROIDS`.
+- **Admin theme is "Paper Ledger" (light) / "Midnight Study" (dark)** — cream stock + warm ink + vermilion `hsl(14 73% 44%)` primary; Fraunces display, Inter body, Caveat annotations. The cyberpunk theme is retired.
+- **Neon-scale indirection is the retheme mechanism.** Tailwind's `violet/fuchsia/indigo/cyan/emerald/amber/rose/purple/blue/sky/green` scales resolve to `rgb(var(--ink-<hue>-<step>))` (tailwind.config.js → vars in index.css). Admin surfaces get paper inks from `:root`; **`.legacy-neon`** (on `HrmsLayout` + `TicketsLayout` roots) restores original Tailwind neon values so the HRMS/Tickets public pages are untouched. Never hardcode raw neon hex/hsl in admin components — use the scales or tokens; new tenants needing original hues = add `.legacy-neon` at their layout root.
+- **Chart series come from `client/src/lib/chartTheme.js`** (validated vermilion/teal/olive pairs per surface). `--glow-*` vars persist by name but hold paper ink hues.
+- **Signature elements:** `.hand-circle` (vermilion hand-drawn SVG ellipse — Dashboard title) and `.postit` (sidebar badges) live in index.css `@layer components`. Use sparingly — one circle per page max.
+
 ---
 
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*

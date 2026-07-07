@@ -321,7 +321,7 @@ export default function AiFaqGenerator({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="absolute left-0 mt-2 w-[560px] max-w-[calc(100vw-2rem)] z-50"
           >
-            <div className="rounded-2xl border border-violet-500/30 bg-card/95 backdrop-blur-2xl shadow-[0_20px_60px_-12px_hsl(263_70%_30%/0.45)] overflow-hidden">
+            <div className="rounded-2xl border border-violet-500/30 bg-card/95 backdrop-blur-2xl shadow-[0_20px_60px_-12px_hsl(14_73%_30%/0.45)] overflow-hidden">
               {/* Header */}
               <div className="px-4 pt-3.5 pb-2.5 border-b border-border/60 flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">

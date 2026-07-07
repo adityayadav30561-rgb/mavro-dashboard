@@ -38,11 +38,11 @@ const TILES = [
 ];
 
 const accentClass = {
-  violet:  { icon: 'text-violet-400',  ring: 'shadow-[0_0_18px_-2px_hsl(263_70%_58%/0.5)]' },
-  cyan:    { icon: 'text-cyan-400',    ring: 'shadow-[0_0_18px_-2px_hsl(192_85%_55%/0.5)]' },
-  emerald: { icon: 'text-emerald-400', ring: 'shadow-[0_0_18px_-2px_hsl(160_70%_45%/0.5)]' },
-  amber:   { icon: 'text-amber-400',   ring: 'shadow-[0_0_18px_-2px_hsl(38_85%_55%/0.5)]' },
-  rose:    { icon: 'text-rose-400',    ring: 'shadow-[0_0_18px_-2px_hsl(347_75%_60%/0.5)]' },
+  violet:  { icon: 'text-violet-400',  ring: 'shadow-[0_0_18px_-2px_hsl(14_73%_58%/0.5)]' },
+  cyan:    { icon: 'text-cyan-400',    ring: 'shadow-[0_0_18px_-2px_hsl(188_45%_55%/0.5)]' },
+  emerald: { icon: 'text-emerald-400', ring: 'shadow-[0_0_18px_-2px_hsl(95_35%_45%/0.5)]' },
+  amber:   { icon: 'text-amber-400',   ring: 'shadow-[0_0_18px_-2px_hsl(36_72%_55%/0.5)]' },
+  rose:    { icon: 'text-rose-400',    ring: 'shadow-[0_0_18px_-2px_hsl(352_55%_60%/0.5)]' },
 };
 
 export default function AnalyticsOverview({ overview, engagement, returning }) {

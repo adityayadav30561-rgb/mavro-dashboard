@@ -146,7 +146,7 @@ export default function InfoPopover({ infoKey, title, text, size = 12, className
               exit={{ opacity: 0, scale: 0.96, y: position.placement === 'top' ? 4 : -4 }}
               transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
               onMouseLeave={() => !isTouchRef.current && setOpen(false)}
-              className="fixed z-[80] w-[280px] rounded-xl bg-popover/95 backdrop-blur-xl border border-violet-500/30 shadow-[0_20px_50px_-12px_hsl(263_70%_50%/0.35)] p-4 pointer-events-auto"
+              className="fixed z-[80] w-[280px] rounded-xl bg-popover/95 backdrop-blur-xl border border-violet-500/30 shadow-[0_20px_50px_-12px_hsl(14_73%_50%/0.35)] p-4 pointer-events-auto"
               style={{ top: position.top, left: position.left }}
             >
               {/* Accent strip */}

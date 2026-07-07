@@ -97,7 +97,7 @@ function ProfileMenu() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 p-1 rounded-lg hover:bg-white/[0.04] transition-colors"
       >
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-[0_0_12px_-2px_hsl(263_70%_58%/0.4)]">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-[0_0_12px_-2px_hsl(14_73%_58%/0.4)]">
           <span className="text-[10px] font-bold text-white">{initials}</span>
         </div>
       </button>
@@ -182,7 +182,7 @@ export default function Topbar({ onMenuClick }) {
         <button className="relative p-2 rounded-lg hover:bg-white/[0.04] transition-colors" title="Notifications">
           <Bell size={15} className="text-white/30" />
           {hasNotifications && (
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-violet-400 rounded-full shadow-[0_0_6px_hsl(263_70%_58%/0.6)]" />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-violet-400 rounded-full shadow-[0_0_6px_hsl(14_73%_58%/0.6)]" />
           )}
         </button>
         <button onClick={toggle} className="p-2 rounded-lg hover:bg-white/[0.04] transition-colors">

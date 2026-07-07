@@ -55,9 +55,9 @@ export default function TrafficTimeline({ series, range }) {
           </h3>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-          <Legend color="hsl(263 70% 58%)" label="Views" />
-          <Legend color="hsl(192 91% 56%)" label="Sessions" />
-          <Legend color="hsl(160 70% 45%)" label="Submits" />
+          <Legend color="hsl(14 73% 58%)" label="Views" />
+          <Legend color="hsl(188 45% 56%)" label="Sessions" />
+          <Legend color="hsl(95 35% 45%)" label="Submits" />
         </div>
       </div>
       <div className="px-2 pb-4 pt-2 h-[280px]">
@@ -72,16 +72,16 @@ export default function TrafficTimeline({ series, range }) {
             <AreaChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="gViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(14, 73%, 58%)" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="hsl(14, 73%, 58%)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gSessions" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(192, 91%, 56%)" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(192, 91%, 56%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(188, 45%, 56%)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(188, 45%, 56%)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gSubmits" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(160, 70%, 45%)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="hsl(160, 70%, 45%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(95, 35%, 45%)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="hsl(95, 35%, 45%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 6" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
@@ -95,9 +95,9 @@ export default function TrafficTimeline({ series, range }) {
               />
               <YAxis hide />
               <Tooltip content={<CustomTip range={range} />} />
-              <Area type="monotone" dataKey="views"       stroke="hsl(263, 70%, 58%)" strokeWidth={2} fill="url(#gViews)"    dot={false} activeDot={{ r: 4, fill: 'hsl(263, 70%, 58%)', strokeWidth: 0 }} />
-              <Area type="monotone" dataKey="sessions"    stroke="hsl(192, 91%, 56%)" strokeWidth={2} fill="url(#gSessions)" dot={false} activeDot={{ r: 4, fill: 'hsl(192, 91%, 56%)', strokeWidth: 0 }} />
-              <Area type="monotone" dataKey="formSubmits" stroke="hsl(160, 70%, 45%)" strokeWidth={2} fill="url(#gSubmits)"  dot={false} activeDot={{ r: 4, fill: 'hsl(160, 70%, 45%)', strokeWidth: 0 }} />
+              <Area type="monotone" dataKey="views"       stroke="hsl(14, 73%, 58%)" strokeWidth={2} fill="url(#gViews)"    dot={false} activeDot={{ r: 4, fill: 'hsl(14, 73%, 58%)', strokeWidth: 0 }} />
+              <Area type="monotone" dataKey="sessions"    stroke="hsl(188, 45%, 56%)" strokeWidth={2} fill="url(#gSessions)" dot={false} activeDot={{ r: 4, fill: 'hsl(188, 45%, 56%)', strokeWidth: 0 }} />
+              <Area type="monotone" dataKey="formSubmits" stroke="hsl(95, 35%, 45%)" strokeWidth={2} fill="url(#gSubmits)"  dot={false} activeDot={{ r: 4, fill: 'hsl(95, 35%, 45%)', strokeWidth: 0 }} />
             </AreaChart>
           </ResponsiveContainer>
         )}

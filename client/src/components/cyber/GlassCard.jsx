@@ -9,9 +9,9 @@ export function GlassCard({ children, className, glow, hover = true, delay = 0, 
   const glowMap = {
     violet: 'hover:glow-ring-violet',
     cyan: 'hover:glow-ring-cyan',
-    emerald: 'hover:shadow-[0_0_0_1px_hsl(160_84%_45%/0.3),0_0_12px_-2px_hsl(160_84%_45%/0.2)]',
-    amber: 'hover:shadow-[0_0_0_1px_hsl(38_92%_60%/0.3),0_0_12px_-2px_hsl(38_92%_60%/0.2)]',
-    rose: 'hover:shadow-[0_0_0_1px_hsl(347_77%_58%/0.3),0_0_12px_-2px_hsl(347_77%_58%/0.2)]',
+    emerald: 'hover:shadow-[0_0_0_1px_hsl(95_35%_45%/0.3),0_0_12px_-2px_hsl(95_35%_45%/0.2)]',
+    amber: 'hover:shadow-[0_0_0_1px_hsl(36_72%_60%/0.3),0_0_12px_-2px_hsl(36_72%_60%/0.2)]',
+    rose: 'hover:shadow-[0_0_0_1px_hsl(352_55%_58%/0.3),0_0_12px_-2px_hsl(352_55%_58%/0.2)]',
   };
 
   return (

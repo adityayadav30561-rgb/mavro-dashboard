@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react';
 // Countries absent from the 110m geometry (microstates: Singapore, Hong Kong…)
 // render as centroid dots so real traffic never silently disappears.
 
-const VIOLET = '263 70% 58%';
+const INK = '14 73% 46%'; // vermilion — matches the paper-ledger chart series
 
 // GA4 country name → GeoJSON `properties.name` (110m naming quirks)
 const NAME_ALIASES = {
@@ -144,7 +144,7 @@ export default function GeoMap({ countries }) {
             <path
               key={p.name}
               d={p.d}
-              fill={data ? `hsl(${VIOLET} / ${alphaFor(data.users).toFixed(2)})` : 'hsl(var(--foreground) / 0.05)'}
+              fill={data ? `hsl(${INK} / ${alphaFor(data.users).toFixed(2)})` : 'hsl(var(--foreground) / 0.05)'}
               stroke="hsl(var(--border))"
               strokeWidth="0.5"
               onMouseMove={(e) => onEnter(e, p.name, data)}
@@ -159,8 +159,8 @@ export default function GeoMap({ countries }) {
             cx={px(d.lonlat[0])}
             cy={py(d.lonlat[1])}
             r={5 + 6 * Math.sqrt(d.users / (maxUsers || 1))}
-            fill={`hsl(${VIOLET} / ${alphaFor(d.users).toFixed(2)})`}
-            stroke={`hsl(${VIOLET})`}
+            fill={`hsl(${INK} / ${alphaFor(d.users).toFixed(2)})`}
+            stroke={`hsl(${INK})`}
             strokeWidth="1"
             onMouseMove={(e) => onEnter(e, d.country, d)}
             onMouseLeave={() => setHover(null)}
@@ -191,7 +191,7 @@ export default function GeoMap({ countries }) {
         <span className="text-[10px] text-muted-foreground">0</span>
         <div
           className="h-1.5 w-28 rounded-full"
-          style={{ background: `linear-gradient(to right, hsl(${VIOLET} / 0.12), hsl(${VIOLET} / 0.9))` }}
+          style={{ background: `linear-gradient(to right, hsl(${INK} / 0.12), hsl(${INK} / 0.9))` }}
         />
         <span className="text-[10px] text-muted-foreground font-mono">{maxUsers} users</span>
         {dots.length > 0 && (

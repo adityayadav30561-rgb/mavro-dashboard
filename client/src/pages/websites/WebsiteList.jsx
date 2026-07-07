@@ -301,7 +301,7 @@ export default function WebsiteList() {
 function WebsiteCard({ website: w, stats, onEdit, onDelete, delay = 0 }) {
   const [copied, setCopied] = useState(false);
   const url = useMemo(() => publicUrlFromDomain(w.domain), [w.domain]);
-  const accent = w.branding?.primaryColor || '#7c3aed';
+  const accent = w.branding?.primaryColor || '#a5381a';
 
   const copyUrl = async (e) => {
     e.preventDefault();
@@ -391,7 +391,7 @@ function WebsiteCard({ website: w, stats, onEdit, onDelete, delay = 0 }) {
           target="_blank" rel="noopener noreferrer"
           className={cn(
             'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[12px] font-semibold transition-all',
-            'bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-[0_10px_24px_-10px_hsl(263_70%_50%/0.55)] hover:shadow-[0_14px_30px_-10px_hsl(263_70%_50%/0.75)]',
+            'bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-[0_10px_24px_-10px_hsl(14_73%_50%/0.55)] hover:shadow-[0_14px_30px_-10px_hsl(14_73%_50%/0.75)]',
             !url && 'pointer-events-none opacity-50'
           )}
         >

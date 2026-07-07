@@ -37,7 +37,7 @@ export default function TenantComparison({ tenants }) {
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 p-5">
         {list.map((t, i) => {
-          const accent = t.branding?.primaryColor || '#7c3aed';
+          const accent = t.branding?.primaryColor || '#a5381a';
           return (
             <motion.div
               key={t._id}

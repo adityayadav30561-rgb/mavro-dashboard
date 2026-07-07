@@ -230,7 +230,7 @@ export default function Dashboard() {
       >
         <div>
           <p className="text-caption text-violet-400/80 mb-2">Operations Console</p>
-          <h1 className="text-display">Command Center</h1>
+          <h1 className="text-display"><span className="hand-circle">Command Center</span></h1>
           <p className="text-muted-foreground mt-1.5 text-sm">
             {tenantSlug === 'all'
               ? `Real-time analytics across ${stats.websites} ${stats.websites === 1 ? 'property' : 'properties'}`
@@ -321,12 +321,12 @@ export default function Dashboard() {
                   <AreaChart data={chartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gViews" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="hsl(263, 70%, 58%)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="hsl(14, 73%, 58%)" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="hsl(14, 73%, 58%)" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gSessions" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(192, 91%, 56%)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(192, 91%, 56%)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="hsl(188, 45%, 56%)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(188, 45%, 56%)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 6" stroke="hsl(var(--border))" vertical={false} opacity={0.4} />
@@ -340,8 +340,8 @@ export default function Dashboard() {
                     />
                     <YAxis hide />
                     <Tooltip content={customTooltip(range)} />
-                    <Area type="monotone" dataKey="views" stroke="hsl(263, 70%, 58%)" fill="url(#gViews)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: 'hsl(263, 70%, 58%)', strokeWidth: 0 }} />
-                    <Area type="monotone" dataKey="sessions" stroke="hsl(192, 91%, 56%)" fill="url(#gSessions)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: 'hsl(192, 91%, 56%)', strokeWidth: 0 }} />
+                    <Area type="monotone" dataKey="views" stroke="hsl(14, 73%, 58%)" fill="url(#gViews)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: 'hsl(14, 73%, 58%)', strokeWidth: 0 }} />
+                    <Area type="monotone" dataKey="sessions" stroke="hsl(188, 45%, 56%)" fill="url(#gSessions)" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: 'hsl(188, 45%, 56%)', strokeWidth: 0 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               )}
@@ -558,7 +558,7 @@ export default function Dashboard() {
                 >
                   <span className="text-xs text-muted-foreground">{item.label}</span>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(160_84%_45%/0.6)]" />
+                    <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(95_35%_45%/0.6)]" />
                     <span className="text-[10px] font-medium text-emerald-400/80">LIVE</span>
                   </div>
                 </motion.div>

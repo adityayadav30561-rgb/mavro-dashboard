@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,600&family=Caveat:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,137 +6,279 @@
 
 @layer base {
   /* ═══════════════════════════════════════════
-     LIGHT MODE — PASTEL EDITORIAL ATELIER
-     Warm off-white base, lavender/rose undertones,
-     foggy translucent surfaces, soft slate ink.
+     LIGHT MODE — PAPER LEDGER
+     Cream stock, warm near-black ink, one loud
+     vermilion accent (the hand-drawn circle red).
+     Support inks: teal, olive, ochre, madder.
      ═══════════════════════════════════════════ */
   :root {
     color-scheme: light;
 
-    --background: 32 35% 96%;
-    --foreground: 240 22% 18%;
+    --background: 44 36% 93%;
+    --foreground: 34 16% 13%;
 
-    --card: 36 45% 98.5%;
-    --card-foreground: 240 22% 18%;
+    --card: 44 48% 97%;
+    --card-foreground: 34 16% 13%;
 
-    --popover: 36 50% 99%;
-    --popover-foreground: 240 22% 18%;
+    --popover: 44 52% 98%;
+    --popover-foreground: 34 16% 13%;
 
-    --primary: 263 58% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 14 73% 44%;
+    --primary-foreground: 44 52% 97%;
 
-    --secondary: 250 28% 93%;
-    --secondary-foreground: 240 22% 22%;
+    --secondary: 43 30% 89%;
+    --secondary-foreground: 34 16% 18%;
 
-    --muted: 250 22% 93%;
-    --muted-foreground: 240 8% 42%;
+    --muted: 43 26% 88%;
+    --muted-foreground: 34 10% 40%;
 
-    --accent: 350 38% 93%;
-    --accent-foreground: 240 22% 22%;
+    --accent: 42 34% 90%;
+    --accent-foreground: 34 16% 18%;
 
-    --destructive: 0 62% 56%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62% 46%;
+    --destructive-foreground: 44 52% 97%;
 
-    --border: 250 22% 88%;
-    --input: 250 22% 90%;
-    --ring: 263 58% 56%;
-    --radius: 0.75rem;
+    --border: 40 22% 81%;
+    --input: 40 22% 84%;
+    --ring: 14 73% 44%;
+    --radius: 0.625rem;
 
-    /* Sidebar — foggy lavender pane */
-    --sidebar-background: 250 32% 95.5%;
-    --sidebar-foreground: 240 12% 32%;
-    --sidebar-primary: 263 58% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 250 30% 90%;
-    --sidebar-accent-foreground: 240 22% 22%;
-    --sidebar-border: 250 22% 87%;
-    --sidebar-ring: 263 58% 56%;
+    /* Sidebar — deeper cream card-stock pane */
+    --sidebar-background: 43 30% 90%;
+    --sidebar-foreground: 34 12% 30%;
+    --sidebar-primary: 14 73% 44%;
+    --sidebar-primary-foreground: 44 52% 97%;
+    --sidebar-accent: 42 26% 85%;
+    --sidebar-accent-foreground: 34 16% 18%;
+    --sidebar-border: 40 20% 80%;
+    --sidebar-ring: 14 73% 44%;
 
-    /* Ambient glow accents (shared across both modes) */
-    --glow-violet: 263 70% 58%;
-    --glow-cyan: 192 80% 50%;
-    --glow-emerald: 160 70% 42%;
-    --glow-amber: 38 88% 55%;
-    --glow-rose: 347 70% 58%;
+    /* Accent inks (shared names kept — values now paper inks).
+       violet slot = vermilion, cyan = inkwell teal, emerald = olive,
+       amber = ochre, rose = madder. */
+    --glow-violet: 14 73% 44%;
+    --glow-cyan: 188 45% 34%;
+    --glow-emerald: 95 32% 34%;
+    --glow-amber: 36 72% 42%;
+    --glow-rose: 352 55% 45%;
 
-    /* Layered surfaces (light) */
-    --surface-0: 32 35% 96%;
-    --surface-1: 36 45% 98.5%;
-    --surface-2: 35 50% 99.5%;
-    --surface-3: 250 30% 95%;
+    /* Layered surfaces (paper steps) */
+    --surface-0: 44 36% 93%;
+    --surface-1: 44 48% 97%;
+    --surface-2: 44 52% 98.5%;
+    --surface-3: 43 28% 89%;
 
-    /* Glass system (light pastel translucency) */
-    --glass-bg: 255 255 255 / 0.55;
-    --glass-border: 250 220 240 / 0.7;
-    --glass-hover: 255 255 255 / 0.78;
-    --glass-elevated-bg: 255 255 255 / 0.65;
-    --glass-elevated-border: 246 240 250 / 0.85;
-    --glass-sheen: 255 255 255 / 0.9;
+    /* "Glass" system → vellum: near-opaque warm paper */
+    --glass-bg: 251 247 238 / 0.88;
+    --glass-border: 216 205 184 / 0.8;
+    --glass-hover: 253 250 243 / 0.95;
+    --glass-elevated-bg: 252 249 241 / 0.94;
+    --glass-elevated-border: 214 202 180 / 0.9;
+    --glass-sheen: 255 253 247 / 0.9;
 
-    /* Shadow recipes (light: pastel violet-tinted) */
-    --shadow-card: 0 4px 24px -10px hsl(250 40% 60% / 0.18), 0 2px 8px -4px hsl(250 30% 50% / 0.08);
-    --shadow-elevated: 0 12px 40px -12px hsl(250 45% 55% / 0.22), 0 4px 16px -6px hsl(263 40% 50% / 0.1);
-    --shadow-overlay: 0 0 0 1px hsl(250 22% 88% / 0.9) inset, 0 1px 0 hsl(0 0% 100% / 0.6) inset;
+    /* Shadow recipes — warm umber, like paper lifted off a desk */
+    --shadow-card: 0 1px 2px hsl(34 30% 30% / 0.07), 0 6px 20px -8px hsl(34 35% 30% / 0.14);
+    --shadow-elevated: 0 2px 4px hsl(34 30% 25% / 0.08), 0 16px 40px -12px hsl(34 35% 25% / 0.2);
+    --shadow-overlay: 0 0 0 1px hsl(40 22% 81% / 0.9) inset, 0 1px 0 hsl(44 60% 99% / 0.7) inset;
 
+    /* Neon-scale indirection — Tailwind violet/cyan/… resolve to these.
+       Paper inks by default; .legacy-neon (HRMS/Tickets public pages)
+       restores the original Tailwind neon values. */
+    /* violet → paper ink */
+    --ink-violet-50: 250 240 234;
+    --ink-violet-100: 245 223 211;
+    --ink-violet-200: 235 192 169;
+    --ink-violet-300: 224 141 99;
+    --ink-violet-400: 210 100 58;
+    --ink-violet-500: 194 67 31;
+    --ink-violet-600: 165 56 26;
+    --ink-violet-700: 134 48 22;
+    --ink-violet-800: 103 39 18;
+    --ink-violet-900: 78 31 16;
+    --ink-violet-950: 51 21 11;
+    /* fuchsia → paper ink */
+    --ink-fuchsia-50: 251 243 233;
+    --ink-fuchsia-100: 247 229 207;
+    --ink-fuchsia-200: 238 202 162;
+    --ink-fuchsia-300: 227 154 85;
+    --ink-fuchsia-400: 217 126 54;
+    --ink-fuchsia-500: 201 106 36;
+    --ink-fuchsia-600: 169 87 29;
+    --ink-fuchsia-700: 135 70 23;
+    --ink-fuchsia-800: 102 53 18;
+    --ink-fuchsia-900: 76 40 14;
+    --ink-fuchsia-950: 51 27 9;
+    /* indigo → paper ink */
+    --ink-indigo-50: 248 240 236;
+    --ink-indigo-100: 240 222 213;
+    --ink-indigo-200: 223 185 168;
+    --ink-indigo-300: 199 138 110;
+    --ink-indigo-400: 171 98 68;
+    --ink-indigo-500: 143 69 39;
+    --ink-indigo-600: 126 45 26;
+    --ink-indigo-700: 103 37 21;
+    --ink-indigo-800: 79 29 17;
+    --ink-indigo-900: 59 22 13;
+    --ink-indigo-950: 40 15 9;
+    /* cyan → paper ink */
+    --ink-cyan-50: 238 245 246;
+    --ink-cyan-100: 217 233 235;
+    --ink-cyan-200: 178 210 215;
+    --ink-cyan-300: 111 168 178;
+    --ink-cyan-400: 74 147 160;
+    --ink-cyan-500: 47 122 136;
+    --ink-cyan-600: 39 102 116;
+    --ink-cyan-700: 31 82 94;
+    --ink-cyan-800: 24 63 72;
+    --ink-cyan-900: 18 46 53;
+    --ink-cyan-950: 11 30 35;
+    /* emerald → paper ink */
+    --ink-emerald-50: 243 246 236;
+    --ink-emerald-100: 229 236 212;
+    --ink-emerald-200: 203 217 169;
+    --ink-emerald-300: 157 176 106;
+    --ink-emerald-400: 127 154 75;
+    --ink-emerald-500: 95 122 52;
+    --ink-emerald-600: 79 102 44;
+    --ink-emerald-700: 63 82 36;
+    --ink-emerald-800: 49 63 28;
+    --ink-emerald-900: 36 46 21;
+    --ink-emerald-950: 23 30 14;
+    /* amber → paper ink */
+    --ink-amber-50: 250 244 231;
+    --ink-amber-100: 245 231 201;
+    --ink-amber-200: 236 208 150;
+    --ink-amber-300: 224 177 94;
+    --ink-amber-400: 208 155 58;
+    --ink-amber-500: 188 132 37;
+    --ink-amber-600: 156 109 31;
+    --ink-amber-700: 124 86 26;
+    --ink-amber-800: 94 65 20;
+    --ink-amber-900: 69 47 15;
+    --ink-amber-950: 46 31 10;
+    /* rose → paper ink */
+    --ink-rose-50: 250 239 241;
+    --ink-rose-100: 245 220 224;
+    --ink-rose-200: 234 184 192;
+    --ink-rose-300: 217 127 141;
+    --ink-rose-400: 201 90 108;
+    --ink-rose-500: 178 58 78;
+    --ink-rose-600: 150 47 65;
+    --ink-rose-700: 120 38 52;
+    --ink-rose-800: 91 29 40;
+    --ink-rose-900: 67 21 29;
+    --ink-rose-950: 44 14 19;
+
+    --ink-purple-50: 250 240 234;
+    --ink-purple-100: 245 223 211;
+    --ink-purple-200: 235 192 169;
+    --ink-purple-300: 224 141 99;
+    --ink-purple-400: 210 100 58;
+    --ink-purple-500: 176 61 28;
+    --ink-purple-600: 150 51 24;
+    --ink-purple-700: 122 42 20;
+    --ink-purple-800: 94 33 16;
+    --ink-purple-900: 71 26 13;
+    --ink-purple-950: 47 18 10;
+    --ink-blue-50: 238 245 246;
+    --ink-blue-100: 217 233 235;
+    --ink-blue-200: 178 210 215;
+    --ink-blue-300: 111 168 178;
+    --ink-blue-400: 61 138 152;
+    --ink-blue-500: 37 109 124;
+    --ink-blue-600: 30 90 104;
+    --ink-blue-700: 24 72 84;
+    --ink-blue-800: 18 55 64;
+    --ink-blue-900: 13 40 47;
+    --ink-blue-950: 8 26 31;
+    --ink-sky-50: 238 245 246;
+    --ink-sky-100: 220 236 238;
+    --ink-sky-200: 188 217 222;
+    --ink-sky-300: 141 188 196;
+    --ink-sky-400: 91 160 171;
+    --ink-sky-500: 58 132 146;
+    --ink-sky-600: 47 108 120;
+    --ink-sky-700: 38 87 97;
+    --ink-sky-800: 29 67 75;
+    --ink-sky-900: 21 49 54;
+    --ink-sky-950: 13 32 35;
+    --ink-green-50: 243 246 236;
+    --ink-green-100: 229 236 212;
+    --ink-green-200: 203 217 169;
+    --ink-green-300: 157 176 106;
+    --ink-green-400: 127 154 75;
+    --ink-green-500: 95 122 52;
+    --ink-green-600: 79 102 44;
+    --ink-green-700: 63 82 36;
+    --ink-green-800: 49 63 28;
+    --ink-green-900: 36 46 21;
+    --ink-green-950: 23 30 14;
     /* Topbar surface */
-    --topbar-bg: 36 45% 98% / 0.78;
-    --topbar-border: 250 22% 88% / 0.9;
+    --topbar-bg: 44 40% 95% / 0.85;
+    --topbar-border: 40 22% 80% / 0.9;
   }
 
   /* ═══════════════════════════════════════════
-     DARK MODE — CYBER EDITORIAL GRAPHITE
-     (preserved exactly as before)
+     DARK MODE — MIDNIGHT STUDY
+     Warm charcoal paper, cream ink, the same
+     vermilion — a desk lamp at 1am, not neon.
      ═══════════════════════════════════════════ */
   .dark {
     color-scheme: dark;
 
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 95%;
-    --card: 240 6% 6%;
-    --card-foreground: 0 0% 95%;
-    --popover: 240 6% 7%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 263 70% 58%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 240 4% 12%;
-    --secondary-foreground: 0 0% 80%;
-    --muted: 240 4% 12%;
-    --muted-foreground: 240 5% 50%;
-    --accent: 240 4% 14%;
-    --accent-foreground: 0 0% 90%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 240 4% 14%;
-    --input: 240 4% 14%;
-    --ring: 263 70% 58%;
+    --background: 30 10% 8%;
+    --foreground: 42 32% 89%;
+    --card: 32 11% 11%;
+    --card-foreground: 42 32% 89%;
+    --popover: 32 12% 12%;
+    --popover-foreground: 42 32% 89%;
+    --primary: 14 74% 54%;
+    --primary-foreground: 42 40% 95%;
+    --secondary: 32 9% 16%;
+    --secondary-foreground: 42 24% 80%;
+    --muted: 32 9% 16%;
+    --muted-foreground: 38 12% 58%;
+    --accent: 32 10% 18%;
+    --accent-foreground: 42 28% 86%;
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 42 40% 95%;
+    --border: 32 10% 19%;
+    --input: 32 10% 19%;
+    --ring: 14 74% 54%;
 
-    --sidebar-background: 240 8% 5%;
-    --sidebar-foreground: 240 5% 70%;
-    --sidebar-primary: 263 70% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 10%;
-    --sidebar-accent-foreground: 0 0% 88%;
-    --sidebar-border: 240 4% 11%;
-    --sidebar-ring: 263 70% 58%;
+    --sidebar-background: 30 11% 9.5%;
+    --sidebar-foreground: 40 14% 66%;
+    --sidebar-primary: 14 74% 54%;
+    --sidebar-primary-foreground: 42 40% 95%;
+    --sidebar-accent: 32 9% 14%;
+    --sidebar-accent-foreground: 42 28% 86%;
+    --sidebar-border: 32 10% 15%;
+    --sidebar-ring: 14 74% 54%;
 
-    --surface-0: 240 10% 3.9%;
-    --surface-1: 240 6% 6%;
-    --surface-2: 240 5% 9%;
-    --surface-3: 240 4% 12%;
+    --glow-violet: 14 74% 56%;
+    --glow-cyan: 188 42% 52%;
+    --glow-emerald: 95 30% 52%;
+    --glow-amber: 36 68% 55%;
+    --glow-rose: 352 55% 58%;
 
-    --glass-bg: 255 255 255 / 0.03;
-    --glass-border: 255 255 255 / 0.06;
-    --glass-hover: 255 255 255 / 0.06;
-    --glass-elevated-bg: 255 255 255 / 0.04;
-    --glass-elevated-border: 255 255 255 / 0.08;
-    --glass-sheen: 255 255 255 / 0.1;
+    --surface-0: 30 10% 8%;
+    --surface-1: 32 11% 11%;
+    --surface-2: 32 11% 13.5%;
+    --surface-3: 32 9% 16%;
 
-    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.3);
-    --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-    --shadow-overlay: 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+    --glass-bg: 46 40 32 / 0.55;
+    --glass-border: 120 105 85 / 0.28;
+    --glass-hover: 54 47 38 / 0.65;
+    --glass-elevated-bg: 50 44 35 / 0.6;
+    --glass-elevated-border: 126 110 88 / 0.32;
+    --glass-sheen: 220 205 180 / 0.08;
 
-    --topbar-bg: 240 10% 3.9% / 0.8;
-    --topbar-border: 255 255 255 / 0.04;
+    --shadow-card: 0 4px 24px -4px rgba(12, 8, 4, 0.5);
+    --shadow-elevated: 0 8px 32px rgba(10, 7, 3, 0.55), 0 0 0 1px rgba(220, 200, 170, 0.05) inset;
+    --shadow-overlay: 0 0 0 1px rgba(220, 200, 170, 0.05) inset;
+
+    --topbar-bg: 30 10% 8% / 0.85;
+    --topbar-border: 120 105 85 / 0.15;
   }
 
   html {
@@ -152,7 +294,7 @@
 
   * { @apply border-border; }
 
-  /* Light-mode ambient atmosphere — subtle lavender/rose wash */
+  /* Paper atmosphere — fiber grain + faint dot grid (both modes) */
   body::before {
     content: '';
     position: fixed;
@@ -160,14 +302,16 @@
     pointer-events: none;
     z-index: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 15% 0%, hsl(263 70% 85% / 0.35), transparent 60%),
-      radial-gradient(ellipse 70% 50% at 100% 20%, hsl(347 70% 90% / 0.28), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 50% 100%, hsl(192 60% 88% / 0.22), transparent 60%);
-    opacity: 1;
+      radial-gradient(hsl(var(--foreground) / 0.055) 1px, transparent 1px),
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.05'/%3E%3C/svg%3E");
+    background-size: 26px 26px, 256px 256px;
+    opacity: 0.55;
+    mix-blend-mode: multiply;
     transition: opacity 320ms ease;
   }
   .dark body::before {
-    opacity: 0;
+    opacity: 0.3;
+    mix-blend-mode: overlay;
   }
 }
 
@@ -196,25 +340,60 @@
   }
 
   /* ═══════════════════════════════════════════
-     AMBIENT GLOW SYSTEM
+     ACCENT SHADOW SYSTEM (names kept from the old
+     glow system — now soft ink-tinted paper shadows)
      ═══════════════════════════════════════════ */
-  .glow-violet  { box-shadow: 0 0 20px -4px hsl(var(--glow-violet) / 0.3),  0 0 60px -8px hsl(var(--glow-violet) / 0.15); }
-  .glow-cyan    { box-shadow: 0 0 20px -4px hsl(var(--glow-cyan) / 0.3),    0 0 60px -8px hsl(var(--glow-cyan) / 0.15); }
-  .glow-emerald { box-shadow: 0 0 20px -4px hsl(var(--glow-emerald) / 0.3), 0 0 60px -8px hsl(var(--glow-emerald) / 0.15); }
-  .glow-amber   { box-shadow: 0 0 20px -4px hsl(var(--glow-amber) / 0.3),   0 0 60px -8px hsl(var(--glow-amber) / 0.15); }
-  .glow-rose    { box-shadow: 0 0 20px -4px hsl(var(--glow-rose) / 0.3),    0 0 60px -8px hsl(var(--glow-rose) / 0.15); }
+  .glow-violet  { box-shadow: 0 0 0 1px hsl(var(--glow-violet) / 0.18),  0 4px 14px -4px hsl(var(--glow-violet) / 0.25); }
+  .glow-cyan    { box-shadow: 0 0 0 1px hsl(var(--glow-cyan) / 0.18),    0 4px 14px -4px hsl(var(--glow-cyan) / 0.25); }
+  .glow-emerald { box-shadow: 0 0 0 1px hsl(var(--glow-emerald) / 0.18), 0 4px 14px -4px hsl(var(--glow-emerald) / 0.25); }
+  .glow-amber   { box-shadow: 0 0 0 1px hsl(var(--glow-amber) / 0.18),   0 4px 14px -4px hsl(var(--glow-amber) / 0.25); }
+  .glow-rose    { box-shadow: 0 0 0 1px hsl(var(--glow-rose) / 0.18),    0 4px 14px -4px hsl(var(--glow-rose) / 0.25); }
 
-  .glow-ring-violet { box-shadow: 0 0 0 1px hsl(var(--glow-violet) / 0.35), 0 0 14px -2px hsl(var(--glow-violet) / 0.22); }
-  .glow-ring-cyan   { box-shadow: 0 0 0 1px hsl(var(--glow-cyan) / 0.35),   0 0 14px -2px hsl(var(--glow-cyan) / 0.22); }
+  .glow-ring-violet { box-shadow: 0 0 0 1px hsl(var(--glow-violet) / 0.3), 0 2px 8px -2px hsl(var(--glow-violet) / 0.2); }
+  .glow-ring-cyan   { box-shadow: 0 0 0 1px hsl(var(--glow-cyan) / 0.3),   0 2px 8px -2px hsl(var(--glow-cyan) / 0.2); }
 
   /* ═══════════════════════════════════════════
-     EDITORIAL TYPOGRAPHY
+     EDITORIAL TYPOGRAPHY — Fraunces carries the
+     headlines; Inter stays on body/data; Caveat
+     for handwritten annotations.
      ═══════════════════════════════════════════ */
-  .text-display  { @apply text-4xl font-extrabold tracking-tight leading-none; letter-spacing: -0.025em; }
-  .text-headline { @apply text-2xl font-bold tracking-tight; letter-spacing: -0.02em; }
+  .text-display  { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 90; @apply text-4xl font-semibold leading-none; letter-spacing: -0.01em; }
+  .text-headline { font-family: 'Fraunces', Georgia, serif; font-variation-settings: 'opsz' 60; @apply text-2xl font-semibold; letter-spacing: -0.005em; }
   .text-title    { @apply text-base font-semibold tracking-tight; }
-  .text-caption  { @apply text-[11px] font-medium uppercase tracking-widest; color: hsl(var(--muted-foreground)); }
+  .text-caption  { @apply text-[11px] font-semibold uppercase; letter-spacing: 0.16em; color: hsl(var(--muted-foreground)); }
   .text-mono     { font-family: 'JetBrains Mono', monospace; @apply text-sm; }
+  .font-hand     { font-family: 'Caveat', cursive; }
+
+  /* ═══════════════════════════════════════════
+     PAPER ARTIFACTS
+     ═══════════════════════════════════════════ */
+  /* Sticky note — for small badges and callouts */
+  .postit {
+    background: linear-gradient(178deg, hsl(50 92% 82%), hsl(48 85% 74%));
+    color: hsl(38 40% 22%);
+    box-shadow: 0 2px 5px hsl(34 35% 30% / 0.28);
+    border-radius: 2px;
+    transform: rotate(-2deg);
+  }
+  .dark .postit {
+    background: linear-gradient(178deg, hsl(48 70% 70%), hsl(46 65% 62%));
+    color: hsl(38 45% 15%);
+  }
+
+  /* Hand-drawn red circle — the signature. Wrap a title:
+     <span class="hand-circle">Command Center</span> */
+  .hand-circle {
+    position: relative;
+    display: inline-block;
+    padding: 0.08em 0.35em;
+  }
+  .hand-circle::after {
+    content: '';
+    position: absolute;
+    inset: -0.18em -0.42em -0.28em -0.38em;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 78' preserveAspectRatio='none'%3E%3Cpath d='M118 8 C 48 4, 8 20, 9 40 C 10 62, 66 74, 118 72 C 172 70, 212 58, 211 38 C 210 18, 164 7, 96 9' fill='none' stroke='%23c2431f' stroke-width='5' stroke-linecap='round' opacity='0.92'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
 
   /* ═══════════════════════════════════════════
      CINEMATIC CARD SYSTEM
@@ -295,41 +474,43 @@
   [class*="text-white/20"], [class*="text-white\\/20"] { color: hsl(var(--foreground) / 0.4); }
   [class*="text-white/15"], [class*="text-white\\/15"] { color: hsl(var(--foreground) / 0.35); }
 
-  /* Translucent white backgrounds → lavender wash */
-  [class*="bg-white/[0.08]"], [class*="bg-white/[.08]"] { background-color: hsl(263 50% 60% / 0.10); }
-  [class*="bg-white/[0.06]"], [class*="bg-white/[.06]"] { background-color: hsl(250 40% 60% / 0.08); }
-  [class*="bg-white/[0.05]"], [class*="bg-white/[.05]"] { background-color: hsl(250 40% 60% / 0.07); }
-  [class*="bg-white/[0.04]"], [class*="bg-white/[.04]"] { background-color: hsl(250 40% 60% / 0.06); }
-  [class*="bg-white/[0.03]"], [class*="bg-white/[.03]"] { background-color: hsl(250 40% 60% / 0.045); }
-  [class*="bg-white/[0.02]"], [class*="bg-white/[.02]"] { background-color: hsl(250 40% 60% / 0.035); }
+  /* Translucent white backgrounds → warm ink wash on paper */
+  [class*="bg-white/[0.08]"], [class*="bg-white/[.08]"] { background-color: hsl(34 30% 35% / 0.10); }
+  [class*="bg-white/[0.06]"], [class*="bg-white/[.06]"] { background-color: hsl(34 28% 38% / 0.08); }
+  [class*="bg-white/[0.05]"], [class*="bg-white/[.05]"] { background-color: hsl(34 28% 38% / 0.07); }
+  [class*="bg-white/[0.04]"], [class*="bg-white/[.04]"] { background-color: hsl(34 28% 38% / 0.06); }
+  [class*="bg-white/[0.03]"], [class*="bg-white/[.03]"] { background-color: hsl(34 28% 38% / 0.045); }
+  [class*="bg-white/[0.02]"], [class*="bg-white/[.02]"] { background-color: hsl(34 28% 38% / 0.035); }
 
-  /* Translucent white borders → soft slate-lavender */
-  [class*="border-white/[0.08]"] { border-color: hsl(250 22% 78% / 0.9); }
-  [class*="border-white/[0.06]"] { border-color: hsl(250 22% 82% / 0.85); }
-  [class*="border-white/[0.04]"] { border-color: hsl(250 22% 86% / 0.8); }
-  [class*="bg-white/10"], [class*="bg-white\\/10"] { background-color: hsl(250 40% 60% / 0.12); }
-  [class*="via-white/10"] { --tw-gradient-via-color: hsl(263 50% 70% / 0.35); }
+  /* Translucent white borders → warm tan rules */
+  [class*="border-white/[0.08]"] { border-color: hsl(40 22% 76% / 0.9); }
+  [class*="border-white/[0.06]"] { border-color: hsl(40 22% 79% / 0.85); }
+  [class*="border-white/[0.04]"] { border-color: hsl(40 22% 83% / 0.8); }
+  [class*="bg-white/10"], [class*="bg-white\\/10"] { background-color: hsl(34 30% 35% / 0.12); }
+  [class*="via-white/10"] { --tw-gradient-via-color: hsl(42 40% 80% / 0.4); }
 
-  /* Black overlays in light mode → soft slate */
-  [class*="bg-black/40"] { background-color: hsl(240 22% 25% / 0.35); }
-  [class*="bg-black/50"] { background-color: hsl(240 22% 25% / 0.4); }
-  [class*="bg-black/60"] { background-color: hsl(240 22% 25% / 0.45); }
+  /* Black overlays in light mode → warm umber scrim */
+  [class*="bg-black/40"] { background-color: hsl(34 25% 18% / 0.35); }
+  [class*="bg-black/50"] { background-color: hsl(34 25% 18% / 0.4); }
+  [class*="bg-black/60"] { background-color: hsl(34 25% 18% / 0.45); }
 
   /* border-white/10 catch */
-  [class*="border-white/10"] { border-color: hsl(250 22% 80% / 0.9); }
-  [class*="border-white/[0.1]"] { border-color: hsl(250 22% 80% / 0.9); }
+  [class*="border-white/10"] { border-color: hsl(40 22% 78% / 0.9); }
+  [class*="border-white/[0.1]"] { border-color: hsl(40 22% 78% / 0.9); }
 
-  /* Pale neon accents → richer light-mode equivalents */
-  [class*="text-violet-300"]  { color: hsl(263 60% 48%); }
-  [class*="text-violet-400"]  { color: hsl(263 62% 52%); }
-  [class*="text-cyan-300"]    { color: hsl(192 75% 38%); }
-  [class*="text-cyan-400"]    { color: hsl(192 78% 35%); }
-  [class*="text-emerald-300"] { color: hsl(160 60% 32%); }
-  [class*="text-emerald-400"] { color: hsl(160 65% 30%); }
-  [class*="text-amber-300"]   { color: hsl(38 80% 42%); }
-  [class*="text-amber-400"]   { color: hsl(38 82% 40%); }
-  [class*="text-rose-300"]    { color: hsl(347 70% 50%); }
-  [class*="text-rose-400"]    { color: hsl(347 72% 48%); }
+  /* Accent text classes → deepened paper inks for light-surface contrast
+     (the Tailwind scales themselves are overridden in tailwind.config.js;
+     these deepen the pale 300/400 steps that were tuned for dark) */
+  [class*="text-violet-300"]  { color: hsl(14 70% 40%); }
+  [class*="text-violet-400"]  { color: hsl(14 73% 42%); }
+  [class*="text-cyan-300"]    { color: hsl(188 50% 30%); }
+  [class*="text-cyan-400"]    { color: hsl(188 48% 28%); }
+  [class*="text-emerald-300"] { color: hsl(95 35% 30%); }
+  [class*="text-emerald-400"] { color: hsl(95 38% 28%); }
+  [class*="text-amber-300"]   { color: hsl(36 75% 36%); }
+  [class*="text-amber-400"]   { color: hsl(36 78% 34%); }
+  [class*="text-rose-300"]    { color: hsl(352 58% 44%); }
+  [class*="text-rose-400"]    { color: hsl(352 60% 42%); }
 
   /* ─────────────────────────────────────────────────
      SPANBIX SCOPE — opt-out of the light-mode repaint.
@@ -408,3 +589,131 @@
   mix-blend-mode: overlay;
 }
 html:not(.dark) .noise::after { opacity: 0.18; mix-blend-mode: multiply; }
+
+/* ═══════════════════════════════════════════
+   LEGACY NEON SCOPE — HRMS + Tickets public marketing pages keep their
+   original Tailwind neon hues. Applied at each page root.
+   ═══════════════════════════════════════════ */
+.legacy-neon {
+    --ink-purple-50: 250 245 255;
+    --ink-purple-100: 243 232 255;
+    --ink-purple-200: 233 213 255;
+    --ink-purple-300: 216 180 254;
+    --ink-purple-400: 192 132 252;
+    --ink-purple-500: 168 85 247;
+    --ink-purple-600: 147 51 234;
+    --ink-purple-700: 126 34 206;
+    --ink-purple-800: 107 33 168;
+    --ink-purple-900: 88 28 135;
+    --ink-purple-950: 59 7 100;
+    --ink-blue-50: 239 246 255;
+    --ink-blue-100: 219 234 254;
+    --ink-blue-200: 191 219 254;
+    --ink-blue-300: 147 197 253;
+    --ink-blue-400: 96 165 250;
+    --ink-blue-500: 59 130 246;
+    --ink-blue-600: 37 99 235;
+    --ink-blue-700: 29 78 216;
+    --ink-blue-800: 30 64 175;
+    --ink-blue-900: 30 58 138;
+    --ink-blue-950: 23 37 84;
+    --ink-sky-50: 240 249 255;
+    --ink-sky-100: 224 242 254;
+    --ink-sky-200: 186 230 253;
+    --ink-sky-300: 125 211 252;
+    --ink-sky-400: 56 189 248;
+    --ink-sky-500: 14 165 233;
+    --ink-sky-600: 2 132 199;
+    --ink-sky-700: 3 105 161;
+    --ink-sky-800: 7 89 133;
+    --ink-sky-900: 12 74 110;
+    --ink-sky-950: 8 47 73;
+    --ink-green-50: 240 253 244;
+    --ink-green-100: 220 252 231;
+    --ink-green-200: 187 247 208;
+    --ink-green-300: 134 239 172;
+    --ink-green-400: 74 222 128;
+    --ink-green-500: 34 197 94;
+    --ink-green-600: 22 163 74;
+    --ink-green-700: 21 128 61;
+    --ink-green-800: 22 101 52;
+    --ink-green-900: 20 83 45;
+    --ink-green-950: 5 46 22;
+    --ink-violet-50: 245 243 255;
+    --ink-violet-100: 237 233 254;
+    --ink-violet-200: 221 214 254;
+    --ink-violet-300: 196 181 253;
+    --ink-violet-400: 167 139 250;
+    --ink-violet-500: 139 92 246;
+    --ink-violet-600: 124 58 237;
+    --ink-violet-700: 109 40 217;
+    --ink-violet-800: 91 33 182;
+    --ink-violet-900: 76 29 149;
+    --ink-violet-950: 46 16 101;
+    --ink-fuchsia-50: 253 244 255;
+    --ink-fuchsia-100: 250 232 255;
+    --ink-fuchsia-200: 245 208 254;
+    --ink-fuchsia-300: 240 171 252;
+    --ink-fuchsia-400: 232 121 249;
+    --ink-fuchsia-500: 217 70 239;
+    --ink-fuchsia-600: 192 38 211;
+    --ink-fuchsia-700: 162 28 175;
+    --ink-fuchsia-800: 134 25 143;
+    --ink-fuchsia-900: 112 26 117;
+    --ink-fuchsia-950: 74 4 78;
+    --ink-indigo-50: 238 242 255;
+    --ink-indigo-100: 224 231 255;
+    --ink-indigo-200: 199 210 254;
+    --ink-indigo-300: 165 180 252;
+    --ink-indigo-400: 129 140 248;
+    --ink-indigo-500: 99 102 241;
+    --ink-indigo-600: 79 70 229;
+    --ink-indigo-700: 67 56 202;
+    --ink-indigo-800: 55 48 163;
+    --ink-indigo-900: 49 46 129;
+    --ink-indigo-950: 30 27 75;
+    --ink-cyan-50: 236 254 255;
+    --ink-cyan-100: 207 250 254;
+    --ink-cyan-200: 165 243 252;
+    --ink-cyan-300: 103 232 249;
+    --ink-cyan-400: 34 211 238;
+    --ink-cyan-500: 6 182 212;
+    --ink-cyan-600: 8 145 178;
+    --ink-cyan-700: 14 116 144;
+    --ink-cyan-800: 21 94 117;
+    --ink-cyan-900: 22 78 99;
+    --ink-cyan-950: 8 51 68;
+    --ink-emerald-50: 236 253 245;
+    --ink-emerald-100: 209 250 229;
+    --ink-emerald-200: 167 243 208;
+    --ink-emerald-300: 110 231 183;
+    --ink-emerald-400: 52 211 153;
+    --ink-emerald-500: 16 185 129;
+    --ink-emerald-600: 5 150 105;
+    --ink-emerald-700: 4 120 87;
+    --ink-emerald-800: 6 95 70;
+    --ink-emerald-900: 6 78 59;
+    --ink-emerald-950: 2 44 34;
+    --ink-amber-50: 255 251 235;
+    --ink-amber-100: 254 243 199;
+    --ink-amber-200: 253 230 138;
+    --ink-amber-300: 252 211 77;
+    --ink-amber-400: 251 191 36;
+    --ink-amber-500: 245 158 11;
+    --ink-amber-600: 217 119 6;
+    --ink-amber-700: 180 83 9;
+    --ink-amber-800: 146 64 14;
+    --ink-amber-900: 120 53 15;
+    --ink-amber-950: 69 26 3;
+    --ink-rose-50: 255 241 242;
+    --ink-rose-100: 255 228 230;
+    --ink-rose-200: 254 205 211;
+    --ink-rose-300: 253 164 175;
+    --ink-rose-400: 251 113 133;
+    --ink-rose-500: 244 63 94;
+    --ink-rose-600: 225 29 72;
+    --ink-rose-700: 190 18 60;
+    --ink-rose-800: 159 18 57;
+    --ink-rose-900: 136 19 55;
+    --ink-rose-950: 76 5 25;
+}

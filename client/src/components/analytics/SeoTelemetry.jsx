@@ -9,11 +9,11 @@ import InfoPopover from './InfoPopover';
 import { cn } from '@/lib/utils';
 
 function ringTone(score) {
-  if (score >= 90) return 'hsl(160 70% 45%)';
-  if (score >= 80) return 'hsl(192 85% 55%)';
-  if (score >= 70) return 'hsl(38 85% 55%)';
+  if (score >= 90) return 'hsl(95 35% 45%)';
+  if (score >= 80) return 'hsl(188 45% 55%)';
+  if (score >= 70) return 'hsl(36 72% 55%)';
   if (score >= 60) return 'hsl(28 85% 55%)';
-  return 'hsl(347 75% 60%)';
+  return 'hsl(352 55% 60%)';
 }
 
 /**

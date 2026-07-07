@@ -4,31 +4,31 @@ import { cn } from '@/lib/utils';
 const orbColors = {
   violet: {
     gradient: 'from-violet-500 to-purple-700',
-    glow: 'shadow-[0_0_24px_-4px_hsl(263_70%_58%/0.5)]',
+    glow: 'shadow-[0_0_24px_-4px_hsl(14_73%_58%/0.5)]',
     ring: 'ring-violet-500/20',
     text: 'text-violet-300',
   },
   cyan: {
     gradient: 'from-cyan-400 to-blue-600',
-    glow: 'shadow-[0_0_24px_-4px_hsl(192_91%_56%/0.5)]',
+    glow: 'shadow-[0_0_24px_-4px_hsl(188_45%_56%/0.5)]',
     ring: 'ring-cyan-500/20',
     text: 'text-cyan-300',
   },
   emerald: {
     gradient: 'from-emerald-400 to-green-700',
-    glow: 'shadow-[0_0_24px_-4px_hsl(160_84%_45%/0.5)]',
+    glow: 'shadow-[0_0_24px_-4px_hsl(95_35%_45%/0.5)]',
     ring: 'ring-emerald-500/20',
     text: 'text-emerald-300',
   },
   amber: {
     gradient: 'from-amber-400 to-orange-600',
-    glow: 'shadow-[0_0_24px_-4px_hsl(38_92%_60%/0.5)]',
+    glow: 'shadow-[0_0_24px_-4px_hsl(36_72%_60%/0.5)]',
     ring: 'ring-amber-500/20',
     text: 'text-amber-300',
   },
   rose: {
     gradient: 'from-rose-400 to-pink-700',
-    glow: 'shadow-[0_0_24px_-4px_hsl(347_77%_58%/0.5)]',
+    glow: 'shadow-[0_0_24px_-4px_hsl(352_55%_58%/0.5)]',
     ring: 'ring-rose-500/20',
     text: 'text-rose-300',
   },

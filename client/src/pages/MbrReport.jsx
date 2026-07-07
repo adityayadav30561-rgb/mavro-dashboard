@@ -12,13 +12,15 @@ import {
 import { cn } from '@/lib/utils';
 import { getMbrStatus, getMbrGa4, getMbrGsc, getMbrButtons } from '@/api/mbr';
 import GeoMap from '@/components/mbr/GeoMap';
+import { chartSeries } from '@/lib/chartTheme';
 
 // Series palette — validated (dataviz six checks, light + dark surfaces).
-// Color follows the entity, fixed assignment, never cycled.
+// Color follows the entity, fixed assignment, never cycled. Getters resolve
+// at render so the active theme's series is used.
 const C = {
-  violet: '#8349df', // users / calls / primary series
-  cyan: '#109ec2',   // sessions / leads
-  green: '#1da578',  // whatsapp / third series
+  get violet() { return chartSeries().a; },
+  get cyan() { return chartSeries().b; },
+  get green() { return chartSeries().c; },
 };
 
 // ---------------------------------------------------------------------------

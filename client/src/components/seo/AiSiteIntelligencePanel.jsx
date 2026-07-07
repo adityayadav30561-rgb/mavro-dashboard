@@ -232,7 +232,7 @@ export default function AiSiteIntelligencePanel({
               'group inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-[11px] font-semibold uppercase tracking-[0.14em] transition-all',
               noTenant
                 ? 'border-border/50 text-muted-foreground/50 cursor-not-allowed'
-                : 'border-violet-500/40 bg-gradient-to-r from-violet-500/15 to-fuchsia-500/15 text-violet-200 hover:from-violet-500/25 hover:to-fuchsia-500/25 hover:border-violet-500/60 hover:shadow-[0_0_22px_-4px_hsl(263_70%_58%/0.55)]',
+                : 'border-violet-500/40 bg-gradient-to-r from-violet-500/15 to-fuchsia-500/15 text-violet-200 hover:from-violet-500/25 hover:to-fuchsia-500/25 hover:border-violet-500/60 hover:shadow-[0_0_22px_-4px_hsl(14_73%_58%/0.55)]',
               loading && 'cursor-wait opacity-80'
             )}
             title={noTenant ? 'Pick a single tenant to run site intelligence' : 'Generate AI site intelligence'}

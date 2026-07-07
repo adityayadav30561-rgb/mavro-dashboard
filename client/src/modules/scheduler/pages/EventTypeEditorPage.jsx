@@ -467,8 +467,8 @@ function Toggle({ label, value, onChange }) {
 
 function dotFor(color) {
   const map = {
-    violet: '#8b5cf6', cyan: '#06b6d4', emerald: '#10b981', amber: '#f59e0b',
-    rose: '#f43f5e', blue: '#3b82f6', pink: '#ec4899', slate: '#64748b',
+    violet: '#c2431f', cyan: '#2f7a88', emerald: '#5f7a34', amber: '#bc8425',
+    rose: '#b23a4e', blue: '#3b82f6', pink: '#c95a6c', slate: '#64748b',
   };
-  return map[color] || '#8b5cf6';
+  return map[color] || '#c2431f';
 }

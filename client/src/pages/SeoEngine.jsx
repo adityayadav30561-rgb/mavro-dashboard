@@ -42,11 +42,11 @@ import AiSiteIntelligencePanel from '@/components/seo/AiSiteIntelligencePanel';
 // Helpers
 // ===================================
 function ringTone(score) {
-  if (score >= 90) return 'hsl(160 70% 45%)';   // A — emerald
-  if (score >= 80) return 'hsl(192 85% 55%)';   // B — cyan
-  if (score >= 70) return 'hsl(38 85% 55%)';    // C — amber
+  if (score >= 90) return 'hsl(95 35% 45%)';   // A — emerald
+  if (score >= 80) return 'hsl(188 45% 55%)';   // B — cyan
+  if (score >= 70) return 'hsl(36 72% 55%)';    // C — amber
   if (score >= 60) return 'hsl(28 85% 55%)';    // D — orange
-  return                  'hsl(347 75% 60%)';   // F — rose
+  return                  'hsl(352 55% 60%)';   // F — rose
 }
 
 function publicUrlFromDomain(domain) {
@@ -689,7 +689,7 @@ function InsightsPanel({ audit }) {
             {topWeaknesses.map(([label, count]) => (
               <li key={label} className="flex items-center justify-between text-[12.5px]">
                 <span className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_hsl(347_75%_60%/0.7)]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_hsl(352_55%_60%/0.7)]" />
                   {label}
                 </span>
                 <span className="text-[10px] font-mono text-rose-400">{count} post{count > 1 ? 's' : ''}</span>
@@ -1126,7 +1126,7 @@ function IntegrationCard({ name, status, hook, description, icon: Icon }) {
   return (
     <div className="relative p-6 rounded-2xl bg-card/60 backdrop-blur-xl border border-border/70 overflow-hidden">
       <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-40"
-        style={{ background: 'radial-gradient(circle, hsl(263 70% 60% / 0.25), transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, hsl(14 73% 60% / 0.25), transparent 70%)' }}
       />
       <div className="relative flex items-start gap-4">
         <div className="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center flex-shrink-0">

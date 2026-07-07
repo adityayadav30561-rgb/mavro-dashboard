@@ -7,10 +7,10 @@ import { cn } from '@/lib/utils';
  */
 export default function ActivityRail({ items = [], className }) {
   const dotColors = {
-    publish: 'bg-emerald-400 shadow-[0_0_8px_hsl(160_84%_45%/0.6)]',
-    lead: 'bg-cyan-400 shadow-[0_0_8px_hsl(192_91%_56%/0.6)]',
-    seo: 'bg-violet-400 shadow-[0_0_8px_hsl(263_70%_58%/0.6)]',
-    index: 'bg-amber-400 shadow-[0_0_8px_hsl(38_92%_60%/0.6)]',
+    publish: 'bg-emerald-400 shadow-[0_0_8px_hsl(95_35%_45%/0.6)]',
+    lead: 'bg-cyan-400 shadow-[0_0_8px_hsl(188_45%_56%/0.6)]',
+    seo: 'bg-violet-400 shadow-[0_0_8px_hsl(14_73%_58%/0.6)]',
+    index: 'bg-amber-400 shadow-[0_0_8px_hsl(36_72%_60%/0.6)]',
     default: 'bg-white/30 shadow-[0_0_6px_rgba(255,255,255,0.2)]',
   };
 

@@ -66,14 +66,14 @@ function NavItem({ to, icon: Icon, label, end, collapsed, badge, onClick }) {
           {isActive && !collapsed && (
             <motion.div
               layoutId="nav-glow"
-              className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-violet-400 rounded-r-full shadow-[0_0_8px_hsl(263_70%_58%/0.6)]"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-4 bg-violet-400 rounded-r-full shadow-[0_0_8px_hsl(14_73%_58%/0.6)]"
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
           )}
           <Icon size={16} className={cn('flex-shrink-0', isActive && 'text-violet-300')} />
           {!collapsed && <span className="truncate">{label}</span>}
           {!collapsed && badge && (
-            <span className="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-violet-500/20 text-violet-300 ring-1 ring-violet-500/30">
+            <span className="ml-auto postit font-hand text-[12px] leading-none font-semibold px-1.5 py-0.5">
               {badge}
             </span>
           )}
@@ -127,7 +127,7 @@ export default function Sidebar({ onClose, collapsed, onToggleCollapse }) {
       {/* Logo */}
       <div className="h-14 flex items-center justify-between px-4 border-b border-white/[0.04]">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-[0_0_16px_-2px_hsl(263_70%_58%/0.4)] flex-shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center shadow-[0_0_16px_-2px_hsl(14_73%_58%/0.4)] flex-shrink-0">
             <Hexagon size={16} className="text-white" />
           </div>
           {!collapsed && (
@@ -166,7 +166,7 @@ export default function Sidebar({ onClose, collapsed, onToggleCollapse }) {
         <NavItem to="/settings" icon={Settings} label="Settings" collapsed={collapsed} onClick={onClose} />
         {!collapsed && (
           <div className="flex items-center gap-2 px-3 mt-3">
-            <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(160_84%_45%/0.6)]" />
+            <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(95_35%_45%/0.6)]" />
             <p className="text-[10px] text-white/15 font-medium">v2.0 · All systems operational</p>
           </div>
         )}

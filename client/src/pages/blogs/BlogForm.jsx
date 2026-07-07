@@ -263,7 +263,7 @@ export default function BlogForm() {
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(160_70%_45%/0.6)]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(95_35%_45%/0.6)]" />
                 {form.status === 'published' ? 'Published' : form.status === 'draft' ? 'Draft' : form.status}
               </span>
               {form.targetWebsite && (
@@ -457,7 +457,7 @@ export default function BlogForm() {
               <button
                 onClick={() => handleSubmit(true)}
                 disabled={saving}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-[0_14px_30px_-10px_hsl(263_70%_50%/0.55)] hover:shadow-[0_18px_36px_-10px_hsl(263_70%_50%/0.75)] disabled:opacity-60 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-[0_14px_30px_-10px_hsl(14_73%_50%/0.55)] hover:shadow-[0_18px_36px_-10px_hsl(14_73%_50%/0.75)] disabled:opacity-60 transition-all"
               >
                 <Send size={14} /> {saving ? 'Publishing…' : 'Publish Now'}
               </button>

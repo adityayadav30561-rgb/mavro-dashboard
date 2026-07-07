@@ -17,8 +17,8 @@ import { getSeoInfo } from '@/lib/seoCopy';
  *   - edges as curved paths with low opacity
  */
 const CLUSTER_PALETTE = [
-  '#a78bfa', '#22d3ee', '#34d399', '#fbbf24', '#f472b6',
-  '#fb7185', '#60a5fa', '#c084fc', '#2dd4bf', '#facc15',
+  '#d2643a', '#4a93a0', '#7f9a4b', '#d09b3a', '#f472b6',
+  '#c95a6c', '#60a5fa', '#c084fc', '#2dd4bf', '#facc15',
 ];
 
 export default function LinkGraph({ graph, clusters, quality }) {
@@ -110,7 +110,7 @@ export default function LinkGraph({ graph, clusters, quality }) {
                   <motion.path
                     key={i}
                     d={`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`}
-                    stroke={isActive ? '#22d3ee' : 'hsl(var(--muted-foreground))'}
+                    stroke={isActive ? '#4a93a0' : 'hsl(var(--muted-foreground))'}
                     strokeOpacity={isActive ? 0.95 : 0.25}
                     strokeWidth={isActive ? 1.5 : 0.9}
                     fill="none"
@@ -129,7 +129,7 @@ export default function LinkGraph({ graph, clusters, quality }) {
                 if (!p) return null;
                 const color = clusterColor.get(n.cluster) || '#94a3b8';
                 const radius = n.isHub ? 8 : Math.max(4, 4 + n.inbound);
-                const ringColor = n.isOrphan ? '#fb7185' : n.isHub ? '#34d399' : color;
+                const ringColor = n.isOrphan ? '#c95a6c' : n.isHub ? '#7f9a4b' : color;
                 const isHover = hoverId === n.id;
 
                 return (
@@ -178,8 +178,8 @@ export default function LinkGraph({ graph, clusters, quality }) {
 
         {/* Legend */}
         <div className="mt-3 flex flex-wrap items-center gap-3 text-[10.5px] text-muted-foreground">
-          <LegendDot color="#34d399" label="Hub" infoKey="hub_node" />
-          <LegendDot color="#fb7185" label="Orphan" infoKey="orphan_node" />
+          <LegendDot color="#7f9a4b" label="Hub" infoKey="hub_node" />
+          <LegendDot color="#c95a6c" label="Orphan" infoKey="orphan_node" />
           {clusters.slice(0, 4).map((c) => (
             <LegendDot key={c.id} color={clusterColor.get(c.id)} label={`#${c.label}`} />
           ))}
