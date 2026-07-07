@@ -136,6 +136,7 @@ const getStatus = asyncHandler(async (req, res) => {
     label: s.label,
     ga4: Boolean(s.ga4PropertyId) && ga4Service.isConfigured(s.ga4PropertyId, s.credentialsEnv),
     gsc: Boolean(s.gscSiteUrl) && gscService.isConfigured(s.gscSiteUrl, s.credentialsEnv),
+    wordpress: Boolean(s.wordpressUrl),
   }));
   return ApiResponse.success(res, {
     sources,
@@ -314,14 +315,44 @@ const deleteItem = asyncHandler(async (req, res) => {
 });
 
 // ===================================
-// GET /api/mbr/blogs — published blogs in range + all-time views
+// GET /api/mbr/blogs — published blogs in range.
+// ?source= makes it source-aware: WordPress sources pull posts live from
+// the WP REST API; Mavro-tenant sources filter the Blog collection to that
+// tenant. Without ?source= → all Mavro tenants (hub counts / legacy).
 // ===================================
 const getBlogsReport = asyncHandler(async (req, res) => {
   const ranges = resolveRanges(req.query);
   const start = new Date(`${ranges.current.startDate}T00:00:00Z`);
   const end = new Date(`${ranges.current.endDate}T23:59:59.999Z`);
 
-  const blogs = await Blog.find({ status: 'published', publishedAt: { $gte: start, $lte: end } })
+  const sourceKey = String(req.query.source || '').trim();
+  const source = sourceKey ? getSource(sourceKey) : null;
+
+  // WordPress source → live posts, no Mavro DB involved
+  if (source?.wordpressUrl) {
+    const posts = await mbrPagesService.getWordpressBlogs(source, ranges.current);
+    return ApiResponse.success(res, {
+      ranges,
+      source: source.key,
+      method: 'wordpress',
+      blogs: (posts || []).map((p) => ({
+        title: p.title,
+        slug: p.path,
+        tenant: source.label,
+        publishedAt: p.publishedAt,
+        views: null, // WordPress doesn't expose view counts
+      })),
+    });
+  }
+
+  const query = { status: 'published', publishedAt: { $gte: start, $lte: end } };
+  if (source?.websiteSlug) {
+    const Website = require('../models/Website');
+    const site = await Website.findOne({ slug: source.websiteSlug }).select('_id').lean();
+    if (site) query.targetWebsite = site._id;
+  }
+
+  const blogs = await Blog.find(query)
     .populate('targetWebsite', 'name slug')
     .select('title slug publishedAt targetWebsite')
     .sort({ publishedAt: -1 })
@@ -342,6 +373,8 @@ const getBlogsReport = asyncHandler(async (req, res) => {
 
   return ApiResponse.success(res, {
     ranges,
+    source: source?.key || null,
+    method: 'mavro',
     blogs: blogs.map((b) => ({
       title: b.title,
       slug: b.slug,

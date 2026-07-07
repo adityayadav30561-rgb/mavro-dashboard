@@ -494,6 +494,7 @@ export default function MbrReport() {
   const [sections, setSections] = useState([]);
   const [manualItems, setManualItems] = useState([]);
   const [blogsList, setBlogsList] = useState([]);
+  const [blogsMethod, setBlogsMethod] = useState('mavro');
   const [builtPages, setBuiltPages] = useState(null); // null=loading, {method,pages} once fetched
   const [itemsTick, setItemsTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
@@ -511,7 +512,8 @@ export default function MbrReport() {
       // Hub + static views need only the light calls; GA4/GSC pulled only
       // inside a full source view. The Pages view uses its own endpoint
       // (WordPress / registry) — no Google quota at all.
-      const calls = [getMbrStatus(), getMbrBlogs(rangeParams)];
+      const blogsParams = view === 'blogs' && sub ? { ...rangeParams, source: sub } : rangeParams;
+      const calls = [getMbrStatus(), getMbrBlogs(blogsParams)];
       if (isPagesView) {
         calls.push(getMbrPages({ ...rangeParams, source: activeSource }));
       } else if (isSourceView) {
@@ -524,6 +526,7 @@ export default function MbrReport() {
 
       setStatus(st.status === 'fulfilled' ? st.value.data?.data : null);
       setBlogsList(bl.status === 'fulfilled' ? bl.value.data?.data?.blogs || [] : []);
+      setBlogsMethod(bl.status === 'fulfilled' ? bl.value.data?.data?.method || 'mavro' : 'mavro');
 
       if (isPagesView) {
         const [pg] = rest;
@@ -551,7 +554,7 @@ export default function MbrReport() {
       setLoading(false);
     })();
     return () => { alive = false; };
-  }, [month, customRange, refreshTick, activeSource, isSourceView, isPagesView]); // eslint-disable-line
+  }, [month, customRange, refreshTick, activeSource, isSourceView, isPagesView, view, sub]); // eslint-disable-line
 
   // Section definitions (static) + manual items (per period)
   useEffect(() => {
@@ -1236,9 +1239,9 @@ export default function MbrReport() {
                   icon={FileText}
                   title={`${s.label} Blogs`}
                   description="Articles published & their reach"
-                  statusChip={`✅ Auto · ${tenantBlogs} this period`}
+                  statusChip={s.wordpress ? '✅ Auto · live (WordPress)' : `✅ Auto · ${tenantBlogs} this period`}
                   statusTone="auto"
-                  onClick={() => navigate('/mbr/blogs')}
+                  onClick={() => navigate(`/mbr/blogs/${s.key}`)}
                 />
               </HubGroup>
             );
@@ -1287,19 +1290,50 @@ export default function MbrReport() {
       {/* ============ STATIC DETAIL VIEWS ============ */}
       {!loading && view === 'blogs' && (
         <div className="pb-8">
-          <Card caption="Content · auto" title={`Blogs published — ${monthLabel}`} icon={FileText}>
-            <DataTable
-              columns={['Title', 'Tenant', 'Published', 'Views (all-time)']}
-              rows={blogsList}
-              renderRow={(b) => (
-                <tr key={b.slug} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
-                  <Td className="max-w-[380px]">{b.title}</Td>
-                  <Td right>{b.tenant}</Td>
-                  <Td right mono>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—'}</Td>
-                  <Td right mono>{fmtNum(b.views)}</Td>
-                </tr>
-              )}
-            />
+          <Card
+            caption="Content · auto"
+            title={`Blogs published — ${monthLabel} · ${blogsList.length}`}
+            icon={FileText}
+          >
+            {blogsList.length === 0 ? (
+              <EmptyState
+                note={`no blogs published in ${monthLabel.toLowerCase()}`}
+                hint="posts appear here the month they go live"
+              />
+            ) : (
+              <DataTable
+                columns={
+                  blogsMethod === 'wordpress'
+                    ? ['#', 'Title', 'Link', 'Published']
+                    : ['Title', 'Tenant', 'Published', 'Views (all-time)']
+                }
+                rows={blogsList}
+                renderRow={(b, idx) => (
+                  <tr key={b.slug} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
+                    {blogsMethod === 'wordpress' ? (
+                      <>
+                        <Td mono className="text-muted-foreground w-10">{idx + 1}</Td>
+                        <Td className="max-w-[360px]">{b.title}</Td>
+                        <Td right className="font-mono text-[10px] max-w-[300px] truncate">{b.slug}</Td>
+                        <Td right mono>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—'}</Td>
+                      </>
+                    ) : (
+                      <>
+                        <Td className="max-w-[380px]">{b.title}</Td>
+                        <Td right>{b.tenant}</Td>
+                        <Td right mono>{b.publishedAt ? new Date(b.publishedAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '—'}</Td>
+                        <Td right mono>{fmtNum(b.views)}</Td>
+                      </>
+                    )}
+                  </tr>
+                )}
+              />
+            )}
+            {blogsMethod === 'wordpress' && (
+              <p className="px-5 pb-3 pt-1 text-[10px] text-muted-foreground/60">
+                Pulled live from the WordPress dashboard (post publish dates).
+              </p>
+            )}
           </Card>
         </div>
       )}
