@@ -435,7 +435,7 @@ NEXT_PUBLIC_GTM_ID = GTM-WW4R4C8P     # loads GTM; no-op if unset. Requires REDE
 - **CSP (`spanbix-web/next.config.mjs`)** must keep `https://*.doubleclick.net` + `https://www.googleadservices.com` in `connect-src` AND `frame-src`, plus `googletagmanager.com` in `script-src` — required for the Google Ads conversion ping (`ad.doubleclick.net/ccm/s/collect`) + GTM. Narrowing breaks Ads conversion recording.
 - **NEVER** paste a raw `gtag.js`/AW snippet into the site — GTM is the only loader (double-tagging double-counts).
 
-**Backend (Render) note:** free tier sleeps after 15 min idle → cold start (~30–60s) can fail a form submit / slow the sitemap. Fix options (none implemented yet): upgrade to Starter ($7/mo, no sleep); free uptime pinger every ~10 min on `/api/health`; GitHub Actions cron; + client warm-up ping + submit-retry. See FUTURE_ROADMAP.
+**Backend (Render) keep-warm — ✅ LIVE (July 2026):** an external cron job pings `GET /api/health` every **10 minutes**, keeping the free-tier dyno awake (sleep threshold is 15 min of no inbound HTTP). Cold-start failures on form submits / sitemap fetches are prevented as long as the cron stays active. If the cron service ever lapses, symptoms return (~30–60s first response after idle) — fallbacks remain: upgrade to Starter ($7/mo, no sleep) or client warm-up ping + submit-retry. NOTE: the internal `scheduledPublishService` worker does NOT keep the dyno awake — Render sleep is triggered by absence of inbound HTTP, and internal timers don't count.
 
 ---
 

@@ -538,7 +538,7 @@ When implementing each phase:
 ### Open follow-ups
 - 🔜 Real recordings infrastructure (Cloudflare R2 + signed upload URLs) when the recording library goes live.
 - ✅ Backend CORS allowlist updated for `https://spanbix.com` + `https://www.spanbix.com`. **Done in Phase 5.9.1.** Baseline now in `src/app.js`; preview regex covers every `spanbix-web-*.vercel.app` deployment.
-- 🔜 Render free-tier upgrade decision (Starter $7/mo always-on vs UptimeRobot keepalive).
+- ✅ Render keep-warm RESOLVED (July 2026) — external cron pings `/api/health` every 10 min; free tier stays awake. Starter upgrade deferred until traffic justifies it.
 - 🔜 Submit `www.spanbix.com` to `hstspreload.org` once a few production requests have confirmed the `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` header is live.
 - 🔜 Migrate HRMS + Tickets to the same Next.js SSR pattern when their organic SEO becomes a priority. Architectural blueprint is now `spanbix-web/`.
 - 🔜 Replace CSP `'unsafe-inline' 'unsafe-eval'` on `script-src` with a per-request nonce (would require the Proxy layer to inject the nonce on every render).
@@ -578,7 +578,7 @@ Code is shipped; these are blocked on third-party IDs/accounts or are explicit n
 - 💡 **Later Ads:** GA4↔Ads link, Enhanced Conversions, GA4↔Search Console link, switch bid strategy to Maximise clicks for the first week to gather data.
 
 ### Render keep-warm (Phase 8 — discussed, NOT implemented)
-- Free Render backend sleeps after 15 min → cold start can fail a form submit / slow sitemap. Options surveyed (awaiting user decision): **(a)** upgrade to Render Starter $7/mo (no sleep — the clean fix for a paid-ads lead-gen site); **(b)** free external uptime pinger (cron-job.org / UptimeRobot) hitting `/api/health` every ~10 min; **(c)** GitHub Actions cron; plus **(d)** code resilience I can add either way — warm-up `GET /api/health` on form-page mount + submit retry with 60s timeout so a cold start doesn't show "failed".
+- ✅ RESOLVED (July 2026): option (b) implemented — an external cron job pings `GET /api/health` every 10 minutes, keeping the free-tier dyno awake. Options (a) Starter upgrade and (d) client warm-up + submit-retry remain available if the cron ever lapses or lead volume grows.
 
 ### AI Mastery course follow-ups (Phase 8)
 - ✅ **AI course aligned to the official brochure** (June 22, 2026) — 12 weeks / 3 months, 13 modules (prompt engineering · generative AI text/image/video/audio · just-enough Python · ML basics · AI agents & no-code automation · ethics · Copilot · 3 capstones), 12th-pass eligibility, 50+ tools. Brochure download WIRED: `'ai'` added to the `CourseDetailView.jsx` allow-list + a "Course outline" download button on the `/sap-course` AI cross-sell strip, both pointing at `/brochures/ai-course-outline.pdf`.
