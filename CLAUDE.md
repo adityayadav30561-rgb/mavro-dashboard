@@ -159,7 +159,7 @@ Before declaring a task done:
 - [ ] Backend nodemon shows no errors
 - [ ] Endpoints respond with expected shape (verified via curl when possible)
 - [ ] Dashboard route still loads (admin not broken)
-- [ ] Public site still loads (`/hrms` and `/tickets`)
+- [ ] Live public sites unaffected (www.spanbix.com via spanbix-web; saisatwik.com via WordPress) — the admin Vite bundle ships no public marketing pages
 - [ ] Both light + dark themes look correct
 - [ ] Mobile + desktop responsive
 - [ ] No hardcoded colors in new components
@@ -415,3 +415,17 @@ Full process doc: **[BLOG_PUBLISHING.md](./BLOG_PUBLISHING.md)** (repo root). In
 *This file optimizes Claude Code's behavior. PROJECT_CONTEXT.md remains the canonical source of truth for project state.*
 </content>
 </invoke>
+
+---
+
+## Phase 11 — Two-tenant consolidation (July 8, 2026)
+
+Invariants from this phase. Honor them on every future edit.
+
+- **Exactly two live tenants: `spanbix` + `saisatwik`.** HRMS + Ticket Management are GONE — frontend trees deleted, Atlas rows cascade-deleted (`src/utils/removeLegacyTenants.js`). Do not reintroduce without explicit ask. The Vite bundle is admin-only (plus the `/spanbix/*` legacy redirect).
+- **`Website.wordpressUrl` is the WordPress gate.** SaiSatwik's blogs live in WordPress, not the Mavro Blog collection. Any corpus consumer must branch on this schema field (`w.wordpressUrl ? getWordpressBlogs(w.slug) : getBlogs(...)`) — never on a hardcoded slug. Current consumers: `SeoEngine.jsx`, `Analytics.jsx` (SEO telemetry).
+- **`wordpressBlogService` is the only WP corpus adapter.** 1h in-memory cache per origin, ≤300 posts, adapts to the exact Blog shape `seoHealth.auditBlog()` reads. WP downtime returns 502 from `GET /api/blogs/wordpress/:websiteSlug` — the SEO page fails soft to an empty corpus.
+- **SaiSatwik analytics ride the tracking snippet** (`saisatwik-tracking-snippet.html` → Divi → Theme Options → Integrations). text/plain sendBeacon deliberately — CORS-safelisted so no preflight. Do NOT switch it to application/json. CORS baseline includes saisatwik.com + www.
+- **`lib/analytics.js` has no default tenant.** Events without a tenant slug are dropped. Do not restore a default slug.
+- **SaiSatwik tenant auto-bootstraps on boot** (`seedSaisatwik.js` → `server.js`, after Spanbix). Slug MUST stay `saisatwik` — MBR sources, the tracking snippet, and analytics aggregations key on it.
+- **Never edit SaiSatwik posts in the Mavro editor or WP editor** — data file + `npm run create:saisatwik-blog` re-run only (see `SAISATWIK_BLOG_PUBLISHING.md` + `BLOG_PUBLISHING.md`).

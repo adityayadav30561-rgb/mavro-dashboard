@@ -7,19 +7,14 @@
 
 ## 1. Frontend Routes
 
-### Public marketing — HRMS
-| Path | Component | Notes |
-|---|---|---|
-| `/hrms` | `pages/hrms/HrmsLanding.jsx` | 13 sections, SEO + JSON-LD wired |
-| `/hrms/blog` | `pages/hrms/HrmsBlogList.jsx` | Paginated, searchable |
-| `/hrms/blog/:slug` | `pages/hrms/HrmsBlogDetail.jsx` | BlogPosting JSON-LD, fires `blog_view` |
+### Public marketing — HRMS + Tickets (⛔ REMOVED July 2026)
 
-### Public marketing — Tickets
-| Path | Component | Notes |
+The Mavro HRMS + Ticket Management marketing sites were removed completely: `pages/hrms/`, `pages/tickets/`, `components/hrms/`, `components/tickets/`, `lib/hrmsSeo.js`, `lib/ticketsSeo.js` deleted; tenant rows cascade-deleted from Atlas via `src/utils/removeLegacyTenants.js`. The Vite bundle is admin-only. Live tenants: **Spanbix** (spanbix-web Next.js) + **SaiSatwik** (external WordPress at saisatwik.com).
+
+### Public site — SaiSatwik (external WordPress)
+| Surface | Where | Notes |
 |---|---|---|
-| `/tickets` | `pages/tickets/TicketsLanding.jsx` | 14 sections including Workflow Visualizer, SLA Section |
-| `/tickets/blog` | `pages/tickets/TicketsBlogList.jsx` | Paginated, searchable |
-| `/tickets/blog/:slug` | `pages/tickets/TicketsBlogDetail.jsx` | BlogPosting JSON-LD |
+| `https://saisatwik.com/*` | WordPress (Divi) | Blogs published via `npm run create:saisatwik-blog`. Analytics via tracking snippet (`saisatwik-tracking-snippet.html`) → `POST /api/analytics/track` slug `saisatwik`. SEO Engine corpus via `GET /api/blogs/wordpress/saisatwik`. |
 
 ### Public marketing — Spanbix (Phase 6 — live on `spanbix-web/` Next.js App Router)
 
@@ -124,6 +119,7 @@ The original Vite Spanbix surface (`client/src/pages/spanbix/`, `client/src/comp
 | PATCH | `/:id/request-revision` | protected | Return to drafting w/ note (required body: `note`) |
 | PATCH | `/:id/reject` | protected | Reject + archive |
 | GET | `/activity` | protected | Cross-corpus activity feed flattened from per-blog `activityLog[]` (filter `?targetWebsite=&limit=&since=`) |
+| GET | `/wordpress/:websiteSlug` | protected | WordPress-backed tenant corpus adapted to the Blog audit shape (Website.wordpressUrl gate — SaiSatwik). 1h in-memory cache; `?fresh=true` busts. |
 | POST | `/import-docx` | protected | Multipart .docx upload → mammoth + heading inference → `{html, detectedTitle, wordCount, readingTime, structure, warnings}` |
 
 ### `/api/leads` — `src/routes/leadRoutes.js`

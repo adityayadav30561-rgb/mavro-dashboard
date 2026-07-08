@@ -12,7 +12,11 @@ import { apiPath } from './apiBase';
 
 const SESSION_KEY = 'mavro_analytics_session';
 const DEDUPE_MS = 1500;
-const DEFAULT_TENANT = 'mavro-hrms';
+// No default tenant — public marketing sites no longer live on this bundle
+// (Spanbix is on spanbix-web, SaiSatwik is on WordPress). Any tracker call
+// without an explicit slug (and without a layout having set one) is dropped
+// rather than mis-attributed.
+const DEFAULT_TENANT = null;
 
 let lastKey = null;
 let lastSentAt = 0;
@@ -52,6 +56,7 @@ function detectDevice() {
 
 export function trackEvent({ eventType, page, websiteSlug, meta }) {
   const slug = websiteSlug || currentTenant;
+  if (!slug) return; // no tenant context — drop instead of mis-attributing
   if (typeof window === 'undefined') return;
   try {
     const path = page || window.location.pathname;

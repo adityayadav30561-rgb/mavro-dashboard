@@ -31,7 +31,7 @@ import {
   getAnalyticsPageBounce,
   getAnalyticsAnomalies,
 } from '@/api/analytics';
-import { getBlogs } from '@/api/blogs';
+import { getBlogs, getWordpressBlogs } from '@/api/blogs';
 
 const REALTIME_POLL_MS = 15000;
 
@@ -132,7 +132,12 @@ export default function Analytics() {
     const tenant = tenantComparison.tenants?.find((t) => t.slug === websiteSlug);
     if (tenant) params.targetWebsite = tenant._id;
     if (websiteSlug !== 'all' && !tenant) return;
-    getBlogs(params)
+    // WordPress-backed tenants (Website.wordpressUrl set — SaiSatwik) pull the
+    // corpus via the WP adapter so SEO telemetry audits the live WP posts.
+    const fetchCorpus = tenant?.wordpressUrl
+      ? getWordpressBlogs(tenant.slug)
+      : getBlogs(params);
+    fetchCorpus
       .then((r) => {
         if (cancelled) return;
         setBlogCorpusWithContent(r.data?.data?.blogs || []);

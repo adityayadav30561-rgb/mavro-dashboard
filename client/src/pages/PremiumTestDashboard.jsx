@@ -32,7 +32,7 @@ const recentActivity = [
 ];
 
 const topPages = [
-  { path: '/blog/hrms-guide', views: 2340, clicks: 187 },
+  { path: '/blog/sap-eppm-guide', views: 2340, clicks: 187 },
   { path: '/pricing', views: 1890, clicks: 234 },
   { path: '/blog/fleet-tips', views: 1456, clicks: 98 },
   { path: '/features', views: 1230, clicks: 156 },

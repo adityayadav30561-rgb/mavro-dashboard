@@ -4,7 +4,7 @@ const slugify = require('slugify');
 // ===================================
 // Campaign — editorial campaign grouping
 // ===================================
-// Groups blogs under an editorial campaign (e.g. "HRMS Launch", "SEO Growth
+// Groups blogs under an editorial campaign (e.g. "Spanbix Launch", "SEO Growth
 // Sprint"). Scoped to a single tenant by `targetWebsite`. Blogs reference a
 // campaign via Blog.campaign (ObjectId → Campaign).
 //

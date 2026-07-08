@@ -957,9 +957,38 @@ const rejectBlog = asyncHandler(async (req, res) => {
   return ApiResponse.success(res, { blog }, 'Blog rejected');
 });
 
+/**
+ * @desc    Get the published corpus for a WordPress-backed tenant, adapted to
+ *          the Blog shape the SEO Engine's audit expects. Gated on the
+ *          Website.wordpressUrl schema field — no hardcoded tenant slugs.
+ * @route   GET /api/blogs/wordpress/:websiteSlug
+ * @access  Private
+ */
+const getWordpressCorpus = asyncHandler(async (req, res) => {
+  const { wordpressBlogService } = require('../services');
+  const website = await Website.findOne({ slug: req.params.websiteSlug }).lean();
+  if (!website) return ApiResponse.notFound(res, 'Website not found');
+  if (!website.wordpressUrl) {
+    return ApiResponse.error(res, 'This tenant is not WordPress-backed (wordpressUrl not set)', 400);
+  }
+
+  try {
+    const blogs = await wordpressBlogService.getWordpressBlogs(
+      website.wordpressUrl,
+      website._id,
+      { fresh: req.query.fresh === 'true' }
+    );
+    return ApiResponse.success(res, { blogs, total: blogs.length, source: 'wordpress' });
+  } catch (err) {
+    // WP being down must not 500 the whole SEO page — surface a clean 502.
+    return ApiResponse.error(res, `WordPress fetch failed: ${err.message}`, 502);
+  }
+});
+
 module.exports = {
   createBlog,
   getBlogs,
+  getWordpressCorpus,
   getBlog,
   updateBlog,
   deleteBlog,

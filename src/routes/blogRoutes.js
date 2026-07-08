@@ -27,6 +27,7 @@ const {
   requestRevisionBlog,
   rejectBlog,
   getActivityFeed,
+  getWordpressCorpus,
 } = require('../controllers/blogController');
 const {
   protect,
@@ -65,6 +66,11 @@ router.get('/activity', getActivityFeed);
 
 // ----- DOCX import (must be before /:id to avoid conflict) -----
 router.post('/import-docx', docxUpload.single('file'), importDocx);
+
+// ----- WordPress-backed tenant corpus (must be before /:id) -----
+// Feeds the SEO Engine for tenants whose blogs live in an external WordPress
+// install (Website.wordpressUrl set — currently SaiSatwik).
+router.get('/wordpress/:websiteSlug', getWordpressCorpus);
 
 // ----- Bulk operations -----
 router.post('/bulk', authorize('admin', 'superadmin'), blogBulkRules, validate, bulkAction);

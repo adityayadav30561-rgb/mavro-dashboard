@@ -1,0 +1,80 @@
+<!-- ═══════════════════════════════════════════════════════════════════════
+  SaiSatwik → Mavro Analytics tracking snippet
+  ─────────────────────────────────────────────────────────────────────────
+  WHERE TO PASTE (one time):
+    wp-admin → Divi → Theme Options → Integrations →
+    "Add code to the < head > of your blog"  → paste this entire block → Save.
+
+  WHAT IT DOES:
+    Fires a page_view event to the Mavro backend on every page load, plus a
+    blog_view event on single-post pages. Events land in AnalyticsEvent with
+    websiteSlug 'saisatwik' and power the Mavro dashboard, /analytics page,
+    funnels, engagement metrics, and anomaly detection.
+
+  DESIGN NOTES:
+    - Uses sendBeacon with a text/plain Blob: text/plain is a CORS-safelisted
+      content type, so no preflight — the beacon always sends. The backend's
+      track endpoint parses text/plain bodies for exactly this reason.
+    - Session id persists per-tab in sessionStorage (same contract as the
+      Mavro tracker) so burst-session engagement math works unchanged.
+    - Fails silently. Never throws. Never blocks the page.
+    - Bots are dropped server-side by UA detection; no client filtering needed.
+═══════════════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  var API = 'https://mavro-dashboard.onrender.com/api/analytics/track';
+  var SLUG = 'saisatwik';
+  var KEY = 'mavro_analytics_session';
+
+  function sid() {
+    try {
+      var id = sessionStorage.getItem(KEY);
+      if (!id) {
+        id = Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 12);
+        sessionStorage.setItem(KEY, id);
+      }
+      return id;
+    } catch (e) {
+      return 'eph_' + Math.random().toString(36).slice(2, 12);
+    }
+  }
+
+  function device() {
+    var ua = navigator.userAgent || '';
+    if (/bot|crawler|spider/i.test(ua)) return 'bot';
+    if (/iPad|Tablet/i.test(ua)) return 'tablet';
+    if (/Mobi|Android|iPhone|iPod|webOS|BlackBerry|Opera Mini|IEMobile/i.test(ua)) return 'mobile';
+    return 'desktop';
+  }
+
+  function send(eventType, meta) {
+    try {
+      var payload = JSON.stringify({
+        websiteSlug: SLUG,
+        eventType: eventType,
+        page: location.pathname + location.search,
+        sessionId: sid(),
+        referrer: document.referrer || undefined,
+        deviceType: device(),
+        meta: meta || {},
+      });
+      // text/plain = CORS-safelisted → sendBeacon never preflights.
+      var blob = new Blob([payload], { type: 'text/plain' });
+      if (navigator.sendBeacon && navigator.sendBeacon(API, blob)) return;
+      fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: payload, keepalive: true }).catch(function () {});
+    } catch (e) { /* tracking must never break the page */ }
+  }
+
+  function fire() {
+    send('page_view');
+    // Single-post pages get a blog_view too (Divi adds `single-post` to body).
+    if (document.body && /\bsingle-post\b/.test(document.body.className)) {
+      var slug = location.pathname.replace(/^\/+|\/+$/g, '').split('/').pop();
+      if (slug) send('blog_view', { blogSlug: slug });
+    }
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') fire();
+  else document.addEventListener('DOMContentLoaded', fire);
+})();
+</script>

@@ -51,7 +51,7 @@ function jaccard(a, b) {
   return union ? inter / union : 0;
 }
 
-// Slug fragment from an internal href like '/hrms/blog/employee-onboarding'
+// Slug fragment from an internal href like '/blog/employee-onboarding'
 function slugFromHref(href) {
   const m = String(href).match(/\/([^\/?#]+)(?:[?#].*)?$/);
   return m ? m[1].toLowerCase() : '';

@@ -400,7 +400,7 @@ async function getTenantComparison({ range = 'week' }) {
   const Website = require('../models/Website');
   const Lead = require('../models/Lead');
   const { current, previous } = resolveRange(range);
-  const websites = await Website.find({ status: 'active' }).select('_id name slug branding').lean();
+  const websites = await Website.find({ status: 'active' }).select('_id name slug branding wordpressUrl').lean();
 
   const results = await Promise.all(websites.map(async (w) => {
     const baseMatch = { websiteSlug: w.slug, timestamp: { $gte: current[0], $lte: current[1] } };
@@ -438,6 +438,7 @@ async function getTenantComparison({ range = 'week' }) {
       slug: w.slug,
       name: w.name,
       branding: w.branding,
+      wordpressUrl: w.wordpressUrl || '',
       sessions,
       pageViews: pvCount,
       ctaClicks: ctaCount,

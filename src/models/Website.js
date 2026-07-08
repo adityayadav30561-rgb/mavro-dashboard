@@ -98,6 +98,16 @@ const websiteSchema = new mongoose.Schema(
       default: 'blog',
       trim: true,
     },
+    // When set, this tenant's blog corpus lives in an external WordPress
+    // install instead of the Mavro Blog collection. The SEO Engine (and any
+    // other corpus consumer) fetches posts live from the WP REST API via
+    // `wordpressBlogService`. Feature-gating on this schema field (not on a
+    // hardcoded slug) keeps the no-tenant-maps invariant intact.
+    wordpressUrl: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     formWebhookUrl: {
       type: String,
       default: '',

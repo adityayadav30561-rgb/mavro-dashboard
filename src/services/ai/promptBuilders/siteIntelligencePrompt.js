@@ -85,7 +85,7 @@ function buildSiteIntelligencePrompt(ctx) {
     '',
     'TASK — produce strict JSON for the operator. Rules:',
     '  1. Interpret the deterministic signals. Do NOT invent metrics or rewrite scores.',
-    '  2. Stay within the tenant domain. HR vocabulary for HRMS, support vocabulary for Ticket Management.',
+    '  2. Stay within the tenant domain. SAP/ERP vocabulary for Spanbix, IT-services vocabulary for SaiSatwik.',
     '  3. Use blog titles in your reasoning ONLY when they appear in the samples above. Never hallucinate articles.',
     '  4. Action items must be concrete (operator can execute today). Avoid vague advice ("write more content").',
     '  5. Keep each insight 1-2 sentences. Operators scan, not read.',

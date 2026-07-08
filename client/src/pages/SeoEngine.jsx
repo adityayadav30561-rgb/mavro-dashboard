@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 
 import { getWebsites } from '@/api/websites';
-import { getBlogs } from '@/api/blogs';
+import { getBlogs, getWordpressBlogs } from '@/api/blogs';
 import { getSeoStats, getSitemapStats, pingSearchEngines } from '@/api/seo';
 import {
   auditCorpus, SEVERITY, SEVERITIES, CATEGORIES, CATEGORY_LABELS,
@@ -113,12 +113,16 @@ export default function SeoEngine() {
       try {
         const [blogResults, sitemapResults, statsRes] = await Promise.all([
           Promise.all(websites.map((w) =>
+            // WordPress-backed tenants (Website.wordpressUrl set — SaiSatwik)
+            // pull their corpus live from the WP REST API via the backend
+            // adapter; Mavro-hosted tenants read the Blog collection.
             // Backend caps limit at 100 (blogQueryRules); audit fits comfortably
-            // for current scale. Add pagination loop here if corpus grows beyond.
-            // includeContent=true is required so word-count + heading audits
-            // operate on the rendered HTML (default list view strips content
-            // for performance).
-            getBlogs({ targetWebsite: w._id, limit: 100, includeContent: true })
+            // for current scale. includeContent=true is required so word-count
+            // + heading audits operate on the rendered HTML.
+            (w.wordpressUrl
+              ? getWordpressBlogs(w.slug)
+              : getBlogs({ targetWebsite: w._id, limit: 100, includeContent: true })
+            )
               .then((r) => [w._id, r.data?.data?.blogs || []])
               .catch((err) => {
                 console.warn(`[SEO] blog corpus fetch failed for ${w.slug}:`, err?.response?.data || err?.message);

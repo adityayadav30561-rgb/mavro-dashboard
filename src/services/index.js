@@ -6,6 +6,7 @@ const analyticsService = require('./analyticsService');
 const anomalyService = require('./anomalyService');
 const scheduledPublishService = require('./scheduledPublishService');
 const revalidateService = require('./revalidateService');
+const wordpressBlogService = require('./wordpressBlogService');
 
 module.exports = {
   indexingService,
@@ -16,4 +17,5 @@ module.exports = {
   anomalyService,
   scheduledPublishService,
   revalidateService,
+  wordpressBlogService,
 };

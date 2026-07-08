@@ -11,17 +11,19 @@ const connectDB = require('./config/db');
 const config = require('./config');
 const { scheduledPublishService } = require('./services');
 const { upsertSpanbixTenant } = require('./utils/seedSpanbix');
+const { upsertSaisatwikTenant } = require('./utils/seedSaisatwik');
 
 const startServer = async () => {
   // Connect to MongoDB
   await connectDB();
 
-  // Auto-bootstrap the Spanbix tenant. The Website row carries all branding +
-  // aiContext + seoDefaults so the admin /websites page lists Spanbix the
-  // moment the backend boots. Idempotent — refreshes description/aiContext
-  // every boot but preserves any branding admins customise in the UI.
+  // Auto-bootstrap the live tenants (Spanbix + SaiSatwik). Each Website row
+  // carries branding + aiContext + seoDefaults so the admin /websites page
+  // lists them the moment the backend boots. Idempotent — refreshes content
+  // fields every boot but preserves any branding admins customise in the UI.
   // Errors are swallowed silently so a misconfigured seed never blocks boot.
   await upsertSpanbixTenant({ silent: true });
+  await upsertSaisatwikTenant({ silent: true });
 
   // Start the scheduled-publish worker (polls every 60s for due blogs)
   scheduledPublishService.start();

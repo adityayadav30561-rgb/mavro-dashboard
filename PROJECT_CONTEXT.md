@@ -63,11 +63,12 @@ Mavro is a **multi-tenant SEO + publishing + lead operations platform**. One Nod
 
 ## 3. Active Tenants
 
+**Only TWO live tenants (July 2026).** Legacy Mavro HRMS + Ticket Management removed completely — frontend pages/components deleted, tenant rows cascade-deleted from Atlas (`src/utils/removeLegacyTenants.js`). The Vite bundle is admin-only.
+
 | Slug | Name | Public route | Status |
 |---|---|---|---|
-| `mavro-hrms` | Mavro HRMS | `/hrms` | Live (co-hosted on the Vite admin bundle) |
-| `mavro-ticket-management` | Mavro Ticket Management | `/tickets` | Live (co-hosted on the Vite admin bundle) |
 | `spanbix` | Spanbix | `https://www.spanbix.com` | **Live on the standalone Next.js app `spanbix-web/`** — Career Transformation Infrastructure for Enterprise Technologies (SAP ecosystem upskilling, campus partnerships, placement). Brand isolated: navy `#102c56` + accent `#2764e4` + Instrument Serif + Geist + JetBrains Mono (DM Serif Display + Sora retained as fallbacks). Public ecosystem at root: `/`, `/courses`, `/career-paths`, `/career-paths/{fico,mm,sd,abap}`, `/campus-programs`, `/about`, `/contact`, `/blog`, `/blog/<slug>`. Legacy `/spanbix/*` page paths 308 → root via `next.config.mjs` redirects (asset-extension excluded). |
+| `saisatwik` | SaiSatwik | `https://saisatwik.com` | **Live on an external WordPress install** (Divi, LiteSpeed). Blogs live in WordPress, NOT the Mavro Blog collection — `Website.wordpressUrl` gates the WP corpus path. SEO Engine + Analytics SEO telemetry pull the corpus live via `wordpressBlogService` (`GET /api/blogs/wordpress/saisatwik`, 1h cache). Analytics events arrive from the tracking snippet in Divi → Theme Options → Integrations (`saisatwik-tracking-snippet.html` at repo root) → `POST /api/analytics/track` slug `saisatwik` (text/plain beacon, no preflight). Blog publishing: `npm run create:saisatwik-blog` (see `SAISATWIK_BLOG_PUBLISHING.md`). Auto-bootstrapped on boot via `seedSaisatwik.js`. |
 
 **Canonical host:** `https://www.spanbix.com`. Apex `spanbix.com` 301-redirects to www via `spanbix-web/src/proxy.js` (Next 16 Proxy / formerly Middleware — explicit `NextResponse.redirect(url, 301)`, since `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` stays in the CORS allowlist as a fallback / preview alias. `Website.domain` for the Spanbix row was migrated to `"www.spanbix.com"` (the backend sitemap + robots URL generators read this field via `sitemapService.buildBaseUrl`).
 
@@ -112,12 +113,7 @@ Default admin: `admin@mavro.com` / `Admin@123456` (seeded).
 ## 5. Key Routes
 
 ### Public marketing
-- `/hrms` — HRMS landing (`HrmsLanding.jsx`)
-- `/hrms/blog` — HRMS blog list
-- `/hrms/blog/:slug` — HRMS blog detail
-- `/tickets` — Tickets landing (`TicketsLanding.jsx`)
-- `/tickets/blog` — Tickets blog list
-- `/tickets/blog/:slug` — Tickets blog detail
+**None on this bundle (July 2026).** HRMS + Tickets pages deleted; Spanbix lives on `spanbix-web/` (Next.js); SaiSatwik lives on WordPress (saisatwik.com). `/spanbix/*` on the admin host hard-redirects to `https://www.spanbix.com`.
 
 ### Admin (protected by `ProtectedRoute` + JWT)
 - `/` — Command Center dashboard (real analytics, tenant-scoped via global `TenantContext`)

@@ -1,6 +1,10 @@
 import api from './axios';
 
 export const getBlogs = (params) => api.get('/blogs', { params });
+// WordPress-backed tenant corpus (Website.wordpressUrl set — e.g. SaiSatwik).
+// Returns posts adapted to the Blog audit shape for the SEO Engine.
+export const getWordpressBlogs = (websiteSlug, params) =>
+  api.get(`/blogs/wordpress/${websiteSlug}`, { params });
 export const getBlog = (id) => api.get(`/blogs/${id}`);
 export const createBlog = (data) => api.post('/blogs', data);
 export const updateBlog = (id, data) => api.put(`/blogs/${id}`, data);

@@ -950,6 +950,31 @@ src/services/google/
 - **UI primitive layer** at `client/src/components/ui/`: PageHeader, PaperButton, PaperTable, StatTile, EmptyState, IndexTabs (+ Badge stamp variants) with domain inks from `client/src/lib/inks.js`. New admin surfaces compose these — see UI_VISION.md §15.1–15.3.
 - `DashboardLayout` uses contained scroll (`h-screen` + inner `overflow-auto`) — required for sticky elements; sidebar/topbar stay fixed.
 
+## Phase 11 — Two-tenant consolidation: SaiSatwik onboarding + HRMS/Tickets removal (July 8, 2026)
+
+**Live tenants are now exactly two: Spanbix (spanbix-web Next.js) + SaiSatwik (external WordPress at saisatwik.com).**
+
+### Removed
+- `client/src/pages/{hrms,tickets}/`, `client/src/components/{hrms,tickets}/`, `client/src/lib/{hrmsSeo,ticketsSeo}.js` — deleted. `App.jsx` ships admin routes only (+ the `/spanbix/*` legacy redirect). Main chunk shrank ~1097 kB → ~233 kB.
+- `.legacy-neon` scope deleted from `index.css` (definition block + all `:not(.legacy-neon *)` qualifiers).
+- `lib/analytics.js` `DEFAULT_TENANT` is now `null` — tracker drops events with no tenant context instead of mis-attributing to a dead slug.
+- `seeder.js` reduced to superadmin + the two tenant upserts. Demo users removed.
+- Tenant rows `mavro-hrms` + `mavro-ticket-management` cascade-deleted from Atlas via `src/utils/removeLegacyTenants.js` (dry-run by default, `--apply` to execute). `_cleanup-demo` endpoint now includes both slugs.
+
+### Added — SaiSatwik in the SEO Engine + Analytics
+- **`Website.wordpressUrl`** schema field — gates the WordPress corpus path. No hardcoded tenant slugs (same invariant as the AI layer).
+- **`src/utils/seedSaisatwik.js`** — `upsertSaisatwikTenant({silent})`, called from `server.js` boot after Spanbix. Slug `saisatwik`, domain `saisatwik.com`, `wordpressUrl: 'https://saisatwik.com'`.
+- **`src/services/wordpressBlogService.js`** — pulls published posts from the WP REST API (`_embed=wp:term,wp:featuredmedia`, ≤300 posts), adapts each to the Blog shape `seoHealth.auditBlog()` expects (title→seoTitle, stripped excerpt→seoDescription, tags/categories from embedded terms, featured media → featuredImage/ogImage), caches 1h per origin.
+- **`GET /api/blogs/wordpress/:websiteSlug`** (protected, before `/:id`) — returns `{blogs, total, source:'wordpress'}`; 502 (not 500) when WP is down; `?fresh=true` busts the cache.
+- **Frontend**: `SeoEngine.jsx` + `Analytics.jsx` branch per tenant — `w.wordpressUrl ? getWordpressBlogs(w.slug) : getBlogs(...)`. `getTenantComparison` hydration now includes `wordpressUrl` so the Analytics page can branch.
+- **Analytics ingestion**: `saisatwik-tracking-snippet.html` (repo root) pasted into Divi → Theme Options → Integrations fires `page_view` (+ `blog_view` on single-post pages) as **text/plain sendBeacon** (CORS-safelisted → no preflight; the track endpoint already parses text/plain). CORS baseline in `app.js` includes `https://saisatwik.com` + `https://www.saisatwik.com`.
+- All existing aggregations (overview, timeseries, funnel, engagement, anomalies, tenant comparison) work unchanged — they key on `websiteSlug` and the events land with slug `saisatwik`.
+
+### Known limits
+- WP posts don't expose Rank Math meta over bare REST — audit sees title/excerpt as seoTitle/seoDescription (matches the plugin's own fallback behaviour).
+- Sitemap Operations card on /seo has no data for SaiSatwik (WordPress owns its own sitemap) — the fetch fails soft to null.
+- Editorial surfaces (Kanban, campaigns, decay queue → editor) don't apply to WP posts; SaiSatwik content edits go through the data-file + CLI flow (`SAISATWIK_BLOG_PUBLISHING.md`).
+
 ---
 
 *End of architecture reference.*

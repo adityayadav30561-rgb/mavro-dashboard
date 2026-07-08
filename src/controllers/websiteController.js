@@ -101,8 +101,9 @@ const deleteWebsite = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    One-shot cleanup — removes seeded demo tenants (Fleet/Inventory/Transport)
- *          and updates HRMS + Tickets domains to current localhost dev routes.
+ * @desc    One-shot cleanup — removes legacy Mavro demo tenants (Fleet/
+ *          Inventory/Transport + HRMS + Ticket Management). Only Spanbix and
+ *          SaiSatwik are live tenants (July 2026).
  * @route   POST /api/websites/_cleanup-demo
  * @access  Private (superadmin only)
  *
@@ -116,14 +117,14 @@ const cleanupDemo = asyncHandler(async (req, res) => {
     'mavro-fleet-management',
     'mavro-inventory-management',
     'mavro-transport-management',
-    // Tickets too — earlier seeder used "Mavro Ticket Management" but a
-    // partial seed may have created "Mavro Tickets" etc. Be inclusive.
+    // HRMS + Tickets retired July 2026 — their public sites were removed from
+    // the Vite bundle; the tenant rows (and dependent blogs/leads/events) go
+    // through the same cascade.
+    'mavro-hrms',
+    'mavro-ticket-management',
   ];
 
-  const localhostDomains = {
-    'mavro-hrms': 'localhost:5173/hrms',
-    'mavro-ticket-management': 'localhost:5173/tickets',
-  };
+  const localhostDomains = {};
 
   // Identify demo tenants
   const demoTenants = await Website.find({ slug: { $in: demoSlugs } }).lean();

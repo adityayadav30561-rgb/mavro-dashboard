@@ -22,8 +22,8 @@ const emptyForm = {
 // ===================================
 // Domain → public URL resolver
 // ===================================
-// Domains are stored as either "localhost:5173/hrms" (dev) or
-// "hrms.mavro.com" (prod). Build a real clickable URL from either form.
+// Domains are stored as either "localhost:3000" (dev) or
+// "www.spanbix.com" (prod). Build a real clickable URL from either form.
 function publicUrlFromDomain(domain) {
   if (!domain) return null;
   const trimmed = domain.trim().replace(/^https?:\/\//, '');
@@ -222,10 +222,10 @@ export default function WebsiteList() {
               value={form.domain}
               onChange={onDomainChange}
               className="input-field"
-              placeholder="localhost:5173/hrms · or · hrms.mavro.com"
+              placeholder="www.spanbix.com · or · saisatwik.com"
             />
             <p className="mt-1.5 text-[11px] text-muted-foreground">
-              Dev: <code className="font-mono text-foreground/70">localhost:5173/hrms</code> · Prod: <code className="font-mono text-foreground/70">hrms.mavro.com</code>
+              Prod: <code className="font-mono text-foreground/70">www.spanbix.com</code> · <code className="font-mono text-foreground/70">saisatwik.com</code>
             </p>
           </div>
 

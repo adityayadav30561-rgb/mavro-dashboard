@@ -2,37 +2,18 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
-// ════════════════════════════════════════════════════════════════════════════
-// PUBLIC ROUTES — eager-imported.
-// ────────────────────────────────────────────────────────────────────────────
-// These are the primary user-facing surfaces (HRMS + Tickets marketing sites).
-// They render on first paint for visitors landing from search engines / social
-// / paid acquisition, so the bundle for these routes ships in the initial JS
-// payload. No Suspense wait, no flash of loading state.
-//
-// Spanbix moved off this bundle in Phase 6 — the live site is the standalone
-// Next.js 16 App Router app at `spanbix-web/` (deployed to www.spanbix.com).
-// Legacy `/spanbix/*` requests against the admin host now fall through to the
-// NotFound catch-all and the global `<SpanbixLegacyRedirect />` (below) sends
-// them to the canonical www host so any stale inbound link still resolves.
-// ════════════════════════════════════════════════════════════════════════════
-import HrmsLanding from './pages/hrms/HrmsLanding';
-import HrmsBlogList from './pages/hrms/HrmsBlogList';
-import HrmsBlogDetail from './pages/hrms/HrmsBlogDetail';
-import TicketsLanding from './pages/tickets/TicketsLanding';
-import TicketsBlogList from './pages/tickets/TicketsBlogList';
-import TicketsBlogDetail from './pages/tickets/TicketsBlogDetail';
 import NotFound from './pages/NotFound';
 
 // ════════════════════════════════════════════════════════════════════════════
 // ADMIN ROUTES — code-split via React.lazy.
 // ────────────────────────────────────────────────────────────────────────────
-// The dashboard (BlogForm with React-Quill, Recharts-heavy Analytics, the
-// editorial Calendar, SEO Engine, etc.) is large. None of it is needed for
-// public visitors. Lazy-loading isolates the admin bundle into its own
-// chunks so a Vercel-deployed public-only build can ship a much smaller
-// initial JS payload. Admin users pay one short Suspense fallback the first
-// time they hit `/login` or any protected route.
+// This bundle is now admin-only. The public marketing surfaces live elsewhere:
+//   - Spanbix   → standalone Next.js app at `spanbix-web/` (www.spanbix.com)
+//   - SaiSatwik → external WordPress install (saisatwik.com, Divi theme)
+// The legacy HRMS + Tickets Vite marketing sites were removed in July 2026 —
+// only Spanbix and SaiSatwik are live tenants. Lazy-loading keeps each admin
+// surface (Quill-heavy BlogForm, Recharts-heavy Analytics, the editorial
+// Calendar, SEO Engine) in its own chunk.
 // ════════════════════════════════════════════════════════════════════════════
 const Login = lazy(() => import('./pages/Login'));
 const DashboardLayout = lazy(() => import('./components/layout/DashboardLayout'));
@@ -77,16 +58,6 @@ export default function App() {
 
   return (
     <Routes>
-      {/* ──────── Public HRMS marketing site ──────── */}
-      <Route path="/hrms" element={<HrmsLanding />} />
-      <Route path="/hrms/blog" element={<HrmsBlogList />} />
-      <Route path="/hrms/blog/:slug" element={<HrmsBlogDetail />} />
-
-      {/* ──────── Public Ticket Management marketing site ──────── */}
-      <Route path="/tickets" element={<TicketsLanding />} />
-      <Route path="/tickets/blog" element={<TicketsBlogList />} />
-      <Route path="/tickets/blog/:slug" element={<TicketsBlogDetail />} />
-
       {/* ──────── Legacy /spanbix/* → canonical www.spanbix.com ────────
           Phase 6 cutover: the live Spanbix site is the standalone Next.js app
           at www.spanbix.com (repo: `spanbix-web/`). Stale inbound links to the

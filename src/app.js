@@ -57,6 +57,10 @@ const CORS_BASELINE_ORIGINS = [
   'https://spanbix.com',
   'https://www.spanbix.com',
   'https://spanbix-web.vercel.app',
+  // SaiSatwik WordPress site — fires analytics beacons at /api/analytics/track
+  // via the tracking snippet in Divi → Theme Options → Integrations.
+  'https://saisatwik.com',
+  'https://www.saisatwik.com',
 ];
 const SPANBIX_WEB_VERCEL_RE = /^https:\/\/spanbix-web[a-z0-9-]*\.vercel\.app$/;
 

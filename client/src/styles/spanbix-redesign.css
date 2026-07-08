@@ -2,7 +2,7 @@
    Spanbix Redesign — editorial magazine design system (v2)
    ────────────────────────────────────────────────────────────────────────────
    EVERY selector is scoped under `.spanbix-scope` so this file cannot leak
-   into Mavro admin, HRMS, or Tickets surfaces. Imported once from the entry
+   into Mavro admin surfaces. Imported once from the entry
    files (full + spanbix builds). Tokens layered on top of brand navy.
    ════════════════════════════════════════════════════════════════════════════ */
 

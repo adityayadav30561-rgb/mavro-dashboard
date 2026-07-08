@@ -397,7 +397,7 @@ export default function BlogForm() {
               <Field label="Keywords (comma-separated)">
                 <input
                   type="text" value={form.keywords} onChange={set('keywords')}
-                  className="input-glass" placeholder="hrms, hr software, employee management"
+                  className="input-glass" placeholder="sap eppm, project portfolio, implementation partner"
                 />
               </Field>
               <Field label="Tags (comma-separated)">

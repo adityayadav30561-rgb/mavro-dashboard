@@ -111,9 +111,9 @@ function proposeAnchor(currentPlainText, candidateTokens, candidateTitle) {
 // corpus: array of tenant blogs (must include _id, title, slug, tags, keywords,
 //         content, targetWebsite { slug } OR websiteSlug)
 // tenantBlogSlugPrefix: optional override (default 'blog')
-// publicSiteSlug: tenant slug for URL generation (e.g. 'mavro-hrms')
+// publicSiteSlug: tenant slug for URL generation (e.g. 'spanbix')
 //                 → URL: `/${tenantSitePath}/${blogSlugPrefix}/${blog.slug}`
-//                 tenantSitePath maps slug to site path ('mavro-hrms' → 'hrms', etc.)
+//                 tenantSitePath maps slug to site path (slug passes through as-is)
 //
 // Returns:
 //   {
@@ -325,15 +325,11 @@ function computeOrphans(scored, corpus) {
 // ===================================
 // Tenant site-path resolver
 // ===================================
-// Maps a tenant slug to the public site URL fragment. Reuses the existing
-// convention in App.jsx:
-//   mavro-hrms              → 'hrms'
-//   mavro-ticket-management → 'tickets'
-//   (default fallback)      → tenant slug as-is
+// Maps a tenant slug to the public site URL fragment. The live tenants
+// (Spanbix on spanbix-web, SaiSatwik on WordPress) serve blogs at the root of
+// their own hosts, so the slug passes through as-is; any legacy 'mavro-'
+// prefix is stripped for safety.
 export function resolveTenantSitePath(slug) {
   if (!slug) return '';
-  if (slug === 'mavro-hrms') return 'hrms';
-  if (slug === 'mavro-ticket-management') return 'tickets';
-  // Strip leading 'mavro-' prefix if present for future tenants
   return slug.replace(/^mavro-/, '');
 }
