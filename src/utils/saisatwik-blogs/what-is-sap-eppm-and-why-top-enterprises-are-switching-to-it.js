@@ -315,6 +315,10 @@ module.exports = {
 
 <!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-modules-explained-ps-ppm-im-cpm-cats/">SAP EPPM modules explained: PS, PPM, IM, CPM and CATS</a> — the module-by-module breakdown, including which one to start with by pain signal.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-in-sap-s4hana-what-changed/">SAP EPPM in SAP S/4HANA: what changed</a> — the platform-shift guide covering the Universal Journal, Fiori, and what a PMO should do before the move.</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
