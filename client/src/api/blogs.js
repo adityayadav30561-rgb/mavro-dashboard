@@ -5,6 +5,9 @@ export const getBlogs = (params) => api.get('/blogs', { params });
 // Returns posts adapted to the Blog audit shape for the SEO Engine.
 export const getWordpressBlogs = (websiteSlug, params) =>
   api.get(`/blogs/wordpress/${websiteSlug}`, { params });
+// Sitemap-style URL counts for a WordPress-backed tenant (real WP REST totals).
+export const getWordpressSitemapStats = (websiteSlug, params) =>
+  api.get(`/blogs/wordpress/${websiteSlug}/stats`, { params });
 export const getBlog = (id) => api.get(`/blogs/${id}`);
 export const createBlog = (data) => api.post('/blogs', data);
 export const updateBlog = (id, data) => api.put(`/blogs/${id}`, data);

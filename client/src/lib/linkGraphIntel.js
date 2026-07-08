@@ -51,9 +51,13 @@ function jaccard(a, b) {
   return union ? inter / union : 0;
 }
 
-// Slug fragment from an internal href like '/blog/employee-onboarding'
+// Slug fragment from an internal href like '/blog/employee-onboarding'.
+// Tolerates WordPress-style trailing slashes ('/employee-onboarding/') —
+// without the strip, every WP permalink failed the match and the graph
+// rendered 0 edges for WordPress-backed tenants.
 function slugFromHref(href) {
-  const m = String(href).match(/\/([^\/?#]+)(?:[?#].*)?$/);
+  const clean = String(href).split('#')[0].split('?')[0].replace(/\/+$/, '');
+  const m = clean.match(/\/([^\/]+)$/);
   return m ? m[1].toLowerCase() : '';
 }
 

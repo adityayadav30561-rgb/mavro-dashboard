@@ -985,10 +985,35 @@ const getWordpressCorpus = asyncHandler(async (req, res) => {
   }
 });
 
+/**
+ * @desc    Sitemap-style URL counts for a WordPress-backed tenant (real WP
+ *          REST totals). Shape matches sitemapService.getSitemapStats.
+ * @route   GET /api/blogs/wordpress/:websiteSlug/stats
+ * @access  Private
+ */
+const getWordpressStats = asyncHandler(async (req, res) => {
+  const { wordpressBlogService } = require('../services');
+  const website = await Website.findOne({ slug: req.params.websiteSlug }).lean();
+  if (!website) return ApiResponse.notFound(res, 'Website not found');
+  if (!website.wordpressUrl) {
+    return ApiResponse.error(res, 'This tenant is not WordPress-backed (wordpressUrl not set)', 400);
+  }
+  try {
+    const stats = await wordpressBlogService.getWordpressSitemapStats(
+      website.wordpressUrl,
+      { fresh: req.query.fresh === 'true' }
+    );
+    return ApiResponse.success(res, stats);
+  } catch (err) {
+    return ApiResponse.error(res, `WordPress fetch failed: ${err.message}`, 502);
+  }
+});
+
 module.exports = {
   createBlog,
   getBlogs,
   getWordpressCorpus,
+  getWordpressStats,
   getBlog,
   updateBlog,
   deleteBlog,

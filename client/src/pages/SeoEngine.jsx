@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/Badge';
 import { cn } from '@/lib/utils';
 
 import { getWebsites } from '@/api/websites';
-import { getBlogs, getWordpressBlogs } from '@/api/blogs';
+import { getBlogs, getWordpressBlogs, getWordpressSitemapStats } from '@/api/blogs';
 import { getSeoStats, getSitemapStats, pingSearchEngines } from '@/api/seo';
 import {
   auditCorpus, SEVERITY, SEVERITIES, CATEGORIES, CATEGORY_LABELS,
@@ -130,7 +130,12 @@ export default function SeoEngine() {
               })
           )),
           Promise.all(websites.map((w) =>
-            getSitemapStats(w._id)
+            // WordPress tenants own their sitemap — pull real WP REST totals
+            // (posts + pages). Mavro tenants read the backend sitemapService.
+            (w.wordpressUrl
+              ? getWordpressSitemapStats(w.slug)
+              : getSitemapStats(w._id)
+            )
               .then((r) => [w._id, r.data?.data || null])
               .catch(() => [w._id, null])
           )),

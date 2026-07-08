@@ -144,7 +144,9 @@ export function analyzeInternalLinks(currentBlog, corpus, { tenantSitePath, blog
   const existingSlugFragments = new Set(
     existingInternalLinks
       .map((href) => {
-        const m = String(href).match(/\/([^\/?#]+)(?:[?#].*)?$/);
+        // Trailing-slash tolerant (WordPress permalinks end in '/')
+        const clean = String(href).split('#')[0].split('?')[0].replace(/\/+$/, '');
+        const m = clean.match(/\/([^\/]+)$/);
         return m ? m[1].toLowerCase() : '';
       })
       .filter(Boolean)

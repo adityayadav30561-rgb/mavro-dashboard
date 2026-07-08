@@ -47,8 +47,25 @@ async function fetchPage(base, page) {
   return { posts, totalPages };
 }
 
+/**
+ * Rewrite absolute self-referencing links to relative paths.
+ * WordPress content links its own posts absolutely
+ * (`https://saisatwik.com/<slug>/`), which the frontend link intelligence
+ * (`extractLinks` in seoReadability.js) classifies as EXTERNAL — collapsing
+ * the internal link graph to 0 edges and marking every post an orphan.
+ * Normalizing self-host hrefs to `/<path>` makes the audit's
+ * internal/external partition and the Content Relationship Graph behave
+ * exactly as they do for Mavro-hosted corpora.
+ */
+function relativizeSelfLinks(html, base) {
+  const host = String(base).replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/\/+$/, '');
+  const esc = host.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`(href=["'])https?://(?:www\\.)?${esc}(/[^"']*)?(["'])`, 'gi');
+  return String(html).replace(re, (_m, pre, path, post) => `${pre}${path || '/'}${post}`);
+}
+
 /** Adapt one WP post into the Blog-document shape the audit engine consumes. */
-function adaptPost(post, websiteId) {
+function adaptPost(post, websiteId, base) {
   const title = stripHtml(post.title?.rendered || '');
   const excerpt = stripHtml(post.excerpt?.rendered || '');
   const terms = post._embedded?.['wp:term'] || [];
@@ -61,7 +78,7 @@ function adaptPost(post, websiteId) {
     wpPostId: post.id,
     title,
     slug: post.slug,
-    content: post.content?.rendered || '',
+    content: relativizeSelfLinks(post.content?.rendered || '', base),
     excerpt,
     // WordPress SEO-plugin meta (Rank Math) isn't exposed over bare REST, so
     // the closest honest mapping: post title as seoTitle, excerpt as
@@ -103,9 +120,43 @@ async function getWordpressBlogs(wordpressUrl, websiteId, { fresh = false } = {}
     page += 1;
   } while (page <= totalPages);
 
-  const blogs = all.map((p) => adaptPost(p, websiteId));
+  const blogs = all.map((p) => adaptPost(p, websiteId, base));
   cache.set(base, { at: Date.now(), blogs });
   return blogs;
 }
 
-module.exports = { getWordpressBlogs };
+/**
+ * Sitemap-style URL counts for a WordPress-backed tenant, from real WP REST
+ * totals (X-WP-Total headers — one cheap request per post type). WordPress
+ * owns the tenant's actual sitemap; the Mavro backend's sitemapService knows
+ * nothing about it, which is why the /seo Indexed Pages tile showed 2
+ * (homepage + blog index) before this existed. Shape matches
+ * `sitemapService.getSitemapStats` so the frontend consumes it unchanged.
+ */
+async function getWordpressSitemapStats(wordpressUrl, { fresh = false } = {}) {
+  const base = String(wordpressUrl).replace(/\/+$/, '');
+  const key = `${base}::stats`;
+  const hit = cache.get(key);
+  if (!fresh && hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.stats;
+
+  const count = async (type) => {
+    const res = await fetch(`${base}/wp-json/wp/v2/${type}?per_page=1&status=publish&_fields=id`, {
+      headers: { 'User-Agent': 'MavroSeoEngine/1.0' },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return 0;
+    return parseInt(res.headers.get('x-wp-total') || '0', 10);
+  };
+
+  const [blogUrls, staticUrls] = await Promise.all([count('posts'), count('pages')]);
+  const stats = {
+    blogUrls,
+    staticUrls,
+    totalUrls: blogUrls + staticUrls,
+    source: 'wordpress',
+  };
+  cache.set(key, { at: Date.now(), stats });
+  return stats;
+}
+
+module.exports = { getWordpressBlogs, getWordpressSitemapStats };
