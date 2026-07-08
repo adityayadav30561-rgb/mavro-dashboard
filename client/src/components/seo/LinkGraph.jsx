@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Network, Crown, ArrowDownRight, ArrowUpRight, Ghost, ChevronDown, ChevronRight } from 'lucide-react';
+import { Network, Crown, ArrowDownRight, ArrowUpRight, Ghost, ChevronDown, ChevronRight, List, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import InfoPopover from '@/components/analytics/InfoPopover';
 import { getSeoInfo } from '@/lib/seoCopy';
@@ -19,12 +19,12 @@ import { getSeoInfo } from '@/lib/seoCopy';
  * Scales linearly — readable at 5 posts or 500 (cards scroll internally).
  */
 const CLUSTER_PALETTE = [
-  { text: 'text-violet-400',  border: 'border-violet-500/40',  bg: 'bg-violet-500/[0.06]',  line: 'border-violet-500/30' },
-  { text: 'text-cyan-400',    border: 'border-cyan-500/40',    bg: 'bg-cyan-500/[0.06]',    line: 'border-cyan-500/30' },
-  { text: 'text-emerald-400', border: 'border-emerald-500/40', bg: 'bg-emerald-500/[0.06]', line: 'border-emerald-500/30' },
-  { text: 'text-amber-400',   border: 'border-amber-500/40',   bg: 'bg-amber-500/[0.06]',   line: 'border-amber-500/30' },
-  { text: 'text-rose-400',    border: 'border-rose-500/40',    bg: 'bg-rose-500/[0.06]',    line: 'border-rose-500/30' },
-  { text: 'text-blue-400',    border: 'border-blue-500/40',    bg: 'bg-blue-500/[0.06]',    line: 'border-blue-500/30' },
+  { text: 'text-violet-400',  border: 'border-violet-500/40',  bg: 'bg-violet-500/[0.06]',  line: 'border-violet-500/30',  hex: '#a78bfa' },
+  { text: 'text-cyan-400',    border: 'border-cyan-500/40',    bg: 'bg-cyan-500/[0.06]',    line: 'border-cyan-500/30',    hex: '#22d3ee' },
+  { text: 'text-emerald-400', border: 'border-emerald-500/40', bg: 'bg-emerald-500/[0.06]', line: 'border-emerald-500/30', hex: '#34d399' },
+  { text: 'text-amber-400',   border: 'border-amber-500/40',   bg: 'bg-amber-500/[0.06]',   line: 'border-amber-500/30',   hex: '#fbbf24' },
+  { text: 'text-rose-400',    border: 'border-rose-500/40',    bg: 'bg-rose-500/[0.06]',    line: 'border-rose-500/30',    hex: '#fb7185' },
+  { text: 'text-blue-400',    border: 'border-blue-500/40',    bg: 'bg-blue-500/[0.06]',    line: 'border-blue-500/30',    hex: '#60a5fa' },
 ];
 
 export default function LinkGraph({ graph, clusters, quality }) {
@@ -80,7 +80,8 @@ export default function LinkGraph({ graph, clusters, quality }) {
         }))
         .sort((a, b) => (a.depth - b.depth) || (b.node.inbound - a.node.inbound));
 
-      comps.push({ hubId, rows, size: ids.length, edges: graph.edges.filter((e) => idSet.has(e.source) && idSet.has(e.target)).length });
+      const edgeList = graph.edges.filter((e) => idSet.has(e.source) && idSet.has(e.target));
+      comps.push({ hubId, rows, size: ids.length, edges: edgeList.length, edgeList });
     }
     comps.sort((a, b) => b.size - a.size);
 
@@ -192,6 +193,7 @@ export default function LinkGraph({ graph, clusters, quality }) {
 
 function ClusterCard({ comp, palette }) {
   const hub = comp.rows.find((r) => r.isHub);
+  const [view, setView] = useState('list'); // 'list' | 'map'
   return (
     <div className={cn('rounded-xl border overflow-hidden', palette.border, palette.bg)}>
       {/* Hub header */}
@@ -202,19 +204,153 @@ function ClusterCard({ comp, palette }) {
           <span className="ml-auto text-[9.5px] font-mono text-muted-foreground tabular-nums">
             {comp.size} posts · {comp.edges} links
           </span>
+          <button
+            type="button"
+            onClick={() => setView((v) => (v === 'list' ? 'map' : 'list'))}
+            className={cn(
+              'ml-1 inline-flex items-center gap-1 px-2 py-1 rounded-md border text-[9px] font-bold uppercase tracking-[0.12em] transition-colors',
+              view === 'map'
+                ? cn(palette.border, palette.text, 'bg-foreground/[0.04]')
+                : 'border-border/60 text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]'
+            )}
+            title={view === 'list' ? 'Switch to visual map' : 'Switch to list'}
+          >
+            {view === 'list' ? <Share2 size={9} /> : <List size={9} />}
+            {view === 'list' ? 'Map' : 'List'}
+          </button>
         </div>
         <p className="text-[12.5px] font-bold leading-snug">{hub?.node.title}</p>
         <RowCounts node={hub?.node} />
       </div>
 
-      {/* Member tree */}
-      <ul className="px-3 py-2 max-h-[300px] overflow-y-auto">
-        {comp.rows.filter((r) => !r.isHub).map((r) => (
-          <MemberRow key={r.node.id} row={r} palette={palette} />
-        ))}
-      </ul>
+      {view === 'list' ? (
+        /* Member tree */
+        <ul className="px-3 py-2 max-h-[300px] overflow-y-auto">
+          {comp.rows.filter((r) => !r.isHub).map((r) => (
+            <MemberRow key={r.node.id} row={r} palette={palette} />
+          ))}
+        </ul>
+      ) : (
+        <ClusterMap comp={comp} palette={palette} />
+      )}
     </div>
   );
+}
+
+/**
+ * Per-group radial map — the one scale where node-edge visuals work.
+ * Hub centered, members on BFS-depth rings, directional arrows on edges,
+ * labels under every node (small groups = labels always fit).
+ */
+function ClusterMap({ comp, palette }) {
+  const [hoverId, setHoverId] = useState(null);
+  const W = 460;
+  const H = comp.size > 12 ? 400 : 300;
+
+  const positions = useMemo(() => {
+    const cx = W / 2;
+    const cy = H / 2;
+    const maxDepth = Math.max(1, ...comp.rows.map((r) => r.depth));
+    const maxR = Math.min(W, H) / 2 - 42;
+    const pos = new Map();
+    // group by depth
+    const rings = new Map();
+    for (const r of comp.rows) {
+      if (r.isHub) { pos.set(r.node.id, { x: cx, y: cy }); continue; }
+      if (!rings.has(r.depth)) rings.set(r.depth, []);
+      rings.get(r.depth).push(r);
+    }
+    for (const [d, rows] of rings) {
+      const rr = (maxR * d) / maxDepth;
+      rows.forEach((r, j) => {
+        const a = (j / rows.length) * Math.PI * 2 + d * 2.399963 - Math.PI / 2;
+        pos.set(r.node.id, { x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr });
+      });
+    }
+    return pos;
+  }, [comp, W, H]);
+
+  const markerId = `arrow-${comp.hubId}`;
+
+  return (
+    <div className="p-2">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} className="block">
+        <defs>
+          <marker id={markerId} viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 8 4 L 0 8 z" fill={palette.hex} fillOpacity="0.55" />
+          </marker>
+        </defs>
+
+        {/* Edges — direction = who links to whom */}
+        {comp.edgeList.map((e, i) => {
+          const a = positions.get(e.source);
+          const b = positions.get(e.target);
+          if (!a || !b) return null;
+          const active = hoverId && (e.source === hoverId || e.target === hoverId);
+          // stop the line at the node edge so arrowheads stay visible
+          const dx = b.x - a.x; const dy = b.y - a.y;
+          const len = Math.max(1, Math.hypot(dx, dy));
+          const tx = b.x - (dx / len) * 11;
+          const ty = b.y - (dy / len) * 11;
+          const mx = (a.x + tx) / 2 + (dy / len) * 10;
+          const my = (a.y + ty) / 2 - (dx / len) * 10;
+          return (
+            <path
+              key={i}
+              d={`M ${a.x} ${a.y} Q ${mx} ${my} ${tx} ${ty}`}
+              stroke={palette.hex}
+              strokeOpacity={active ? 0.9 : hoverId ? 0.08 : 0.3}
+              strokeWidth={active ? 1.8 : 1}
+              fill="none"
+              markerEnd={`url(#${markerId})`}
+            />
+          );
+        })}
+
+        {/* Nodes + labels */}
+        {comp.rows.map((r) => {
+          const p = positions.get(r.node.id);
+          if (!p) return null;
+          const radius = r.isHub ? 10 : 6;
+          const dimmed = hoverId && hoverId !== r.node.id &&
+            !comp.edgeList.some((e) => (e.source === hoverId && e.target === r.node.id) || (e.target === hoverId && e.source === r.node.id));
+          return (
+            <g
+              key={r.node.id}
+              opacity={dimmed ? 0.25 : 1}
+              onMouseEnter={() => setHoverId(r.node.id)}
+              onMouseLeave={() => setHoverId(null)}
+              style={{ cursor: 'default', transition: 'opacity 0.15s' }}
+            >
+              <circle cx={p.x} cy={p.y} r={radius + 3} fill={palette.hex} opacity={0.16} />
+              <circle
+                cx={p.x} cy={p.y} r={radius}
+                fill={palette.hex}
+                fillOpacity={r.isHub ? 0.95 : 0.7}
+                stroke={r.isHub ? '#34d399' : palette.hex}
+                strokeWidth={r.isHub ? 2 : 1}
+              />
+              {/* label with halo */}
+              <text x={p.x} y={p.y + radius + 11} textAnchor="middle" stroke="hsl(var(--card))" strokeWidth={3} strokeLinejoin="round" style={{ fontSize: 8.5, fontWeight: 600 }}>
+                {truncate(r.node.title, r.isHub ? 40 : 26)}
+              </text>
+              <text x={p.x} y={p.y + radius + 11} textAnchor="middle" className="fill-foreground" style={{ fontSize: 8.5, fontWeight: 600 }}>
+                {truncate(r.node.title, r.isHub ? 40 : 26)}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      <p className="px-2 pb-1 text-[9.5px] text-muted-foreground">
+        Arrows point from the linking post to the linked post. Hover a node to isolate its connections.
+      </p>
+    </div>
+  );
+}
+
+function truncate(str, max) {
+  if (!str) return '';
+  return str.length > max ? str.slice(0, max - 1) + '…' : str;
 }
 
 function MemberRow({ row, palette }) {
