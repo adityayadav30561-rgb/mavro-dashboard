@@ -47,7 +47,10 @@ export default function TopicalClusterPanel({ clusters = [], graph }) {
       </div>
 
       <div className="p-5">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        {/* Scrollable viewport capped at ~2 card rows — same slider pattern as
+            the Orphan Pages panel. Extra clusters scroll instead of growing
+            the panel unbounded. */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 max-h-[540px] overflow-y-auto pr-1">
           {clusters.map((c, idx) => (
             <ClusterCard
               key={c.id}
