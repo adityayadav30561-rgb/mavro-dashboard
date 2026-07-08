@@ -169,18 +169,55 @@ async function detectBounceSpike(websiteSlug, current, previous) {
 }
 
 /**
- * 5. Inactive tenant — zero events in last 7d but has published blogs.
+ * Published-corpus lookup that respects the tenant's blog source.
+ * WordPress-backed tenants (Website.wordpressUrl) keep their blogs in
+ * WordPress, not the Mavro Blog collection — counting the Blog collection
+ * for them produced the false "No published blogs found" stale alert.
+ * Returns { count, latestPublishedAt } from whichever source is canonical.
  */
-async function detectInactiveTenants() {
+async function publishedCorpusInfo(w) {
+  if (w.wordpressUrl) {
+    try {
+      const { wordpressBlogService } = require('./index');
+      const blogs = await wordpressBlogService.getWordpressBlogs(w.wordpressUrl, w._id);
+      let latest = null;
+      for (const b of blogs) {
+        const d = b.publishedAt ? new Date(b.publishedAt) : null;
+        if (d && (!latest || d > latest)) latest = d;
+      }
+      return { count: blogs.length, latestPublishedAt: latest };
+    } catch {
+      // WP unreachable — return null so callers skip rather than false-alert
+      return null;
+    }
+  }
+  const latestBlog = await Blog.findOne({ targetWebsite: w._id, status: 'published' })
+    .sort({ publishedAt: -1 })
+    .select('publishedAt')
+    .lean();
+  const count = await Blog.countDocuments({ targetWebsite: w._id, status: 'published' });
+  return { count, latestPublishedAt: latestBlog?.publishedAt ? new Date(latestBlog.publishedAt) : null };
+}
+
+/**
+ * 5. Inactive tenant — zero events in last 7d but has published blogs.
+ * Scoped: enumerates all tenants only when websiteSlug === 'all'; a specific
+ * tenant scope checks that tenant alone (no cross-tenant noise on a scoped view).
+ */
+async function detectInactiveTenants(websiteSlug = 'all') {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const websites = await Website.find({ status: 'active' }).select('_id name slug').lean();
+  const filter = { status: 'active' };
+  if (websiteSlug && websiteSlug !== 'all') filter.slug = websiteSlug;
+  const websites = await Website.find(filter).select('_id name slug wordpressUrl').lean();
 
   const out = [];
   for (const w of websites) {
-    const [eventCount, publishedCount] = await Promise.all([
+    const [eventCount, corpus] = await Promise.all([
       AnalyticsEvent.countDocuments({ websiteSlug: w.slug, timestamp: { $gte: sevenDaysAgo } }),
-      Blog.countDocuments({ targetWebsite: w._id, status: 'published' }),
+      publishedCorpusInfo(w),
     ]);
+    if (!corpus) continue; // WP unreachable — skip, no false positives
+    const publishedCount = corpus.count;
     if (eventCount === 0 && publishedCount > 0) {
       out.push(anomaly(
         'warning',
@@ -196,19 +233,21 @@ async function detectInactiveTenants() {
 }
 
 /**
- * 6. Stale tenant — Website.updatedAt + no recent blog publishes >30 days.
+ * 6. Stale tenant — no recent blog publishes >30 days.
+ * Scoped like detectInactiveTenants; WordPress-backed tenants read their
+ * real publish dates from the WP corpus (via publishedCorpusInfo).
  */
-async function detectStaleTenants() {
+async function detectStaleTenants(websiteSlug = 'all') {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const websites = await Website.find({ status: 'active' }).select('_id name slug updatedAt').lean();
+  const filter = { status: 'active' };
+  if (websiteSlug && websiteSlug !== 'all') filter.slug = websiteSlug;
+  const websites = await Website.find(filter).select('_id name slug updatedAt wordpressUrl').lean();
 
   const out = [];
   for (const w of websites) {
-    const latestBlog = await Blog.findOne({ targetWebsite: w._id, status: 'published' })
-      .sort({ publishedAt: -1 })
-      .select('publishedAt')
-      .lean();
-    const latest = latestBlog?.publishedAt;
+    const corpus = await publishedCorpusInfo(w);
+    if (!corpus) continue; // WP unreachable — skip, no false positives
+    const latest = corpus.latestPublishedAt;
     if (!latest || new Date(latest) < thirtyDaysAgo) {
       const days = latest ? Math.floor((Date.now() - new Date(latest).getTime()) / 86400000) : null;
       out.push(anomaly(
@@ -280,8 +319,8 @@ async function getAnomalies({ websiteSlug = 'all', range = 'week' } = {}) {
     detectTrafficDrop(websiteSlug, current, previous),
     detectConversionDrop(websiteSlug, current, previous),
     detectBounceSpike(websiteSlug, current, previous),
-    detectInactiveTenants(),
-    detectStaleTenants(),
+    detectInactiveTenants(websiteSlug),
+    detectStaleTenants(websiteSlug),
     detectDecliningBlogs(websiteSlug, current, previous),
   ]);
 

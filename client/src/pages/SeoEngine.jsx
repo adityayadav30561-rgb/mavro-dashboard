@@ -979,6 +979,8 @@ function FilterPill({ active, onClick, children, tone = 'neutral' }) {
 function ContentTable({ audits, websites }) {
   const [sortKey, setSortKey] = useState('overall');
   const [sortDir, setSortDir] = useState('asc');
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const websiteName = (id) => websites.find((w) => w._id === id)?.name || '—';
 
@@ -1009,7 +1011,12 @@ function ContentTable({ audits, websites }) {
   const setSort = (k) => {
     if (k === sortKey) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
     else { setSortKey(k); setSortDir('asc'); }
+    setPage(1); // re-sorting jumps back to page 1 so results aren't hidden
   };
+
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageRows = rows.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   if (audits.length === 0) {
     return (
@@ -1060,7 +1067,7 @@ function ContentTable({ audits, websites }) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60">
-          {rows.slice(0, 30).map((a) => {
+          {pageRows.map((a) => {
             const fleschGrade = gradeFromFlesch(a.readability.flesch);
             return (
               <tr key={a.blog._id} className="hover:bg-foreground/[0.025] transition-colors">
@@ -1105,6 +1112,45 @@ function ContentTable({ audits, websites }) {
           })}
         </tbody>
       </table>
+
+      {/* Numbered pagination — 10 rows per page */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-3 py-3 border-t border-border/60">
+          <p className="text-[11px] text-muted-foreground font-mono tabular-nums">
+            {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, rows.length)} of {rows.length}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(Math.max(1, safePage - 1))}
+              disabled={safePage === 1}
+              className="px-2 py-1 text-[11px] rounded-md border border-border/60 hover:bg-foreground/[0.04] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              ‹ Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={cn(
+                  'min-w-[28px] px-2 py-1 text-[11px] font-mono tabular-nums rounded-md border transition-colors',
+                  n === safePage
+                    ? 'border-violet-400/60 bg-violet-400/10 text-violet-400 font-bold'
+                    : 'border-border/60 hover:bg-foreground/[0.04] text-muted-foreground'
+                )}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(Math.min(totalPages, safePage + 1))}
+              disabled={safePage === totalPages}
+              className="px-2 py-1 text-[11px] rounded-md border border-border/60 hover:bg-foreground/[0.04] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Next ›
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
