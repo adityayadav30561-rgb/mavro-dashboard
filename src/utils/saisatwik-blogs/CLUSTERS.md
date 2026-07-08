@@ -201,7 +201,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ## Cluster: SAP Platform Guides
 
-**Hub (pillar post):** `sap-s4-hana-modules-guide` (#854) — NOT yet retro-linked; promote to hub in a future batch
+**Hub (pillar post):** `sap-s4-hana-modules-guide` (#854) — **PROMOTED TO HUB in batch 4** (2026-07-08)
 **Hub (service page):** https://saisatwik.com/services/sap/
 **Intent:** traffic
 **Primary keyword:** SAP S/4HANA guide
@@ -212,24 +212,27 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Spokes
 
+- [x] **#854** — `sap-s4-hana-modules-guide` (2024-07-02) — **HUB** (batch 4; Related Reading lists all 7 cluster members + EPPM hub)
+- [x] **#1722** — `sap-ecc-vs-sap-s-4hana` (2024-10-11) — platform comparison (**batch 4**)
+- [x] **#3174** — `sap-ecc-to-s-4hana-migration-guide-benefits` (2025-03-24) — migration execution guide (**batch 4**)
+- [x] **#2938** — `grow-with-sap-vs-rise-with-sap-key-differences-which-one-is-right-for-your-business` (2025-03-10) — commercial packaging comparison (**batch 4**; NOTE real slug ends `-for-your-business`)
+- [x] **#3323** — `what-is-sap-abap-used-for-guide-2025` (2025-05-04) — development-language angle (**batch 4**)
 - [x] **#3445** — `what-is-sap-business-one-software-features-benefits` (2025-08-07) — SMB ERP entry point (**batch 3**)
 - [x] **#3431** — `what-is-sap-drc-a-simple-guide-for-enterprises` (2025-07-15) — tax/e-invoicing compliance angle (**batch 3**)
-- [ ] **#854** — `sap-s4-hana-modules-guide` — future hub, needs retro-link pass
-- [ ] **#1722** — `sap-ecc-vs-sap-s-4hana` — future spoke
-- [ ] **#3174** — `sap-ecc-to-s-4hana-migration-guide-benefits` — future spoke
-- [ ] **#2938** — `grow-with-sap-vs-rise-with-sap-key-differences` — future spoke
 - [ ] **#3262** — `sap-mdg-vs-traditional-master-data-management` — future spoke
 - [ ] **#2845** — `sap-isu-modules-benefits-key-insights` — future spoke
-- [ ] **#3323** — `what-is-sap-abap-used-for-guide-2025` — future spoke
 - [ ] **#660** — `sap-successfactors-transforming-hr-management` — future spoke
+- [ ] **#417** — `a-step-by-step-guide-to-sap-s-4-hana-implementation` — future spoke (already receives inbound from hub + #3174)
+- [ ] **#768** — `regular-expressions-in-sap-hana` — future spoke (receives inbound from #3323)
 
 ### Retro-linking log
 
+- **2026-07-08 (batch 4)** — Hub #854 promoted: Related Reading DOWN to all 6 linked members + EPPM hub + B1 + DRC. Spokes #1722, #3174, #2938, #3323 link UP to hub + laterals. Outbound added: SAP.com product pages (S/4HANA, Grow, Rise, ABAP Platform), SAP News maintenance-2027 announcement, Gartner ERP. Fixed a guessed-URL 404 for #2938 (real slug ends `-for-your-business`) in hub + #1722 before it shipped long-term.
 - **2026-07-08 (batch 3)** — Cluster established with #3445 + #3431. Both link laterally to ERP Selection hub + EPPM hub + `sap-s4-hana-modules-guide` (future hub). Outbound: SAP.com official product pages, IDC SMB, OECD tax administration.
 
 ### Health
 
-- 2 linked spokes, 8 pending — biggest untapped cluster in the corpus. Priority for batch 4-5: retro-link #854 as hub, then the ECC/S4 migration pair.
+- 7 linked members (hub + 6 spokes), 5 pending. Now the second-fullest cluster after SAP EPPM. Next: #3262 MDG, #2845 ISU, #660 SuccessFactors, #417 implementation guide, #768 HANA regex.
 
 ---
 
