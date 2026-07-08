@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Network, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { layoutGraph } from '@/lib/linkGraphIntel';
+import { layoutGraph, orphanBandTop } from '@/lib/linkGraphIntel';
 import InfoPopover from '@/components/analytics/InfoPopover';
 import { getSeoInfo } from '@/lib/seoCopy';
 
@@ -29,8 +29,12 @@ export default function LinkGraph({ graph, clusters, quality }) {
   const height = expanded ? 560 : 420;
 
   const positions = useMemo(
-    () => layoutGraph(graph.nodes, clusters, { width, height }),
-    [graph.nodes, clusters, width, height]
+    () => layoutGraph(graph, clusters, { width, height }),
+    [graph, clusters, width, height]
+  );
+  const bandTop = useMemo(
+    () => orphanBandTop(graph, { width, height }),
+    [graph, width, height]
   );
 
   const clusterColor = useMemo(() => {
@@ -97,6 +101,23 @@ export default function LinkGraph({ graph, clusters, quality }) {
             </defs>
             <rect x="0" y="0" width={width} height={height} fill="url(#bg-glow)" />
 
+            {/* Orphan band divider + caption */}
+            {bandTop !== null && (
+              <g>
+                <line
+                  x1={16} x2={width - 16} y1={bandTop} y2={bandTop}
+                  stroke="hsl(var(--border))" strokeWidth={1} strokeDasharray="4 4"
+                />
+                <text
+                  x={width / 2} y={bandTop - 6} textAnchor="middle"
+                  className="fill-muted-foreground"
+                  style={{ fontSize: 8.5, fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase' }}
+                >
+                  Unlinked posts — not yet part of the graph
+                </text>
+              </g>
+            )}
+
             {/* Edges */}
             <g>
               {graph.edges.map((e, i) => {
@@ -128,7 +149,9 @@ export default function LinkGraph({ graph, clusters, quality }) {
                 const p = positions.get(n.id);
                 if (!p) return null;
                 const color = clusterColor.get(n.cluster) || '#94a3b8';
-                const radius = n.isHub ? 8 : Math.max(4, 4 + n.inbound);
+                // Orphan-band dots render small + muted; connected nodes scale
+                // with inbound count, hubs largest.
+                const radius = p.inOrphanBand ? 5 : n.isHub ? 9 : Math.min(9, Math.max(5, 4 + n.inbound));
                 const ringColor = n.isOrphan ? '#c95a6c' : n.isHub ? '#7f9a4b' : color;
                 const isHover = hoverId === n.id;
 
@@ -158,16 +181,30 @@ export default function LinkGraph({ graph, clusters, quality }) {
                       transition={{ type: 'spring', stiffness: 240, damping: 20, delay: Math.min(0.5, i * 0.008) }}
                       style={{ cursor: 'pointer' }}
                     />
-                    {(isHover || n.isHub) && (
-                      <text
-                        x={p.x}
-                        y={p.y - radius - 6}
-                        textAnchor="middle"
-                        className="fill-foreground"
-                        style={{ fontSize: 10, fontWeight: 600, pointerEvents: 'none' }}
-                      >
-                        {truncate(n.title, 36)}
-                      </text>
+                    {(isHover || (n.isHub && !p.inOrphanBand)) && (
+                      <g style={{ pointerEvents: 'none' }}>
+                        {/* halo behind the label so it stays readable over edges */}
+                        <text
+                          x={p.x}
+                          y={p.y - radius - 6}
+                          textAnchor="middle"
+                          stroke="hsl(var(--card))"
+                          strokeWidth={3}
+                          strokeLinejoin="round"
+                          style={{ fontSize: 10, fontWeight: 600 }}
+                        >
+                          {truncate(n.title, 36)}
+                        </text>
+                        <text
+                          x={p.x}
+                          y={p.y - radius - 6}
+                          textAnchor="middle"
+                          className="fill-foreground"
+                          style={{ fontSize: 10, fontWeight: 600 }}
+                        >
+                          {truncate(n.title, 36)}
+                        </text>
+                      </g>
                     )}
                   </g>
                 );

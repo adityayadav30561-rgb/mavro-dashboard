@@ -287,47 +287,169 @@ export function computeLinkingQuality(graph, clusters) {
 //   - Cluster centre angle distributed evenly
 //   - Members positioned in a circle around their cluster centre
 //   - Orphans placed at outer ring
-export function layoutGraph(nodes, clusters, { width = 600, height = 400 } = {}) {
-  const cx = width / 2;
-  const cy = height / 2;
-
-  // Map cluster id → members
-  const clusterMembers = new Map();
-  for (const c of clusters) clusterMembers.set(c.id, c.members);
-
-  // Place clusters
-  const clusterCount = clusters.length;
-  const clusterRingR = Math.min(width, height) * 0.32;
+/**
+ * Deterministic component-based layout.
+ *
+ * The old single-ring layout put clusters, connected nodes, and orphans on
+ * overlapping circles — every edge crossed the middle and 30+ orphans turned
+ * the ring into noise. This version:
+ *   1. Splits the graph into REAL connected components (by edges, not token
+ *      clusters) and gives each its own region — edges never cross between
+ *      component islands because none exist.
+ *   2. Lays each component out radially: highest-degree node (the hub) at the
+ *      center, neighbours on BFS-depth rings around it.
+ *   3. Parks all zero-link orphans in a compact grid band at the bottom,
+ *      visually separated so they read as "not yet linked" instead of noise.
+ *
+ * Accepts either a graph object ({nodes, edges}) or a bare nodes array
+ * (legacy signature — degrades to orphan-band-only layout).
+ */
+export function layoutGraph(graphOrNodes, clusters, { width = 600, height = 400 } = {}) {
+  const nodes = Array.isArray(graphOrNodes) ? graphOrNodes : (graphOrNodes?.nodes || []);
+  const edges = Array.isArray(graphOrNodes) ? [] : (graphOrNodes?.edges || []);
   const positions = new Map();
+  if (!nodes.length) return positions;
 
-  clusters.forEach((c, idx) => {
-    const angle = (idx / Math.max(1, clusterCount)) * Math.PI * 2 - Math.PI / 2;
-    const ccx = cx + Math.cos(angle) * clusterRingR;
-    const ccy = cy + Math.sin(angle) * clusterRingR;
+  // ---- adjacency + degree ----
+  const adj = new Map(nodes.map((n) => [n.id, new Set()]));
+  for (const e of edges) {
+    adj.get(e.source)?.add(e.target);
+    adj.get(e.target)?.add(e.source);
+  }
+  const degree = (id) => adj.get(id)?.size || 0;
 
-    const members = c.members;
-    const innerR = Math.min(60, 18 + members.length * 6);
-    members.forEach((mid, j) => {
-      const a = (j / members.length) * Math.PI * 2;
-      positions.set(mid, {
-        x: ccx + Math.cos(a) * innerR,
-        y: ccy + Math.sin(a) * innerR,
+  const connected = nodes.filter((n) => degree(n.id) > 0);
+  const orphans = nodes.filter((n) => degree(n.id) === 0);
+
+  // ---- connected components via BFS ----
+  const seen = new Set();
+  const components = [];
+  for (const n of connected) {
+    if (seen.has(n.id)) continue;
+    const comp = [];
+    const queue = [n.id];
+    seen.add(n.id);
+    while (queue.length) {
+      const id = queue.shift();
+      comp.push(id);
+      for (const next of adj.get(id) || []) {
+        if (!seen.has(next)) { seen.add(next); queue.push(next); }
+      }
+    }
+    components.push(comp);
+  }
+  components.sort((a, b) => b.length - a.length);
+
+  // ---- region split: components on top, orphan band at bottom ----
+  const pad = 26;
+  const orphanRows = orphans.length ? Math.ceil(orphans.length / Math.floor((width - pad * 2) / 30)) : 0;
+  const bandH = orphans.length ? Math.min(height * 0.32, 24 + orphanRows * 26) : 0;
+  const topH = height - bandH;
+
+  // ---- pack component circles into the top region (row packing) ----
+  const comps = components.map((ids) => ({
+    ids,
+    r: Math.max(30, 16 + 13 * Math.sqrt(ids.length)),
+  }));
+
+  // Row-pack at natural size first
+  let x = 0; let y = 0; let rowMaxR = 0; let usedW = 0; let usedH = 0;
+  const centers = [];
+  for (const c of comps) {
+    if (x + c.r * 2 > width - pad * 2 && x > 0) {
+      x = 0;
+      y += rowMaxR * 2 + 14;
+      rowMaxR = 0;
+    }
+    centers.push({ cx: x + c.r, cy: y + c.r });
+    x += c.r * 2 + 14;
+    rowMaxR = Math.max(rowMaxR, c.r);
+    usedW = Math.max(usedW, x);
+    usedH = Math.max(usedH, y + rowMaxR * 2);
+  }
+  // Scale-to-fit + center within top region
+  const scale = Math.min(1, (width - pad * 2) / Math.max(1, usedW), (topH - pad * 2) / Math.max(1, usedH));
+  const offX = (width - usedW * scale) / 2;
+  const offY = (topH - usedH * scale) / 2;
+
+  comps.forEach((c, i) => {
+    const ccx = offX + centers[i].cx * scale;
+    const ccy = offY + centers[i].cy * scale;
+    const R = c.r * scale;
+
+    // hub = highest total degree in the component
+    const idSet = new Set(c.ids);
+    const sorted = [...c.ids].sort((a, b) => degree(b) - degree(a));
+    const hubId = sorted[0];
+
+    // BFS depths from hub
+    const depth = new Map([[hubId, 0]]);
+    const q = [hubId];
+    let maxDepth = 0;
+    while (q.length) {
+      const id = q.shift();
+      for (const next of adj.get(id) || []) {
+        if (!depth.has(next) && idSet.has(next)) {
+          depth.set(next, depth.get(id) + 1);
+          maxDepth = Math.max(maxDepth, depth.get(next));
+          q.push(next);
+        }
+      }
+    }
+
+    positions.set(hubId, { x: ccx, y: ccy });
+    // group by depth ring
+    const rings = new Map();
+    for (const id of c.ids) {
+      if (id === hubId) continue;
+      const d = depth.get(id) ?? maxDepth + 1;
+      if (!rings.has(d)) rings.set(d, []);
+      rings.get(d).push(id);
+    }
+    const ringCount = Math.max(1, rings.size);
+    let ringIdx = 0;
+    for (const [, ids] of [...rings.entries()].sort((a, b) => a[0] - b[0])) {
+      ringIdx += 1;
+      const rr = (R * ringIdx) / (ringCount + 0.2);
+      ids.forEach((id, j) => {
+        // golden-angle offset keeps consecutive rings from aligning
+        const a = (j / ids.length) * Math.PI * 2 + ringIdx * 2.399963;
+        positions.set(id, { x: ccx + Math.cos(a) * rr, y: ccy + Math.sin(a) * rr });
+      });
+    }
+  });
+
+  // ---- orphan band: compact grid at the bottom ----
+  if (orphans.length) {
+    const cols = Math.max(1, Math.floor((width - pad * 2) / 30));
+    orphans.forEach((n, i) => {
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      const rowCount = Math.min(cols, orphans.length - row * cols);
+      const rowW = rowCount * 30;
+      positions.set(n.id, {
+        x: (width - rowW) / 2 + col * 30 + 15,
+        y: topH + 20 + row * 26,
+        inOrphanBand: true,
       });
     });
-  });
-
-  // Place non-clustered nodes on outer ring
-  const outerR = Math.min(width, height) * 0.45;
-  const unclustered = nodes.filter((n) => !positions.has(n.id));
-  unclustered.forEach((n, idx) => {
-    const angle = (idx / Math.max(1, unclustered.length)) * Math.PI * 2;
-    positions.set(n.id, {
-      x: cx + Math.cos(angle) * outerR,
-      y: cy + Math.sin(angle) * outerR,
-    });
-  });
+  }
 
   return positions;
+}
+
+/** Y coordinate where the orphan band starts (for the divider line). */
+export function orphanBandTop(graphOrNodes, { width = 600, height = 400 } = {}) {
+  const nodes = Array.isArray(graphOrNodes) ? graphOrNodes : (graphOrNodes?.nodes || []);
+  const edges = Array.isArray(graphOrNodes) ? [] : (graphOrNodes?.edges || []);
+  const linked = new Set();
+  for (const e of edges) { linked.add(e.source); linked.add(e.target); }
+  const orphanCount = nodes.filter((n) => !linked.has(n.id)).length;
+  if (!orphanCount) return null;
+  const pad = 26;
+  const rows = Math.ceil(orphanCount / Math.floor((width - pad * 2) / 30));
+  const bandH = Math.min(height * 0.32, 24 + rows * 26);
+  return height - bandH;
 }
 
 // ===================================
