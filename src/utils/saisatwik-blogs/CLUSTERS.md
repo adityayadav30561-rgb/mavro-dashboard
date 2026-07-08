@@ -98,7 +98,8 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 ### Spokes
 
 - [x] **#5100** — `how-to-choose-the-right-erp-partner-for-your-business-in-2026` (2026-03-09) — **HUB** (also functions as pillar)
-- [ ] `sap-vs-oracle-vs-microsoft-dynamics-honest-erp-comparison` — planned traffic-intent spoke
+- [x] **#4077** — `peoplesoft-vs-sap-vs-oracle-cloud` (2025-09-20) — three-way platform comparison (**batch 3 addition**; largely covers the planned SAP-vs-Oracle comparison slot)
+- [ ] `sap-vs-oracle-vs-microsoft-dynamics-honest-erp-comparison` — planned traffic-intent spoke (partially covered by #4077)
 - [ ] `erp-implementation-cost-in-india-2026-real-numbers` — planned lead-intent spoke
 - [ ] `top-10-questions-to-ask-any-erp-consulting-partner` — planned traffic-intent + lead
 - [ ] `case-study-90-day-sap-rollout-mid-market-manufacturer` — planned authority-intent
@@ -195,6 +196,99 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 ### Health
 
 - Single-member cluster in a high-authority-signal topic. High priority for adding spokes — analytics content ages fast, so freshness pass every 6–8 months.
+
+---
+
+## Cluster: SAP Platform Guides
+
+**Hub (pillar post):** `sap-s4-hana-modules-guide` (#854) — NOT yet retro-linked; promote to hub in a future batch
+**Hub (service page):** https://saisatwik.com/services/sap/
+**Intent:** traffic
+**Primary keyword:** SAP S/4HANA guide
+**LSI / entities:** SAP Business One, SAP DRC, SAP MDG, SAP ISU, SAP ABAP, SAP ECC, S/4HANA migration, SAP SuccessFactors, Grow with SAP, Rise with SAP
+**Buyer roles:** CTO, CFO, IT Director, SAP practice leads
+**Industries:** cross-industry
+**Geographies:** India, Global
+
+### Spokes
+
+- [x] **#3445** — `what-is-sap-business-one-software-features-benefits` (2025-08-07) — SMB ERP entry point (**batch 3**)
+- [x] **#3431** — `what-is-sap-drc-a-simple-guide-for-enterprises` (2025-07-15) — tax/e-invoicing compliance angle (**batch 3**)
+- [ ] **#854** — `sap-s4-hana-modules-guide` — future hub, needs retro-link pass
+- [ ] **#1722** — `sap-ecc-vs-sap-s-4hana` — future spoke
+- [ ] **#3174** — `sap-ecc-to-s-4hana-migration-guide-benefits` — future spoke
+- [ ] **#2938** — `grow-with-sap-vs-rise-with-sap-key-differences` — future spoke
+- [ ] **#3262** — `sap-mdg-vs-traditional-master-data-management` — future spoke
+- [ ] **#2845** — `sap-isu-modules-benefits-key-insights` — future spoke
+- [ ] **#3323** — `what-is-sap-abap-used-for-guide-2025` — future spoke
+- [ ] **#660** — `sap-successfactors-transforming-hr-management` — future spoke
+
+### Retro-linking log
+
+- **2026-07-08 (batch 3)** — Cluster established with #3445 + #3431. Both link laterally to ERP Selection hub + EPPM hub + `sap-s4-hana-modules-guide` (future hub). Outbound: SAP.com official product pages, IDC SMB, OECD tax administration.
+
+### Health
+
+- 2 linked spokes, 8 pending — biggest untapped cluster in the corpus. Priority for batch 4-5: retro-link #854 as hub, then the ECC/S4 migration pair.
+
+---
+
+## Cluster: Custom Software & Web Development
+
+**Hub (pillar post):** `custom-web-application-development-guide` (#3541)
+**Hub (service page):** https://saisatwik.com/software-development/web-application-development/
+**Intent:** traffic → lead
+**Primary keyword:** custom web application development
+**LSI / entities:** custom CRM, mobile app development, PWA vs native, responsive web app, enterprise mobile apps, Angular vs React vs Vue, WordPress development
+**Buyer roles:** Founders, CTOs, Product Heads
+**Industries:** cross-industry
+**Geographies:** India, Global
+
+### Spokes
+
+- [x] **#3541** — `custom-web-application-development-guide` (2025-08-10) — **HUB** (**batch 3**)
+- [ ] **#3373** — `mobile-app-development-cost-in-india` — future spoke (lead-intent, has pricing)
+- [ ] **#1638** — `enterprise-mobile-app-development` — future spoke
+- [ ] **#878** — `progressive-web-apps-vs-native-apps` — future spoke
+- [ ] **#1591** — `why-your-business-needs-a-responsive-web-app` — future spoke
+- [ ] **#1752** — `angular-vs-react-vs-vue` — future spoke
+- [ ] **#1520** — `top-mobile-application-development-platforms` — future spoke
+- [ ] **#1496** — `investing-in-custom-wordpress-development` — future spoke
+- [ ] **#432** — `5-tips-to-find-and-hire-the-best-mobile-app-developers-for-your-project` — future spoke
+
+### Retro-linking log
+
+- **2026-07-08 (batch 3)** — Hub #3541 retro-linked: Statista market cite, Gartner CRM anchor, McKinsey Digital cite. Related Reading DOWN to two service pages + SME productivity post.
+
+### Health
+
+- 1 linked, 8 pending — second-biggest untapped cluster. Mobile/web posts are old (2024) — freshness pass needed alongside linking.
+
+---
+
+## Cluster: Consulting & Process
+
+**Hub (pillar post):** `what-is-business-process-design-a-beginners-guide` (#3400)
+**Hub (service page):** https://saisatwik.com/consulting-services/process-consulting/
+**Intent:** traffic → lead
+**Primary keyword:** business process design
+**LSI / entities:** process consulting, digital transformation, workflow mapping, BPM, operational efficiency
+**Buyer roles:** COO, Operations Heads, Founders
+**Industries:** cross-industry
+**Geographies:** India, Global
+
+### Spokes
+
+- [x] **#3400** — `what-is-business-process-design-a-beginners-guide` (2025-07-01) — **HUB** (**batch 3**)
+- [ ] planned: process-audit checklist, BPM tool comparison, transformation case study
+
+### Retro-linking log
+
+- **2026-07-08 (batch 3)** — Hub #3400 retro-linked: McKinsey operations cite, BPTrends anchor. Related Reading DOWN to both consulting service pages + SME productivity post.
+
+### Health
+
+- Single-member cluster anchored to a live service line.
 
 ---
 

@@ -22,6 +22,9 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Zoho Creator
 - Salesforce
 - Oracle Primavera
+- Oracle Cloud ERP
+- PeopleSoft
+- SAP DRC
 - Microsoft Dynamics 365
 
 ## Axis: Service Line
@@ -37,6 +40,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - KPO Services
 - Staff Augmentation
 - Cloud Migration
+- Tax Compliance
 
 ## Axis: Industry
 
