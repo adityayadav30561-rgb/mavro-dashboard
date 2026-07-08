@@ -24,7 +24,6 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Oracle Primavera
 - Oracle Cloud ERP
 - PeopleSoft
-- SAP DRC
 - Microsoft Dynamics 365
 
 ## Axis: Service Line
