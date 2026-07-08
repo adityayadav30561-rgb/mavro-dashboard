@@ -314,6 +314,21 @@ async function detectDecliningBlogs(websiteSlug, current, previous) {
 async function getAnomalies({ websiteSlug = 'all', range = 'week' } = {}) {
   const { current, previous } = resolveRange(range);
 
+  // Like-for-like clamp for the 'day' range. resolveRange('day') compares
+  // calendar-today (PARTIAL — midnight to now) against all of yesterday
+  // (COMPLETE). Every afternoon after a strong day, the traffic-drop detector
+  // fired a false critical ("27 → 13") purely because today wasn't over.
+  // Clamping the previous window to the same elapsed hours makes the
+  // comparison honest — same fix the MBR range resolver applies to MTD
+  // month comparisons.
+  if (range === 'day') {
+    const elapsedMs = current[1].getTime() - current[0].getTime();
+    previous[1] = new Date(Math.min(
+      previous[1].getTime(),
+      previous[0].getTime() + elapsedMs
+    ));
+  }
+
   const results = await Promise.all([
     detectTrafficSpike(websiteSlug, current, previous),
     detectTrafficDrop(websiteSlug, current, previous),
