@@ -335,3 +335,42 @@ body.single-post .wp-block-image{ margin:1.8em 0; }
   });
 })();
 </script>
+
+<style id="ss-blog-hero-fix">
+/* ===== v2.1 HERO HOTFIX (merged) — beats the theme's cached wave PNG ===== */
+html body.single-post div.et_pb_section.et_pb_section_0_tb_body{
+  background-color:#06283d !important;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1.6px),
+    linear-gradient(118deg, #06283d 0%, #0b517c 62%, #0e6ba3 100%) !important;
+  background-size:22px 22px, cover !important;
+  background-position:0 0, center !important;
+  background-repeat:repeat, no-repeat !important;
+  padding-top:118px !important;
+  padding-bottom:calc(56px + 9vw) !important; /* hosts the -9vw featured-image pull-up */
+}
+html body.single-post .et_pb_section_0_tb_body .et_pb_text_inner h1,
+html body.single-post .et_pb_section_0_tb_body .et_pb_text_inner h2,
+html body.single-post .et_pb_section_0_tb_body .et_pb_text_inner h3,
+html body.single-post .et_pb_section_0_tb_body .et_pb_text_inner p{
+  color:#fff !important;
+  font-size:clamp(1.85rem, 3.3vw, 2.6rem) !important;
+  line-height:1.22 !important;
+  font-weight:800 !important;
+  text-align:left !important;
+  margin:0 !important;
+  text-shadow:none !important;
+  max-width:760px;
+}
+body.single-post .et_pb_section_0_tb_body .et_pb_text_inner::before{
+  content:"SAISATWIK  B7 SAP INSIGHTS" !important;
+}
+html body.single-post .et_pb_image_0_tb_body img{
+  border-radius:14px;
+  box-shadow:0 18px 50px -20px rgba(6,40,61,.55);
+}
+@media (max-width:980px){
+  html body.single-post .et_pb_image_0_tb_body{ margin-top:0 !important; }
+  html body.single-post div.et_pb_section.et_pb_section_0_tb_body{ padding-bottom:56px !important; }
+}
+</style>
