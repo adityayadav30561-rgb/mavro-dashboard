@@ -19,17 +19,13 @@
   --ss-ink:#1f2933; --ss-muted:#52616b; --ss-line:#e4e9ee; --ss-soft:#f4f8fb;
 }
 
-/* ---- TOP FIX: kill the empty image column + huge gap, compact the meta ----- */
-/* The blog template's second row has an empty featured-image column (left) and
-   the meta blurbs (right). Hide the empty image slot, pull meta full width,
-   lay the SAP / Comments / Date items in one tidy horizontal strip.
-   NOTE: if you later start setting Featured Images, remove the next rule so the
-   image can show again (or move meta in the Theme Builder). */
-body.single-post .et_pb_section_1_tb_body .et_pb_column_1_tb_body{ display:none !important; }
-body.single-post .et_pb_section_1_tb_body .et_pb_column_2_tb_body{ width:100% !important; }
+/* ---- TOP FIX: collapse the huge gap + compact the meta strip -------------- */
+/* Featured Image stays in its column (you are setting images). This just trims
+   the excessive padding around the hero + meta row and lays the meta blurbs
+   (SAP / Comments / Date) in one tidy horizontal strip instead of a tall stack. */
 body.single-post .et_pb_section_1_tb_body{ padding-top:14px !important; padding-bottom:6px !important; }
 body.single-post .et_pb_section_1_tb_body .et_pb_column_2_tb_body{
-  display:flex; flex-wrap:wrap; gap:10px 26px; align-items:center; justify-content:center;
+  display:flex; flex-wrap:wrap; gap:10px 26px; align-items:center;
 }
 body.single-post .et_pb_section_1_tb_body .et_pb_blurb{ margin:0 !important; width:auto !important; }
 body.single-post .et_pb_section_1_tb_body .et_pb_blurb_content{ max-width:none !important; }
