@@ -1,0 +1,232 @@
+<!-- ============================================================================
+  SaiSatwik Blog — Enhancement Block (styles + sticky TOC + CTA banner)
+  ----------------------------------------------------------------------------
+  WHERE TO PASTE (one time, replaces the earlier Custom CSS paste):
+    wp-admin -> Divi -> Theme Options -> Integration tab ->
+    "Add code to the < head > of your blog" box -> paste this whole block -> Save.
+
+  If you already pasted the earlier CSS into Theme Options -> General -> Custom
+  CSS, DELETE that one first. This block supersedes it (contains everything).
+
+  REVERSIBLE: delete this block from the Integration box to restore the old look.
+  SCOPE: everything is gated to single blog posts (body.single-post) and the
+  article body (.et_pb_post_content). Nothing else on the site changes.
+============================================================================ -->
+
+<style id="ss-blog-enhance">
+:root{
+  --ss-blue:#0b517c; --ss-blue-dark:#073a58; --ss-accent:#f97316;
+  --ss-ink:#1f2933; --ss-muted:#52616b; --ss-line:#e4e9ee; --ss-soft:#f4f8fb;
+}
+
+/* ---- TOP FIX: kill the empty image column + huge gap, compact the meta ----- */
+/* The blog template's second row has an empty featured-image column (left) and
+   the meta blurbs (right). Hide the empty image slot, pull meta full width,
+   lay the SAP / Comments / Date items in one tidy horizontal strip.
+   NOTE: if you later start setting Featured Images, remove the next rule so the
+   image can show again (or move meta in the Theme Builder). */
+body.single-post .et_pb_section_1_tb_body .et_pb_column_1_tb_body{ display:none !important; }
+body.single-post .et_pb_section_1_tb_body .et_pb_column_2_tb_body{ width:100% !important; }
+body.single-post .et_pb_section_1_tb_body{ padding-top:14px !important; padding-bottom:6px !important; }
+body.single-post .et_pb_section_1_tb_body .et_pb_column_2_tb_body{
+  display:flex; flex-wrap:wrap; gap:10px 26px; align-items:center; justify-content:center;
+}
+body.single-post .et_pb_section_1_tb_body .et_pb_blurb{ margin:0 !important; width:auto !important; }
+body.single-post .et_pb_section_1_tb_body .et_pb_blurb_content{ max-width:none !important; }
+body.single-post .et_pb_section_1_tb_body .et_pb_blurb .et_pb_blurb_container{ padding:0 !important; }
+body.single-post .et_pb_section_1_tb_body .et_pb_blurb h4,
+body.single-post .et_pb_section_1_tb_body .et_pb_blurb .et_pb_module_header{
+  font-size:.82rem !important; color:var(--ss-muted) !important; margin:0 !important; font-weight:600;
+}
+/* trim the wavy hero's bottom breathing room so content sits higher */
+body.single-post .et_pb_section_0_tb_body{ padding-bottom:0 !important; }
+
+/* ---- Reading measure (WIDER now) + rhythm ---------------------------------- */
+body.single-post .et_pb_post_content{
+  max-width:920px; margin-left:auto; margin-right:auto;
+  color:var(--ss-ink); font-size:18px; line-height:1.78;
+}
+body.single-post .et_pb_post_content p{ margin:0 0 1.35em; color:var(--ss-ink); }
+
+/* ---- Headings ------------------------------------------------------------- */
+body.single-post .et_pb_post_content h2{
+  font-size:1.72rem; line-height:1.3; font-weight:700; color:var(--ss-blue);
+  margin:2.4em 0 .7em; padding-bottom:.35em; border-bottom:2px solid var(--ss-line);
+}
+body.single-post .et_pb_post_content h2::after{
+  content:""; display:block; width:56px; height:3px; background:var(--ss-accent);
+  margin-top:.5em; margin-bottom:-.53em; border-radius:2px;
+}
+body.single-post .et_pb_post_content h3{
+  font-size:1.24rem; line-height:1.4; font-weight:700; color:var(--ss-blue-dark);
+  margin:1.9em 0 .5em; padding-left:.7em; border-left:4px solid var(--ss-accent);
+}
+body.single-post .et_pb_post_content h4{
+  font-size:1.06rem; font-weight:700; color:var(--ss-ink); margin:1.5em 0 .4em;
+}
+
+/* ---- Quick Answer callout (first H2 + its paragraph) ---------------------- */
+body.single-post .et_pb_post_content h2:first-of-type{
+  background:var(--ss-blue); color:#fff; border:0; border-radius:10px 10px 0 0;
+  padding:.7em .9em .6em; margin-top:.5em; font-size:1.3rem;
+}
+body.single-post .et_pb_post_content h2:first-of-type::after{ display:none; }
+body.single-post .et_pb_post_content h2:first-of-type + p{
+  background:var(--ss-soft); border:1px solid var(--ss-line); border-top:0;
+  border-radius:0 0 10px 10px; padding:1.1em 1.2em 1.2em; margin-top:0; font-size:1.02em;
+}
+
+/* ---- Links / lists / emphasis --------------------------------------------- */
+body.single-post .et_pb_post_content a{
+  color:var(--ss-blue); text-decoration:underline; text-underline-offset:2px;
+  text-decoration-color:rgba(11,81,124,.35); transition:color .15s,text-decoration-color .15s;
+}
+body.single-post .et_pb_post_content a:hover{ color:var(--ss-accent); text-decoration-color:var(--ss-accent); }
+body.single-post .et_pb_post_content ul,
+body.single-post .et_pb_post_content ol{ margin:0 0 1.5em; padding-left:1.4em; }
+body.single-post .et_pb_post_content li{ margin-bottom:.6em; padding-left:.25em; }
+body.single-post .et_pb_post_content ul li::marker{ color:var(--ss-accent); }
+body.single-post .et_pb_post_content ol li::marker{ color:var(--ss-blue); font-weight:700; }
+body.single-post .et_pb_post_content strong{ color:var(--ss-blue-dark); font-weight:700; }
+body.single-post .et_pb_post_content blockquote{
+  border-left:4px solid var(--ss-accent); background:var(--ss-soft); margin:1.6em 0;
+  padding:.9em 1.2em; border-radius:0 8px 8px 0; color:var(--ss-muted); font-style:normal;
+}
+
+/* ---- Tables --------------------------------------------------------------- */
+body.single-post .et_pb_post_content .wp-block-table{
+  margin:1.8em 0; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:10px;
+  box-shadow:0 1px 2px rgba(15,40,60,.06),0 8px 24px -12px rgba(15,40,60,.18);
+}
+body.single-post .et_pb_post_content table{
+  width:100%; border-collapse:collapse; font-size:.95rem; line-height:1.55; background:#fff; margin:0;
+}
+body.single-post .et_pb_post_content table thead th{
+  background:var(--ss-blue); color:#fff; text-align:left; font-weight:700;
+  padding:.85em 1em; font-size:.88rem; border:0;
+}
+body.single-post .et_pb_post_content table td{
+  padding:.8em 1em; border-top:1px solid var(--ss-line); color:var(--ss-ink); vertical-align:top;
+}
+body.single-post .et_pb_post_content table tbody tr:nth-child(even) td{ background:var(--ss-soft); }
+body.single-post .et_pb_post_content table tbody tr:hover td{ background:#eef5fa; }
+body.single-post .et_pb_post_content table td:first-child{ font-weight:600; }
+body.single-post .et_pb_post_content table td strong{ color:var(--ss-blue-dark); }
+
+/* ---- Featured image ------------------------------------------------------- */
+body.single-post .et_pb_post_content img,
+body.single-post .et_pb_image img{ border-radius:10px; }
+body.single-post .wp-block-image{ margin:1.8em 0; }
+
+/* ---- Sticky Table of Contents (desktop only) ------------------------------ */
+#ss-toc{
+  position:fixed; top:130px; left:calc(50% - 700px); width:230px; max-height:70vh;
+  overflow-y:auto; padding:14px 16px; background:#fff; border:1px solid var(--ss-line);
+  border-radius:12px; box-shadow:0 8px 30px -14px rgba(15,40,60,.25); z-index:50;
+  font-size:.82rem; line-height:1.4;
+}
+#ss-toc .ss-toc-title{
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700;
+  color:var(--ss-muted); margin-bottom:10px;
+}
+#ss-toc a{
+  display:block; padding:5px 0 5px 10px; color:var(--ss-muted); text-decoration:none;
+  border-left:2px solid var(--ss-line); transition:color .15s,border-color .15s;
+}
+#ss-toc a:hover{ color:var(--ss-blue); }
+#ss-toc a.ss-active{ color:var(--ss-blue); border-left-color:var(--ss-accent); font-weight:600; }
+@media (max-width:1200px){ #ss-toc{ display:none !important; } }
+
+/* ---- CTA banner (injected after the article) ------------------------------ */
+.ss-cta{
+  max-width:920px; margin:2.5em auto 0; background:linear-gradient(135deg,var(--ss-blue),var(--ss-blue-dark));
+  color:#fff; border-radius:14px; padding:2em 2.2em; display:flex; flex-wrap:wrap;
+  align-items:center; gap:1.2em; box-shadow:0 12px 34px -16px rgba(11,81,124,.6);
+}
+.ss-cta-text{ flex:1 1 320px; }
+.ss-cta-text h3{ margin:0 0 .3em; color:#fff; font-size:1.35rem; font-weight:700; border:0; padding:0; }
+.ss-cta-text p{ margin:0; color:rgba(255,255,255,.85); font-size:.98rem; }
+.ss-cta a.ss-cta-btn{
+  background:var(--ss-accent); color:#fff; text-decoration:none; font-weight:700;
+  padding:.85em 1.6em; border-radius:8px; white-space:nowrap; transition:transform .15s,box-shadow .15s;
+  box-shadow:0 6px 18px -6px rgba(249,115,22,.7);
+}
+.ss-cta a.ss-cta-btn:hover{ transform:translateY(-1px); box-shadow:0 10px 24px -6px rgba(249,115,22,.85); }
+
+/* ---- Responsive ----------------------------------------------------------- */
+@media (max-width:782px){
+  body.single-post .et_pb_post_content{ font-size:17px; }
+  body.single-post .et_pb_post_content h2{ font-size:1.44rem; }
+  body.single-post .et_pb_post_content h2:first-of-type{ font-size:1.18rem; }
+  body.single-post .et_pb_post_content h3{ font-size:1.12rem; }
+  body.single-post .et_pb_post_content table{ font-size:.9rem; }
+  .ss-cta{ padding:1.6em; }
+}
+</style>
+
+<script id="ss-blog-enhance-js">
+(function(){
+  function ready(fn){
+    if(document.readyState!=='loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+  ready(function(){
+    if(!document.body.classList.contains('single-post')) return;
+    var content = document.querySelector('.et_pb_post_content');
+    if(!content) return;
+
+    /* ---- Build sticky TOC from H2s ---- */
+    var heads = Array.prototype.slice.call(content.querySelectorAll('h2'));
+    if(heads.length >= 3){
+      var toc = document.createElement('nav');
+      toc.id = 'ss-toc';
+      toc.innerHTML = '<div class="ss-toc-title">On this page</div>';
+      heads.forEach(function(h, i){
+        if(!h.id){
+          h.id = 'sec-' + (h.textContent.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || ('s'+i));
+        }
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.textContent = h.textContent.replace(/^Quick Answer$/,'Quick answer');
+        a.addEventListener('click', function(e){
+          e.preventDefault();
+          var t = document.getElementById(h.id);
+          if(t) window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 110, behavior:'smooth' });
+        });
+        toc.appendChild(a);
+      });
+      document.body.appendChild(toc);
+
+      /* active-section highlight on scroll */
+      var links = Array.prototype.slice.call(toc.querySelectorAll('a'));
+      var byId = {};
+      links.forEach(function(l){ byId[l.getAttribute('href').slice(1)] = l; });
+      if('IntersectionObserver' in window){
+        var obs = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            if(en.isIntersecting){
+              links.forEach(function(l){ l.classList.remove('ss-active'); });
+              var act = byId[en.target.id];
+              if(act) act.classList.add('ss-active');
+            }
+          });
+        }, { rootMargin: '-100px 0px -70% 0px' });
+        heads.forEach(function(h){ obs.observe(h); });
+      }
+    }
+
+    /* ---- Inject CTA banner after the article ---- */
+    if(!document.querySelector('.ss-cta')){
+      var cta = document.createElement('div');
+      cta.className = 'ss-cta';
+      cta.innerHTML =
+        '<div class="ss-cta-text">' +
+          '<h3>Planning an SAP project?</h3>' +
+          '<p>Talk to the SaiSatwik SAP team about your EPPM, PS, or S/4HANA roadmap. No obligation, straight answers.</p>' +
+        '</div>' +
+        '<a class="ss-cta-btn" href="https://saisatwik.com/contact-us/">Talk to our SAP team</a>';
+      content.parentNode.insertBefore(cta, content.nextSibling);
+    }
+  });
+})();
+</script>
