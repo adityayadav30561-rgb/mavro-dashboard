@@ -778,3 +778,58 @@ ask for a rewrite of any section and I re-push the same URL.
 ---
 
 *Ready. Send the first title + content.*
+
+
+---
+
+## 14. Blog Page Design + Head-Injection Blocks (July 10, 2026)
+
+The saisatwik.com blog page design and analytics are driven by TWO code blocks
+pasted into **wp-admin → Divi → Theme Options → Integration → "Add code to the
+head"**. Both have repo-canonical source files. NEVER edit them in WordPress
+without syncing the repo copy, and never regenerate them from scratch — edit
+the repo file, then re-paste the whole box.
+
+| Block | Repo source of truth | Purpose |
+|---|---|---|
+| Analytics tracker | `saisatwik-tracking-snippet.html` | page_view + blog_view beacons → Mavro `/api/analytics/track`, slug `saisatwik`. text/plain sendBeacon deliberately (CORS-safelisted, no preflight) — do NOT switch to application/json. |
+| Design block (v2 + v2.1 hotfix) | `saisatwik-blog-enhance.html` | Full blog-post design: navy gradient hero (overrides the theme's cached wave PNG), eyebrow kicker, meta chips, 920px reading measure, Quick Answer key-takeaway card, styled tables, right-side post-hero sticky TOC, reading progress bar, post-article CTA banner. |
+
+Design-block invariants (learned the hard way):
+
+- **The theme's cached CSS forces a wave PNG background on the hero section**
+  (`div.et_pb_section.et_pb_section_0_tb_body`, image `hosting-company-01.png`,
+  `background-size:contain`). Overriding it requires HIGHER-specificity
+  LONGHAND properties (`background-image/size/position/repeat`, each
+  `!important`) — a `background:` shorthand ties and loses. The v2.1 hotfix at
+  the bottom of the file does this. Do not simplify it back to shorthand.
+- **The featured image is pulled up `-9vw` by the theme** (intentional overlap
+  design). The hero must reserve `padding-bottom: calc(56px + 9vw)` or the
+  image slides over the title. Mobile (≤980px) kills the pull-up instead.
+- **The post title is NOT an `<h1>`** in the Theme Builder body template —
+  style it via `.et_pb_text_inner h1/h2/h3/p` catch-alls.
+- **Special characters in CSS `content:` must be escaped** (` B7` for `·`) —
+  raw UTF-8 punctuation garbles (`Â·`) through the WP options round-trip.
+- The sticky TOC (`#ss-toc`) fades in only after scrolling past the hero and is
+  hidden under 1440px viewports — prevents any overlap with the hero/title.
+- The CTA banner (`.ss-cta`) is injected by JS after the article and links to
+  `/contact-us/`. Change the copy/target in `saisatwik-blog-enhance.html`, not
+  in WordPress.
+- Article-body styling is scoped to `body.single-post .et_pb_post_content` —
+  it cannot leak into other page types.
+
+## 15. Workbook Publish Tracking
+
+`SAP-EPPM-PS-Blog-Keyword-Plan.xlsx` (repo root) carries **Status** + **Live
+URL** columns on the Knowledge Blogs and Leads Blogs sheets. Published rows are
+green-filled with the live URL; everything else reads Pending.
+
+- Update via `openpyxl` after every publish (pattern in the 2026-07-10 session:
+  green fill FFC6EFCE, font FF006100).
+- Mapping is strict topic match only — do not mark a row Published because a
+  vaguely related post exists. Current published mappings: K01→#5302,
+  K02→#5352, K03→#5371, K04→#5376, K65→#5308.
+- Publish order discipline per the workbook Read Me: Knowledge blogs first
+  (authority + internal links), then point them at Leads blogs + service pages.
+  Priority 1 rows first. Next up after K04: either K05 (P2, finishes EPPM arc)
+  or K08 (P1, opens the SAP PS cluster).

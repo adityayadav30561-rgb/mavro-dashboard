@@ -883,3 +883,12 @@ with `test:e2e*` scripts.
 *End of master context. All operational decisions trace back to this file.*
 </content>
 </invoke>
+
+---
+
+## Phase 11.1 — SaiSatwik content engine + blog design (July 8–10, 2026)
+
+- **Workbook-driven publishing live:** `SAP-EPPM-PS-Blog-Keyword-Plan.xlsx` (repo root) is the topic/keyword plan (Knowledge + Leads + Industry Matrix + Geo Bank sheets). Published: K02 #5352 (EPPM modules), K03 #5371 (EPPM in S/4HANA), K04 #5376 (implementation roadmap); K01 mapped to existing hub #5302, K65 to #5308. Status/Live URL columns + green highlighting track progress in the sheet itself.
+- **21+ posts retro-linked** across 4 batches (outbound authority + hub-and-spoke internal links). Registries: `src/utils/saisatwik-blogs/CLUSTERS.md` + `TAGS.md`. SAP EPPM cluster = 8 spokes; SAP Platform Guides = 7 members.
+- **Blog page design shipped** via head-injection block `saisatwik-blog-enhance.html` (v2 + v2.1 hero hotfix) — premium navy hero, key-takeaway card, styled tables, right-side sticky TOC, progress bar, CTA banner. Analytics via `saisatwik-tracking-snippet.html`. Both pasted in Divi → Theme Options → Integration; repo files are canonical. Invariants in SAISATWIK_BLOG_PUBLISHING.md §14.
+- **SEO Engine fixes for WP tenants:** self-host links relativized in the adapter, trailing-slash slug matching, real WP sitemap stats (142 URLs), anomaly scoping per tenant + WP-aware stale detection + day-range like-for-like clamp, Content Relationship Board (cluster cards + per-group Map view) replacing the node-scatter graph, ContentTable pagination (10/page).

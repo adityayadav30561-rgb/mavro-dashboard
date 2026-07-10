@@ -429,3 +429,6 @@ Invariants from this phase. Honor them on every future edit.
 - **`lib/analytics.js` has no default tenant.** Events without a tenant slug are dropped. Do not restore a default slug.
 - **SaiSatwik tenant auto-bootstraps on boot** (`seedSaisatwik.js` → `server.js`, after Spanbix). Slug MUST stay `saisatwik` — MBR sources, the tracking snippet, and analytics aggregations key on it.
 - **Never edit SaiSatwik posts in the Mavro editor or WP editor** — data file + `npm run create:saisatwik-blog` re-run only (see `SAISATWIK_BLOG_PUBLISHING.md` + `BLOG_PUBLISHING.md`).
+
+- **SaiSatwik WP head-injection blocks are repo-canonical.** `saisatwik-tracking-snippet.html` (analytics) + `saisatwik-blog-enhance.html` (blog design v2 + v2.1 hero hotfix) are pasted into Divi → Theme Options → Integration → head. Edit the repo file, re-paste the whole box — never edit inside WordPress alone. The hero override MUST stay longhand background properties at `html body.single-post div.et_pb_section...` specificity (theme's cached wave-PNG rule ties and beats shorthand). Featured image pull-up is `-9vw` — hero keeps `padding-bottom: calc(56px + 9vw)`.
+- **Workbook publish tracking:** `SAP-EPPM-PS-Blog-Keyword-Plan.xlsx` Status/Live URL columns updated (openpyxl, green fill) on every SaiSatwik publish. Strict topic-match only. See SAISATWIK_BLOG_PUBLISHING.md §15.
