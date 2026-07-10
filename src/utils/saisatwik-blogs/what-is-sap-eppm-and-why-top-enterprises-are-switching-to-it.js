@@ -319,6 +319,10 @@ module.exports = {
 
 <!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-in-sap-s4hana-what-changed/">SAP EPPM in SAP S/4HANA: what changed</a> — the platform-shift guide covering the Universal Journal, Fiori, and what a PMO should do before the move.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-implementation-roadmap/">SAP EPPM implementation roadmap</a> — the five phases, realistic timelines, and the data-first sequencing that keeps a rollout on budget.</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 

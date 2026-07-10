@@ -26,6 +26,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#4982** — `enterprise-business-challenges-solved-by-sap-eppm` (2026-02-19) — 8 concrete pains → SAP EPPM solutions (**batch 2 addition**)
 - [x] **#5352** — `sap-eppm-modules-explained-ps-ppm-im-cpm-cats` (2026-07-08) — module-by-module breakdown from workbook K02 (**first workbook-driven post**; 4 tables, published by user)
 - [x] **#5371** — `sap-eppm-in-sap-s4hana-what-changed` (2026-07-08) — workbook K03, S/4HANA platform-shift angle; **deliberate bridge to the SAP Platform Guides cluster** (links to #854 hub, #1722, #3174)
+- [x] **#5376** — `sap-eppm-implementation-roadmap` (2026-07-08) — workbook K04, five-phase roadmap + timeline tables; traffic-intent with soft service-page CTA
 - [ ] `sap-eppm-implementation-checklist-for-cfos` — planned lead-intent spoke (pricing + timeline signal)
 - [ ] `sap-eppm-vs-oracle-primavera-honest-comparison` — planned traffic-intent spoke
 - [ ] `sap-eppm-in-manufacturing-90-day-go-live-playbook` — planned lead-intent industry angle
@@ -38,6 +39,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
   - Spoke #5267 updated to link UP to hub #5302 + lateral to #5157, #5308.
   - Spoke #5308 updated to link UP to hub #5302 + lateral to #5157, #5267.
   - Outbound authority citations added to all 4 (SAP.com, Gartner, McKinsey, Saudi Vision 2030 where applicable).
+- **2026-07-08 (spoke #8)** — Published `sap-eppm-implementation-roadmap` (#5376, workbook K04). Links UP to hub + laterals to #5352, #5371, #3174, #5100. Hub re-pushed with it in the DOWN list (now 8 spokes). Outbound: SAP.com (EPPM, S/4HANA), PMI Pulse, Standish CHAOS.
 - **2026-07-08 (spoke #7)** — Published `sap-eppm-in-sap-s4hana-what-changed` (#5371, workbook K03). Links UP to hub + lateral to #5352, plus cross-cluster bridge links to SAP Platform hub #854, #1722, #3174. Hub re-pushed with it in the DOWN list. Outbound: SAP.com (EPPM, S/4HANA, Fiori), SAP News 2027 maintenance, PMI Pulse.
 - **2026-07-08 (spoke #6)** — Published `sap-eppm-modules-explained-ps-ppm-im-cpm-cats` (#5352, workbook K02). Links UP to hub + laterals to #5267, #4982, #5157, #5308. Hub re-pushed with it in the DOWN list.
 - **2026-07-08 (batch 2)** — Extended cluster with #4982 spoke.
