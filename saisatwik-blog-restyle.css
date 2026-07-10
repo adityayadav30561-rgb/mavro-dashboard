@@ -1,0 +1,210 @@
+/* ============================================================================
+   SaiSatwik Blog — Editorial Restyle
+   ----------------------------------------------------------------------------
+   WHERE TO PASTE (one time):
+     wp-admin -> Divi -> Theme Options -> General tab -> Custom CSS box
+     (or Appearance -> Customize -> Additional CSS). Paste, Save. Done.
+
+   REVERSIBLE: delete this block from the same box to restore the old look.
+
+   SCOPE: every rule is scoped to `.single-post .et_pb_post_content`, so it
+   only touches the blog article body. Nothing else on the site changes.
+
+   BRAND: SaiSatwik blue #0b517c, warm accent #f97316.
+   ============================================================================ */
+
+:root {
+  --ss-blue: #0b517c;
+  --ss-blue-dark: #073a58;
+  --ss-accent: #f97316;
+  --ss-ink: #1f2933;
+  --ss-muted: #52616b;
+  --ss-line: #e4e9ee;
+  --ss-soft: #f4f8fb;
+}
+
+/* ---- Reading measure + base rhythm ---------------------------------------- */
+.single-post .et_pb_post_content {
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--ss-ink);
+  font-size: 18px;
+  line-height: 1.78;
+}
+
+.single-post .et_pb_post_content p {
+  margin: 0 0 1.35em;
+  color: var(--ss-ink);
+}
+
+/* ---- Headings ------------------------------------------------------------- */
+.single-post .et_pb_post_content h2 {
+  font-size: 1.72rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--ss-blue);
+  margin: 2.4em 0 0.7em;
+  padding-bottom: 0.35em;
+  border-bottom: 2px solid var(--ss-line);
+}
+
+/* short accent tick under each H2 */
+.single-post .et_pb_post_content h2::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 3px;
+  background: var(--ss-accent);
+  margin-top: 0.5em;
+  margin-bottom: -0.53em;
+  border-radius: 2px;
+}
+
+.single-post .et_pb_post_content h3 {
+  font-size: 1.24rem;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--ss-blue-dark);
+  margin: 1.9em 0 0.5em;
+  padding-left: 0.7em;
+  border-left: 4px solid var(--ss-accent);
+}
+
+.single-post .et_pb_post_content h4 {
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--ss-ink);
+  margin: 1.5em 0 0.4em;
+}
+
+/* ---- Quick Answer callout (the first H2 + its paragraph) ------------------- */
+.single-post .et_pb_post_content h2:first-of-type {
+  background: var(--ss-blue);
+  color: #fff;
+  border: 0;
+  border-radius: 10px 10px 0 0;
+  padding: 0.7em 0.9em 0.6em;
+  margin-top: 0.5em;
+  font-size: 1.3rem;
+}
+.single-post .et_pb_post_content h2:first-of-type::after { display: none; }
+
+.single-post .et_pb_post_content h2:first-of-type + p {
+  background: var(--ss-soft);
+  border: 1px solid var(--ss-line);
+  border-top: 0;
+  border-radius: 0 0 10px 10px;
+  padding: 1.1em 1.2em 1.2em;
+  margin-top: 0;
+  font-size: 1.02em;
+}
+
+/* ---- Links ---------------------------------------------------------------- */
+.single-post .et_pb_post_content a {
+  color: var(--ss-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(11, 81, 124, 0.35);
+  transition: color 0.15s, text-decoration-color 0.15s;
+}
+.single-post .et_pb_post_content a:hover {
+  color: var(--ss-accent);
+  text-decoration-color: var(--ss-accent);
+}
+
+/* ---- Lists ---------------------------------------------------------------- */
+.single-post .et_pb_post_content ul,
+.single-post .et_pb_post_content ol {
+  margin: 0 0 1.5em;
+  padding-left: 1.4em;
+}
+.single-post .et_pb_post_content li {
+  margin-bottom: 0.6em;
+  padding-left: 0.25em;
+}
+.single-post .et_pb_post_content ul li::marker { color: var(--ss-accent); }
+.single-post .et_pb_post_content ol li::marker { color: var(--ss-blue); font-weight: 700; }
+
+/* ---- Tables (the centrepiece) --------------------------------------------- */
+/* Wrapper: horizontal scroll on narrow screens, never breaks the layout */
+.single-post .et_pb_post_content .wp-block-table {
+  margin: 1.8em 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 40, 60, 0.06), 0 8px 24px -12px rgba(15, 40, 60, 0.18);
+}
+
+.single-post .et_pb_post_content .wp-block-table table,
+.single-post .et_pb_post_content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  background: #fff;
+  margin: 0;
+}
+
+.single-post .et_pb_post_content table thead th,
+.single-post .et_pb_post_content table tr:first-child td strong {
+  background: var(--ss-blue);
+  color: #fff;
+}
+
+.single-post .et_pb_post_content table thead th {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.85em 1em;
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
+  border: 0;
+}
+
+.single-post .et_pb_post_content table td {
+  padding: 0.8em 1em;
+  border-top: 1px solid var(--ss-line);
+  color: var(--ss-ink);
+  vertical-align: top;
+}
+
+/* zebra rows */
+.single-post .et_pb_post_content table tbody tr:nth-child(even) td {
+  background: var(--ss-soft);
+}
+.single-post .et_pb_post_content table tbody tr:hover td {
+  background: #eef5fa;
+}
+
+/* first-column emphasis */
+.single-post .et_pb_post_content table td:first-child { font-weight: 600; }
+.single-post .et_pb_post_content table td strong { color: var(--ss-blue-dark); }
+
+/* ---- Emphasis + quotes ---------------------------------------------------- */
+.single-post .et_pb_post_content strong { color: var(--ss-blue-dark); font-weight: 700; }
+
+.single-post .et_pb_post_content blockquote {
+  border-left: 4px solid var(--ss-accent);
+  background: var(--ss-soft);
+  margin: 1.6em 0;
+  padding: 0.9em 1.2em;
+  border-radius: 0 8px 8px 0;
+  color: var(--ss-muted);
+  font-style: normal;
+}
+
+/* ---- Featured image ------------------------------------------------------- */
+.single-post .et_pb_post_content img,
+.single-post .et_pb_image img {
+  border-radius: 10px;
+}
+.single-post .wp-block-image { margin: 1.8em 0; }
+
+/* ---- Responsive ----------------------------------------------------------- */
+@media (max-width: 782px) {
+  .single-post .et_pb_post_content { font-size: 17px; }
+  .single-post .et_pb_post_content h2 { font-size: 1.44rem; }
+  .single-post .et_pb_post_content h2:first-of-type { font-size: 1.18rem; }
+  .single-post .et_pb_post_content h3 { font-size: 1.12rem; }
+  .single-post .et_pb_post_content table { font-size: 0.9rem; }
+}
