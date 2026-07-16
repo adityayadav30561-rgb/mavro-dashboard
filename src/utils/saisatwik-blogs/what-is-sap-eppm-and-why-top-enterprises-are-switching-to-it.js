@@ -323,6 +323,10 @@ module.exports = {
 
 <!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-implementation-roadmap/">SAP EPPM implementation roadmap</a> — the five phases, realistic timelines, and the data-first sequencing that keeps a rollout on budget.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-architecture-and-integration-overview/">SAP EPPM architecture and integration</a> — the layered stack and every integration point (FICO, HCM, MM/SD, SAC, Fiori, BTP) that makes the data flow.</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
