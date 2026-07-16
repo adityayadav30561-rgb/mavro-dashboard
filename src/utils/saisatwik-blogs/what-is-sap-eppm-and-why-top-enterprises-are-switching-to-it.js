@@ -327,6 +327,10 @@ module.exports = {
 
 <!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-architecture-and-integration-overview/">SAP EPPM architecture and integration</a> — the layered stack and every integration point (FICO, HCM, MM/SD, SAC, Fiori, BTP) that makes the data flow.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-licensing-explained/">SAP EPPM licensing explained</a> — the per-module license structure, cost drivers, and how to scope the footprint before a quote.</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 

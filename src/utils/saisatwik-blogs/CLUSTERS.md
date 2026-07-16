@@ -28,6 +28,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#5371** — `sap-eppm-in-sap-s4hana-what-changed` (2026-07-08) — workbook K03, S/4HANA platform-shift angle; **deliberate bridge to the SAP Platform Guides cluster** (links to #854 hub, #1722, #3174)
 - [x] **#5376** — `sap-eppm-implementation-roadmap` (2026-07-08) — workbook K04, five-phase roadmap + timeline tables; traffic-intent with soft service-page CTA
 - [x] **#5409** — `sap-eppm-architecture-and-integration-overview` (2026-07-10) — workbook K05, layered architecture + integration points (4 tables); bridges to SAP Platform hub #854
+- [x] **#5412** — `sap-eppm-licensing-explained` (2026-07-10) — workbook K06, per-module licensing + cost drivers (3 tables); buyer-side pricing guide, no fabricated figures
 - [ ] `sap-eppm-implementation-checklist-for-cfos` — planned lead-intent spoke (pricing + timeline signal)
 - [ ] `sap-eppm-vs-oracle-primavera-honest-comparison` — planned traffic-intent spoke
 - [ ] `sap-eppm-in-manufacturing-90-day-go-live-playbook` — planned lead-intent industry angle
@@ -40,6 +41,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
   - Spoke #5267 updated to link UP to hub #5302 + lateral to #5157, #5308.
   - Spoke #5308 updated to link UP to hub #5302 + lateral to #5157, #5267.
   - Outbound authority citations added to all 4 (SAP.com, Gartner, McKinsey, Saudi Vision 2030 where applicable).
+- **2026-07-10 (spoke #10)** — Published `sap-eppm-licensing-explained` (#5412, workbook K06). Links UP to hub + laterals to #5352, #5409, #5376, #5100. Hub re-pushed (now 10 spokes). Outbound: SAP.com (S/4HANA, pricing terms), Gartner SAM. No fabricated prices per house rule.
 - **2026-07-10 (spoke #9)** — Published `sap-eppm-architecture-and-integration-overview` (#5409, workbook K05). Links UP to hub + laterals to #5352, #5371, #5376, #854. Hub re-pushed with it in the DOWN list (now 9 spokes). Outbound: SAP.com (S/4HANA, Fiori, BTP), Gartner ERP.
 - **2026-07-08 (spoke #8)** — Published `sap-eppm-implementation-roadmap` (#5376, workbook K04). Links UP to hub + laterals to #5352, #5371, #3174, #5100. Hub re-pushed with it in the DOWN list (now 8 spokes). Outbound: SAP.com (EPPM, S/4HANA), PMI Pulse, Standish CHAOS.
 - **2026-07-08 (spoke #7)** — Published `sap-eppm-in-sap-s4hana-what-changed` (#5371, workbook K03). Links UP to hub + lateral to #5352, plus cross-cluster bridge links to SAP Platform hub #854, #1722, #3174. Hub re-pushed with it in the DOWN list. Outbound: SAP.com (EPPM, S/4HANA, Fiori), SAP News 2027 maintenance, PMI Pulse.
