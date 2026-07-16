@@ -61,6 +61,39 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - Comparative post (#5267) plays lead role for buyer decision stage.
 - Problem-solution post (#4982) captures the "what does SAP EPPM actually solve" query cluster.
 
+
+---
+
+## Cluster: SAP PS (Project System)
+
+**Hub (pillar post):** `what-is-sap-ps-project-system-beginner-guide` (#5418)
+**Hub (service page):** https://saisatwik.com/services/sap/
+**Intent:** traffic (top-of-funnel definitional pillar; opens the SAP PS query cluster)
+**Primary keyword:** what is SAP PS module
+**LSI / entities:** SAP Project System, WBS element, network, activity, milestone, project definition, cost planning, settlement, availability control, CJ20N, SAP S/4HANA, Universal Journal, SAP EPPM
+**Buyer roles:** Project Managers, Project Controllers, PMO staff, Finance Controllers, SAP learners
+**Industries:** Engineering & Construction, Oil & Gas, Utilities, Manufacturing, IT & Telecom, Public Sector
+**Geographies:** Global
+
+### Spokes
+
+- [x] **#5418** — `what-is-sap-ps-project-system-beginner-guide` (2026-07-10) — **HUB** (workbook K08, Priority 1; definitional pillar, 2 tables + lifecycle steps + definition box)
+- [ ] **K09** `sap-ps-tutorial-for-beginners` — planned (P1)
+- [ ] **K10** `sap-ps-work-breakdown-structure-wbs-explained` — planned (P1)
+- [ ] **K11** `how-to-create-a-project-in-sap-ps-cj20n` — planned (P1)
+- [ ] **K12** `sap-ps-network-and-activities-explained` — planned (P2)
+- [ ] **K13** `sap-ps-project-cost-planning-guide` — planned (P1)
+- [ ] **K14** `budgeting-and-availability-control-in-sap-ps` — planned (P2)
+- [ ] **K15-K27** milestone billing, results analysis, settlement, FICO/MM/SD integration, EVM, tcode cheat sheet, PS in S/4HANA, config, lifecycle, CN25, interview Qs, reporting
+
+### Retro-linking log
+
+- **2026-07-10 (hub)** — Established the SAP PS cluster. Hub #5418 links laterally to the SAP EPPM cluster (modules #5352, hub #5302, architecture #5409, S/4HANA #5371, best practices #5416) and SAP Platform hub #854. SAP PS is one of the five EPPM modules, so the two clusters cross-link tightly. Outbound: SAP.com (S/4HANA, Fiori), PMI Pulse.
+
+### Health
+
+- Cluster hub live; K09-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
+
 ---
 
 ## Cluster: SME Productivity + All-in-One Business Workspace
