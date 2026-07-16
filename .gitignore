@@ -43,3 +43,7 @@ playwright/.cache/
 SaiSatwik_MBR_*.xlsx
 screenshots/
 desktop.ini
+
+# Excel lock files
+~$*.xlsx
+~$*.xls
