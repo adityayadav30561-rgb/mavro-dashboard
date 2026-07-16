@@ -29,6 +29,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#5376** — `sap-eppm-implementation-roadmap` (2026-07-08) — workbook K04, five-phase roadmap + timeline tables; traffic-intent with soft service-page CTA
 - [x] **#5409** — `sap-eppm-architecture-and-integration-overview` (2026-07-10) — workbook K05, layered architecture + integration points (4 tables); bridges to SAP Platform hub #854
 - [x] **#5412** — `sap-eppm-licensing-explained` (2026-07-10) — workbook K06, per-module licensing + cost drivers (3 tables); buyer-side pricing guide, no fabricated figures
+- [x] **#5416** — `sap-eppm-best-practices-for-capital-projects` (2026-07-10) — workbook K07, 7 best practices mapped to modules; **completes the EPPM knowledge arc K01-K07**
 - [ ] `sap-eppm-implementation-checklist-for-cfos` — planned lead-intent spoke (pricing + timeline signal)
 - [ ] `sap-eppm-vs-oracle-primavera-honest-comparison` — planned traffic-intent spoke
 - [ ] `sap-eppm-in-manufacturing-90-day-go-live-playbook` — planned lead-intent industry angle
@@ -41,6 +42,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
   - Spoke #5267 updated to link UP to hub #5302 + lateral to #5157, #5308.
   - Spoke #5308 updated to link UP to hub #5302 + lateral to #5157, #5267.
   - Outbound authority citations added to all 4 (SAP.com, Gartner, McKinsey, Saudi Vision 2030 where applicable).
+- **2026-07-10 (spoke #11)** — Published `sap-eppm-best-practices-for-capital-projects` (#5416, workbook K07). Links UP to hub + laterals to #5352, #5409, #5376, #5308. Hub re-pushed (now 11 spokes). Outbound: SAP.com S/4HANA, PMI Pulse, Gartner ERP. **EPPM knowledge arc K01-K07 now complete.**
 - **2026-07-10 (spoke #10)** — Published `sap-eppm-licensing-explained` (#5412, workbook K06). Links UP to hub + laterals to #5352, #5409, #5376, #5100. Hub re-pushed (now 10 spokes). Outbound: SAP.com (S/4HANA, pricing terms), Gartner SAM. No fabricated prices per house rule.
 - **2026-07-10 (spoke #9)** — Published `sap-eppm-architecture-and-integration-overview` (#5409, workbook K05). Links UP to hub + laterals to #5352, #5371, #5376, #854. Hub re-pushed with it in the DOWN list (now 9 spokes). Outbound: SAP.com (S/4HANA, Fiori, BTP), Gartner ERP.
 - **2026-07-08 (spoke #8)** — Published `sap-eppm-implementation-roadmap` (#5376, workbook K04). Links UP to hub + laterals to #5352, #5371, #3174, #5100. Hub re-pushed with it in the DOWN list (now 8 spokes). Outbound: SAP.com (EPPM, S/4HANA), PMI Pulse, Standish CHAOS.
@@ -53,7 +55,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Health
 
-- 5 published spokes, 3 planned. Cluster is now the largest SaiSatwik cluster and functions as a full topic-authority zone.
+- 11 published spokes, 3 planned. Largest SaiSatwik cluster; the K01-K07 workbook knowledge arc is fully published. Functions as a complete topic-authority zone.
 - Hub identifies a definitional pillar (#5302) — good for AEO extraction on "What is SAP EPPM" queries.
 - Two regional angles (Dubai #5157, Saudi #5308) form a natural sub-pair; both cross-link.
 - Comparative post (#5267) plays lead role for buyer decision stage.

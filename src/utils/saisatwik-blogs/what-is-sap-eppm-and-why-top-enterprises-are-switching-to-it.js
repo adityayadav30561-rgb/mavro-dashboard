@@ -331,6 +331,10 @@ module.exports = {
 
 <!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-licensing-explained/">SAP EPPM licensing explained</a> — the per-module license structure, cost drivers, and how to scope the footprint before a quote.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-best-practices-for-capital-projects/">SAP EPPM best practices for capital projects</a> — portfolio gating, WBS discipline, real-time cost control, and stage-gate governance that keep a capital portfolio on budget.</li>
 <!-- /wp:list-item --></ul>
 <!-- /wp:list -->
 
