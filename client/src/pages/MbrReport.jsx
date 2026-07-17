@@ -603,10 +603,12 @@ export default function MbrReport() {
   const ga4Rep = ga4?.ga4Reported || null;
   const isMavroAud = audSrc?.current === 'mavro';
   const sameSrcMoM = !audSrc || audSrc.current === audSrc.previous;
-  const sameSrc3mo = !audSrc || audSrc.current === audSrc.previousFull;
   const volDelta = (cur, prev) => (sameSrcMoM ? deltaPct(cur, prev) : null);
+  const mavroSince = ga4?.mavroPartialFrom
+    ? new Date(ga4.mavroPartialFrom).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    : null;
   const srcHint = (ga4Val) => (isMavroAud
-    ? `Mavro Analytics · GA4: ${fmtNum(ga4Val)}`
+    ? `Mavro Analytics${mavroSince ? ` (since ${mavroSince})` : ''} · GA4: ${fmtNum(ga4Val)}`
     : audSrc ? 'via GA4' : undefined);
 
   const trendData = useMemo(
@@ -874,13 +876,13 @@ export default function MbrReport() {
             <div className="mt-3">
               <Card caption="3-month comparison" title={`${periodLabels.previous2} → ${periodLabels.previous} → ${periodLabels.current}`} icon={BarChart3}>
                 <DataTable
-                  columns={['Metric', periodLabels.current, periodLabels.previous, periodLabels.previous2, 'MoM %']}
+                  columns={['Metric', periodLabels.current, periodLabels.previous, periodLabels.previous2]}
                   rows={[
-                    { name: `Total users${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.users, prev: ov.previousFull?.users, prev2: ov.previous2?.users, pct: sameSrc3mo ? undefined : null },
+                    { name: `Total users${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.users, prev: ov.previousFull?.users, prev2: ov.previous2?.users },
                     { name: 'New users', cur: ov.current.newUsers, prev: ov.previousFull?.newUsers, prev2: ov.previous2?.newUsers },
-                    { name: `Sessions${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.sessions, prev: ov.previousFull?.sessions, prev2: ov.previous2?.sessions, pct: sameSrc3mo ? undefined : null },
-                    { name: `Page views${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.pageViews, prev: ov.previousFull?.pageViews, prev2: ov.previous2?.pageViews, pct: sameSrc3mo ? undefined : null },
-                    { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round((ov.previousFull?.engagementRate || 0) * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%`, pct: deltaPct(ov.current.engagementRate, ov.previousFull?.engagementRate) },
+                    { name: `Sessions${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.sessions, prev: ov.previousFull?.sessions, prev2: ov.previous2?.sessions },
+                    { name: `Page views${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.pageViews, prev: ov.previousFull?.pageViews, prev2: ov.previous2?.pageViews },
+                    { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round((ov.previousFull?.engagementRate || 0) * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%` },
                     { name: 'AI referral sessions', cur: ai?.currentSessions, prev: ai?.previousFullSessions, prev2: ai?.previous2Sessions },
                     ...eventTiles.map((t) => ({
                       name: t.label, cur: events[t.key]?.current, prev: events[t.key]?.previousFull, prev2: events[t.key]?.previous2,
@@ -890,16 +892,14 @@ export default function MbrReport() {
                       { name: 'Search impressions', cur: gsc.totals.current.impressions, prev: gsc.totals.previousFull?.impressions, prev2: gsc.totals.previous2?.impressions },
                     ] : []),
                   ]}
-                  renderRow={(r, idx) => {
+                  renderRow={(r) => {
                     const numeric = typeof r.cur === 'number';
-                    const pct = r.pct !== undefined ? r.pct : (numeric ? deltaPct(r.cur, r.prev) : null);
                     return (
                       <tr key={r.name} className="border-b border-border/40 last:border-0 hover:bg-foreground/[0.02]">
                         <Td>{r.name}</Td>
                         <Td right mono className="font-semibold">{numeric ? fmtNum(r.cur) : r.cur}</Td>
                         <Td right mono>{typeof r.prev === 'number' ? fmtNum(r.prev) : r.prev}</Td>
                         <Td right mono>{typeof r.prev2 === 'number' ? fmtNum(r.prev2) : (r.prev2 ?? '—')}</Td>
-                        <Td right><Trend delta={pct} /></Td>
                       </tr>
                     );
                   }}

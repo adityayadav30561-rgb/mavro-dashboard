@@ -165,10 +165,16 @@ async function getOverlay(websiteSlug, ranges) {
   for (const [key, win] of Object.entries(windows)) {
     covered[key] = firstEventAt <= toStart(win.startDate);
   }
-  // Special case: current window counts as covered if tracking started on/
-  // before the window start OR the window started before tracking existed at
-  // all but every day since install is inside it AND install was on day one.
-  // (Kept strict otherwise — partial months fall back to GA4.)
+  // CURRENT window relaxation (user decision 2026-07-10): if tracking started
+  // mid-window, still use Mavro data for the current period and surface
+  // `partialFrom` so the UI can caption "since <date>". Once a new month
+  // starts after the install date, partialFrom disappears automatically.
+  // Historical windows stay strict — GA4 fallback, no mixed series.
+  let partialFrom = null;
+  if (!covered.current && firstEventAt <= toEnd(windows.current.endDate)) {
+    covered.current = true;
+    partialFrom = firstEventAt;
+  }
 
   const overview = {};
   for (const [key, win] of Object.entries(windows)) {
@@ -183,6 +189,7 @@ async function getOverlay(websiteSlug, ranges) {
 
   return {
     firstEventAt,
+    partialFrom,
     covered,
     overview,
     trend,
