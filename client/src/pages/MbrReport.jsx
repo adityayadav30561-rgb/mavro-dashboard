@@ -594,6 +594,21 @@ export default function MbrReport() {
   const ai = ga4?.aiReferrals;
   const events = ga4?.events || {};
 
+  // First-party overlay metadata (Option A source policy). When the Mavro
+  // tracker covers a window, volume metrics come from our own store and GA4's
+  // number is kept in ga4Reported for the secondary line. Deltas are only
+  // shown when both windows share a source — mixing methodologies in a MoM %
+  // would fake growth/decline.
+  const audSrc = ga4?.audienceSource || null;
+  const ga4Rep = ga4?.ga4Reported || null;
+  const isMavroAud = audSrc?.current === 'mavro';
+  const sameSrcMoM = !audSrc || audSrc.current === audSrc.previous;
+  const sameSrc3mo = !audSrc || audSrc.current === audSrc.previousFull;
+  const volDelta = (cur, prev) => (sameSrcMoM ? deltaPct(cur, prev) : null);
+  const srcHint = (ga4Val) => (isMavroAud
+    ? `Mavro Analytics · GA4: ${fmtNum(ga4Val)}`
+    : audSrc ? 'via GA4' : undefined);
+
   const trendData = useMemo(
     () => (ga4?.trend || []).map((r) => ({ date: r.date, Users: r.users, Sessions: r.sessions })),
     [ga4]
@@ -847,12 +862,12 @@ export default function MbrReport() {
           {/* ============ AUDIENCE ============ */}
           <SectionHeading id="sec-audience">Audience — {monthLabel}</SectionHeading>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <StatTile i={0} icon={Users} label="Total users" value={fmtNum(ov.current.users)} delta={deltaPct(ov.current.users, ov.previous.users)} />
-            <StatTile i={1} icon={UserPlus} label="New users" value={fmtNum(ov.current.newUsers)} delta={deltaPct(ov.current.newUsers, ov.previous.newUsers)} />
-            <StatTile i={2} icon={Activity} label="Sessions" value={fmtNum(ov.current.sessions)} delta={deltaPct(ov.current.sessions, ov.previous.sessions)} />
-            <StatTile i={3} icon={Eye} label="Page views" value={fmtNum(ov.current.pageViews)} delta={deltaPct(ov.current.pageViews, ov.previous.pageViews)} />
-            <StatTile i={4} icon={TrendingUp} label="Engagement rate" value={`${Math.round(ov.current.engagementRate * 100)}%`} delta={deltaPct(ov.current.engagementRate, ov.previous.engagementRate)} />
-            <StatTile i={5} icon={Clock} label="Avg time / user" value={fmtDuration(ov.current.avgEngagementSec)} delta={deltaPct(ov.current.avgEngagementSec, ov.previous.avgEngagementSec)} />
+            <StatTile i={0} icon={Users} label="Total users" value={fmtNum(ov.current.users)} delta={volDelta(ov.current.users, ov.previous.users)} hint={srcHint(ga4Rep?.current?.users)} />
+            <StatTile i={1} icon={UserPlus} label="New users" value={fmtNum(ov.current.newUsers)} delta={deltaPct(ov.current.newUsers, ov.previous.newUsers)} hint={isMavroAud ? 'via GA4' : undefined} />
+            <StatTile i={2} icon={Activity} label="Sessions" value={fmtNum(ov.current.sessions)} delta={volDelta(ov.current.sessions, ov.previous.sessions)} hint={srcHint(ga4Rep?.current?.sessions)} />
+            <StatTile i={3} icon={Eye} label="Page views" value={fmtNum(ov.current.pageViews)} delta={volDelta(ov.current.pageViews, ov.previous.pageViews)} hint={srcHint(ga4Rep?.current?.pageViews)} />
+            <StatTile i={4} icon={TrendingUp} label="Engagement rate" value={`${Math.round(ov.current.engagementRate * 100)}%`} delta={deltaPct(ov.current.engagementRate, ov.previous.engagementRate)} hint={isMavroAud ? 'via GA4' : undefined} />
+            <StatTile i={5} icon={Clock} label="Avg time / user" value={fmtDuration(ov.current.avgEngagementSec)} delta={deltaPct(ov.current.avgEngagementSec, ov.previous.avgEngagementSec)} hint={isMavroAud ? 'via GA4' : undefined} />
           </div>
 
           {compare3 && (
@@ -861,10 +876,10 @@ export default function MbrReport() {
                 <DataTable
                   columns={['Metric', periodLabels.current, periodLabels.previous, periodLabels.previous2, 'MoM %']}
                   rows={[
-                    { name: 'Total users', cur: ov.current.users, prev: ov.previousFull?.users, prev2: ov.previous2?.users },
+                    { name: `Total users${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.users, prev: ov.previousFull?.users, prev2: ov.previous2?.users, pct: sameSrc3mo ? undefined : null },
                     { name: 'New users', cur: ov.current.newUsers, prev: ov.previousFull?.newUsers, prev2: ov.previous2?.newUsers },
-                    { name: 'Sessions', cur: ov.current.sessions, prev: ov.previousFull?.sessions, prev2: ov.previous2?.sessions },
-                    { name: 'Page views', cur: ov.current.pageViews, prev: ov.previousFull?.pageViews, prev2: ov.previous2?.pageViews },
+                    { name: `Sessions${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.sessions, prev: ov.previousFull?.sessions, prev2: ov.previous2?.sessions, pct: sameSrc3mo ? undefined : null },
+                    { name: `Page views${isMavroAud ? ' · Mavro' : ''}`, cur: ov.current.pageViews, prev: ov.previousFull?.pageViews, prev2: ov.previous2?.pageViews, pct: sameSrc3mo ? undefined : null },
                     { name: 'Engagement rate', cur: `${Math.round(ov.current.engagementRate * 100)}%`, prev: `${Math.round((ov.previousFull?.engagementRate || 0) * 100)}%`, prev2: `${Math.round((ov.previous2?.engagementRate || 0) * 100)}%`, pct: deltaPct(ov.current.engagementRate, ov.previousFull?.engagementRate) },
                     { name: 'AI referral sessions', cur: ai?.currentSessions, prev: ai?.previousFullSessions, prev2: ai?.previous2Sessions },
                     ...eventTiles.map((t) => ({
@@ -895,7 +910,7 @@ export default function MbrReport() {
 
           <div className="mt-3">
             <Card
-              caption="Daily"
+              caption={ga4?.trendSource === 'mavro' ? 'Daily · Mavro Analytics' : 'Daily'}
               title={compare3 ? 'Users — 3-month overlay (by day of period)' : 'Users & Sessions'}
               icon={Activity}
             >
@@ -1071,7 +1086,7 @@ export default function MbrReport() {
 
           {/* ============ CONTENT ============ */}
           <SectionHeading id="sec-content">Content</SectionHeading>
-          <Card caption="Pages" title="Top pages" icon={Eye}>
+          <Card caption={ga4?.pagesSource === 'mavro' ? 'Pages · Mavro Analytics' : 'Pages'} title="Top pages" icon={Eye}>
             <DataTable
               columns={['Page', 'Views', 'Users', 'Avg time']}
               rows={(ga4.topPages || []).slice(0, 12)}
@@ -1080,7 +1095,7 @@ export default function MbrReport() {
                   <Td className="truncate max-w-[280px] font-mono text-[10px]">{r.path}</Td>
                   <Td right mono>{fmtNum(r.views)}</Td>
                   <Td right mono>{fmtNum(r.users)}</Td>
-                  <Td right mono>{fmtDuration(r.avgEngagementSec)}</Td>
+                  <Td right mono>{r.avgEngagementSec == null ? '—' : fmtDuration(r.avgEngagementSec)}</Td>
                 </tr>
               )}
             />
@@ -1185,7 +1200,7 @@ export default function MbrReport() {
             </Card>
           </div>
           <div className="grid lg:grid-cols-3 gap-3 mt-3 pb-8">
-            <Card caption="Devices" title="Device split" icon={MonitorSmartphone}>
+            <Card caption={ga4?.devicesSource === 'mavro' ? 'Devices · Mavro Analytics' : 'Devices'} title="Device split" icon={MonitorSmartphone}>
               <BarRows rows={(ga4.devices || []).map((d) => ({ label: d.device, value: d.users }))} />
             </Card>
             <Card caption="Geography" title="Top countries" icon={Globe} className="lg:col-span-2">
