@@ -40,7 +40,12 @@ const config = {
 
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW, 10) || 15 * 60 * 1000,
-    maxRequests: parseInt(process.env.RATE_LIMIT_MAX, 10) || 100,
+    // Global /api/* cap per IP per window. 100 was too low for the admin:
+    // the Analytics page polls realtime every 15s (~60 hits/15min from a single
+    // open tab) and the SEO/Analytics pages fire 15-25 calls per load, so a
+    // legitimate admin session exhausted the bucket and 429'd itself off the
+    // whole API. Raised to 600. Override with RATE_LIMIT_MAX if needed.
+    maxRequests: parseInt(process.env.RATE_LIMIT_MAX, 10) || 600,
     authMaxRequests: parseInt(process.env.RATE_LIMIT_AUTH_MAX, 10) || 20,
   },
 

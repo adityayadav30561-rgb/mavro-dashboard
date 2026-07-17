@@ -103,8 +103,16 @@ const apiLimiter = rateLimit({
     // Skip rate limiting for health checks and the analytics ingestion endpoint
     // (analytics has its own dedicated stricter limiter to avoid flooding the
     // global bucket and locking out legitimate API calls like lead submission).
-    if (req.path === '/api/health') return true;
-    if (req.path === '/api/analytics/track') return true;
+    //
+    // IMPORTANT: this middleware is mounted at `/api/`, so Express strips that
+    // prefix from `req.path` inside here (`/api/health` arrives as `/health`).
+    // Match against `req.originalUrl` (full path incl. the prefix), stripped of
+    // any query string. The previous `req.path === '/api/health'` check never
+    // matched, so cron health pings and every SaiSatwik analytics beacon were
+    // wrongly consuming the global bucket and 429ing the whole admin API.
+    const p = (req.originalUrl || '').split('?')[0];
+    if (p === '/api/health') return true;
+    if (p === '/api/analytics/track') return true;
     return false;
   },
 });
