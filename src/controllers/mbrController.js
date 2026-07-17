@@ -156,7 +156,7 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:v8:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v9:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
@@ -227,6 +227,39 @@ const getGa4Report = asyncHandler(async (req, res) => {
         }
         payload.mavroFirstEventAt = overlay.firstEventAt;
         payload.mavroPartialFrom = overlay.partialFrom || null;
+
+        // ── Blend (user decision 2026-07-17): when tracking starts mid-window
+        // (custom range), don't show Mavro-only totals that silently miss the
+        // pre-tracking days — stitch GA4 for days BEFORE the install date with
+        // Mavro from the install date on. Applies to the current window only;
+        // audienceSource/trendSource become 'blend' so the UI labels it.
+        if (overlay.partialFrom) {
+          const cut = overlay.partialFrom.toISOString().slice(0, 10).replace(/-/g, '');
+          const ga4Trend = report.trend || [];
+          const preRows = ga4Trend.filter((r) => r.date < cut);
+          const preSum = (k) => preRows.reduce((acc, r) => acc + (Number(r[k]) || 0), 0);
+          if (preRows.length) {
+            // Daily-user sums can double-count cross-day returners, but for
+            // the pre-tracking stub it's the only GA4-daily signal available.
+            payload.overview.current = {
+              ...payload.overview.current,
+              users: preSum('users') + (overlay.overview.current?.users || 0),
+              sessions: preSum('sessions') + (overlay.overview.current?.sessions || 0),
+              pageViews: preSum('pageViews') + (overlay.overview.current?.pageViews || 0),
+            };
+            payload.audienceSource.current = 'blend';
+            if (overlay.trend) {
+              const stitched = [
+                ...preRows,
+                ...overlay.trend.filter((r) => r.date >= cut),
+              ];
+              payload.trend = stitched;
+              payload.trendSource = 'blend';
+              payload.trendCompare.current = stitched;
+              payload.trendCompareSource.current = 'blend';
+            }
+          }
+        }
       }
     } catch (err) {
       // Overlay failure must never take down the GA4 report — fall through

@@ -156,7 +156,7 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
     {
       dateRanges: compareRanges,
       dimensions: [dimension('date')],
-      metrics: [metric('activeUsers'), metric('sessions')],
+      metrics: [metric('activeUsers'), metric('sessions'), metric('screenPageViews')],
       orderBys: [{ dimension: { dimensionName: 'date' } }],
       limit: 1200,
     },
@@ -266,6 +266,7 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
     date: r.date,
     users: r.activeUsers,
     sessions: r.sessions,
+    pageViews: r.screenPageViews,
   }));
   const rangeBounds = {
     date_range_0: current,
@@ -281,7 +282,7 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
     return trendRows
       .filter((r) => r.range === key && r.date >= lo && r.date <= hi)
       .sort((a, b2) => a.date.localeCompare(b2.date))
-      .map(({ date, users, sessions }) => ({ date, users, sessions }));
+      .map(({ date, users, sessions, pageViews }) => ({ date, users, sessions, pageViews }));
   };
 
   return {

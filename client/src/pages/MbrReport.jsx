@@ -601,15 +601,18 @@ export default function MbrReport() {
   // would fake growth/decline.
   const audSrc = ga4?.audienceSource || null;
   const ga4Rep = ga4?.ga4Reported || null;
-  const isMavroAud = audSrc?.current === 'mavro';
+  const isMavroAud = audSrc?.current === 'mavro' || audSrc?.current === 'blend';
+  const isBlend = audSrc?.current === 'blend';
   const sameSrcMoM = !audSrc || audSrc.current === audSrc.previous;
   const volDelta = (cur, prev) => (sameSrcMoM ? deltaPct(cur, prev) : null);
   const mavroSince = ga4?.mavroPartialFrom
     ? new Date(ga4.mavroPartialFrom).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     : null;
-  const srcHint = (ga4Val) => (isMavroAud
-    ? `Mavro Analytics${mavroSince ? ` (since ${mavroSince})` : ''} · GA4: ${fmtNum(ga4Val)}`
-    : audSrc ? 'via GA4' : undefined);
+  const srcHint = (ga4Val) => (isBlend
+    ? `Mavro since ${mavroSince} + GA4 before · GA4: ${fmtNum(ga4Val)}`
+    : isMavroAud
+      ? `Mavro Analytics${mavroSince ? ` (since ${mavroSince})` : ''} · GA4: ${fmtNum(ga4Val)}`
+      : audSrc ? 'via GA4' : undefined);
 
   const trendData = useMemo(
     () => (ga4?.trend || []).map((r) => ({ date: r.date, Users: r.users, Sessions: r.sessions })),
@@ -910,7 +913,7 @@ export default function MbrReport() {
 
           <div className="mt-3">
             <Card
-              caption={ga4?.trendSource === 'mavro' ? 'Daily · Mavro Analytics' : 'Daily'}
+              caption={ga4?.trendSource === 'blend' ? 'Daily · Mavro + GA4 (pre-tracking)' : ga4?.trendSource === 'mavro' ? 'Daily · Mavro Analytics' : 'Daily'}
               title={compare3 ? 'Users — 3-month overlay (by day of period)' : 'Users & Sessions'}
               icon={Activity}
             >
@@ -1086,7 +1089,7 @@ export default function MbrReport() {
 
           {/* ============ CONTENT ============ */}
           <SectionHeading id="sec-content">Content</SectionHeading>
-          <Card caption={ga4?.pagesSource === 'mavro' ? 'Pages · Mavro Analytics' : 'Pages'} title="Top pages" icon={Eye}>
+          <Card caption={ga4?.pagesSource === 'mavro' ? `Pages · Mavro Analytics${ga4?.mavroPartialFrom ? ' (since ' + new Date(ga4.mavroPartialFrom).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ')' : ''}` : 'Pages'} title="Top pages" icon={Eye}>
             <DataTable
               columns={['Page', 'Views', 'Users', 'Avg time']}
               rows={(ga4.topPages || []).slice(0, 12)}
@@ -1200,7 +1203,7 @@ export default function MbrReport() {
             </Card>
           </div>
           <div className="grid lg:grid-cols-3 gap-3 mt-3 pb-8">
-            <Card caption={ga4?.devicesSource === 'mavro' ? 'Devices · Mavro Analytics' : 'Devices'} title="Device split" icon={MonitorSmartphone}>
+            <Card caption={ga4?.devicesSource === 'mavro' ? `Devices · Mavro Analytics${ga4?.mavroPartialFrom ? ' (since ' + new Date(ga4.mavroPartialFrom).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ')' : ''}` : 'Devices'} title="Device split" icon={MonitorSmartphone}>
               <BarRows rows={(ga4.devices || []).map((d) => ({ label: d.device, value: d.users }))} />
             </Card>
             <Card caption="Geography" title="Top countries" icon={Globe} className="lg:col-span-2">
