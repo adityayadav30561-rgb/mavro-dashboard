@@ -75,28 +75,27 @@ async function windowOverview(websiteSlug, win) {
 /** Daily trend for one window → GA4-shaped rows { date: YYYYMMDD, users, sessions, pageViews }. */
 async function windowTrend(websiteSlug, win) {
   const match = { websiteSlug, timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) } };
-  const agg = await AnalyticsEvent.aggregate([
-    { $match: match },
-    {
-      $group: {
-        _id: { day: { $dateTrunc: { date: '$timestamp', unit: 'day' } } },
-        sids: { $addToSet: '$sessionId' },
-        pageViews: { $sum: { $cond: [{ $eq: ['$eventType', 'page_view'] }, 1, 0] } },
-      },
-    },
-    { $sort: { '_id.day': 1 } },
-  ]);
+  const rows = await AnalyticsEvent.find(match).select('sessionId timestamp eventType').lean();
+  // Bucket per UTC day, then burst-count sessions WITHIN each day — sessions
+  // must not just mirror distinct users or the two chart lines overlap.
+  const byDay = new Map(); // key → { rows: [], pageViews }
+  for (const r of rows) {
+    const key = ga4Date(r.timestamp);
+    if (!byDay.has(key)) byDay.set(key, { rows: [], pageViews: 0 });
+    const bucket = byDay.get(key);
+    bucket.rows.push(r);
+    if (r.eventType === 'page_view') bucket.pageViews += 1;
+  }
   // Zero-fill the full window so charts align day-for-day with GA4's output
   const out = [];
-  const byDay = new Map(agg.map((r) => [ga4Date(r._id.day), r]));
   for (let d = toStart(win.startDate); d <= toEnd(win.endDate); d = new Date(d.getTime() + 86400000)) {
     const key = ga4Date(d);
-    const row = byDay.get(key);
+    const bucket = byDay.get(key);
     out.push({
       date: key,
-      users: row ? row.sids.length : 0,
-      sessions: row ? row.sids.length : 0,
-      pageViews: row ? row.pageViews : 0,
+      users: bucket ? new Set(bucket.rows.map((r) => r.sessionId)).size : 0,
+      sessions: bucket ? countBursts(bucket.rows) : 0,
+      pageViews: bucket ? bucket.pageViews : 0,
     });
   }
   return out;
@@ -132,18 +131,23 @@ async function windowTopPages(websiteSlug, win, limit = 15) {
 
 /** Devices for one window → GA4-shaped rows { device, users, sessions }. */
 async function windowDevices(websiteSlug, win) {
-  const rows = await AnalyticsEvent.aggregate([
-    {
-      $match: {
-        websiteSlug,
-        timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) },
-        deviceType: { $nin: [null, 'bot', 'unknown'] },
-      },
-    },
-    { $group: { _id: '$deviceType', sids: { $addToSet: '$sessionId' } } },
-    { $sort: { _id: 1 } },
-  ]);
-  return rows.map((r) => ({ device: r._id, users: r.sids.length, sessions: r.sids.length }));
+  const rows = await AnalyticsEvent.find({
+    websiteSlug,
+    timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) },
+    deviceType: { $nin: [null, 'bot', 'unknown'] },
+  }).select('sessionId timestamp deviceType').lean();
+  const byDevice = new Map();
+  for (const r of rows) {
+    if (!byDevice.has(r.deviceType)) byDevice.set(r.deviceType, []);
+    byDevice.get(r.deviceType).push(r);
+  }
+  return [...byDevice.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([device, deviceRows]) => ({
+      device,
+      users: new Set(deviceRows.map((r) => r.sessionId)).size,
+      sessions: countBursts(deviceRows),
+    }));
 }
 
 /**
