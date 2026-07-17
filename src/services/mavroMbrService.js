@@ -165,20 +165,22 @@ async function getOverlay(websiteSlug, ranges) {
     previous2: ranges.previous2,
   };
 
-  const covered = {};
+  // Coverage is judged by DAY, not timestamp — a range starting on the
+  // install date is fully covered even though the first event landed at
+  // 10:23, not midnight.
+  const installDay = firstEventAt.toISOString().slice(0, 10);
+  const coverage = {};
   for (const [key, win] of Object.entries(windows)) {
-    covered[key] = firstEventAt <= toStart(win.startDate);
+    if (installDay <= win.startDate) coverage[key] = 'full';
+    else if (installDay <= win.endDate) coverage[key] = 'partial';
+    else coverage[key] = 'none';
   }
-  // CURRENT window relaxation (user decision 2026-07-10): if tracking started
-  // mid-window, still use Mavro data for the current period and surface
-  // `partialFrom` so the UI can caption "since <date>". Once a new month
-  // starts after the install date, partialFrom disappears automatically.
-  // Historical windows stay strict — GA4 fallback, no mixed series.
-  let partialFrom = null;
-  if (!covered.current && firstEventAt <= toEnd(windows.current.endDate)) {
-    covered.current = true;
-    partialFrom = firstEventAt;
-  }
+  const covered = {};
+  for (const key of Object.keys(windows)) covered[key] = coverage[key] !== 'none';
+  // partialFrom drives the "(since 8 Jul)" caption + the GA4 blend for the
+  // pre-tracking stub of any straddling window (user decision 2026-07-17:
+  // blend applies to ALL windows, not just current).
+  const partialFrom = coverage.current === 'partial' ? firstEventAt : null;
 
   const overview = {};
   for (const [key, win] of Object.entries(windows)) {
@@ -193,7 +195,9 @@ async function getOverlay(websiteSlug, ranges) {
 
   return {
     firstEventAt,
+    installDay,
     partialFrom,
+    coverage,
     covered,
     overview,
     trend,

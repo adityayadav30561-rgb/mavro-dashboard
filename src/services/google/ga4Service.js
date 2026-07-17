@@ -294,6 +294,15 @@ async function getMbrReport({ current, previous, previousFull, previous2 }, prop
       previous: trendFor('date_range_2'),
       previous2: trendFor('date_range_3'),
     },
+    // Per-window daily rows for the first-party blend (mbrController): lets
+    // any window straddling the tracker install date stitch GA4-before +
+    // Mavro-after, not just the current one.
+    trendByRange: {
+      current: trendFor('date_range_0'),
+      previous: trendFor('date_range_1'),
+      previousFull: trendFor('date_range_2'),
+      previous2: trendFor('date_range_3'),
+    },
     channels: channelsR.map((r) => ({
       channel: r.sessionDefaultChannelGroup, sessions: r.sessions, users: r.totalUsers,
     })),
