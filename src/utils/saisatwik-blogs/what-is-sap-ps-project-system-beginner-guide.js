@@ -171,6 +171,9 @@ module.exports = {
 <!-- wp:list -->
 <ul class="wp-block-list">
 <!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-tutorial-for-beginners/">SAP PS tutorial for beginners</a>. The hands-on companion to this guide: build and run a project step by step.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-modules-explained-ps-ppm-im-cpm-cats/">SAP EPPM modules explained: PS, PPM, IM, CPM and CATS</a>. Where SAP PS fits among the five modules.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
@@ -229,7 +232,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Start with the five core objects: project definition, WBS element, network, activity and milestone. Then follow one project through the lifecycle, from structuring to settlement, in a training or sandbox system. Understanding how a cost flows from a WBS element to finance settlement teaches the module faster than memorising transaction codes.</p>
+<p>Start with the five core objects: project definition, WBS element, network, activity and milestone. Then follow one project through the lifecycle, from structuring to settlement, in a training or sandbox system. The <a href="https://saisatwik.com/sap-ps-tutorial-for-beginners/">step-by-step SAP PS tutorial</a> walks that exact sequence with the transaction codes. Understanding how a cost flows from a WBS element to finance settlement teaches the module faster than memorising transaction codes.</p>
 <!-- /wp:paragraph -->
 `,
 };

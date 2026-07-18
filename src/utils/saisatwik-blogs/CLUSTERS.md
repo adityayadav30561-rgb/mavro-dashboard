@@ -78,7 +78,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 ### Spokes
 
 - [x] **#5418** — `what-is-sap-ps-project-system-beginner-guide` (2026-07-10) — **HUB** (workbook K08, Priority 1; definitional pillar, 2 tables + lifecycle steps + definition box)
-- [ ] **K09** `sap-ps-tutorial-for-beginners` — planned (P1)
+- [x] **#5423** — `sap-ps-tutorial-for-beginners` (2026-07-18) — workbook K09, Priority 1; step-by-step lifecycle tutorial, 2 tables (tcodes + learning path), anchors UP to hub #5418, lateral to EPPM best practices + architecture + modules + S/4HANA
 - [ ] **K10** `sap-ps-work-breakdown-structure-wbs-explained` — planned (P1)
 - [ ] **K11** `how-to-create-a-project-in-sap-ps-cj20n` — planned (P1)
 - [ ] **K12** `sap-ps-network-and-activities-explained` — planned (P2)
@@ -92,7 +92,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Health
 
-- Cluster hub live; K09-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
+- Cluster hub live + first spoke #5423 (K09 tutorial); K10-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
 
 ---
 

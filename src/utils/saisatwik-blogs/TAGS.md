@@ -9,6 +9,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 ## Axis: Technology
 
 - SAP EPPM
+- SAP PS
 - SAP S/4HANA
 - SAP Investment Management
 - SAP Ariba
@@ -85,6 +86,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Checklist
 - Comparison
 - Beginner Guide
+- Tutorial
 
 ---
 
