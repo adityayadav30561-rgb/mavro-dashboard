@@ -66,7 +66,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Open CJ20N, the Project Builder. Create a new project definition and give it a clear identifier and description. The project definition is the header: it carries the start and finish dates, the organisational assignments (company code, plant, profit center) and the project profile, which controls default settings for everything created under it.</p>
+<p>Open CJ20N, the Project Builder (covered click by click in the <a href="https://saisatwik.com/how-to-create-a-project-in-sap-ps-cj20n/">CJ20N project creation guide</a>). Create a new project definition and give it a clear identifier and description. The project definition is the header: it carries the start and finish dates, the organisational assignments (company code, plant, profit center) and the project profile, which controls default settings for everything created under it.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->

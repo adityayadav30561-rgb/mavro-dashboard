@@ -80,7 +80,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#5418** — `what-is-sap-ps-project-system-beginner-guide` (2026-07-10) — **HUB** (workbook K08, Priority 1; definitional pillar, 2 tables + lifecycle steps + definition box)
 - [x] **#5423** — `sap-ps-tutorial-for-beginners` (2026-07-18) — workbook K09, Priority 1; step-by-step lifecycle tutorial, 2 tables (tcodes + learning path), anchors UP to hub #5418, lateral to EPPM best practices + architecture + modules + S/4HANA
 - [x] **#5425** — `sap-ps-work-breakdown-structure-wbs-explained` (2026-07-18) — workbook K10, Priority 1; WBS deep dive, 2 tables (operative indicators + design rules), anchors UP to hub #5418 and tutorial #5423, lateral to EPPM best practices + architecture + modules; outbound PMI, SAP Help, sap.com
-- [ ] **K11** `how-to-create-a-project-in-sap-ps-cj20n` — planned (P1)
+- [x] **#5428** — `how-to-create-a-project-in-sap-ps-cj20n` (2026-07-18) — workbook K11, Priority 1; CJ20N Project Builder how-to, 5 steps + 6-row error/fix table + practitioner shortcuts, anchors UP to hub #5418, tutorial #5423, WBS #5425; outbound sap.com, SAP Help, SAP Learning
 - [ ] **K12** `sap-ps-network-and-activities-explained` — planned (P2)
 - [ ] **K13** `sap-ps-project-cost-planning-guide` — planned (P1)
 - [ ] **K14** `budgeting-and-availability-control-in-sap-ps` — planned (P2)
@@ -92,7 +92,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Health
 
-- Cluster hub live + spokes #5423 (K09 tutorial), #5425 (K10 WBS); K11-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
+- Cluster hub live + spokes #5423 (K09 tutorial), #5425 (K10 WBS), #5428 (K11 CJ20N); K12-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
 
 ---
 

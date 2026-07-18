@@ -66,7 +66,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>The working transaction is CJ20N, the Project Builder. The sequence for creating a WBS from scratch:</p>
+<p>The working transaction is CJ20N, the Project Builder; the <a href="https://saisatwik.com/how-to-create-a-project-in-sap-ps-cj20n/">CJ20N walkthrough</a> covers the transaction itself in detail. The sequence for creating a WBS from scratch:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:list {"ordered":true} -->
