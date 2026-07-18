@@ -70,7 +70,7 @@ module.exports = {
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Under the project definition, create the WBS elements. Structure them the way cost responsibility breaks down, not the way tasks happen to be listed. A simple training structure works well: one level for the project, one level for phases (engineering, procurement, execution), and one level below only where a phase needs separate cost tracking. Flag each WBS element as a planning element and an account assignment element so it can carry planned and actual costs. WBS design discipline is the habit that separates good SAP PS implementations from messy ones, a point covered in depth in the <a href="https://saisatwik.com/sap-eppm-best-practices-for-capital-projects/">SAP EPPM best practices guide</a>.</p>
+<p>Under the project definition, create the WBS elements. Structure them the way cost responsibility breaks down, not the way tasks happen to be listed. A simple training structure works well: one level for the project, one level for phases (engineering, procurement, execution), and one level below only where a phase needs separate cost tracking. Flag each WBS element as a planning element and an account assignment element so it can carry planned and actual costs; the <a href="https://saisatwik.com/sap-ps-work-breakdown-structure-wbs-explained/">SAP PS WBS guide</a> explains these operative indicators in full. WBS design discipline is the habit that separates good SAP PS implementations from messy ones, a point covered in depth in the <a href="https://saisatwik.com/sap-eppm-best-practices-for-capital-projects/">SAP EPPM best practices guide</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->

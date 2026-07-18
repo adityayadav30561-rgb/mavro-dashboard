@@ -174,6 +174,9 @@ module.exports = {
 <li><a href="https://saisatwik.com/sap-ps-tutorial-for-beginners/">SAP PS tutorial for beginners</a>. The hands-on companion to this guide: build and run a project step by step.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-work-breakdown-structure-wbs-explained/">SAP PS Work Breakdown Structure (WBS) explained</a>. A deep dive on the object every cost in the module attaches to.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-modules-explained-ps-ppm-im-cpm-cats/">SAP EPPM modules explained: PS, PPM, IM, CPM and CATS</a>. Where SAP PS fits among the five modules.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
