@@ -114,5 +114,5 @@ const SECTIONS = [
 ];
 
 export default function TermsPage() {
-  return <LegalPage title="Terms of Service" updated="19 June 2026" intro="Please read these Terms carefully before using our website and services." sections={SECTIONS} />;
+  return <LegalPage title="Terms of Service" updated="19 June 2026" intro="These Terms govern your use of the website and services operated by Spanbix Technologies Private Limited (&quot;Spanbix&quot;). Please read them carefully." sections={SECTIONS} />;
 }

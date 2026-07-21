@@ -233,7 +233,7 @@ Example structure:
 {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
-  "name": "Spanbix Training Institute",
+  "name": "Spanbix Technologies Private Limited",
   "legalName": "[Registered company name]",
   "url": "https://www.spanbix.com",
   "logo": "https://www.spanbix.com/spanbix/spanbix-blue.png",

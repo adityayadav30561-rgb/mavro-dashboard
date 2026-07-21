@@ -220,7 +220,7 @@ export default function Footer() {
             fontFamily: '"Geist", "Sora", system-ui, sans-serif',
           }}
         >
-          <div>© 2026 Spanbix Training Institute. · Greater Noida</div>
+          <div>© 2026 Spanbix Technologies Private Limited · Greater Noida</div>
         </div>
       </div>
     </footer>

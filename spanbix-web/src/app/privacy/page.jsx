@@ -112,5 +112,5 @@ const SECTIONS = [
 ];
 
 export default function PrivacyPage() {
-  return <LegalPage title="Privacy Policy" updated="19 June 2026" intro="Your privacy matters to us. This Policy describes how Spanbix handles your personal data." sections={SECTIONS} />;
+  return <LegalPage title="Privacy Policy" updated="19 June 2026" intro="Your privacy matters to us. This Policy describes how Spanbix Technologies Private Limited (&quot;Spanbix&quot;) handles your personal data." sections={SECTIONS} />;
 }

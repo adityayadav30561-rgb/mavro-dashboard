@@ -220,7 +220,7 @@ End-to-end rebuild of the Spanbix public surface on **Next.js 16 App Router** (`
 
 ### 6.1 Spanbix Phase 6.8 — Next app content + UX polish (May 29, 2026) ✅ COMPLETE
 - ✅ **Contact info updated** in `spanbix-web/src/app/contact/ContactForm.jsx`: phone `+91 93107 93790`, email `contact@spanbix.com`, address `Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, UP (201009)`, centres `Greater Noida · Lucknow`. Map embed re-pointed at the real Galaxy Blue Sapphire Plaza coordinates.
-- ✅ **Footer copyright** flipped to `© 2026 Spanbix Training Institute. · Greater Noida`. Bengaluru / Hyderabad / Pune copy removed from the footer + every visible surface.
+- ✅ **Footer copyright** now `© 2026 Spanbix Technologies Private Limited · Greater Noida` (registered entity name, July 2026). Bengaluru / Hyderabad / Pune copy removed from the footer + every visible surface.
 - ✅ **Social tiles** replaced the `IG / LI / YT / X` placeholder grid with real LinkedIn / Facebook / Instagram links and inline brand SVG glyphs (lucide-react 1.16 has no brand-icon exports). Each tile opens in a new tab with `rel="noopener noreferrer me"`.
 - ✅ **Tushar testimonial** trimmed to remove the `before I even graduated` tail.
 - ✅ **Floating WhatsApp button** — new component `WhatsAppFloater.jsx`, fixed bottom-right on every page (mounted from `SpanbixLayout`), brand-green button, hover-scale. Deep link `https://wa.me/919310793790?text=i%20want%20to%20enquire%20about%20the%20courses` pre-populates the WhatsApp draft.

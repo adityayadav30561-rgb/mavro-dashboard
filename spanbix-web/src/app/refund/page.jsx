@@ -66,5 +66,5 @@ const SECTIONS = [
 ];
 
 export default function RefundPage() {
-  return <LegalPage title="Refund Policy" updated="19 June 2026" intro="This Policy describes how cancellations and refunds are handled for Spanbix enrolments." sections={SECTIONS} />;
+  return <LegalPage title="Refund Policy" updated="19 June 2026" intro="This Policy describes how cancellations and refunds are handled for enrolments with Spanbix Technologies Private Limited (&quot;Spanbix&quot;)." sections={SECTIONS} />;
 }

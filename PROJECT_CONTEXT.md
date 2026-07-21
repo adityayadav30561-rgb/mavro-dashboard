@@ -697,7 +697,7 @@ Content + UX updates applied to `spanbix-web/` after the cleanup. Live site imme
 - **Address:** Galaxy Blue Sapphire Plaza, 1415, Greater Noida West Link Rd, Sector 4, Ghaziabad, Greater Noida, Uttar Pradesh (201009).
 - **Centres:** Greater Noida + Lucknow only. All Bengaluru / Hyderabad / Pune copy removed (image filenames retained where they don't surface in visible UI).
 - **Map embed** rewritten to point at the Galaxy Blue Sapphire Plaza address (the old iframe pointed at an unrelated "Saisatwik Technologies" pin).
-- **Footer copyright** flipped to `© 2026 Spanbix Training Institute. · Greater Noida`.
+- **Footer copyright** now `© 2026 Spanbix Technologies Private Limited · Greater Noida` (registered entity name, July 2026).
 - **Tushar testimonial** trimmed to remove the `before I even graduated` tail (`spanbix-web/src/components/spanbix/redesign/sections/Outcomes.jsx`).
 
 ### Social brand tiles

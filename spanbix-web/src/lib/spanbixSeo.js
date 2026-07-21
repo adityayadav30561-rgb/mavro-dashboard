@@ -1242,8 +1242,10 @@ export function educationalOrganizationLd() {
     areaServed: { '@type': 'Country', name: 'India' },
     founder: { '@type': 'Person', name: 'LalitMohan Parihar' },
     sameAs: SPANBIX_SOCIALS,
-    // NOTE: legalName / foundingDate / CIN / GST intentionally omitted — not
-    // verified yet. Add only with confirmed registration data, never placeholder.
+    // Registered entity name confirmed by the founder (July 2026).
+    legalName: 'Spanbix Technologies Private Limited',
+    // NOTE: foundingDate / CIN / GST intentionally omitted — not verified yet.
+    // Add only with confirmed registration data, never placeholder.
   };
 }
 
