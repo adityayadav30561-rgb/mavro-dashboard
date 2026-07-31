@@ -554,6 +554,9 @@
   font-family: var(--sx-sans);
 }
 .spanbix-scope .sx-role-chip:hover { border-color: var(--sx-navy); }
+/* Applied to the unselected chips of a REQUIRED chip group after a blocked
+   submit, so the missing answer is obvious without hunting for the message. */
+.spanbix-scope .sx-role-chip.missing { border-color: rgba(244, 63, 94, 0.6); }
 .spanbix-scope .sx-role-chip.active {
   background: var(--sx-navy);
   border-color: var(--sx-navy);

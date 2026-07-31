@@ -9,6 +9,7 @@ import { getOrCreateSession } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
+import { COURSE_CHOICES, COURSE_REQUIRED_MESSAGE } from '@/lib/courseOptions';
 
 const COORDINATES = [
   { icon: Mail,    label: 'Email',     value: 'contact@spanbix.com' },
@@ -23,7 +24,8 @@ const COORDINATES = [
 ];
 
 const AUDIENCES = ['Student', 'Working professional', 'College / T&P office'];
-const INTERESTS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
+// Course choice is REQUIRED — see lib/courseOptions.js for why the list lives
+// there and why "Not decided yet" is a real answer rather than a skip.
 // Highest education qualification is a free-text input — the SAP-bound audience
 // is too varied for a fixed chip list (12th / Diploma / B.Com / BBA / B.Tech /
 // BSc / MBA / MCA / M.Tech / PhD / professional credentials like CA-Inter etc).
@@ -64,6 +66,11 @@ export default function ContactForm() {
       setStatus('error');
       return;
     }
+    if (!form.interest) {
+      setServerError(COURSE_REQUIRED_MESSAGE);
+      setStatus('error');
+      return;
+    }
     if (!consent) {
       setServerError('Please agree to the Privacy Policy to continue.');
       setStatus('error');
@@ -87,7 +94,7 @@ export default function ContactForm() {
         customFields: {
           ...(form.audience ? { audience: form.audience } : {}),
           ...(form.education.trim() ? { education: form.education.trim() } : {}),
-          ...(form.interest ? { interest: form.interest } : {}),
+          interest: form.interest,
           consent: CONSENT_RECORD,
           ...getAttribution(),
         },
@@ -247,14 +254,18 @@ export default function ContactForm() {
                 />
 
                 <div>
-                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>INTERESTED TRACK</div>
-                  <div className="sx-row" style={{ gap: 8 }}>
-                    {INTERESTS.map((t) => (
+                  <div className="sx-mono" style={{ color: 'var(--sx-ink-4)', marginBottom: 8 }}>WHICH COURSE? *</div>
+                  <div className="sx-row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                    {COURSE_CHOICES.map((t) => (
                       <button
                         key={t}
                         type="button"
                         onClick={() => setForm((f) => ({ ...f, interest: t }))}
-                        className={form.interest === t ? 'sx-role-chip active' : 'sx-role-chip'}
+                        className={
+                          form.interest === t
+                            ? 'sx-role-chip active'
+                            : `sx-role-chip${status === 'error' && !form.interest ? ' missing' : ''}`
+                        }
                       >
                         {t}
                       </button>
