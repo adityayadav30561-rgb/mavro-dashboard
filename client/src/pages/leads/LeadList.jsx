@@ -8,6 +8,22 @@ import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
 
+// Leads submitted from July 2026 onward carry a server-stamped `submittedAt`
+// (exact moment the public form was sent). Older leads only have `createdAt`,
+// so they keep showing a date alone rather than implying a clock time we never
+// actually recorded.
+const submittedDate = (lead) =>
+  new Date(lead.submittedAt || lead.createdAt).toLocaleDateString(undefined, {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+
+const submittedTime = (lead) =>
+  lead.submittedAt
+    ? new Date(lead.submittedAt).toLocaleTimeString(undefined, {
+        hour: 'numeric', minute: '2-digit', hour12: true,
+      })
+    : null;
+
 export default function LeadList() {
   const [leads, setLeads] = useState([]);
   const [websites, setWebsites] = useState([]);
@@ -96,7 +112,7 @@ export default function LeadList() {
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden md:table-cell">Website</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Company</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Status</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Date</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Submitted</th>
                 <th className="text-right px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Actions</th>
               </tr>
             </thead>
@@ -117,7 +133,10 @@ export default function LeadList() {
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">{lead.company || '—'}</td>
                   <td className="px-5 py-3.5"><Badge variant={lead.status}>{lead.status}</Badge></td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-500 dark:text-slate-400">
-                    {new Date(lead.createdAt).toLocaleDateString()}
+                    <p className="whitespace-nowrap">{submittedDate(lead)}</p>
+                    {submittedTime(lead) && (
+                      <p className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">{submittedTime(lead)}</p>
+                    )}
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1">
@@ -156,6 +175,13 @@ export default function LeadList() {
               {selected.formId && (
                 <div><p className="text-xs text-slate-500 uppercase font-semibold">Form</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{selected.formId}</p></div>
               )}
+              <div>
+                <p className="text-xs text-slate-500 uppercase font-semibold">Submitted</p>
+                <p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">
+                  {submittedDate(selected)}
+                  {submittedTime(selected) && <span className="text-slate-500 dark:text-slate-400"> · {submittedTime(selected)}</span>}
+                </p>
+              </div>
             </div>
 
             {selected.customFields && Object.keys(selected.customFields).length > 0 && (

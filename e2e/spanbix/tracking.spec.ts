@@ -32,11 +32,34 @@ test.describe('Spanbix tracking (dataLayer)', () => {
     const scope = page.locator('#lead');
     await scope.getByPlaceholder(/Your name/i).fill('Priya Sharma');
     await scope.getByPlaceholder(/\+91 98/i).fill('+91 98XXXXXXXX');
+    // Course choice is required on the LP — pick one before submitting.
+    await scope.getByRole('button', { name: 'SAP FICO', exact: true }).click();
     await scope.getByRole('checkbox').first().check();
     await scope.getByRole('button', { name: FORMS.sapCourse.submitLabel }).click();
 
     await expect(page.getByText(FORMS.sapCourse.successText)).toBeVisible();
     expect(mock.wasCalled()).toBe(true);
     await expect.poll(() => dataLayerEvents(page)).toContain('generate_lead');
+  });
+
+  test('lead submit is blocked until a course is chosen', async ({ page }) => {
+    const mock = await mockLeadSubmit(page);
+    await gotoReady(page, '/sap-course');
+
+    const scope = page.locator('#lead');
+    await scope.getByPlaceholder(/Your name/i).fill('Priya Sharma');
+    await scope.getByPlaceholder(/\+91 98/i).fill('+91 98XXXXXXXX');
+    await scope.getByRole('checkbox').first().check();
+    await scope.getByRole('button', { name: FORMS.sapCourse.submitLabel }).click();
+
+    await expect(page.getByText(/choose a course/i)).toBeVisible();
+    expect(mock.wasCalled()).toBe(false);
+
+    // "Not decided yet" is a valid answer, so the same form then goes through.
+    await scope.getByRole('button', { name: 'Not decided yet', exact: true }).click();
+    await scope.getByRole('button', { name: FORMS.sapCourse.submitLabel }).click();
+
+    await expect(page.getByText(FORMS.sapCourse.successText)).toBeVisible();
+    expect(mock.wasCalled()).toBe(true);
   });
 });

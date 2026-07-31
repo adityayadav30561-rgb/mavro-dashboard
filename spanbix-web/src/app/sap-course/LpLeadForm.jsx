@@ -15,7 +15,10 @@ import Honeypot from '@/components/spanbix/Honeypot';
 // /contact (spanbix-contact) and WhatsApp (/enquire) leads — no DB change, the
 // formId field is already indexed + filterable.
 const LP_FORM_ID = 'spanbix-sap-lp';
-const TRACKS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not sure yet'];
+// Course choice is REQUIRED on the ads landing page — the counsellor needs it
+// before the callback. "Not decided yet" is a real answer, not a way to skip:
+// nothing is preselected, so the visitor has to pick one of these.
+const TRACKS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not decided yet'];
 
 export default function LpLeadForm({ location = 'hero', dark = false }) {
   const [websiteId, setWebsiteId] = useState(null);
@@ -43,6 +46,11 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       setStatus('error');
       return;
     }
+    if (!form.interest) {
+      setError('Please choose a course. Pick "Not decided yet" if you are still deciding.');
+      setStatus('error');
+      return;
+    }
     if (!consent) {
       setError('Please agree to the Privacy Policy to continue.');
       setStatus('error');
@@ -63,7 +71,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
         phone: form.phone.trim(),
         email: form.email.trim() || undefined,
         customFields: {
-          ...(form.interest ? { interest: form.interest } : {}),
+          interest: form.interest,
           source: 'google-ads-sap-lp',
           consent: CONSENT_RECORD,
           ...getAttribution(),
@@ -75,7 +83,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       });
       // GA4 + Google Ads conversion signal. The backend emits the authoritative
       // form_submit on save, so we only push the marketing conversion here.
-      trackLead({ form: LP_FORM_ID, location, interest: form.interest || 'unspecified' });
+      trackLead({ form: LP_FORM_ID, location, interest: form.interest });
       setStatus('success');
       setForm({ name: '', phone: '', email: '', interest: '' });
       setConsent(false);
@@ -111,18 +119,21 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       <LpField label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={update('email')} dark={dark} />
 
       <div>
-        <div className="sx-mono" style={{ color: labelColor, marginBottom: 8, fontSize: 11 }}>INTERESTED TRACK</div>
+        <div className="sx-mono" style={{ color: labelColor, marginBottom: 8, fontSize: 11 }}>WHICH COURSE? *</div>
         <div className="flex flex-wrap" style={{ gap: 8 }}>
           {TRACKS.map((t) => {
             const active = form.interest === t;
             const base = { borderRadius: 999, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', border: '1px solid', whiteSpace: 'nowrap' };
+            // Unselected chips turn red once the visitor tries to submit
+            // without choosing, so the required field is obvious at a glance.
+            const missing = status === 'error' && !form.interest;
             const style = dark
               ? (active
                   ? { ...base, background: 'var(--sx-citron)', color: 'var(--sx-navy)', borderColor: 'var(--sx-citron)' }
-                  : { ...base, background: 'rgba(255,255,255,0.07)', color: '#fff', borderColor: 'rgba(255,255,255,0.24)' })
+                  : { ...base, background: 'rgba(255,255,255,0.07)', color: '#fff', borderColor: missing ? 'rgba(244,63,94,0.75)' : 'rgba(255,255,255,0.24)' })
               : (active
                   ? { ...base, background: 'var(--sx-navy)', color: '#fff', borderColor: 'var(--sx-navy)' }
-                  : { ...base, background: '#fff', color: 'var(--sx-navy)', borderColor: 'var(--sx-hairline)' });
+                  : { ...base, background: '#fff', color: 'var(--sx-navy)', borderColor: missing ? 'rgba(244,63,94,0.6)' : 'var(--sx-hairline)' });
             return (
               <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, interest: t }))} style={style}>
                 {t}

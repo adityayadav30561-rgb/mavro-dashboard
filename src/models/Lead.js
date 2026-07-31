@@ -91,6 +91,16 @@ const leadSchema = new mongoose.Schema(
       default: '',
     },
 
+    // Exact moment the public form was submitted, stamped server-side in
+    // leadController.submitLead. Deliberately has NO default: leads created
+    // before this field shipped (July 2026) stay null so the admin can tell
+    // "submitted at 4:12 PM" from "we only know the date". Admin-created leads
+    // never get it either — it means "a person submitted a form", nothing else.
+    submittedAt: {
+      type: Date,
+      index: true,
+    },
+
     // ----- Lead Management -----
     status: {
       type: String,

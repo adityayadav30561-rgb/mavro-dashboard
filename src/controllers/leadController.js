@@ -128,6 +128,10 @@ const submitLead = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, 'Invalid website reference', 400);
   }
 
+  // Server-authoritative submission timestamp. Never trust a client clock for
+  // this — a wrong device time would misfile the lead in every report.
+  data.submittedAt = new Date();
+
   // Attach tracking metadata from request
   data.ipAddress = req.clientIP || getClientIP(req);
   data.userAgent = req.headers['user-agent'] || '';
@@ -630,7 +634,7 @@ const exportLeads = asyncHandler(async (req, res) => {
 
   const leads = await Lead.find(filter)
     .populate('website', 'name domain')
-    .select('name email phone company message sourcePage website status priority createdAt')
+    .select('name email phone company message sourcePage website status priority createdAt submittedAt')
     .sort({ createdAt: -1 })
     .lean();
 
@@ -646,7 +650,9 @@ const exportLeads = asyncHandler(async (req, res) => {
     domain: lead.website ? lead.website.domain : '',
     status: lead.status,
     priority: lead.priority,
-    submittedAt: lead.createdAt,
+    // Real form-submission timestamp where we have it; older leads (and any
+    // created from the admin) fall back to the record's creation time.
+    submittedAt: lead.submittedAt || lead.createdAt,
   }));
 
   ApiResponse.success(
