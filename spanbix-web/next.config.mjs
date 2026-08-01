@@ -32,7 +32,7 @@ const csp = [
   // hydration require inline + eval until we ship a nonce-based CSP.
   // Google Tag Manager loads gtm.js + (via GTM) the GA4 gtag and Google Ads
   // conversion scripts. These hosts are required for GTM/GA4/Ads to run.
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.vercel-scripts.com https://va.vercel-scripts.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://connect.facebook.net",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // featuredImage + ogImage may live on any HTTPS host (we don't control where
   // editors upload); data:/blob: covers next/image local placeholders. Open
@@ -41,7 +41,7 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com data:",
   // GA4 measurement + Google Ads beacons post here; GTM container fetch + the
   // doubleclick endpoints handle conversion + remarketing pings.
-  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://www.googleadservices.com https://www.google.com`,
+  `connect-src 'self' ${RENDER_BACKEND_ORIGIN} https://vitals.vercel-insights.com https://*.vercel-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://*.doubleclick.net https://www.googleadservices.com https://www.google.com https://www.facebook.com https://connect.facebook.net`,
   "media-src 'self'",
   "object-src 'none'",
   // Google Maps embed on /contact uses an iframe served from www.google.com

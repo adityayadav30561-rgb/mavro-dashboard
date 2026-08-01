@@ -11,6 +11,7 @@ import {
 import "../styles/spanbix-redesign.css";
 import "./globals.css";
 import { GtmScript, GtmNoScript } from "@/components/GoogleTagManager";
+import { MetaPixelScript, MetaPixelNoScript } from "@/components/MetaPixel";
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
@@ -49,8 +50,10 @@ export default function RootLayout({ children }) {
     <html lang="en" className={fontVars}>
       <body className="spanbix-scope">
         <GtmNoScript />
+        <MetaPixelNoScript />
         {children}
         <GtmScript />
+        <MetaPixelScript />
       </body>
     </html>
   );
