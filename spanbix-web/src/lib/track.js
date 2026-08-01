@@ -40,9 +40,25 @@ export const trackCall = (location) => track('call_click', { location });
 
 // Fired only on a confirmed lead. `value` lets you assign a conversion value in
 // GA4 / Google Ads if you want ROAS reporting later.
+//
+// Called from exactly one place: the /sap-course ads landing form. That is what
+// scopes the conversion to paid traffic — the organic /contact and /enquire
+// forms deliberately do NOT call this, so neither the Google Ads conversion nor
+// the Meta Lead event counts them. Wiring it into another form changes what
+// both ad platforms optimise against, so do it on purpose, not by reflex.
 export const trackLead = (extra = {}) => {
-  if (typeof window !== 'undefined') {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'generate_lead', ...extra });
+  if (typeof window === 'undefined') return;
+
+  // Google: GTM listens for `generate_lead` and fires the Ads conversion tag.
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ event: 'generate_lead', ...extra });
+
+  // Meta: the standard `Lead` event Meta Ads optimises and reports against.
+  // Guarded because the pixel is env-gated (absent in local dev / previews).
+  if (typeof window.fbq === 'function') {
+    window.fbq('track', 'Lead', {
+      content_name: extra.interest || undefined,
+      content_category: extra.form || undefined,
+    });
   }
 };
