@@ -344,6 +344,20 @@ const leadRules = leadSubmitRules;
 /**
  * Rules for admin lead update (PUT /api/leads/:id)
  */
+const leadContactLogRules = [
+  body('contactedBy')
+    .notEmpty()
+    .withMessage('Select who contacted this lead')
+    .isMongoId()
+    .withMessage('contactedBy must be a valid admin user ID'),
+  body('note')
+    .trim()
+    .notEmpty()
+    .withMessage('Add a note describing the conversation')
+    .isLength({ max: 5000 })
+    .withMessage('A log entry cannot exceed 5000 characters'),
+];
+
 const leadUpdateRules = [
   body('status')
     .optional()
@@ -613,6 +627,7 @@ module.exports = {
   leadRules,
   leadSubmitRules,
   leadUpdateRules,
+  leadContactLogRules,
   leadStatusRules,
   leadBulkRules,
   leadQueryRules,

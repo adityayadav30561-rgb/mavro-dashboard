@@ -278,6 +278,7 @@ const getLeads = asyncHandler(async (req, res) => {
       .populate('website', 'name slug domain')
       .populate('assignedTo', 'name email')
       .populate('contactedBy', 'name email')
+      .populate('contactLog.contactedBy', 'name email')
       .select('-statusHistory -userAgent -spamReasons -contentPlainText')
       .sort({ [sortField]: sortOrder })
       .skip(skip)
@@ -300,6 +301,7 @@ const getLead = asyncHandler(async (req, res) => {
     .populate('website', 'name slug domain')
     .populate('assignedTo', 'name email')
     .populate('contactedBy', 'name email')
+    .populate('contactLog.contactedBy', 'name email')
     .populate('statusHistory.changedBy', 'name email');
 
   if (!lead) return ApiResponse.notFound(res, 'Lead');
@@ -338,7 +340,8 @@ const updateLead = asyncHandler(async (req, res) => {
   const populated = await Lead.findById(lead._id)
     .populate('website', 'name slug domain')
     .populate('assignedTo', 'name email')
-    .populate('contactedBy', 'name email');
+    .populate('contactedBy', 'name email')
+    .populate('contactLog.contactedBy', 'name email');
 
   ApiResponse.success(res, { lead: populated }, 'Lead updated successfully');
 });
@@ -668,6 +671,40 @@ const exportLeads = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Append an entry to a lead's contact log
+ * @route   POST /api/leads/:id/contact-log
+ * @access  Private
+ *
+ * Append-only by design: entries are never edited or deleted here, so two
+ * people who call the same lead a week apart both keep their record. The
+ * lead's `contactedBy` is refreshed to the latest caller so the list view can
+ * show who spoke to them most recently.
+ */
+const addContactLogEntry = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) return ApiResponse.notFound(res, 'Lead');
+
+  const { contactedBy, note } = req.body;
+
+  lead.contactLog.push({
+    contactedBy,
+    note: String(note).trim(),
+    contactedAt: new Date(),
+  });
+  lead.contactedBy = contactedBy;
+
+  await lead.save();
+
+  const populated = await Lead.findById(lead._id)
+    .populate('website', 'name slug domain')
+    .populate('assignedTo', 'name email')
+    .populate('contactedBy', 'name email')
+    .populate('contactLog.contactedBy', 'name email');
+
+  ApiResponse.success(res, { lead: populated }, 'Contact log updated');
+});
+
+/**
  * @desc    Callers available in the "Contacted by" dropdown
  * @route   GET /api/leads/agents
  * @access  Private (any role that can view leads)
@@ -687,6 +724,7 @@ const getLeadAgents = asyncHandler(async (req, res) => {
 module.exports = {
   submitLead,
   getLeadAgents,
+  addContactLogEntry,
   getLeads,
   getLead,
   updateLead,

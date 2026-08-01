@@ -12,6 +12,7 @@ const {
   bulkDeleteLeads,
   getLeadStats,
   getLeadAgents,
+  addContactLogEntry,
   exportLeads,
 } = require('../controllers/leadController');
 const {
@@ -19,6 +20,7 @@ const {
   authorize,
   leadSubmitRules,
   leadUpdateRules,
+  leadContactLogRules,
   leadStatusRules,
   leadBulkRules,
   leadQueryRules,
@@ -105,6 +107,9 @@ router
   .get(mongoIdParam, validate, getLead)
   .put(mongoIdParam, leadUpdateRules, validate, updateLead)
   .delete(mongoIdParam, validate, authorize('admin', 'superadmin'), deleteLead);
+
+// ----- Contact log (append-only) -----
+router.post('/:id/contact-log', mongoIdParam, leadContactLogRules, validate, addContactLogEntry);
 
 // ----- Quick status update -----
 router.patch('/:id/status', mongoIdParam, leadStatusRules, validate, updateLeadStatus);

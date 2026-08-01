@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye, Trash2, Users } from 'lucide-react';
-import { getLeads, updateLead, updateLeadStatus, deleteLead, getLeadAgents } from '../../api/leads';
+import { getLeads, updateLeadStatus, deleteLead, getLeadAgents, addContactLogEntry } from '../../api/leads';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
 import PageHeader from '../../components/ui/PageHeader';
@@ -32,9 +32,9 @@ export default function LeadList() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [agents, setAgents] = useState([]);
-  // Draft of the call log for the open lead. Kept separate from `selected` so
-  // typing does not mutate the row behind the modal before it is saved.
-  const [callLog, setCallLog] = useState({ contactedBy: '', notes: '' });
+  // Draft of the NEW log entry being written. The saved log itself is
+  // append-only and lives on the lead, so nothing here can overwrite history.
+  const [entry, setEntry] = useState({ contactedBy: '', note: '' });
   const [savingLog, setSavingLog] = useState(false);
 
   const load = async () => {
@@ -56,29 +56,31 @@ export default function LeadList() {
     getLeadAgents().then(r => setAgents(r.data.data.agents || [])).catch(() => {});
   }, []);
 
-  // Load the open lead's existing call log into the editable draft.
+  // Reset the draft whenever a different lead is opened. The caller defaults
+  // to whoever spoke to this lead last, since follow-ups are usually the same
+  // person, but it stays changeable.
   useEffect(() => {
-    setCallLog({
-      contactedBy: selected?.contactedBy?._id || selected?.contactedBy || '',
-      notes: selected?.notes || '',
-    });
-  }, [selected]);
+    setEntry({ contactedBy: selected?.contactedBy?._id || '', note: '' });
+  }, [selected?._id]);
 
-  const handleSaveCallLog = async () => {
+  const handleAddEntry = async () => {
     if (!selected) return;
+    if (!entry.contactedBy) { toast.error('Select who contacted this lead'); return; }
+    if (!entry.note.trim()) { toast.error('Add a note describing the conversation'); return; }
     setSavingLog(true);
     try {
-      const res = await updateLead(selected._id, {
-        contactedBy: callLog.contactedBy || null,
-        notes: callLog.notes,
+      const res = await addContactLogEntry(selected._id, {
+        contactedBy: entry.contactedBy,
+        note: entry.note.trim(),
       });
-      toast.success('Call log saved');
-      // Keep the modal open on the freshly saved lead, and refresh the list
-      // behind it so the row reflects the change.
+      toast.success('Entry added');
+      // Keep the modal on the updated lead so the new entry appears in the
+      // thread immediately, and refresh the list behind it.
       setSelected(res.data.data.lead);
+      setEntry((e) => ({ contactedBy: e.contactedBy, note: '' }));
       load();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Could not save call log');
+      toast.error(e?.response?.data?.message || 'Could not add entry');
     } finally {
       setSavingLog(false);
     }
@@ -239,43 +241,78 @@ export default function LeadList() {
                 <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg p-3 whitespace-pre-wrap">{selected.message}</p>
               </div>
             )}
-            {/* Call log — who spoke to this lead and what they said. Saved
-                together so a note is never orphaned from its caller. */}
+            {/* Contact log — an append-only thread. Each entry keeps its own
+                author and timestamp, so two callers a week apart both survive
+                and nobody can overwrite someone else's record. */}
             <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Call Log</p>
+              <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Contact Log</p>
 
-              <label className="block">
-                <span className="text-[11px] text-slate-500 font-semibold">Contacted by</span>
-                <select
-                  value={callLog.contactedBy}
-                  onChange={(e) => setCallLog(c => ({ ...c, contactedBy: e.target.value }))}
-                  className="input-field mt-1"
+              {/* Notes written before the log existed. Read-only — kept so
+                  nothing is lost, but new writing goes to the thread. */}
+              {selected.notes && (
+                <div className="mb-3 bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-lg p-3">
+                  <p className="text-[10px] text-amber-700 dark:text-amber-500 uppercase font-semibold tracking-wider mb-1">Earlier notes</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{selected.notes}</p>
+                </div>
+              )}
+
+              {selected.contactLog?.length > 0 ? (
+                <div className="space-y-2 mb-3">
+                  {[...selected.contactLog].reverse().map((e, i) => (
+                    <div key={e._id || i} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white">
+                          {e.contactedBy?.name || 'Unknown'}
+                        </p>
+                        <p className="text-[10px] text-slate-500 whitespace-nowrap">
+                          {new Date(e.contactedAt).toLocaleString(undefined, {
+                            day: '2-digit', month: 'short', year: 'numeric',
+                            hour: 'numeric', minute: '2-digit', hour12: true,
+                          })}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{e.note}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 mb-3">No one has logged a conversation yet.</p>
+              )}
+
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
+                <label className="block">
+                  <span className="text-[11px] text-slate-500 font-semibold">Contacted by</span>
+                  <select
+                    value={entry.contactedBy}
+                    onChange={(ev) => setEntry(c => ({ ...c, contactedBy: ev.target.value }))}
+                    className="input-field mt-1"
+                  >
+                    <option value="">Select who called…</option>
+                    {agents.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-[11px] text-slate-500 font-semibold">Additional notes</span>
+                  <textarea
+                    rows={3}
+                    value={entry.note}
+                    onChange={(ev) => setEntry(c => ({ ...c, note: ev.target.value }))}
+                    maxLength={5000}
+                    placeholder="What did the lead say? Requirements, budget, timeline, follow-up date…"
+                    className="input-field mt-1 resize-y"
+                  />
+                  <span className="text-[10px] text-slate-400">{entry.note.length}/5000</span>
+                </label>
+
+                <button
+                  onClick={handleAddEntry}
+                  disabled={savingLog}
+                  className="btn-primary disabled:opacity-60"
                 >
-                  <option value="">Not contacted yet</option>
-                  {agents.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
-                </select>
-              </label>
-
-              <label className="block mt-3">
-                <span className="text-[11px] text-slate-500 font-semibold">Additional notes</span>
-                <textarea
-                  rows={4}
-                  value={callLog.notes}
-                  onChange={(e) => setCallLog(c => ({ ...c, notes: e.target.value }))}
-                  maxLength={5000}
-                  placeholder="What did the lead say? Requirements, budget, timeline, follow-up date…"
-                  className="input-field mt-1 resize-y"
-                />
-                <span className="text-[10px] text-slate-400">{callLog.notes.length}/5000</span>
-              </label>
-
-              <button
-                onClick={handleSaveCallLog}
-                disabled={savingLog}
-                className="btn-primary mt-2 disabled:opacity-60"
-              >
-                {savingLog ? 'Saving…' : 'Save call log'}
-              </button>
+                  {savingLog ? 'Adding…' : 'Add to log'}
+                </button>
+              </div>
             </div>
 
             <div>

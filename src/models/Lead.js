@@ -126,11 +126,38 @@ const leadSchema = new mongoose.Schema(
       ref: 'AdminUser',
       index: true,
     },
+    // Legacy free-text notes. Superseded by `contactLog` below, kept so notes
+    // written before the log shipped are never lost — the modal renders them
+    // read-only above the thread.
     notes: {
       type: String,
       default: '',
       maxlength: [5000, 'Notes cannot exceed 5000 characters'],
     },
+
+    // Append-only record of every conversation with this lead. Entries are
+    // never edited or removed through the API: two people calling the same
+    // lead a week apart must both survive, and a note has to stay attached to
+    // the person who wrote it and when.
+    contactLog: [
+      {
+        contactedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'AdminUser',
+          required: true,
+        },
+        note: {
+          type: String,
+          required: true,
+          trim: true,
+          maxlength: [5000, 'A log entry cannot exceed 5000 characters'],
+        },
+        contactedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     tags: [
       {
         type: String,
