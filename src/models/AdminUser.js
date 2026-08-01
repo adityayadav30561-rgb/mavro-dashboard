@@ -38,7 +38,9 @@ const adminUserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['superadmin', 'admin', 'editor', 'seo_manager', 'writer', 'reviewer'],
+      // `leads_agent` is a deliberately narrow role: Lead Capture only. Every
+      // other admin router blocks it via blockRoles() in middleware/auth.js.
+      enum: ['superadmin', 'admin', 'editor', 'seo_manager', 'writer', 'reviewer', 'leads_agent'],
       default: 'editor',
     },
 
@@ -185,6 +187,11 @@ adminUserSchema.methods.can = function (action) {
       'manage_seo', 'manage_sitemap', 'ping_engines',
       'view_leads',
       'view_analytics',
+    ],
+    // Lead Capture only. Can work the leads they see (status changes) but
+    // cannot delete or export them, and cannot reach any other module.
+    leads_agent: [
+      'view_leads', 'manage_leads',
     ],
   };
 

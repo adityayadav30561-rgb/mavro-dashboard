@@ -40,6 +40,7 @@ const {
   blogQueryRules,
   mongoIdParam,
   validate,
+  blockRoles,
 } = require('../middleware');
 const { asyncHandler } = require('../utils');
 const { indexingService } = require('../services');
@@ -57,7 +58,9 @@ router.get('/website/:websiteSlug/:blogSlug', getPublicBlog);
 // ===================================
 // Protected Routes (auth required)
 // ===================================
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 // ----- Stats (must be before /:id to avoid conflict) -----
 router.get('/stats', getBlogStats);

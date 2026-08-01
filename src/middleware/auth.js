@@ -78,4 +78,30 @@ const authorize = (...roles) => {
   };
 };
 
-module.exports = { protect, authorize };
+/**
+ * Deny-list counterpart to `authorize`.
+ *
+ * Most admin routers only require `protect`, so any authenticated user could
+ * reach them. Restricted roles (e.g. `leads_agent`, who should only ever see
+ * Lead Capture) therefore need an explicit block on every router they must not
+ * touch — hiding the nav item in the client is cosmetic, not security.
+ *
+ * Written as a deny-list on purpose: a new full-access role added later gets
+ * access by default, while restricted roles stay locked out until someone
+ * deliberately removes them here.
+ *
+ * @param {...string} roles Roles refused access to this router.
+ */
+const blockRoles = (...roles) => {
+  return (req, res, next) => {
+    if (roles.includes(req.user?.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `Role '${req.user.role}' is not authorized to access this route`,
+      });
+    }
+    next();
+  };
+};
+
+module.exports = { protect, authorize, blockRoles };

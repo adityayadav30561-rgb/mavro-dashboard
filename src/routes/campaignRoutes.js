@@ -8,9 +8,11 @@ const {
   deleteCampaign,
   assignBlogs,
 } = require('../controllers/campaignController');
-const { protect } = require('../middleware');
+const { protect, blockRoles } = require('../middleware');
 
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 router.get('/',                listCampaigns);
 router.post('/',               createCampaign);

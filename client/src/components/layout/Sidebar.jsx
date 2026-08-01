@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inkColor } from '@/lib/inks';
+import { useAuth } from '@/context/AuthContext';
+import { canAccessRoute, isRestrictedRole } from '@/lib/access';
 
 // Domain inks give each section wayfinding — the active item's icon + rail
 // pick up its section color (command=vermilion, content=olive,
@@ -111,6 +113,14 @@ function NavGroup({ group, collapsed, onClose }) {
 }
 
 export default function Sidebar({ onClose, collapsed, onToggleCollapse }) {
+  const { user } = useAuth();
+  // Restricted roles (e.g. leads_agent) only see the sections they can open.
+  // Groups left with no items disappear entirely rather than render an
+  // empty heading.
+  const visibleGroups = navGroups
+    .map((g) => ({ ...g, items: g.items.filter((i) => canAccessRoute(user?.role, i.to)) }))
+    .filter((g) => g.items.length > 0);
+  const restricted = isRestrictedRole(user?.role);
   return (
     <aside
       className={cn(
@@ -150,14 +160,16 @@ export default function Sidebar({ onClose, collapsed, onToggleCollapse }) {
 
       {/* Navigation */}
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        {navGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <NavGroup key={group.label} group={group} collapsed={collapsed} onClose={onClose} />
         ))}
       </nav>
 
       {/* Footer */}
       <div className="px-2 py-3 border-t border-white/[0.04]">
-        <NavItem to="/settings" icon={Settings} label="Settings" collapsed={collapsed} onClick={onClose} />
+        {!restricted && (
+          <NavItem to="/settings" icon={Settings} label="Settings" collapsed={collapsed} onClick={onClose} />
+        )}
         {!collapsed && (
           <div className="flex items-center gap-2 px-3 mt-3">
             <div className="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_6px_hsl(95_35%_45%/0.6)]" />

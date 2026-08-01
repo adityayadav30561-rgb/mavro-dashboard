@@ -25,7 +25,7 @@ const {
   getBlogTrends,
   getPulse,
 } = require('../controllers/analyticsController');
-const { protect } = require('../middleware');
+const { protect, blockRoles } = require('../middleware');
 
 // ===================================
 // Public ingestion rate-limit
@@ -59,7 +59,9 @@ router.post(
 // ===================================
 // PROTECTED: dashboard read endpoints
 // ===================================
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 router.get('/overview',           getOverview);
 router.get('/timeseries',         getTimeseries);

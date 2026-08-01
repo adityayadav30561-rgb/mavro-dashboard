@@ -16,6 +16,7 @@ const {
   mongoIdParam,
   paginationRules,
   validate,
+  blockRoles,
 } = require('../middleware');
 const { asyncHandler, ApiResponse } = require('../utils');
 
@@ -41,14 +42,20 @@ router.get(
 // ===================================
 router.use(protect);
 
+// Reading the tenant list is allowed for every authenticated role: Lead
+// Capture uses it to populate its website filter, and it exposes nothing
+// beyond the tenant names/domains already visible on each lead.
+router.get('/', paginationRules, validate, getWebsites);
+
+// Everything below manages tenants. Lead-capture-only accounts stop here —
+// nav hiding in the client is cosmetic, this is the actual gate.
+router.use(blockRoles('leads_agent'));
+
 // One-shot cleanup of seeded demo tenants + localhost domain rewrites.
 // Superadmin-only. Supports { dryRun: true } body for preview.
 router.post('/_cleanup-demo', authorize('superadmin'), cleanupDemo);
 
-router
-  .route('/')
-  .get(paginationRules, validate, getWebsites)
-  .post(websiteRules, validate, createWebsite);
+router.post('/', websiteRules, validate, createWebsite);
 
 router
   .route('/:id')

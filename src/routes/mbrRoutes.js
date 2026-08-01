@@ -15,10 +15,12 @@ const {
   getBuiltPages,
   exportWorkbook,
 } = require('../controllers/mbrController');
-const { protect } = require('../middleware');
+const { protect, blockRoles } = require('../middleware');
 
 // All MBR endpoints are admin-only
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 router.get('/status',   getStatus);
 router.get('/ga4',      getGa4Report);

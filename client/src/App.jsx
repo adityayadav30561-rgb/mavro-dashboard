@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { homeRouteFor } from './lib/access';
 import { useAuth } from './context/AuthContext';
 
 import NotFound from './pages/NotFound';
@@ -71,7 +72,7 @@ export default function App() {
         path="/login"
         element={
           <Suspense fallback={<AdminFallback />}>
-            {user ? <Navigate to="/" replace /> : <Login />}
+            {user ? <Navigate to={homeRouteFor(user.role)} replace /> : <Login />}
           </Suspense>
         }
       />

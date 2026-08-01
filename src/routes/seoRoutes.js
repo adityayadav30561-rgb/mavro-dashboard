@@ -18,6 +18,7 @@ const {
   seoQueryRules,
   mongoIdParam,
   validate,
+  blockRoles,
 } = require('../middleware');
 
 // ===================================
@@ -33,7 +34,9 @@ router.get('/schema/blog/:websiteSlug/:blogSlug', getBlogSchema);
 // ===================================
 // Protected Routes (admin panel)
 // ===================================
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 // Stats (before /:id)
 router.get('/stats', getSeoStats);

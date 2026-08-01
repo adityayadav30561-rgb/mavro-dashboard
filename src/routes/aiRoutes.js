@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, authorize } = require('../middleware/auth');
+const { protect, authorize, blockRoles } = require('../middleware/auth');
 const {
   health,
   test,
@@ -16,7 +16,9 @@ const router = express.Router();
 
 // Every AI route requires an authenticated admin. AI is backend-only —
 // never expose API keys or unmediated provider access to the client.
-router.use(protect);
+// Lead-capture-only accounts must not reach this module. Nav hiding in the
+// client is cosmetic — this is the actual gate.
+router.use(protect, blockRoles('leads_agent'));
 
 // Health + recent request log — any authenticated admin
 router.get('/health', health);

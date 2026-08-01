@@ -1,4 +1,4 @@
-const { protect, authorize } = require('./auth');
+const { protect, authorize, blockRoles } = require('./auth');
 const errorHandler = require('./errorHandler');
 const {
   validate,
@@ -45,6 +45,7 @@ module.exports = {
   // Auth
   protect,
   authorize,
+  blockRoles,
   errorHandler,
   // Validators
   validate,

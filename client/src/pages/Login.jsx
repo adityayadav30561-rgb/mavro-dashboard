@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { homeRouteFor } from '../lib/access';
 import { useAuth } from '../context/AuthContext';
 import { Hexagon, Eye, EyeOff, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -17,9 +18,11 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(form.email, form.password);
+      const account = await login(form.email, form.password);
       toast.success('Welcome back!');
-      navigate('/');
+      // Restricted roles (leads_agent) open straight into Lead Capture —
+      // the Dashboard would only bounce them back.
+      navigate(homeRouteFor(account?.role));
     } catch (err) {
       toast.error(err.response?.data?.message || 'Login failed');
     } finally {
