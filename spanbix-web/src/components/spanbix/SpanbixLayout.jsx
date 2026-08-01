@@ -6,7 +6,6 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import WhatsAppFloater from './WhatsAppFloater';
 import CallFloater from './lp/CallFloater';
-import CohortBanner from './CohortBanner';
 import useScrollReveal from './redesign/useScrollReveal';
 import useTrackPageView from '@/hooks/useTrackPageView';
 import { setAnalyticsTenant } from '@/lib/analytics';
@@ -69,12 +68,11 @@ export default function SpanbixLayout({ children }) {
       <Footer />
 
       {/* Floating call + WhatsApp affordances (every page, every breakpoint;
-          CallFloater self-positions one button above WhatsApp) + first-visit
-          cohort-launch banner. All are 'use client' and self-mount;
-          SpanbixLayout only owns their placement. */}
+          CallFloater self-positions one button above WhatsApp). Both are
+          'use client' and self-mount; SpanbixLayout only owns their
+          placement. */}
       <CallFloater />
       <WhatsAppFloater />
-      <CohortBanner />
     </div>
   );
 }
