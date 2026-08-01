@@ -117,6 +117,15 @@ const leadSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'AdminUser',
     },
+
+    // Who actually spoke to this lead. Distinct from `assignedTo` (ownership):
+    // a lead can be owned by one person and called by another, and the team
+    // needs to know who made the call when reading the notes below.
+    contactedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'AdminUser',
+      index: true,
+    },
     notes: {
       type: String,
       default: '',

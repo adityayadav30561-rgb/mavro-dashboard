@@ -11,6 +11,7 @@ const {
   deleteLead,
   bulkDeleteLeads,
   getLeadStats,
+  getLeadAgents,
   exportLeads,
 } = require('../controllers/leadController');
 const {
@@ -86,6 +87,9 @@ router.use(protect);
 
 // ----- Stats & Export (must be before /:id to avoid conflict) -----
 router.get('/stats', getLeadStats);
+
+// Staff list for the "Contacted by" dropdown. Also before /:id.
+router.get('/agents', getLeadAgents);
 router.get('/export', authorize('admin', 'superadmin'), exportLeads);
 
 // ----- Bulk operations -----

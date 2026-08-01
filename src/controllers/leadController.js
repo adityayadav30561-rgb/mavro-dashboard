@@ -1,5 +1,6 @@
 const { Lead, Website } = require('../models');
 const AnalyticsEvent = require('../models/AnalyticsEvent');
+const AdminUser = require('../models/AdminUser');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
 
@@ -276,6 +277,7 @@ const getLeads = asyncHandler(async (req, res) => {
     Lead.find(filter)
       .populate('website', 'name slug domain')
       .populate('assignedTo', 'name email')
+      .populate('contactedBy', 'name email')
       .select('-statusHistory -userAgent -spamReasons -contentPlainText')
       .sort({ [sortField]: sortOrder })
       .skip(skip)
@@ -297,6 +299,7 @@ const getLead = asyncHandler(async (req, res) => {
   const lead = await Lead.findById(req.params.id)
     .populate('website', 'name slug domain')
     .populate('assignedTo', 'name email')
+    .populate('contactedBy', 'name email')
     .populate('statusHistory.changedBy', 'name email');
 
   if (!lead) return ApiResponse.notFound(res, 'Lead');
@@ -312,7 +315,7 @@ const updateLead = asyncHandler(async (req, res) => {
   const lead = await Lead.findById(req.params.id);
   if (!lead) return ApiResponse.notFound(res, 'Lead');
 
-  const { status, priority, assignedTo, notes, tags } = req.body;
+  const { status, priority, assignedTo, contactedBy, notes, tags } = req.body;
 
   // Update status with history tracking
   if (status && status !== lead.status) {
@@ -321,6 +324,7 @@ const updateLead = asyncHandler(async (req, res) => {
 
   if (priority) lead.priority = priority;
   if (assignedTo !== undefined) lead.assignedTo = assignedTo || null;
+  if (contactedBy !== undefined) lead.contactedBy = contactedBy || null;
   if (notes !== undefined) lead.notes = notes;
   if (tags) lead.tags = tags;
 
@@ -333,7 +337,8 @@ const updateLead = asyncHandler(async (req, res) => {
 
   const populated = await Lead.findById(lead._id)
     .populate('website', 'name slug domain')
-    .populate('assignedTo', 'name email');
+    .populate('assignedTo', 'name email')
+    .populate('contactedBy', 'name email');
 
   ApiResponse.success(res, { lead: populated }, 'Lead updated successfully');
 });
@@ -662,8 +667,26 @@ const exportLeads = asyncHandler(async (req, res) => {
   );
 });
 
+/**
+ * @desc    Callers available in the "Contacted by" dropdown
+ * @route   GET /api/leads/agents
+ * @access  Private (any role that can view leads)
+ *
+ * Returns the active lead-capture staff accounts. Reading it from the DB
+ * rather than hardcoding names means a new agent account shows up in the
+ * dropdown automatically — no code change, no redeploy.
+ */
+const getLeadAgents = asyncHandler(async (req, res) => {
+  const agents = await AdminUser.find({ role: 'leads_agent', isActive: true })
+    .select('name email')
+    .sort({ name: 1 })
+    .lean();
+  ApiResponse.success(res, { agents }, 'Lead agents retrieved');
+});
+
 module.exports = {
   submitLead,
+  getLeadAgents,
   getLeads,
   getLead,
   updateLead,

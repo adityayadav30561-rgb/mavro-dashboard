@@ -357,6 +357,10 @@ const leadUpdateRules = [
     .optional({ nullable: true })
     .isMongoId()
     .withMessage('assignedTo must be a valid admin user ID'),
+  body('contactedBy')
+    .optional({ nullable: true })
+    .isMongoId()
+    .withMessage('contactedBy must be a valid admin user ID'),
   body('notes')
     .optional()
     .trim()

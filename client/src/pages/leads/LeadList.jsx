@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Eye, Trash2, Users } from 'lucide-react';
-import { getLeads, updateLeadStatus, deleteLead } from '../../api/leads';
+import { getLeads, updateLead, updateLeadStatus, deleteLead, getLeadAgents } from '../../api/leads';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
 import PageHeader from '../../components/ui/PageHeader';
@@ -31,6 +31,11 @@ export default function LeadList() {
   const [filters, setFilters] = useState({ search: '', website: '', status: '', page: 1 });
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [agents, setAgents] = useState([]);
+  // Draft of the call log for the open lead. Kept separate from `selected` so
+  // typing does not mutate the row behind the modal before it is saved.
+  const [callLog, setCallLog] = useState({ contactedBy: '', notes: '' });
+  const [savingLog, setSavingLog] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -48,7 +53,36 @@ export default function LeadList() {
 
   useEffect(() => {
     getWebsites({ limit: 100 }).then(r => setWebsites(r.data.data.websites || [])).catch(() => {});
+    getLeadAgents().then(r => setAgents(r.data.data.agents || [])).catch(() => {});
   }, []);
+
+  // Load the open lead's existing call log into the editable draft.
+  useEffect(() => {
+    setCallLog({
+      contactedBy: selected?.contactedBy?._id || selected?.contactedBy || '',
+      notes: selected?.notes || '',
+    });
+  }, [selected]);
+
+  const handleSaveCallLog = async () => {
+    if (!selected) return;
+    setSavingLog(true);
+    try {
+      const res = await updateLead(selected._id, {
+        contactedBy: callLog.contactedBy || null,
+        notes: callLog.notes,
+      });
+      toast.success('Call log saved');
+      // Keep the modal open on the freshly saved lead, and refresh the list
+      // behind it so the row reflects the change.
+      setSelected(res.data.data.lead);
+      load();
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Could not save call log');
+    } finally {
+      setSavingLog(false);
+    }
+  };
 
   useEffect(() => { load(); }, [filters.page, filters.website, filters.status]);
 
@@ -205,6 +239,45 @@ export default function LeadList() {
                 <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg p-3 whitespace-pre-wrap">{selected.message}</p>
               </div>
             )}
+            {/* Call log — who spoke to this lead and what they said. Saved
+                together so a note is never orphaned from its caller. */}
+            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+              <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Call Log</p>
+
+              <label className="block">
+                <span className="text-[11px] text-slate-500 font-semibold">Contacted by</span>
+                <select
+                  value={callLog.contactedBy}
+                  onChange={(e) => setCallLog(c => ({ ...c, contactedBy: e.target.value }))}
+                  className="input-field mt-1"
+                >
+                  <option value="">Not contacted yet</option>
+                  {agents.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
+                </select>
+              </label>
+
+              <label className="block mt-3">
+                <span className="text-[11px] text-slate-500 font-semibold">Additional notes</span>
+                <textarea
+                  rows={4}
+                  value={callLog.notes}
+                  onChange={(e) => setCallLog(c => ({ ...c, notes: e.target.value }))}
+                  maxLength={5000}
+                  placeholder="What did the lead say? Requirements, budget, timeline, follow-up date…"
+                  className="input-field mt-1 resize-y"
+                />
+                <span className="text-[10px] text-slate-400">{callLog.notes.length}/5000</span>
+              </label>
+
+              <button
+                onClick={handleSaveCallLog}
+                disabled={savingLog}
+                className="btn-primary mt-2 disabled:opacity-60"
+              >
+                {savingLog ? 'Saving…' : 'Save call log'}
+              </button>
+            </div>
+
             <div>
               <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Update Status</p>
               <div className="flex flex-wrap gap-2">
