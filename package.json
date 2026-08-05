@@ -30,7 +30,8 @@
     "test:e2e:report": "playwright show-report e2e/report",
     "test:e2e:trace": "playwright show-trace",
     "create:saisatwik-blog": "node src/utils/createSaisatwikBlog.js",
-    "create:leads-agents": "node src/utils/createLeadsAgents.js"
+    "create:leads-agents": "node src/utils/createLeadsAgents.js",
+    "backfill:lead-channel": "node src/utils/backfillLeadChannel.js"
   },
   "keywords": [
     "seo",

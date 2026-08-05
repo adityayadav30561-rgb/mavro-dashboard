@@ -91,6 +91,15 @@ const leadSchema = new mongoose.Schema(
       default: '',
     },
 
+    // Acquisition channel, derived server-side at submit time from the click
+    // ids / UTMs the form ships (see utils/leadChannel.js). Stored rather than
+    // computed on read so reporting is stable even if the rules later change.
+    channel: {
+      type: String,
+      enum: ['google_ads', 'facebook_ads', 'instagram_ads', 'campaign', 'google_organic', 'social', 'referral', 'direct'],
+      index: true,
+    },
+
     // Exact moment the public form was submitted, stamped server-side in
     // leadController.submitLead. Deliberately has NO default: leads created
     // before this field shipped (July 2026) stay null so the admin can tell

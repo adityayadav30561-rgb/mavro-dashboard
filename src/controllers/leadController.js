@@ -3,6 +3,7 @@ const AnalyticsEvent = require('../models/AnalyticsEvent');
 const AdminUser = require('../models/AdminUser');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
+const { deriveLeadChannel } = require('../utils/leadChannel');
 
 // ===================================
 // User-Agent → device classifier (shared with analyticsController logic)
@@ -129,6 +130,15 @@ const submitLead = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, 'Invalid website reference', 400);
   }
 
+  // Where this lead came from (Google Ads / Facebook Ads / organic / ...).
+  // Derived here, never taken from the client — the label drives reporting.
+  data.channel = deriveLeadChannel({
+    customFields: data.customFields,
+    utmSource: data.utmSource,
+    utmMedium: data.utmMedium,
+    referrer: data.referrer || req.headers['referer'] || req.headers['referrer'] || '',
+  });
+
   // Server-authoritative submission timestamp. Never trust a client clock for
   // this — a wrong device time would misfile the lead in every report.
   data.submittedAt = new Date();
@@ -197,6 +207,7 @@ const submitLead = asyncHandler(async (req, res) => {
  *   ?search=<term>               Search name, email, company, phone
  *   ?from=<ISO date>             Created after date
  *   ?to=<ISO date>               Created before date
+ *   ?channel=google_ads|...      Filter by acquisition channel
  *   ?assignedTo=<mongoId>        Filter by assigned admin
  *   ?tag=<tag>                   Filter by tag
  *   ?sortBy=createdAt|name|email|status|priority
@@ -221,6 +232,11 @@ const getLeads = asyncHandler(async (req, res) => {
   // Website filter
   if (req.query.website) {
     filter.website = req.query.website;
+  }
+
+  // Acquisition channel filter (google_ads / facebook_ads / ...)
+  if (req.query.channel) {
+    filter.channel = req.query.channel;
   }
 
   // Status filter (supports comma-separated)

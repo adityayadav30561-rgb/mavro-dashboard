@@ -8,6 +8,31 @@ import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
 
+// Acquisition channel labels + chip colours. Values are derived server-side in
+// src/utils/leadChannel.js — keep this map in step with that enum.
+const CHANNEL = {
+  google_ads:     { label: 'Google Ads',    cls: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' },
+  facebook_ads:   { label: 'Facebook Ads',  cls: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20' },
+  instagram_ads:  { label: 'Instagram Ads', cls: 'bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-500/10 dark:text-pink-400 dark:border-pink-500/20' },
+  campaign:       { label: 'Campaign',      cls: 'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20' },
+  google_organic: { label: 'Google Search', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' },
+  social:         { label: 'Social',        cls: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20' },
+  referral:       { label: 'Referral',      cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' },
+  direct:         { label: 'Direct',        cls: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700/40 dark:text-slate-300 dark:border-slate-600' },
+};
+
+function ChannelChip({ value }) {
+  // Leads captured before channel derivation shipped have no value — say so
+  // rather than guessing them into a paid bucket.
+  const c = CHANNEL[value];
+  if (!c) return <span className="text-xs text-slate-400">Unknown</span>;
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-md border text-[11px] font-semibold whitespace-nowrap ${c.cls}`}>
+      {c.label}
+    </span>
+  );
+}
+
 // Leads submitted from July 2026 onward carry a server-stamped `submittedAt`
 // (exact moment the public form was sent). Older leads only have `createdAt`,
 // so they keep showing a date alone rather than implying a clock time we never
@@ -28,7 +53,7 @@ export default function LeadList() {
   const [leads, setLeads] = useState([]);
   const [websites, setWebsites] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
-  const [filters, setFilters] = useState({ search: '', website: '', status: '', page: 1 });
+  const [filters, setFilters] = useState({ search: '', website: '', status: '', channel: '', page: 1 });
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [agents, setAgents] = useState([]);
@@ -44,6 +69,7 @@ export default function LeadList() {
       if (filters.search) params.search = filters.search;
       if (filters.website) params.website = filters.website;
       if (filters.status) params.status = filters.status;
+      if (filters.channel) params.channel = filters.channel;
       const res = await getLeads(params);
       setLeads(res.data.data.leads || []);
       setPagination(res.data.pagination || { page: 1, totalPages: 1 });
@@ -86,7 +112,7 @@ export default function LeadList() {
     }
   };
 
-  useEffect(() => { load(); }, [filters.page, filters.website, filters.status]);
+  useEffect(() => { load(); }, [filters.page, filters.website, filters.status, filters.channel]);
 
   const handleSearch = (e) => { e.preventDefault(); setFilters(f => ({ ...f, page: 1 })); load(); };
 
@@ -134,6 +160,11 @@ export default function LeadList() {
             <option value="converted">Converted</option>
             <option value="closed">Closed</option>
           </select>
+          <select value={filters.channel} onChange={e => setFilters(f => ({ ...f, channel: e.target.value, page: 1 }))}
+            className="input-field sm:w-44">
+            <option value="">All Sources</option>
+            {Object.entries(CHANNEL).map(([v, c]) => <option key={v} value={v}>{c.label}</option>)}
+          </select>
           <button type="submit" className="btn-secondary">Search</button>
         </form>
       </div>
@@ -147,6 +178,7 @@ export default function LeadList() {
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Contact</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden md:table-cell">Website</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Company</th>
+                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Source</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Status</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Submitted</th>
                 <th className="text-right px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Actions</th>
@@ -154,11 +186,11 @@ export default function LeadList() {
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={6} className="px-5 py-16 text-center">
+                <tr><td colSpan={7} className="px-5 py-16 text-center">
                   <div className="w-6 h-6 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
                 </td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={6} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
+                <tr><td colSpan={7} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
               ) : leads.map(lead => (
                 <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-5 py-3.5">
@@ -167,6 +199,7 @@ export default function LeadList() {
                   </td>
                   <td className="px-5 py-3.5 hidden md:table-cell text-slate-600 dark:text-slate-400">{lead.website?.name || '—'}</td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">{lead.company || '—'}</td>
+                  <td className="px-5 py-3.5"><ChannelChip value={lead.channel} /></td>
                   <td className="px-5 py-3.5"><Badge variant={lead.status}>{lead.status}</Badge></td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-500 dark:text-slate-400">
                     <p className="whitespace-nowrap">{submittedDate(lead)}</p>
@@ -211,6 +244,10 @@ export default function LeadList() {
               {selected.formId && (
                 <div><p className="text-xs text-slate-500 uppercase font-semibold">Form</p><p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">{selected.formId}</p></div>
               )}
+              <div>
+                <p className="text-xs text-slate-500 uppercase font-semibold">Source</p>
+                <p className="mt-1"><ChannelChip value={selected.channel} /></p>
+              </div>
               <div>
                 <p className="text-xs text-slate-500 uppercase font-semibold">Submitted</p>
                 <p className="mt-0.5 text-sm text-slate-700 dark:text-slate-300">

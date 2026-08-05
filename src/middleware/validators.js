@@ -429,6 +429,10 @@ const leadBulkRules = [
  * Query validation for lead listing
  */
 const leadQueryRules = [
+  query('channel')
+    .optional()
+    .isIn(['google_ads', 'facebook_ads', 'instagram_ads', 'campaign', 'google_organic', 'social', 'referral', 'direct'])
+    .withMessage('Invalid channel'),
   query('page')
     .optional()
     .isInt({ min: 1 })
