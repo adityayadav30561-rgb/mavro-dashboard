@@ -12,3 +12,10 @@ export const getLeadAgents = () => api.get('/leads/agents');
 // Append a conversation record. The log is append-only — there is no edit or
 // delete counterpart by design.
 export const addContactLogEntry = (id, data) => api.post(`/leads/${id}/contact-log`, data);
+// Append an outreach email. Advances the 3/6/10 follow-up sequence server-side.
+export const addEmailLogEntry = (id, data) => api.post(`/leads/${id}/email-log`, data);
+// Staff-entered lead (LinkedIn, referral, walk-in). NOT the bare POST /leads,
+// which is a legacy public submission path.
+export const createLead = (data) => api.post('/leads/manual', data);
+// Due / awaiting-first-mail / unknown-history buckets for the follow-up panel.
+export const getFollowUps = () => api.get('/leads/follow-ups');

@@ -13,6 +13,9 @@ const {
   getLeadStats,
   getLeadAgents,
   addContactLogEntry,
+  addEmailLogEntry,
+  createLead,
+  getFollowUps,
   exportLeads,
 } = require('../controllers/leadController');
 const {
@@ -21,6 +24,8 @@ const {
   leadSubmitRules,
   leadUpdateRules,
   leadContactLogRules,
+  leadCreateRules,
+  leadEmailLogRules,
   leadStatusRules,
   leadBulkRules,
   leadQueryRules,
@@ -92,6 +97,9 @@ router.get('/stats', getLeadStats);
 
 // Staff list for the "Contacted by" dropdown. Also before /:id.
 router.get('/agents', getLeadAgents);
+
+// Follow-up queue (due / awaiting first mail / unknown history). Before /:id.
+router.get('/follow-ups', getFollowUps);
 router.get('/export', authorize('admin', 'superadmin'), exportLeads);
 
 // ----- Bulk operations -----
@@ -101,12 +109,20 @@ router.post('/bulk-delete', authorize('superadmin'), leadBulkRules, validate, bu
 // ----- List leads -----
 router.get('/', leadQueryRules, validate, getLeads);
 
+// Manual creation lives at /manual, NOT bare POST /: that path is a legacy
+// public submission endpoint (kept for backward compat above) and would
+// shadow this one. Staff-entered leads skip spam protection by design.
+router.post('/manual', leadCreateRules, validate, createLead);
+
 // ----- Single lead operations -----
 router
   .route('/:id')
   .get(mongoIdParam, validate, getLead)
   .put(mongoIdParam, leadUpdateRules, validate, updateLead)
   .delete(mongoIdParam, validate, authorize('admin', 'superadmin'), deleteLead);
+
+// ----- Email log (append-only; advances the 3/6/10 sequence) -----
+router.post('/:id/email-log', mongoIdParam, leadEmailLogRules, validate, addEmailLogEntry);
 
 // ----- Contact log (append-only) -----
 router.post('/:id/contact-log', mongoIdParam, leadContactLogRules, validate, addContactLogEntry);

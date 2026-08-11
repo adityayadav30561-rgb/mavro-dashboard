@@ -4,6 +4,7 @@ const AdminUser = require('../models/AdminUser');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
 const { deriveLeadChannel } = require('../utils/leadChannel');
+const followUp = require('../utils/leadFollowUp');
 
 // ===================================
 // User-Agent → device classifier (shared with analyticsController logic)
@@ -295,6 +296,7 @@ const getLeads = asyncHandler(async (req, res) => {
       .populate('assignedTo', 'name email')
       .populate('contactedBy', 'name email')
       .populate('contactLog.contactedBy', 'name email')
+      .populate('emailLog.sentBy', 'name email')
       .select('-statusHistory -userAgent -spamReasons -contentPlainText')
       .sort({ [sortField]: sortOrder })
       .skip(skip)
@@ -318,6 +320,7 @@ const getLead = asyncHandler(async (req, res) => {
     .populate('assignedTo', 'name email')
     .populate('contactedBy', 'name email')
     .populate('contactLog.contactedBy', 'name email')
+    .populate('emailLog.sentBy', 'name email')
     .populate('statusHistory.changedBy', 'name email');
 
   if (!lead) return ApiResponse.notFound(res, 'Lead');
@@ -709,6 +712,7 @@ const addContactLogEntry = asyncHandler(async (req, res) => {
   });
   lead.contactedBy = contactedBy;
 
+  followUp.refreshDerivedFields(lead);
   await lead.save();
 
   const populated = await Lead.findById(lead._id)
@@ -718,6 +722,116 @@ const addContactLogEntry = asyncHandler(async (req, res) => {
     .populate('contactLog.contactedBy', 'name email');
 
   ApiResponse.success(res, { lead: populated }, 'Contact log updated');
+});
+
+/**
+ * @desc    Create a lead by hand (LinkedIn, referral, walk-in, phone)
+ * @route   POST /api/leads
+ * @access  Private
+ *
+ * Separate from the public POST /api/leads/submit: that one is unauthenticated
+ * and spam-filtered, this one is staff entering something they already know is
+ * real. `channel` defaults to 'manual' and `submittedAt` stays unset, since
+ * nobody submitted a form.
+ */
+const createLead = asyncHandler(async (req, res) => {
+  const allowed = [
+    'website', 'name', 'email', 'phone', 'company', 'message',
+    'channel', 'leadType', 'jobTitle', 'city', 'requirement', 'sourceUrl',
+    'temperature', 'priority', 'status', 'estimatedValue', 'expectedCloseAt',
+    'assignedTo', 'mailStatus', 'doNotContact', 'tags',
+  ];
+  const data = pickFields(req.body, allowed);
+
+  const website = await Website.findById(data.website);
+  if (!website) return ApiResponse.error(res, 'Invalid website reference', 400);
+
+  data.channel = data.channel || 'manual';
+  data.statusHistory = [{
+    status: data.status || 'new',
+    changedBy: req.user?._id,
+    changedAt: new Date(),
+    note: 'Lead added manually',
+  }];
+
+  const lead = await Lead.create(data);
+  const populated = await Lead.findById(lead._id)
+    .populate('website', 'name slug domain')
+    .populate('assignedTo', 'name email');
+
+  ApiResponse.created(res, { lead: populated }, 'Lead created');
+});
+
+/**
+ * @desc    Log an email sent to a lead
+ * @route   POST /api/leads/:id/email-log
+ * @access  Private
+ *
+ * Append-only, like the contact log. Logging a mail advances the 3/6/10
+ * sequence: derived fields are recomputed so the next reminder date, touch
+ * count and cold-marking all follow automatically.
+ */
+const addEmailLogEntry = asyncHandler(async (req, res) => {
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) return ApiResponse.notFound(res, 'Lead');
+
+  const { subject, snippet, sentAt, direction } = req.body;
+
+  lead.emailLog.push({
+    subject: (subject || '').trim(),
+    snippet: (snippet || '').trim(),
+    sentAt: sentAt ? new Date(sentAt) : new Date(),
+    sentBy: req.user?._id,
+    direction: direction === 'inbound' ? 'inbound' : 'outbound',
+    sequenceStep: followUp.nextSequenceStep(lead),
+    loggedVia: 'manual',
+  });
+
+  followUp.refreshDerivedFields(lead);
+  await lead.save();
+
+  const populated = await Lead.findById(lead._id)
+    .populate('website', 'name slug domain')
+    .populate('contactedBy', 'name email')
+    .populate('contactLog.contactedBy', 'name email')
+    .populate('emailLog.sentBy', 'name email');
+
+  ApiResponse.success(res, { lead: populated }, 'Email logged');
+});
+
+/**
+ * @desc    Leads needing attention right now
+ * @route   GET /api/leads/follow-ups
+ * @access  Private
+ *
+ * Three buckets, computed from the logs rather than stored as a queue:
+ *   due          — the 3/6/10 reminder has come around
+ *   awaitingMail — never emailed, top of the funnel
+ *   unknownMail  — imported leads whose email history nobody recorded
+ */
+const getFollowUps = asyncHandler(async (req, res) => {
+  const now = new Date();
+  const sel = 'name email company channel temperature status mailStatus nextFollowUpAt lastContactedAt emailLog createdAt';
+
+  const [due, awaitingMail, unknownMail] = await Promise.all([
+    Lead.find(followUp.dueFilter(now)).select(sel).sort({ nextFollowUpAt: 1 }).limit(100).lean(),
+    Lead.find(followUp.awaitingFirstMailFilter()).select(sel).sort({ createdAt: -1 }).limit(100).lean(),
+    Lead.find({ isSpam: { $ne: true }, mailStatus: 'unknown' }).select(sel).sort({ createdAt: -1 }).limit(100).lean(),
+  ]);
+
+  const strip = (rows) => rows.map((l) => ({
+    ...l,
+    mailsSent: (l.emailLog || []).filter((e) => e.direction !== 'inbound').length,
+    emailLog: undefined,
+  }));
+
+  ApiResponse.success(res, {
+    due: strip(due),
+    awaitingMail: strip(awaitingMail),
+    unknownMail: strip(unknownMail),
+    counts: { due: due.length, awaitingMail: awaitingMail.length, unknownMail: unknownMail.length },
+    cadenceDays: followUp.GAPS_DAYS,
+  }, 'Follow-ups retrieved');
 });
 
 /**
@@ -739,8 +853,11 @@ const getLeadAgents = asyncHandler(async (req, res) => {
 
 module.exports = {
   submitLead,
+  createLead,
   getLeadAgents,
   addContactLogEntry,
+  addEmailLogEntry,
+  getFollowUps,
   getLeads,
   getLead,
   updateLead,

@@ -96,7 +96,7 @@ const leadSchema = new mongoose.Schema(
     // computed on read so reporting is stable even if the rules later change.
     channel: {
       type: String,
-      enum: ['google_ads', 'facebook_ads', 'instagram_ads', 'campaign', 'google_organic', 'social', 'referral', 'direct'],
+      enum: ['google_ads', 'facebook_ads', 'instagram_ads', 'campaign', 'google_organic', 'social', 'referral', 'direct', 'linkedin', 'manual', 'walk_in'],
       index: true,
     },
 
@@ -107,6 +107,102 @@ const leadSchema = new mongoose.Schema(
     // never get it either — it means "a person submitted a form", nothing else.
     submittedAt: {
       type: Date,
+      index: true,
+    },
+
+    // ----- Qualification -----
+    // How likely this lead is to close. Distinct from `priority`, which is how
+    // urgently we should act — a big campus account can be cold but high
+    // priority, and collapsing the two loses that.
+    temperature: {
+      type: String,
+      enum: ['hot', 'warm', 'cold'],
+      index: true,
+    },
+    leadType: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [60, 'Lead type cannot exceed 60 characters'],
+    },
+    jobTitle: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [120, 'Job title cannot exceed 120 characters'],
+    },
+    city: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [80, 'City cannot exceed 80 characters'],
+    },
+    requirement: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [2000, 'Requirement cannot exceed 2000 characters'],
+    },
+    sourceUrl: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [500, 'Source URL cannot exceed 500 characters'],
+    },
+
+    // ----- Pipeline -----
+    estimatedValue: {
+      type: Number,
+      min: 0,
+    },
+    expectedCloseAt: Date,
+    lostReason: {
+      type: String,
+      enum: ['price', 'timing', 'chose_competitor', 'not_qualified', 'no_response', 'duplicate', 'other'],
+    },
+    lostAt: Date,
+
+    // ----- Email outreach -----
+    // Tri-state on purpose. Leads imported from the old spreadsheet genuinely
+    // predate any email record, so they are 'unknown' rather than being
+    // assumed un-emailed — which would fire a duplicate first mail at someone
+    // already in conversation. The follow-up engine skips 'unknown' until a
+    // human resolves it.
+    mailStatus: {
+      type: String,
+      enum: ['unknown', 'not_sent', 'sent'],
+      default: 'not_sent',
+      index: true,
+    },
+
+    // Append-only outreach record. Same contract as contactLog: entries are
+    // never edited or deleted, so the full chase history survives.
+    emailLog: [
+      {
+        subject: { type: String, trim: true, default: '', maxlength: 300 },
+        snippet: { type: String, trim: true, default: '', maxlength: 500 },
+        sentAt: { type: Date, default: Date.now },
+        sentBy: { type: mongoose.Schema.Types.ObjectId, ref: 'AdminUser' },
+        // Which step of the 3/6/10 sequence this was. 0 = the first mail,
+        // 1..3 = reminders. Lets the UI say "Reminder 2 of 3" without
+        // recomputing from dates.
+        sequenceStep: { type: Number, default: 0 },
+        direction: { type: String, enum: ['outbound', 'inbound'], default: 'outbound' },
+        messageId: { type: String, trim: true, default: '' },
+        loggedVia: { type: String, enum: ['manual', 'bcc', 'graph', 'import'], default: 'manual' },
+      },
+    ],
+
+    // ----- Activity / SLA (all derived, never typed) -----
+    lastContactedAt: { type: Date, index: true },
+    firstRespondedAt: Date,          // first outbound touch — powers response-time reporting
+    nextFollowUpAt: { type: Date, index: true },
+    touchCount: { type: Number, default: 0 },
+
+    // ----- Compliance -----
+    doNotContact: {
+      type: Boolean,
+      default: false,
       index: true,
     },
 

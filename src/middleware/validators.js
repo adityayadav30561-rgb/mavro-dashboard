@@ -344,6 +344,26 @@ const leadRules = leadSubmitRules;
 /**
  * Rules for admin lead update (PUT /api/leads/:id)
  */
+const leadCreateRules = [
+  body('website').notEmpty().withMessage('Website is required').isMongoId(),
+  body('name').trim().notEmpty().withMessage('Name is required').isLength({ max: 100 }),
+  body('email').trim().notEmpty().withMessage('Email is required').isEmail().withMessage('Valid email required'),
+  body('phone').optional().trim().isLength({ max: 30 }),
+  body('company').optional().trim().isLength({ max: 200 }),
+  body('channel').optional().isIn(['linkedin', 'manual', 'referral', 'walk_in', 'campaign', 'direct']),
+  body('temperature').optional().isIn(['hot', 'warm', 'cold']),
+  body('mailStatus').optional().isIn(['unknown', 'not_sent', 'sent']),
+  body('estimatedValue').optional().isFloat({ min: 0 }),
+  body('status').optional().isIn(['new', 'contacted', 'qualified', 'converted', 'closed']),
+];
+
+const leadEmailLogRules = [
+  body('subject').optional().trim().isLength({ max: 300 }),
+  body('snippet').optional().trim().isLength({ max: 500 }),
+  body('sentAt').optional().isISO8601().withMessage('sentAt must be a date'),
+  body('direction').optional().isIn(['outbound', 'inbound']),
+];
+
 const leadContactLogRules = [
   body('contactedBy')
     .notEmpty()
@@ -631,6 +651,8 @@ module.exports = {
   leadRules,
   leadSubmitRules,
   leadUpdateRules,
+  leadCreateRules,
+  leadEmailLogRules,
   leadContactLogRules,
   leadStatusRules,
   leadBulkRules,
