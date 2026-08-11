@@ -207,12 +207,17 @@ function mapLinkedinRow(row, websiteId, i) {
     jobTitle: clean(row.jobTitle).slice(0, 120),
     city: clean(row.city).slice(0, 80),
     leadType: clean(row.leadType) || 'corporate',
+    // The author's own words, verbatim. Not a summary — what they actually
+    // asked for may map to services this import has no knowledge of, so
+    // paraphrasing here would quietly narrow the opportunity.
     requirement: clean(row.requirement).slice(0, 2000),
-    service: clean(row.requirement).slice(0, 120),
+    // Left blank deliberately: categorising the enquiry is a judgement for
+    // whoever knows the service catalogue.
+    service: '',
     channel: 'linkedin',
     formSource: 'LinkedIn Post',
     sourceUrl: clean(row.sourceUrl).slice(0, 500),
-    message: clean(row.notes).slice(0, 5000),
+    message: clean(row.requirement).slice(0, 5000),
     status: 'new',
     mailStatus: 'not_sent',   // these are new — we know no mail has gone out
     temperature: 'warm',

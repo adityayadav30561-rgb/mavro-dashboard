@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, Briefcase, Plus, Mail } from 'lucide-react';
+import { Search, Eye, Trash2, Briefcase, Plus, Mail, ExternalLink } from 'lucide-react';
 import {
   getLeads, updateLeadStatus, updateLead, deleteLead,
-  addContactLogEntry, addEmailLogEntry, getLeadAgents,
+  addEmailLogEntry, getFollowUps, getLead,
 } from '../../api/leads';
 import { getWebsites } from '../../api/websites';
 import Chip from '../../components/leads/Chip';
 import AddLeadModal from '../../components/leads/AddLeadModal';
+import FollowUpPanel from '../../components/leads/FollowUpPanel';
 import Badge from '../../components/ui/Badge';
 import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
@@ -27,6 +28,17 @@ const TENANT_SLUG = 'saisatwik';
 // Their own pipeline wording. `follow_up` exists because the sheet used it as
 // a real working state, distinct from "contacted".
 const STATUSES = ['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed'];
+// Leads harvested from LinkedIn posts often have no email — the author asked
+// for DMs. Rather than guessing an address, link out to an Apollo people
+// search pre-filled with the name and company so whoever works the dashboard
+// can look it up and paste it back. Requires an Apollo account; we hold no
+// API key, so nothing is fetched automatically.
+const APOLLO_SEARCH = 'https://app.apollo.io/#/people?finderViewId=5b6dfc5a73f47568b2e5f11c&qKeywords=';
+const apolloUrl = (lead) =>
+  APOLLO_SEARCH + encodeURIComponent([lead.name, lead.company].filter(Boolean).join(' '));
+// Null-safe: this also runs on mount, before any lead is selected.
+const missingEmail = (lead) => !lead?.email || lead.email.endsWith('@import.invalid');
+
 const STATUS_LABEL = {
   new: 'Not contacted', contacted: 'Contacted', follow_up: 'Follow up',
   qualified: 'Qualified', converted: 'Converted', closed: 'Closed',
@@ -40,10 +52,10 @@ export default function SaisatwikLeads() {
   const [filters, setFilters] = useState({ search: '', status: '', channel: '', page: 1 });
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
-  const [agents, setAgents] = useState([]);
   const [addOpen, setAddOpen] = useState(false);
-  const [entry, setEntry] = useState({ contactedBy: '', note: '' });
   const [mail, setMail] = useState({ subject: '', snippet: '' });
+  const [followUps, setFollowUps] = useState(null);
+  const [followLoading, setFollowLoading] = useState(true);
   const [crm, setCrm] = useState({});
   const [busy, setBusy] = useState('');
 
@@ -62,6 +74,25 @@ export default function SaisatwikLeads() {
     finally { setLoading(false); }
   };
 
+  const loadFollowUps = async () => {
+    setFollowLoading(true);
+    try {
+      const res = await getFollowUps();
+      setFollowUps(res.data.data);
+    } catch { /* panel stays empty */ }
+    finally { setFollowLoading(false); }
+  };
+
+  // The follow-up panel carries only a summary, so open the full record.
+  const openLeadById = async (id) => {
+    const inList = leads.find((l) => l._id === id);
+    if (inList) { setSelected(inList); return; }
+    try {
+      const res = await getLead(id);
+      setSelected(res.data.data.lead);
+    } catch { toast.error('Could not open that lead'); }
+  };
+
   useEffect(() => {
     getWebsites({ limit: 100 })
       .then((r) => {
@@ -70,14 +101,13 @@ export default function SaisatwikLeads() {
         setTenantId(all.find((w) => w.slug === TENANT_SLUG)?._id || null);
       })
       .catch(() => {});
-    getLeadAgents().then((r) => setAgents(r.data.data.agents || [])).catch(() => {});
+    loadFollowUps();
   }, []);
 
   useEffect(() => { load(); }, [tenantId, filters.page, filters.status, filters.channel]);
 
   // Load the open lead's CRM columns into an editable draft.
   useEffect(() => {
-    setEntry({ contactedBy: selected?.contactedBy?._id || '', note: '' });
     setMail({ subject: '', snippet: '' });
     setCrm({
       service: selected?.service || '',
@@ -89,6 +119,9 @@ export default function SaisatwikLeads() {
       pendingOn: selected?.pendingOn || '',
       temperature: selected?.temperature || '',
       mailStatus: selected?.mailStatus || 'unknown',
+      // Blank when the record only holds the @import.invalid placeholder, so
+      // the operator sees an empty box to paste the real address into.
+      email: missingEmail(selected) ? '' : (selected?.email || ''),
     });
   }, [selected?._id]);
 
@@ -96,7 +129,11 @@ export default function SaisatwikLeads() {
     if (!selected) return;
     setBusy('crm');
     try {
-      const res = await updateLead(selected._id, crm);
+      const payload = { ...crm };
+      // Never overwrite a good address with a blank, and never write the
+      // placeholder back as if it were real.
+      if (!payload.email?.trim()) delete payload.email;
+      const res = await updateLead(selected._id, payload);
       toast.success('Saved');
       setSelected(res.data.data.lead);
       load();
@@ -113,22 +150,8 @@ export default function SaisatwikLeads() {
       setSelected(res.data.data.lead);
       setMail({ subject: '', snippet: '' });
       load();
+      loadFollowUps();
     } catch (e) { toast.error(e?.response?.data?.message || 'Could not log email'); }
-    finally { setBusy(''); }
-  };
-
-  const addNote = async () => {
-    if (!selected) return;
-    if (!entry.contactedBy) { toast.error('Select who contacted this lead'); return; }
-    if (!entry.note.trim()) { toast.error('Add a note'); return; }
-    setBusy('note');
-    try {
-      const res = await addContactLogEntry(selected._id, { contactedBy: entry.contactedBy, note: entry.note.trim() });
-      toast.success('Entry added');
-      setSelected(res.data.data.lead);
-      setEntry((e) => ({ contactedBy: e.contactedBy, note: '' }));
-      load();
-    } catch (e) { toast.error(e?.response?.data?.message || 'Could not add entry'); }
     finally { setBusy(''); }
   };
 
@@ -163,6 +186,8 @@ export default function SaisatwikLeads() {
           </button>
         }
       />
+
+      <FollowUpPanel data={followUps} loading={followLoading} onOpenLead={openLeadById} />
 
       <div className="card p-4">
         <form onSubmit={(e) => { e.preventDefault(); setFilters((f) => ({ ...f, page: 1 })); load(); }}
@@ -215,9 +240,14 @@ export default function SaisatwikLeads() {
                 <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-5 py-3.5">
                     <p className="font-medium text-slate-900 dark:text-white">{lead.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {lead.email?.endsWith('@import.invalid') ? <span className="italic">no email on record</span> : lead.email}
-                    </p>
+                    {missingEmail(lead) ? (
+                      <a href={apolloUrl(lead)} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline">
+                        Find email on Apollo <ExternalLink size={11} />
+                      </a>
+                    ) : (
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{lead.email}</p>
+                    )}
                     {lead.company && <p className="text-[11px] text-slate-400">{lead.company}</p>}
                   </td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">
@@ -248,7 +278,7 @@ export default function SaisatwikLeads() {
         </div>
         <div className="px-5 pb-4">
           <Pagination page={pagination.page} totalPages={pagination.totalPages}
-            onChange={(p) => setFilters((f) => ({ ...f, page: p }))} />
+            onPageChange={(p) => setFilters((f) => ({ ...f, page: p }))} />
         </div>
       </div>
 
@@ -258,9 +288,12 @@ export default function SaisatwikLeads() {
             <div className="grid grid-cols-2 gap-4">
               <Info label="Name">{selected.name}</Info>
               <Info label="Email">
-                {selected.email?.endsWith('@import.invalid')
-                  ? <span className="italic text-slate-400">no email on record</span>
-                  : selected.email}
+                {missingEmail(selected) ? (
+                  <a href={apolloUrl(selected)} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold hover:underline">
+                    Find on Apollo <ExternalLink size={12} />
+                  </a>
+                ) : selected.email}
               </Info>
               <Info label="Phone">{selected.phone || '—'}</Info>
               <Info label="Company">{selected.company || '—'}</Info>
@@ -288,6 +321,7 @@ export default function SaisatwikLeads() {
                 <Field label="L1 (SAP / Mavro / Others)" value={crm.l1Category} onChange={set('l1Category')} placeholder="SAP" />
                 <Field label="L2 (SAP-Imp, HRMS, CRM, ERP)" value={crm.l2Category} onChange={set('l2Category')} placeholder="HRMS" />
                 <Field label="Point of contact" value={crm.pointOfContact} onChange={set('pointOfContact')} placeholder="Aditya" />
+                <Field label="Email" type="email" value={crm.email} onChange={set('email')} placeholder="Paste the address found on Apollo" />
                 <Select label="Hot / Cold" value={crm.temperature} onChange={set('temperature')}>
                   <option value="">Not set</option>
                   {Object.entries(TEMPERATURE).map(([v, t]) => <option key={v} value={v}>{t.label}</option>)}
@@ -339,37 +373,6 @@ export default function SaisatwikLeads() {
                 </button>
               </div>
             </div>
-
-            {/* Append-only conversation log. */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Contact Log</p>
-              {selected.contactLog?.length > 0 ? (
-                <div className="space-y-2 mb-3 max-h-40 overflow-y-auto">
-                  {[...selected.contactLog].reverse().map((e, i) => (
-                    <div key={e._id || i} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <p className="text-xs font-semibold text-slate-900 dark:text-white">{e.contactedBy?.name || 'Unknown'}</p>
-                        <p className="text-[10px] text-slate-500 whitespace-nowrap">{fmtDateTime(e.contactedAt)}</p>
-                      </div>
-                      <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{e.note}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : <p className="text-sm text-slate-500 mb-3">No conversations logged yet.</p>}
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
-                <select value={entry.contactedBy} onChange={(e) => setEntry((c) => ({ ...c, contactedBy: e.target.value }))}
-                  className="input-field">
-                  <option value="">Select who called…</option>
-                  {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
-                </select>
-                <textarea rows={2} value={entry.note} onChange={(e) => setEntry((c) => ({ ...c, note: e.target.value }))}
-                  maxLength={5000} placeholder="What did they say?" className="input-field resize-y" />
-                <button onClick={addNote} disabled={busy === 'note'} className="btn-primary disabled:opacity-60">
-                  {busy === 'note' ? 'Adding…' : 'Add to log'}
-                </button>
-              </div>
-            </div>
-
             <div>
               <p className="text-xs text-slate-500 uppercase font-semibold mb-2">Update Status</p>
               <div className="flex flex-wrap gap-2">

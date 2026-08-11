@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Search, Eye, Trash2, Users, Plus, Mail } from 'lucide-react';
+import { Search, Eye, Trash2, Users, Plus } from 'lucide-react';
 import {
   getLeads, updateLeadStatus, deleteLead, getLeadAgents,
-  addContactLogEntry, addEmailLogEntry, getFollowUps, getLead,
+  addContactLogEntry,
 } from '../../api/leads';
 import Chip from '../../components/leads/Chip';
-import FollowUpPanel from '../../components/leads/FollowUpPanel';
 import AddLeadModal from '../../components/leads/AddLeadModal';
-import { CHANNEL, TEMPERATURE, MAIL_STATUS, fmtDateTime, relativeDays } from '@/lib/leadMeta';
+import { CHANNEL, TEMPERATURE, fmtDateTime } from '@/lib/leadMeta';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
 import PageHeader from '../../components/ui/PageHeader';
@@ -32,9 +31,11 @@ const submittedTime = (lead) =>
     : null;
 
 // Lead Capture is the SPANBIX pipeline: leads that arrive automatically from
-// the spanbix.com forms and ad landing pages. SaiSatwik's services CRM is a
-// separate page (/saisatwik-leads) because the two businesses sell different
-// things, to different buyers, and their funnels are reported apart.
+// the spanbix.com forms and ad landing pages.
+//
+// Deliberately NO follow-up machinery here. Outreach sequencing lives on the
+// SaiSatwik services page (/saisatwik-leads), where the sales motion is
+// email-led. Spanbix leads are worked by phone off the contact log.
 const TENANT_SLUG = 'spanbix';
 
 export default function LeadList() {
@@ -50,51 +51,7 @@ export default function LeadList() {
   // append-only and lives on the lead, so nothing here can overwrite history.
   const [entry, setEntry] = useState({ contactedBy: '', note: '' });
   const [savingLog, setSavingLog] = useState(false);
-  const [followUps, setFollowUps] = useState(null);
-  const [followLoading, setFollowLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
-  const [mail, setMail] = useState({ subject: '', snippet: '' });
-  const [savingMail, setSavingMail] = useState(false);
-
-  const loadFollowUps = async () => {
-    setFollowLoading(true);
-    try {
-      const res = await getFollowUps();
-      setFollowUps(res.data.data);
-    } catch { /* panel just stays empty */ }
-    finally { setFollowLoading(false); }
-  };
-
-  // Opening a lead straight from the follow-up panel: fetch the full record,
-  // since the panel only carries a summary.
-  const openLeadById = async (id) => {
-    const inList = leads.find((l) => l._id === id);
-    if (inList) { setSelected(inList); return; }
-    try {
-      const res = await getLead(id);
-      setSelected(res.data.data.lead);
-    } catch { toast.error('Could not open that lead'); }
-  };
-
-  const handleLogEmail = async () => {
-    if (!selected) return;
-    setSavingMail(true);
-    try {
-      const res = await addEmailLogEntry(selected._id, {
-        subject: mail.subject.trim(),
-        snippet: mail.snippet.trim(),
-      });
-      toast.success('Email logged');
-      setSelected(res.data.data.lead);
-      setMail({ subject: '', snippet: '' });
-      load();
-      loadFollowUps();
-    } catch (e) {
-      toast.error(e?.response?.data?.message || 'Could not log email');
-    } finally {
-      setSavingMail(false);
-    }
-  };
 
   const load = async () => {
     if (!tenantId) return;           // wait for the tenant id to resolve
@@ -120,7 +77,6 @@ export default function LeadList() {
       })
       .catch(() => {});
     getLeadAgents().then(r => setAgents(r.data.data.agents || [])).catch(() => {});
-    loadFollowUps();
   }, []);
 
   // Reset the draft whenever a different lead is opened. The caller defaults
@@ -128,7 +84,6 @@ export default function LeadList() {
   // person, but it stays changeable.
   useEffect(() => {
     setEntry({ contactedBy: selected?.contactedBy?._id || '', note: '' });
-    setMail({ subject: '', snippet: '' });
   }, [selected?._id]);
 
   const handleAddEntry = async () => {
@@ -147,7 +102,6 @@ export default function LeadList() {
       setSelected(res.data.data.lead);
       setEntry((e) => ({ contactedBy: e.contactedBy, note: '' }));
       load();
-      loadFollowUps();
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Could not add entry');
     } finally {
@@ -184,8 +138,6 @@ export default function LeadList() {
           </button>
         }
       />
-
-      <FollowUpPanel data={followUps} loading={followLoading} onOpenLead={openLeadById} />
 
       {/* Filters */}
       <div className="card p-4">
@@ -224,7 +176,6 @@ export default function LeadList() {
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Company</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Source</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden sm:table-cell">Temp</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden xl:table-cell">Mail</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Status</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Submitted</th>
                 <th className="text-right px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Actions</th>
@@ -232,11 +183,11 @@ export default function LeadList() {
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={8} className="px-5 py-16 text-center">
+                <tr><td colSpan={7} className="px-5 py-16 text-center">
                   <div className="w-6 h-6 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
                 </td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={8} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
+                <tr><td colSpan={7} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
               ) : leads.map(lead => (
                 <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-5 py-3.5">
@@ -246,12 +197,6 @@ export default function LeadList() {
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">{lead.company || '—'}</td>
                   <td className="px-5 py-3.5"><Chip map={CHANNEL} value={lead.channel} /></td>
                   <td className="px-5 py-3.5 hidden sm:table-cell"><Chip map={TEMPERATURE} value={lead.temperature} /></td>
-                  <td className="px-5 py-3.5 hidden xl:table-cell">
-                    <Chip map={MAIL_STATUS} value={lead.mailStatus} />
-                    {lead.nextFollowUpAt && (
-                      <p className="text-[10px] text-slate-400 mt-0.5 whitespace-nowrap">{relativeDays(lead.nextFollowUpAt)}</p>
-                    )}
-                  </td>
                   <td className="px-5 py-3.5"><Badge variant={lead.status}>{lead.status}</Badge></td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-500 dark:text-slate-400">
                     <p className="whitespace-nowrap">{submittedDate(lead)}</p>
@@ -330,81 +275,6 @@ export default function LeadList() {
                 <p className="mt-1 text-sm text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 rounded-lg p-3 whitespace-pre-wrap">{selected.message}</p>
               </div>
             )}
-            {/* Email outreach — append-only, and the thing that drives the
-                3/6/10 follow-up sequence. Logging a mail here recomputes the
-                next reminder server-side. */}
-            <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-slate-500 uppercase font-semibold">Email Outreach</p>
-                <div className="flex items-center gap-2">
-                  <Chip map={MAIL_STATUS} value={selected.mailStatus} />
-                  {selected.nextFollowUpAt && (
-                    <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400">
-                      next {relativeDays(selected.nextFollowUpAt)}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {selected.mailStatus === 'unknown' && (
-                <p className="mb-2 text-xs text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/5 border border-orange-200 dark:border-orange-500/20 rounded-lg p-2">
-                  Email history for this lead was never recorded. Follow-up reminders stay off
-                  until someone logs a mail or marks it as never emailed.
-                </p>
-              )}
-
-              {selected.emailLog?.length > 0 ? (
-                <div className="space-y-2 mb-3">
-                  {[...selected.emailLog].reverse().map((e, i) => (
-                    <div key={e._id || i} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
-                      <div className="flex items-baseline justify-between gap-3">
-                        <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                          {e.sequenceStep === 0 ? 'First mail' : `Reminder ${e.sequenceStep}`}
-                          {e.sentBy?.name && <span className="font-normal text-slate-400"> · {e.sentBy.name}</span>}
-                        </p>
-                        <p className="text-[10px] text-slate-500 whitespace-nowrap">{fmtDateTime(e.sentAt)}</p>
-                      </div>
-                      {e.subject && <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{e.subject}</p>}
-                      {e.snippet && <p className="mt-0.5 text-xs text-slate-500 whitespace-pre-wrap">{e.snippet}</p>}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-slate-500 mb-3">No emails logged yet.</p>
-              )}
-
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 space-y-2">
-                <label className="block">
-                  <span className="text-[11px] text-slate-500 font-semibold">Subject</span>
-                  <input
-                    value={mail.subject}
-                    onChange={(ev) => setMail(m => ({ ...m, subject: ev.target.value }))}
-                    maxLength={300}
-                    placeholder="SAP FICO proposal — Spanbix"
-                    className="input-field mt-1"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-[11px] text-slate-500 font-semibold">Note (optional)</span>
-                  <textarea
-                    rows={2}
-                    value={mail.snippet}
-                    onChange={(ev) => setMail(m => ({ ...m, snippet: ev.target.value }))}
-                    maxLength={500}
-                    placeholder="Sent pricing and the September batch dates."
-                    className="input-field mt-1 resize-y"
-                  />
-                </label>
-                <button
-                  onClick={handleLogEmail}
-                  disabled={savingMail}
-                  className="btn-primary flex items-center gap-2 disabled:opacity-60"
-                >
-                  <Mail size={14} /> {savingMail ? 'Logging…' : 'Log email sent'}
-                </button>
-              </div>
-            </div>
-
             {/* Contact log — an append-only thread. Each entry keeps its own
                 author and timestamp, so two callers a week apart both survive
                 and nobody can overwrite someone else's record. */}
@@ -498,7 +368,7 @@ export default function LeadList() {
         open={addOpen}
         onClose={() => setAddOpen(false)}
         websites={websites.filter((w) => w.slug === TENANT_SLUG)}
-        onCreated={() => { load(); loadFollowUps(); }}
+        onCreated={load}
       />
     </div>
   );

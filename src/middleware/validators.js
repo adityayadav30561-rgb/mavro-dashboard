@@ -395,6 +395,11 @@ const leadUpdateRules = [
     .optional({ nullable: true })
     .isMongoId()
     .withMessage('contactedBy must be a valid admin user ID'),
+  body('email')
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage('Enter a valid email address'),
   body('notes')
     .optional()
     .trim()

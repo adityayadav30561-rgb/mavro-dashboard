@@ -338,6 +338,7 @@ const updateLead = asyncHandler(async (req, res) => {
 
   const {
     status, priority, assignedTo, contactedBy, notes, tags,
+    email, phone, company,
     temperature, leadType, jobTitle, city, country, requirement, sourceUrl,
     service, l1Category, l2Category, pointOfContact, nextAction, pendingOn,
     estimatedValue, expectedCloseAt, lostReason, doNotContact, mailStatus,
@@ -356,6 +357,12 @@ const updateLead = asyncHandler(async (req, res) => {
 
   // Editable CRM fields. `undefined` means "not sent", so a partial update
   // never wipes a column the form did not include.
+  // Contact details are editable so an address found on Apollo can be pasted
+  // back onto a lead that arrived without one.
+  if (email !== undefined && String(email).trim()) lead.email = String(email).trim().toLowerCase();
+  if (phone !== undefined) lead.phone = phone;
+  if (company !== undefined) lead.company = company;
+
   for (const [k, v] of Object.entries({
     temperature, leadType, jobTitle, city, country, requirement, sourceUrl,
     service, l1Category, l2Category, pointOfContact, nextAction, pendingOn,
