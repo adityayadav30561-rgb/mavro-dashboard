@@ -31,9 +31,16 @@ const submittedTime = (lead) =>
       })
     : null;
 
+// Lead Capture is the SPANBIX pipeline: leads that arrive automatically from
+// the spanbix.com forms and ad landing pages. SaiSatwik's services CRM is a
+// separate page (/saisatwik-leads) because the two businesses sell different
+// things, to different buyers, and their funnels are reported apart.
+const TENANT_SLUG = 'spanbix';
+
 export default function LeadList() {
   const [leads, setLeads] = useState([]);
   const [websites, setWebsites] = useState([]);
+  const [tenantId, setTenantId] = useState(null);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1 });
   const [filters, setFilters] = useState({ search: '', website: '', status: '', channel: '', page: 1 });
   const [loading, setLoading] = useState(true);
@@ -90,11 +97,11 @@ export default function LeadList() {
   };
 
   const load = async () => {
+    if (!tenantId) return;           // wait for the tenant id to resolve
     setLoading(true);
     try {
-      const params = { page: filters.page, limit: 15 };
+      const params = { page: filters.page, limit: 15, website: tenantId };
       if (filters.search) params.search = filters.search;
-      if (filters.website) params.website = filters.website;
       if (filters.status) params.status = filters.status;
       if (filters.channel) params.channel = filters.channel;
       const res = await getLeads(params);
@@ -105,7 +112,13 @@ export default function LeadList() {
   };
 
   useEffect(() => {
-    getWebsites({ limit: 100 }).then(r => setWebsites(r.data.data.websites || [])).catch(() => {});
+    getWebsites({ limit: 100 })
+      .then((r) => {
+        const all = r.data.data.websites || [];
+        setWebsites(all);
+        setTenantId(all.find((w) => w.slug === TENANT_SLUG)?._id || null);
+      })
+      .catch(() => {});
     getLeadAgents().then(r => setAgents(r.data.data.agents || [])).catch(() => {});
     loadFollowUps();
   }, []);
@@ -142,7 +155,7 @@ export default function LeadList() {
     }
   };
 
-  useEffect(() => { load(); }, [filters.page, filters.website, filters.status, filters.channel]);
+  useEffect(() => { load(); }, [tenantId, filters.page, filters.status, filters.channel]);
 
   const handleSearch = (e) => { e.preventDefault(); setFilters(f => ({ ...f, page: 1 })); load(); };
 
@@ -164,7 +177,7 @@ export default function LeadList() {
         icon={Users}
         eyebrow="Intelligence"
         title="Lead Capture"
-        subtitle="Every lead, every channel, with follow-up tracking"
+        subtitle="Spanbix — website forms and ad landing pages"
         actions={
           <button onClick={() => setAddOpen(true)} className="btn-primary flex items-center gap-2">
             <Plus size={15} /> Add Lead
@@ -183,11 +196,6 @@ export default function LeadList() {
               onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
               className="input-field pl-9" />
           </div>
-          <select value={filters.website} onChange={e => setFilters(f => ({ ...f, website: e.target.value, page: 1 }))}
-            className="input-field sm:w-48">
-            <option value="">All Websites</option>
-            {websites.map(w => <option key={w._id} value={w._id}>{w.name}</option>)}
-          </select>
           <select value={filters.status} onChange={e => setFilters(f => ({ ...f, status: e.target.value, page: 1 }))}
             className="input-field sm:w-40">
             <option value="">All Status</option>
@@ -213,7 +221,6 @@ export default function LeadList() {
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50">
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Contact</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden md:table-cell">Website</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Company</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Source</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden sm:table-cell">Temp</th>
@@ -225,18 +232,17 @@ export default function LeadList() {
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={9} className="px-5 py-16 text-center">
+                <tr><td colSpan={8} className="px-5 py-16 text-center">
                   <div className="w-6 h-6 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
                 </td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={9} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
+                <tr><td colSpan={8} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
               ) : leads.map(lead => (
                 <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-5 py-3.5">
                     <p className="font-medium text-slate-900 dark:text-white">{lead.name}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{lead.email}</p>
                   </td>
-                  <td className="px-5 py-3.5 hidden md:table-cell text-slate-600 dark:text-slate-400">{lead.website?.name || '—'}</td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">{lead.company || '—'}</td>
                   <td className="px-5 py-3.5"><Chip map={CHANNEL} value={lead.channel} /></td>
                   <td className="px-5 py-3.5 hidden sm:table-cell"><Chip map={TEMPERATURE} value={lead.temperature} /></td>
@@ -491,7 +497,7 @@ export default function LeadList() {
       <AddLeadModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        websites={websites}
+        websites={websites.filter((w) => w.slug === TENANT_SLUG)}
         onCreated={() => { load(); loadFollowUps(); }}
       />
     </div>

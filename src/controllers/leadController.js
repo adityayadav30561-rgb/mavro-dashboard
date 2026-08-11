@@ -336,7 +336,12 @@ const updateLead = asyncHandler(async (req, res) => {
   const lead = await Lead.findById(req.params.id);
   if (!lead) return ApiResponse.notFound(res, 'Lead');
 
-  const { status, priority, assignedTo, contactedBy, notes, tags } = req.body;
+  const {
+    status, priority, assignedTo, contactedBy, notes, tags,
+    temperature, leadType, jobTitle, city, country, requirement, sourceUrl,
+    service, l1Category, l2Category, pointOfContact, nextAction, pendingOn,
+    estimatedValue, expectedCloseAt, lostReason, doNotContact, mailStatus,
+  } = req.body;
 
   // Update status with history tracking
   if (status && status !== lead.status) {
@@ -348,6 +353,17 @@ const updateLead = asyncHandler(async (req, res) => {
   if (contactedBy !== undefined) lead.contactedBy = contactedBy || null;
   if (notes !== undefined) lead.notes = notes;
   if (tags) lead.tags = tags;
+
+  // Editable CRM fields. `undefined` means "not sent", so a partial update
+  // never wipes a column the form did not include.
+  for (const [k, v] of Object.entries({
+    temperature, leadType, jobTitle, city, country, requirement, sourceUrl,
+    service, l1Category, l2Category, pointOfContact, nextAction, pendingOn,
+    estimatedValue, expectedCloseAt, lostReason, doNotContact, mailStatus,
+  })) {
+    if (v !== undefined) lead[k] = v;
+  }
+  if (status === 'closed' && !lead.lostAt) lead.lostAt = new Date();
 
   // Unmark spam if status explicitly changed away from spam
   if (status && status !== 'spam' && lead.isSpam) {
@@ -737,7 +753,9 @@ const addContactLogEntry = asyncHandler(async (req, res) => {
 const createLead = asyncHandler(async (req, res) => {
   const allowed = [
     'website', 'name', 'email', 'phone', 'company', 'message',
-    'channel', 'leadType', 'jobTitle', 'city', 'requirement', 'sourceUrl',
+    'channel', 'leadType', 'jobTitle', 'city', 'country', 'requirement', 'sourceUrl',
+    'service', 'l1Category', 'l2Category', 'pointOfContact', 'nextAction',
+    'pendingOn', 'formSource',
     'temperature', 'priority', 'status', 'estimatedValue', 'expectedCloseAt',
     'assignedTo', 'mailStatus', 'doNotContact', 'tags',
   ];

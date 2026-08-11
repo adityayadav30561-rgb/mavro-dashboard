@@ -354,7 +354,7 @@ const leadCreateRules = [
   body('temperature').optional().isIn(['hot', 'warm', 'cold']),
   body('mailStatus').optional().isIn(['unknown', 'not_sent', 'sent']),
   body('estimatedValue').optional().isFloat({ min: 0 }),
-  body('status').optional().isIn(['new', 'contacted', 'qualified', 'converted', 'closed']),
+  body('status').optional().isIn(['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed']),
 ];
 
 const leadEmailLogRules = [
@@ -381,7 +381,7 @@ const leadContactLogRules = [
 const leadUpdateRules = [
   body('status')
     .optional()
-    .isIn(['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'])
+    .isIn(['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed', 'spam'])
     .withMessage('Invalid lead status'),
   body('priority')
     .optional()
@@ -424,7 +424,7 @@ const leadStatusRules = [
   body('status')
     .notEmpty()
     .withMessage('Status is required')
-    .isIn(['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'])
+    .isIn(['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed', 'spam'])
     .withMessage('Invalid lead status'),
   body('note')
     .optional()

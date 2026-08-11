@@ -137,6 +137,61 @@ const leadSchema = new mongoose.Schema(
       default: '',
       maxlength: [80, 'City cannot exceed 80 characters'],
     },
+    country: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [80, 'Country cannot exceed 80 characters'],
+    },
+
+    // ----- Services CRM (SaiSatwik) -----
+    // Mirrors the columns the sales team already keeps by hand: what the lead
+    // asked for, and the two-level categorisation used for reporting.
+    service: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [120, 'Service cannot exceed 120 characters'],
+    },
+    l1Category: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [60, 'L1 category cannot exceed 60 characters'],
+    },
+    l2Category: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [60, 'L2 category cannot exceed 60 characters'],
+    },
+    // Free text rather than a user ref: the spreadsheet names people who have
+    // no account here (and one, "Karishma", is not the same person as any
+    // agent). Inventing a mapping would attribute work to the wrong person.
+    pointOfContact: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [80, 'Point of contact cannot exceed 80 characters'],
+    },
+    nextAction: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [1000, 'Next action cannot exceed 1000 characters'],
+    },
+    pendingOn: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [500, 'Pending on cannot exceed 500 characters'],
+    },
+    formSource: {
+      type: String,
+      trim: true,
+      default: '',
+      maxlength: [120, 'Form source cannot exceed 120 characters'],
+    },
     requirement: {
       type: String,
       trim: true,
@@ -209,7 +264,7 @@ const leadSchema = new mongoose.Schema(
     // ----- Lead Management -----
     status: {
       type: String,
-      enum: ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'],
+      enum: ['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed', 'spam'],
       default: 'new',
       index: true,
     },
@@ -294,7 +349,7 @@ const leadSchema = new mongoose.Schema(
       {
         status: {
           type: String,
-          enum: ['new', 'contacted', 'qualified', 'converted', 'closed', 'spam'],
+          enum: ['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed', 'spam'],
         },
         changedBy: {
           type: mongoose.Schema.Types.ObjectId,

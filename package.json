@@ -31,7 +31,8 @@
     "test:e2e:trace": "playwright show-trace",
     "create:saisatwik-blog": "node src/utils/createSaisatwikBlog.js",
     "create:leads-agents": "node src/utils/createLeadsAgents.js",
-    "backfill:lead-channel": "node src/utils/backfillLeadChannel.js"
+    "backfill:lead-channel": "node src/utils/backfillLeadChannel.js",
+    "import:saisatwik-leads": "node src/utils/importSaisatwikLeads.js"
   },
   "keywords": [
     "seo",

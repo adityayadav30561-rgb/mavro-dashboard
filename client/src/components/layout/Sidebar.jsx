@@ -4,7 +4,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Globe, FileText, Users, Search as SearchIcon,
   Settings, X, Hexagon, ChevronLeft, ChevronDown, ChevronRight,
-  BarChart3, Calendar as CalendarIcon, FileSpreadsheet
+  BarChart3, Calendar as CalendarIcon, FileSpreadsheet, Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { inkColor } from '@/lib/inks';
@@ -33,6 +33,7 @@ const navGroups = [
     label: 'Intelligence',
     items: [
       { to: '/leads', icon: Users, label: 'Lead Capture', ink: 'madder' },
+      { to: '/saisatwik-leads', icon: Briefcase, label: 'SaiSatwik Leads', ink: 'teal' },
       { to: '/seo', icon: SearchIcon, label: 'SEO Engine', ink: 'ochre' },
       { to: '/analytics', icon: BarChart3, label: 'Analytics', ink: 'teal' },
       { to: '/mbr', icon: FileSpreadsheet, label: 'MBR Report', badge: 'New', ink: 'vermilion' },
