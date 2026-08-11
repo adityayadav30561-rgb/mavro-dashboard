@@ -892,3 +892,156 @@ with `test:e2e*` scripts.
 - **21+ posts retro-linked** across 4 batches (outbound authority + hub-and-spoke internal links). Registries: `src/utils/saisatwik-blogs/CLUSTERS.md` + `TAGS.md`. SAP EPPM cluster = 8 spokes; SAP Platform Guides = 7 members.
 - **Blog page design shipped** via head-injection block `saisatwik-blog-enhance.html` (v2 + v2.1 hero hotfix) — premium navy hero, key-takeaway card, styled tables, right-side sticky TOC, progress bar, CTA banner. Analytics via `saisatwik-tracking-snippet.html`. Both pasted in Divi → Theme Options → Integration; repo files are canonical. Invariants in SAISATWIK_BLOG_PUBLISHING.md §14.
 - **SEO Engine fixes for WP tenants:** self-host links relativized in the adapter, trailing-slash slug matching, real WP sitemap stats (142 URLs), anomaly scoping per tenant + WP-aware stale detection + day-range like-for-like clamp, Content Relationship Board (cluster cards + per-group Map view) replacing the node-scatter graph, ContentTable pagination (10/page).
+
+---
+
+## Phase 12 — MBR first-party overlay, brand rename, lead CRM (Aug 11, 2026)
+
+One long session. Five workstreams, all shipped to `main` and deployed.
+Operating invariants distilled into CLAUDE.md §Phase 12; this is the record of
+what happened and why.
+
+### 12.1 MBR now reports our own analytics, not GA4
+
+**Problem.** MBR numbers were far below the Analytics tab. GA4 undercounts
+structurally — ad-blockers kill gtag, Safari ITP caps cookies, consent mode
+drops hits. Our first-party beacon posts to the backend origin, which blockers
+do not filter, so for tracked sites our store is the more complete source.
+
+**Rejected approach.** The user's first instinct was "use whichever number is
+higher". That silently mixes two methodologies inside one time series and
+destroys month-over-month comparability — a month could "grow" purely because
+the winning source changed. Declined, with the reasoning, and the per-metric
+policy below was adopted instead.
+
+**What shipped** (`src/services/mavroMbrService.js` + `mbrController`):
+
+- Volume metrics (users, sessions, page views), daily trend, top pages and
+  devices come from `AnalyticsEvent` per window; geo, channels, AI referrals
+  and conversions stay GA4; GSC untouched.
+- Per-window source labels (`mavro` | `ga4` | `blend`) so nothing is ever mixed
+  invisibly, and MoM deltas are suppressed when two windows disagree.
+- Any window straddling the tracker install date **blends**: GA4 daily rows
+  before the install day, ours from it onward. Without this a custom range
+  silently dropped its pre-tracking days.
+- GA4's own figure is kept in `ga4Reported` and shown small beneath each tile.
+  The gap between the two is the blocker/consent loss rate and is useful.
+
+**Bugs found and fixed en route:**
+
+- `windowTrend` and `windowDevices` set `sessions = distinct sessionId`, i.e.
+  identical to users, so the Users and Sessions chart lines overlapped exactly.
+  Both now burst-count on a 30-minute gap, matching `getEngagement`.
+- Coverage compared full timestamps, so a range starting on the install date
+  was treated as partial and showed a redundant "(since 8 Jul)" caption. Now
+  judged by UTC day.
+
+**Live at ship:** Spanbix Jul/Jun from our store, May GA4 (tracker installed
+22 May); SaiSatwik current month from our store since 8 Jul, earlier months
+GA4. The MoM % column was removed from the 3-month table by request.
+
+**Known gap:** the MBR Excel export still writes raw GA4 audience numbers, so
+the workbook and the screen can disagree. Not yet reconciled.
+
+### 12.2 Brand rename + logo
+
+"Spanbix Training Institute" → **Spanbix Technologies Private Limited** on the
+footer, the three legal pages, and as `legalName` in the EducationalOrganization
+JSON-LD (what Google's Knowledge Graph reads). Casual surfaces stay "Spanbix".
+CIN/GST/foundingDate deliberately still absent — unverified.
+
+New logo set supplied as two root PNGs, alpha-trimmed and placed:
+`spanbix-blue.png` (full wordmark) for navbar/footer/JSON-LD,
+`spanbix-white.png` (light mark), favicons regenerated from the S-mark alone
+because the wordmark is unreadable at 16px.
+
+The first-visit **cohort banner was deleted** — it interrupted every first
+visit and had served its purpose. `e2e/support/fixtures.ts` existed only to
+dismiss it and is now a pass-through.
+
+### 12.3 SaiSatwik blogs K09–K11
+
+Published `sap-ps-tutorial-for-beginners` (#5423),
+`sap-ps-work-breakdown-structure-wbs-explained` (#5425) and
+`how-to-create-a-project-in-sap-ps-cj20n` (#5428), completing a tightly
+cross-linked four-post SAP PS cluster under hub #5418. Workbook rows marked
+green; CLUSTERS.md and TAGS.md updated.
+
+### 12.4 Spanbix forms + Meta Ads
+
+- **Course selection made mandatory** on `/contact`, `/enquire`, `/sap-course`,
+  with "Not decided yet" as a genuine answer rather than a skip. Options
+  centralised in `courseOptions.js`. `/campus-visit` deliberately excluded —
+  it is shared with college T&P cells booking a session, not individuals.
+- **Meta Pixel installed** env-driven, mirroring the GTM pattern. The advice
+  the user received elsewhere would have broken two things: it omitted the CSP
+  (which would have blocked `fbevents.js` silently, with no visible error), and
+  its `layout.tsx` template would have wiped fonts, metadata and GTM. Added the
+  pixel surgically to the existing layout and widened the CSP first.
+- **`fbq('track','Lead')`** wired into `trackLead`, which is called from the
+  `/sap-course` form only — so Meta counts paid-traffic leads exactly like the
+  Google Ads conversion. A thank-you page was proposed externally and declined:
+  the event already fires in the success branch after the API confirms, which
+  is strictly more accurate than a URL that can be refreshed or bookmarked.
+  Verified live on www.spanbix.com: PageView then Lead, with the chosen course
+  as `content_name`.
+
+### 12.5 Lead capture → CRM
+
+Delivered as Phase 1 of `LEAD_TRACKING_PLAN.md`, whose goal is retiring a
+hand-maintained spreadsheet.
+
+- **`submittedAt`** stamped server-side; no backfill, so older leads honestly
+  show a date without a fabricated time.
+- **`channel`** derived server-side (click ids → UTMs → referrer, unattributable
+  becomes `direct`), and backfilled for 83 existing leads from their own stored
+  gclid/fbclid — 38 Google Ads, 5 Facebook, 1 Instagram were already
+  identifiable and had simply never been surfaced.
+- **Contact log** rebuilt as an append-only thread after first shipping it as a
+  single overwritable notes box — with a shared box, the second caller erases
+  the first one's record.
+- **Follow-up engine** (`leadFollowUp.js`): gaps of 3 / 6 / 10 days between
+  mails, cold-but-open after the 4th, computed from the logs so no scheduler is
+  needed. `mailStatus: 'unknown'` is a real third state for imported leads.
+- **Manual entry, temperature, lead type, pipeline and SLA fields**, plus a
+  "Needs attention" panel with due / awaiting-first-mail / unknown-history
+  buckets.
+
+**Tenant split.** Mixing the two businesses made both pipelines unreadable.
+`/leads` is now Spanbix-only (phone-worked, no follow-up machinery);
+`/saisatwik-leads` is the services CRM (email-led, carries the follow-up panel,
+no contact log). Both scoped server-side by website id.
+
+**Historical import.** 103 rows from "Leads CRM.xlsx" plus 9 LinkedIn leads →
+105 SaiSatwik leads (82 working). Duplicates collapsed; 29 bot rows imported
+**flagged** rather than deleted; two malformed email cells repaired with the
+originals preserved for verification; rows without an address get a visible
+`@import.invalid` placeholder and an **Apollo lookup link**.
+
+**Correction accepted mid-phase:** the first LinkedIn import stored *summaries*
+of each post plus commentary on whether the lead fit. Both were wrong —
+paraphrasing narrows a requirement, and judging fit assumed a service catalogue
+not known to the summariser. Re-imported with each author's post **verbatim**
+and `service` left blank for a human to categorise.
+
+### 12.6 Access control
+
+New **`leads_agent`** role, restricted to Lead Capture, with four staff accounts
+(`npm run create:leads-agents`). The important part: most admin routers only
+required `protect`, so hiding sidebar items would have been decorative — a
+`blockRoles()` deny-list now enforces it server-side, verified with a real
+token (leads 200, blogs/SEO/analytics/MBR/campaigns 403).
+
+### Process notes worth keeping
+
+- Several faults this phase passed a green build and only surfaced by driving
+  the pages in a browser: `missingEmail(null)` blanked an entire page on mount,
+  a removed function was still called after adding a lead, and a `Pagination`
+  prop typo (`onChange` vs `onPageChange`) made every page button a silent
+  no-op. **A successful build does not prove a page renders.**
+- A debug call against the legacy public `POST /api/leads` created a real lead
+  in production. That endpoint is unauthenticated and still live for backward
+  compatibility — treat it with care.
+- Test data written during verification (leads, contact-log entries, a status
+  change) was cleaned up each time. Prefer intercepting the write when driving
+  production UI.

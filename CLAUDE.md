@@ -432,3 +432,62 @@ Invariants from this phase. Honor them on every future edit.
 
 - **SaiSatwik WP head-injection blocks are repo-canonical.** `saisatwik-tracking-snippet.html` (analytics) + `saisatwik-blog-enhance.html` (blog design v2 + v2.1 hero hotfix) are pasted into Divi → Theme Options → Integration → head. Edit the repo file, re-paste the whole box — never edit inside WordPress alone. The hero override MUST stay longhand background properties at `html body.single-post div.et_pb_section...` specificity (theme's cached wave-PNG rule ties and beats shorthand). Featured image pull-up is `-9vw` — hero keeps `padding-bottom: calc(56px + 9vw)`.
 - **Workbook publish tracking:** `SAP-EPPM-PS-Blog-Keyword-Plan.xlsx` Status/Live URL columns updated (openpyxl, green fill) on every SaiSatwik publish. Strict topic-match only. See SAISATWIK_BLOG_PUBLISHING.md §15.
+
+---
+
+## Phase 12 — MBR first-party overlay, brand rename, lead CRM (Aug 11, 2026)
+
+Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
+
+### MBR data sourcing
+
+- **MBR volume metrics come from OUR analytics store, not GA4, wherever the tracker covers the window.** `src/services/mavroMbrService.js` supplies users / sessions / page views / daily trend / top pages / devices; `mbrController.getGa4Report` merges it over the GA4 payload. GA4 stays authoritative for geo, channels, AI referrals, conversions; GSC untouched. **NEVER `max(GA4, ours)`** — one methodology per window, always labelled.
+- **Windows are labelled, never silently mixed.** `audienceSource` / `trendSource` / `pagesSource` / `devicesSource` mark each window `mavro` | `ga4` | `blend`. A window that straddles the tracker install date BLENDS: GA4 daily rows before the install day + our rows from it. Fully-covered windows are pure Mavro; fully-uncovered are pure GA4.
+- **Coverage is judged by DAY, not timestamp.** A range starting on the install date counts as covered even though the first event landed mid-morning. `mavroPartialFrom` drives the "(since 8 Jul)" caption and disappears on its own once a whole month post-install exists.
+- **GA4's own audience numbers are preserved in `payload.ga4Reported`** and shown as the small secondary figure on the tiles. That gap is the ad-blocker / consent loss rate and is worth seeing — do not drop it.
+- **Sessions are burst-counted (30-min gap), never `distinct sessionId`.** Doing the latter in `windowTrend` / `windowDevices` made the Users and Sessions chart lines identical. Cache key is `ga4:v10:` — bump it on any shape change.
+- **`MBR_SOURCES` entries need `websiteSlug`** for the overlay to apply. Set on Render as well as local `.env`.
+- The **MoM % column was removed** from the 3-month comparison table by request. MBR **Excel export still writes raw GA4 audience numbers** — known gap, not yet reconciled with the on-screen figures.
+
+### Brand
+
+- **Registered entity is "Spanbix Technologies Private Limited"** — footer, legal-page intros, and `legalName` in the EducationalOrganization JSON-LD. Everywhere casual stays "Spanbix". "Spanbix Training Institute" is retired; do not reintroduce. CIN / GST / foundingDate remain deliberately absent (unverified).
+- Logo files are background-driven as before; `spanbix-blue.png` is the full wordmark, `spanbix-white.png` the light mark, favicons generated from the S-mark alone (the wordmark is illegible at 16px).
+- **The first-visit cohort banner is deleted** (component removed, unmounted from `SpanbixLayout`). `e2e/support/fixtures.ts` is now a pass-through — it existed only to dismiss it.
+
+### Spanbix forms + Meta Ads
+
+- **Course selection is REQUIRED on `/contact`, `/enquire` and `/sap-course`.** Nothing is preselected; unselected chips turn red on a blocked submit. Choices live in `spanbix-web/src/lib/courseOptions.js` — the single source, so the forms cannot drift. `/campus-visit` deliberately has NO course field: it is shared with college T&P cells booking a session, not individuals picking a course.
+- General forms offer AI Mastery; `/sap-course` stays SAP-only because the ad promises SAP.
+- **Meta Pixel is env-driven** (`NEXT_PUBLIC_META_PIXEL_ID`, set on Vercel), mounted from `app/layout.js`. CSP in `next.config.mjs` must keep `connect.facebook.net` in `script-src` and `www.facebook.com` + `connect.facebook.net` in `connect-src` — without them the browser blocks fbevents.js silently.
+- **`fbq('track','Lead')` fires from `trackLead` in `src/lib/track.js`, which is called from exactly ONE place: the `/sap-course` form.** That is what scopes the Meta conversion to paid traffic, mirroring the Google Ads boundary. Wiring `trackLead` into another form changes what BOTH ad platforms optimise against — do it deliberately, never by reflex. No thank-you page is needed or wanted: the event fires in the success branch after the API confirms.
+
+### Lead capture + CRM
+
+- **`Lead.submittedAt` is server-stamped in `submitLead`, never from a client clock.** No schema default: leads predating it stay null so "submitted 4:12 PM" is distinguishable from "we only know the date".
+- **`Lead.channel` is derived server-side** by `src/utils/leadChannel.js` from click ids then UTMs then referrer, in that order. Anything unattributable becomes `direct` rather than being guessed into a paid bucket. Backfilled for all pre-existing leads from their own stored gclid/fbclid.
+- **`contactLog` and `emailLog` are APPEND-ONLY.** There is no edit or delete endpoint for entries, by design — two people working the same lead a week apart must both keep their record.
+- **Derived activity fields are never typed:** `lastContactedAt`, `firstRespondedAt`, `touchCount`, `nextFollowUpAt`, and "mail sent" (which is `emailLog.length > 0`, not a stored flag that can drift).
+- **Follow-up cadence is GAPS between mails: 3, then 6, then 10 days** (`src/utils/leadFollowUp.js`). A lead mailed on day 0 is chased on days 3, 9, 19. After the 4th mail it is marked **cold but stays open** and in the working list. 15 unit cases cover this — run them before changing the numbers.
+- **`mailStatus: 'unknown'` is a real third state**, not a synonym for "not sent". Imported leads carry it because nobody recorded their email history; they generate NO reminders until a human resolves it. Assuming either way is worse than showing the gap.
+- **Manual lead creation is `POST /api/leads/manual`, NOT bare `POST /api/leads`** — that path is a legacy PUBLIC submission endpoint kept for backward compatibility and would shadow it.
+
+### Tenant separation (do not merge these pipelines again)
+
+- **`/leads` (Lead Capture) is SPANBIX ONLY** — website forms and ad landing pages, scoped server-side by website id. **No follow-up machinery here**: no follow-up panel, no Mail column, no email-outreach block. Spanbix leads are worked by phone off the contact log.
+- **`/saisatwik-leads` is the SaiSatwik SERVICES CRM** — SAP, Salesforce, app development, cloud, Mavro. Email-led, so the 3/6/10 follow-up panel and email outreach live here. **No contact log on this page.**
+- Columns mirror the spreadsheet this replaced: Service, Country, L1, L2, Point of Contact, Pending on, Next action, Hot/Cold. `pointOfContact` is free text on purpose — the sheet names people with no account here, and mapping them to users would attribute work to the wrong person.
+- **Never paraphrase a lead's requirement.** LinkedIn leads store the author's post **verbatim**; `service` is left blank for whoever knows the catalogue to categorise. Summarising narrows the opportunity, and judging fit assumes knowledge of services the summariser may not have.
+- Import via `npm run import:saisatwik-leads -- "<xlsx>" [--linkedin <csv>] [--apply]`, dry-run by default and idempotent on (website, email, name). Bot rows are imported **flagged `isSpam`, never dropped** — silently discarding rows during an import is how a real lead is lost. Broken email cells are repaired with the original preserved in the lead's notes; rows with none get a visible `@import.invalid` placeholder.
+- **Apollo enrichment is manual.** Leads with no address show a "Find email on Apollo" link (people search pre-filled with name + company) plus an Email field to paste the result back. We hold no Apollo API key, so nothing is fetched automatically and no address is ever guessed.
+
+### Access control
+
+- **`leads_agent` is a Lead-Capture-only role.** `blockRoles()` in `src/middleware/auth.js` denies it on every non-lead router — most routers only required `protect`, so hiding nav items alone would have been cosmetic. `GET /api/websites` stays open to it (the page's tenant filter needs the list); everything that manages tenants sits behind the block.
+- Client routing rules live in `client/src/lib/access.js`. That is **wayfinding, not security** — the API is the gate.
+- Accounts are created by `npm run create:leads-agents` (passwords generated and printed once, never stored in the repo). Restricted roles have no Settings page yet, so they cannot change their own password.
+
+### Still open
+
+- **Phase 2 of LEAD_TRACKING_PLAN.md** (CEO's auto-updating Google Sheet) is blocked on a Sheet URL shared with `mavro-dashboard@spanbix-analytics.iam.gserviceaccount.com`.
+- **Phase 3** (email history + ongoing logging) is blocked on an Outlook CSV export and, for automation, a delegated Graph app registration. Both saisatwik.com and spanbix.com are Microsoft 365.

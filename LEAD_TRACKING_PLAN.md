@@ -1,6 +1,26 @@
 # Lead Tracking Automation — Design Plan
 
-**Status:** proposal, awaiting sign-off. No code written yet.
+> ## Status as of 11 Aug 2026
+>
+> **Phase 1 is BUILT AND LIVE.** Manual lead entry, temperature, lead type,
+> pipeline + SLA fields, the append-only email and contact logs, the 3/6/10
+> follow-up engine, and the "Needs attention" panel all shipped. The historical
+> CRM (103 rows) and 9 LinkedIn leads are imported.
+>
+> **Phase 2 (CEO's Google Sheet) — NOT STARTED, blocked on you.** Needs a Google
+> Sheet URL shared with `mavro-dashboard@spanbix-analytics.iam.gserviceaccount.com`
+> as Editor, and a decision on whether it carries SaiSatwik, Spanbix, or both on
+> separate tabs.
+>
+> **Phase 3 (email logging) — NOT STARTED, blocked on you.** History needs an
+> Outlook CSV export (§5a, no permissions required). Ongoing auto-logging needs
+> a delegated Graph app registration you can do yourself in ~20 minutes (§5b).
+>
+> **Changed since this plan was written:** the pipelines are now split across
+> two pages. `/leads` is Spanbix only; `/saisatwik-leads` is the services CRM
+> and is where the follow-up engine lives. See CLAUDE.md §Phase 12.
+
+**Status:** Phase 1 delivered; Phases 2–3 awaiting inputs.
 **Goal:** retire the hand-maintained Excel. One system of record for every lead,
 email activity logged without typing, a CEO-facing sheet that updates itself,
 and follow-up reminders so nothing goes cold unnoticed.
