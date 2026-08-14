@@ -462,24 +462,13 @@ Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
 - **Meta Pixel is env-driven** (`NEXT_PUBLIC_META_PIXEL_ID`, set on Vercel), mounted from `app/layout.js`. CSP in `next.config.mjs` must keep `connect.facebook.net` in `script-src` and `www.facebook.com` + `connect.facebook.net` in `connect-src` — without them the browser blocks fbevents.js silently.
 - **`fbq('track','Lead')` fires from `trackLead` in `src/lib/track.js`, which is called from exactly ONE place: the `/sap-course` form.** That is what scopes the Meta conversion to paid traffic, mirroring the Google Ads boundary. Wiring `trackLead` into another form changes what BOTH ad platforms optimise against — do it deliberately, never by reflex. No thank-you page is needed or wanted: the event fires in the success branch after the API confirms.
 
-### Lead capture + CRM
+### Lead capture
 
 - **`Lead.submittedAt` is server-stamped in `submitLead`, never from a client clock.** No schema default: leads predating it stay null so "submitted 4:12 PM" is distinguishable from "we only know the date".
 - **`Lead.channel` is derived server-side** by `src/utils/leadChannel.js` from click ids then UTMs then referrer, in that order. Anything unattributable becomes `direct` rather than being guessed into a paid bucket. Backfilled for all pre-existing leads from their own stored gclid/fbclid.
-- **`contactLog` and `emailLog` are APPEND-ONLY.** There is no edit or delete endpoint for entries, by design — two people working the same lead a week apart must both keep their record.
-- **Derived activity fields are never typed:** `lastContactedAt`, `firstRespondedAt`, `touchCount`, `nextFollowUpAt`, and "mail sent" (which is `emailLog.length > 0`, not a stored flag that can drift).
-- **Follow-up cadence is GAPS between mails: 3, then 6, then 10 days** (`src/utils/leadFollowUp.js`). A lead mailed on day 0 is chased on days 3, 9, 19. After the 4th mail it is marked **cold but stays open** and in the working list. 15 unit cases cover this — run them before changing the numbers.
-- **`mailStatus: 'unknown'` is a real third state**, not a synonym for "not sent". Imported leads carry it because nobody recorded their email history; they generate NO reminders until a human resolves it. Assuming either way is worse than showing the gap.
+- **`contactLog` is APPEND-ONLY.** There is no edit or delete endpoint for entries, by design — two people working the same lead a week apart must both keep their record. `lastContactedAt` and `touchCount` are derived from it on write, never typed.
 - **Manual lead creation is `POST /api/leads/manual`, NOT bare `POST /api/leads`** — that path is a legacy PUBLIC submission endpoint kept for backward compatibility and would shadow it.
-
-### Tenant separation (do not merge these pipelines again)
-
-- **`/leads` (Lead Capture) is SPANBIX ONLY** — website forms and ad landing pages, scoped server-side by website id. **No follow-up machinery here**: no follow-up panel, no Mail column, no email-outreach block. Spanbix leads are worked by phone off the contact log.
-- **`/saisatwik-leads` is the SaiSatwik SERVICES CRM** — SAP, Salesforce, app development, cloud, Mavro. Email-led, so the 3/6/10 follow-up panel and email outreach live here. **No contact log on this page.**
-- Columns mirror the spreadsheet this replaced: Service, Country, L1, L2, Point of Contact, Pending on, Next action, Hot/Cold. `pointOfContact` is free text on purpose — the sheet names people with no account here, and mapping them to users would attribute work to the wrong person.
-- **Never paraphrase a lead's requirement.** LinkedIn leads store the author's post **verbatim**; `service` is left blank for whoever knows the catalogue to categorise. Summarising narrows the opportunity, and judging fit assumes knowledge of services the summariser may not have.
-- Import via `npm run import:saisatwik-leads -- "<xlsx>" [--linkedin <csv>] [--apply]`, dry-run by default and idempotent on (website, email, name). Bot rows are imported **flagged `isSpam`, never dropped** — silently discarding rows during an import is how a real lead is lost. Broken email cells are repaired with the original preserved in the lead's notes; rows with none get a visible `@import.invalid` placeholder.
-- **Apollo enrichment is manual.** Leads with no address show a "Find email on Apollo" link (people search pre-filled with name + company) plus an Email field to paste the result back. We hold no Apollo API key, so nothing is fetched automatically and no address is ever guessed.
+- **`/leads` (Lead Capture) is SPANBIX ONLY**, scoped server-side by website id. There is no SaiSatwik page in the dashboard: that pipeline is managed outside this system, in the owner's own spreadsheet (removed Aug 11, 2026 at the owner's request — do not rebuild it without an explicit new ask).
 
 ### Access control
 
@@ -487,7 +476,6 @@ Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
 - Client routing rules live in `client/src/lib/access.js`. That is **wayfinding, not security** — the API is the gate.
 - Accounts are created by `npm run create:leads-agents` (passwords generated and printed once, never stored in the repo). Restricted roles have no Settings page yet, so they cannot change their own password.
 
-### Still open
+### Not built (deliberately)
 
-- **Phase 2 of LEAD_TRACKING_PLAN.md** (CEO's auto-updating Google Sheet) is blocked on a Sheet URL shared with `mavro-dashboard@spanbix-analytics.iam.gserviceaccount.com`.
-- **Phase 3** (email history + ongoing logging) is blocked on an Outlook CSV export and, for automation, a delegated Graph app registration. Both saisatwik.com and spanbix.com are Microsoft 365.
+- **The SaiSatwik / Mavro services CRM was removed on Aug 11, 2026.** The page, the follow-up engine, the email log, the historical importer and `LEAD_TRACKING_PLAN.md` are all gone. That pipeline is managed in the owner's own Excel. Do not reintroduce lead-CRM features, follow-up sequencing or email logging without an explicit new ask.

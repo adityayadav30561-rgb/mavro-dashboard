@@ -13,9 +13,7 @@ const {
   getLeadStats,
   getLeadAgents,
   addContactLogEntry,
-  addEmailLogEntry,
   createLead,
-  getFollowUps,
   exportLeads,
 } = require('../controllers/leadController');
 const {
@@ -25,7 +23,6 @@ const {
   leadUpdateRules,
   leadContactLogRules,
   leadCreateRules,
-  leadEmailLogRules,
   leadStatusRules,
   leadBulkRules,
   leadQueryRules,
@@ -97,9 +94,6 @@ router.get('/stats', getLeadStats);
 
 // Staff list for the "Contacted by" dropdown. Also before /:id.
 router.get('/agents', getLeadAgents);
-
-// Follow-up queue (due / awaiting first mail / unknown history). Before /:id.
-router.get('/follow-ups', getFollowUps);
 router.get('/export', authorize('admin', 'superadmin'), exportLeads);
 
 // ----- Bulk operations -----
@@ -120,9 +114,6 @@ router
   .get(mongoIdParam, validate, getLead)
   .put(mongoIdParam, leadUpdateRules, validate, updateLead)
   .delete(mongoIdParam, validate, authorize('admin', 'superadmin'), deleteLead);
-
-// ----- Email log (append-only; advances the 3/6/10 sequence) -----
-router.post('/:id/email-log', mongoIdParam, leadEmailLogRules, validate, addEmailLogEntry);
 
 // ----- Contact log (append-only) -----
 router.post('/:id/contact-log', mongoIdParam, leadContactLogRules, validate, addContactLogEntry);

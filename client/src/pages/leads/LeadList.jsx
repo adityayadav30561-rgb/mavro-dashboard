@@ -31,11 +31,8 @@ const submittedTime = (lead) =>
     : null;
 
 // Lead Capture is the SPANBIX pipeline: leads that arrive automatically from
-// the spanbix.com forms and ad landing pages.
-//
-// Deliberately NO follow-up machinery here. Outreach sequencing lives on the
-// SaiSatwik services page (/saisatwik-leads), where the sales motion is
-// email-led. Spanbix leads are worked by phone off the contact log.
+// the spanbix.com forms and ad landing pages, plus anything added by hand.
+// Spanbix leads are worked by phone off the contact log.
 const TENANT_SLUG = 'spanbix';
 
 export default function LeadList() {

@@ -23,7 +23,6 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const BlogList = lazy(() => import('./pages/blogs/BlogList'));
 const BlogForm = lazy(() => import('./pages/blogs/BlogForm'));
 const LeadList = lazy(() => import('./pages/leads/LeadList'));
-const SaisatwikLeads = lazy(() => import('./pages/leads/SaisatwikLeads'));
 const WebsiteList = lazy(() => import('./pages/websites/WebsiteList'));
 const SeoEngine = lazy(() => import('./pages/SeoEngine'));
 const Analytics = lazy(() => import('./pages/Analytics'));
@@ -99,7 +98,6 @@ export default function App() {
         <Route path="blogs/new" element={<Suspense fallback={<AdminFallback />}><BlogForm /></Suspense>} />
         <Route path="blogs/:id/edit" element={<Suspense fallback={<AdminFallback />}><BlogForm /></Suspense>} />
         <Route path="leads" element={<Suspense fallback={<AdminFallback />}><LeadList /></Suspense>} />
-        <Route path="saisatwik-leads" element={<Suspense fallback={<AdminFallback />}><SaisatwikLeads /></Suspense>} />
         <Route path="websites" element={<Suspense fallback={<AdminFallback />}><WebsiteList /></Suspense>} />
         <Route path="seo" element={<Suspense fallback={<AdminFallback />}><SeoEngine /></Suspense>} />
         <Route path="analytics" element={<Suspense fallback={<AdminFallback />}><Analytics /></Suspense>} />

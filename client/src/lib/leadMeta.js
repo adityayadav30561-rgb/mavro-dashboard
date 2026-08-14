@@ -2,13 +2,12 @@
 // Shared vocabulary for the Lead Capture UI.
 // ────────────────────────────────────────────────────────────────────────────
 // Labels and chip styling for every lead enum, in one place so the table, the
-// detail modal, the follow-up panel and the add form cannot drift apart.
+// detail modal and the add form cannot drift apart.
 //
 // Values mirror the server enums:
 //   channel      → src/utils/leadChannel.js
 //   temperature  → src/models/Lead.js
 //   mailStatus   → src/models/Lead.js
-//   cadence      → src/utils/leadFollowUp.js (gaps of 3 / 6 / 10 days)
 // ════════════════════════════════════════════════════════════════════════════
 
 export const CHANNEL = {
@@ -34,8 +33,7 @@ export const TEMPERATURE = {
 export const MAIL_STATUS = {
   sent:      { label: 'Sent',      cls: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20' },
   not_sent:  { label: 'Not sent',  cls: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700/40 dark:text-slate-300 dark:border-slate-600' },
-  // Imported leads whose email history nobody recorded. Deliberately its own
-  // state rather than being folded into "not sent" — see leadFollowUp.js.
+  // Distinct from "not sent": used when a lead's email history was never recorded.
   unknown:   { label: 'Unknown',   cls: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' },
 };
 
@@ -54,9 +52,6 @@ export const LEAD_TYPES = ['individual', 'campus', 'corporate'];
 
 /** Channels a human can pick when adding a lead by hand. */
 export const MANUAL_CHANNELS = ['linkedin', 'referral', 'walk_in', 'manual', 'campaign', 'direct'];
-
-/** Gaps in days between outreach emails. Mirrors the server cadence. */
-export const CADENCE_DAYS = [3, 6, 10];
 
 export const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : '—';

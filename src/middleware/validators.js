@@ -357,13 +357,6 @@ const leadCreateRules = [
   body('status').optional().isIn(['new', 'contacted', 'follow_up', 'qualified', 'converted', 'closed']),
 ];
 
-const leadEmailLogRules = [
-  body('subject').optional().trim().isLength({ max: 300 }),
-  body('snippet').optional().trim().isLength({ max: 500 }),
-  body('sentAt').optional().isISO8601().withMessage('sentAt must be a date'),
-  body('direction').optional().isIn(['outbound', 'inbound']),
-];
-
 const leadContactLogRules = [
   body('contactedBy')
     .notEmpty()
@@ -657,7 +650,6 @@ module.exports = {
   leadSubmitRules,
   leadUpdateRules,
   leadCreateRules,
-  leadEmailLogRules,
   leadContactLogRules,
   leadStatusRules,
   leadBulkRules,

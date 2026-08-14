@@ -13,7 +13,7 @@
  * when they land anywhere else (including `/`).
  */
 const RESTRICTED_ROLE_ROUTES = {
-  leads_agent: { allow: ['/leads', '/saisatwik-leads'], home: '/leads' },
+  leads_agent: { allow: ['/leads'], home: '/leads' },
 };
 
 /** The landing route for a role — restricted roles skip the Dashboard. */

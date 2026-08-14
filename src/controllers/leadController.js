@@ -4,7 +4,6 @@ const AdminUser = require('../models/AdminUser');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
 const { deriveLeadChannel } = require('../utils/leadChannel');
-const followUp = require('../utils/leadFollowUp');
 
 // ===================================
 // User-Agent → device classifier (shared with analyticsController logic)
@@ -296,8 +295,7 @@ const getLeads = asyncHandler(async (req, res) => {
       .populate('assignedTo', 'name email')
       .populate('contactedBy', 'name email')
       .populate('contactLog.contactedBy', 'name email')
-      .populate('emailLog.sentBy', 'name email')
-      .select('-statusHistory -userAgent -spamReasons -contentPlainText')
+        .select('-statusHistory -userAgent -spamReasons -contentPlainText')
       .sort({ [sortField]: sortOrder })
       .skip(skip)
       .limit(limit)
@@ -320,7 +318,6 @@ const getLead = asyncHandler(async (req, res) => {
     .populate('assignedTo', 'name email')
     .populate('contactedBy', 'name email')
     .populate('contactLog.contactedBy', 'name email')
-    .populate('emailLog.sentBy', 'name email')
     .populate('statusHistory.changedBy', 'name email');
 
   if (!lead) return ApiResponse.notFound(res, 'Lead');
@@ -734,8 +731,10 @@ const addContactLogEntry = asyncHandler(async (req, res) => {
     contactedAt: new Date(),
   });
   lead.contactedBy = contactedBy;
+  // Derived from the log so they cannot drift out of step with it.
+  lead.lastContactedAt = new Date();
+  lead.touchCount = lead.contactLog.length;
 
-  followUp.refreshDerivedFields(lead);
   await lead.save();
 
   const populated = await Lead.findById(lead._id)
@@ -788,78 +787,6 @@ const createLead = asyncHandler(async (req, res) => {
 });
 
 /**
- * @desc    Log an email sent to a lead
- * @route   POST /api/leads/:id/email-log
- * @access  Private
- *
- * Append-only, like the contact log. Logging a mail advances the 3/6/10
- * sequence: derived fields are recomputed so the next reminder date, touch
- * count and cold-marking all follow automatically.
- */
-const addEmailLogEntry = asyncHandler(async (req, res) => {
-  const lead = await Lead.findById(req.params.id);
-  if (!lead) return ApiResponse.notFound(res, 'Lead');
-
-  const { subject, snippet, sentAt, direction } = req.body;
-
-  lead.emailLog.push({
-    subject: (subject || '').trim(),
-    snippet: (snippet || '').trim(),
-    sentAt: sentAt ? new Date(sentAt) : new Date(),
-    sentBy: req.user?._id,
-    direction: direction === 'inbound' ? 'inbound' : 'outbound',
-    sequenceStep: followUp.nextSequenceStep(lead),
-    loggedVia: 'manual',
-  });
-
-  followUp.refreshDerivedFields(lead);
-  await lead.save();
-
-  const populated = await Lead.findById(lead._id)
-    .populate('website', 'name slug domain')
-    .populate('contactedBy', 'name email')
-    .populate('contactLog.contactedBy', 'name email')
-    .populate('emailLog.sentBy', 'name email');
-
-  ApiResponse.success(res, { lead: populated }, 'Email logged');
-});
-
-/**
- * @desc    Leads needing attention right now
- * @route   GET /api/leads/follow-ups
- * @access  Private
- *
- * Three buckets, computed from the logs rather than stored as a queue:
- *   due          — the 3/6/10 reminder has come around
- *   awaitingMail — never emailed, top of the funnel
- *   unknownMail  — imported leads whose email history nobody recorded
- */
-const getFollowUps = asyncHandler(async (req, res) => {
-  const now = new Date();
-  const sel = 'name email company channel temperature status mailStatus nextFollowUpAt lastContactedAt emailLog createdAt';
-
-  const [due, awaitingMail, unknownMail] = await Promise.all([
-    Lead.find(followUp.dueFilter(now)).select(sel).sort({ nextFollowUpAt: 1 }).limit(100).lean(),
-    Lead.find(followUp.awaitingFirstMailFilter()).select(sel).sort({ createdAt: -1 }).limit(100).lean(),
-    Lead.find({ isSpam: { $ne: true }, mailStatus: 'unknown' }).select(sel).sort({ createdAt: -1 }).limit(100).lean(),
-  ]);
-
-  const strip = (rows) => rows.map((l) => ({
-    ...l,
-    mailsSent: (l.emailLog || []).filter((e) => e.direction !== 'inbound').length,
-    emailLog: undefined,
-  }));
-
-  ApiResponse.success(res, {
-    due: strip(due),
-    awaitingMail: strip(awaitingMail),
-    unknownMail: strip(unknownMail),
-    counts: { due: due.length, awaitingMail: awaitingMail.length, unknownMail: unknownMail.length },
-    cadenceDays: followUp.GAPS_DAYS,
-  }, 'Follow-ups retrieved');
-});
-
-/**
  * @desc    Callers available in the "Contacted by" dropdown
  * @route   GET /api/leads/agents
  * @access  Private (any role that can view leads)
@@ -881,8 +808,6 @@ module.exports = {
   createLead,
   getLeadAgents,
   addContactLogEntry,
-  addEmailLogEntry,
-  getFollowUps,
   getLeads,
   getLead,
   updateLead,

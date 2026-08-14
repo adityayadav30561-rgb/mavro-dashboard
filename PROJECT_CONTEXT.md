@@ -986,10 +986,9 @@ green; CLUSTERS.md and TAGS.md updated.
   Verified live on www.spanbix.com: PageView then Lead, with the chosen course
   as `content_name`.
 
-### 12.5 Lead capture → CRM
+### 12.5 Lead capture
 
-Delivered as Phase 1 of `LEAD_TRACKING_PLAN.md`, whose goal is retiring a
-hand-maintained spreadsheet.
+Shipped on the Spanbix Lead Capture page:
 
 - **`submittedAt`** stamped server-side; no backfill, so older leads honestly
   show a date without a fabricated time.
@@ -997,32 +996,28 @@ hand-maintained spreadsheet.
   becomes `direct`), and backfilled for 83 existing leads from their own stored
   gclid/fbclid — 38 Google Ads, 5 Facebook, 1 Instagram were already
   identifiable and had simply never been surfaced.
-- **Contact log** rebuilt as an append-only thread after first shipping it as a
-  single overwritable notes box — with a shared box, the second caller erases
-  the first one's record.
-- **Follow-up engine** (`leadFollowUp.js`): gaps of 3 / 6 / 10 days between
-  mails, cold-but-open after the 4th, computed from the logs so no scheduler is
-  needed. `mailStatus: 'unknown'` is a real third state for imported leads.
-- **Manual entry, temperature, lead type, pipeline and SLA fields**, plus a
-  "Needs attention" panel with due / awaiting-first-mail / unknown-history
-  buckets.
+- **Contact log** as an append-only thread, after first shipping it as a single
+  overwritable notes box — with a shared box, the second caller erases the
+  first one's record. `lastContactedAt` and `touchCount` derive from it.
+- **Manual "Add Lead"** entry, temperature, and lead type.
 
-**Tenant split.** Mixing the two businesses made both pipelines unreadable.
-`/leads` is now Spanbix-only (phone-worked, no follow-up machinery);
-`/saisatwik-leads` is the services CRM (email-led, carries the follow-up panel,
-no contact log). Both scoped server-side by website id.
+**A SaiSatwik services CRM was built during this phase and then removed on
+11 Aug 2026 at the owner's request.** It had a second page, a 3/6/10 follow-up
+engine, an email log, an Apollo lookup for missing addresses, and an importer
+that loaded 103 spreadsheet rows plus 9 LinkedIn leads. All of it is gone from
+the code and the docs; that pipeline is managed in the owner's own Excel. The
+imported lead rows remain in the database under the SaiSatwik tenant, invisible
+to the dashboard — see the removal note at the end of this section.
 
-**Historical import.** 103 rows from "Leads CRM.xlsx" plus 9 LinkedIn leads →
-105 SaiSatwik leads (82 working). Duplicates collapsed; 29 bot rows imported
-**flagged** rather than deleted; two malformed email cells repaired with the
-originals preserved for verification; rows without an address get a visible
-`@import.invalid` placeholder and an **Apollo lookup link**.
+Two decisions from that work are worth keeping even though the feature is gone,
+because they generalise:
 
-**Correction accepted mid-phase:** the first LinkedIn import stored *summaries*
-of each post plus commentary on whether the lead fit. Both were wrong —
-paraphrasing narrows a requirement, and judging fit assumed a service catalogue
-not known to the summariser. Re-imported with each author's post **verbatim**
-and `service` left blank for a human to categorise.
+- Lead requirements are stored **verbatim**, never summarised. Paraphrasing
+  narrows the requirement, and judging whether a lead "fits" assumes knowledge
+  of a service catalogue the summariser may not have. This was a correction the
+  owner made, and it was right.
+- Imported bot rows were **flagged, never deleted**. Silently discarding rows
+  during an import is how a real lead gets lost to an over-eager rule.
 
 ### 12.6 Access control
 
@@ -1045,3 +1040,28 @@ token (leads 200, blogs/SEO/analytics/MBR/campaigns 403).
 - Test data written during verification (leads, contact-log entries, a status
   change) was cleaned up each time. Prefer intercepting the write when driving
   production UI.
+
+### 12.7 SaiSatwik CRM removed (11 Aug 2026)
+
+The owner decided to keep managing the SaiSatwik / Mavro services pipeline in
+Excel rather than the dashboard. Removed in full:
+
+- `client/src/pages/leads/SaisatwikLeads.jsx`, its route, sidebar entry and
+  `access.js` allowance
+- `client/src/components/leads/FollowUpPanel.jsx`
+- `src/utils/leadFollowUp.js` (the 3/6/10 engine)
+- `src/utils/importSaisatwikLeads.js`, its npm script, and
+  `data/linkedin-leads-2026-08.csv`
+- `GET /api/leads/follow-ups` and `POST /api/leads/:id/email-log`, plus their
+  validators and API-client functions
+- `LEAD_TRACKING_PLAN.md`
+
+Kept deliberately, because Spanbix Lead Capture uses them: the contact log
+(with `lastContactedAt` / `touchCount` now derived inline), `Chip`,
+`AddLeadModal`, `leadMeta.js`, `leadChannel.js`, and the additive `Lead` schema
+fields. The schema fields are unused by the remaining UI but harmless, and
+dropping them would risk the data already stored in them.
+
+**105 SaiSatwik lead rows remain in the database**, invisible because every
+dashboard page is scoped to Spanbix. They were left in place rather than
+deleted, since deletion is irreversible and was not explicitly requested.
