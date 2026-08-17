@@ -17,8 +17,26 @@ import Script from 'next/script';
 // in connect-src (next.config.mjs). Without those the browser blocks the
 // script silently and no events ever reach Meta.
 //
-// This fires the base PageView only. Conversion events (Lead, etc.) are NOT
-// wired yet — see lib/track.js if you want the lead forms to report to Meta.
+// autoConfig IS DISABLED ON PURPOSE — do not remove that line.
+//
+// fbevents.js ships its own button/form heuristics that invent standard events
+// from what it thinks it sees. On /sap-course it logged a `Subscribe` on every
+// click of "Enroll Now", including the clicks that were blocked by validation
+// and saved nothing — five phantom Subscribes for one real enquiry. In Events
+// Manager those show Setup method "Automatically logged", whereas our own
+// events show "Manual setup".
+//
+// The Automatic events toggle in Events Manager does NOT stop this; that
+// setting governs AI-suggested server-side additions. autoConfig lives in the
+// pixel script and can only be turned off here, and it must be set BEFORE
+// init.
+//
+// Consequence if re-enabled: the ad account fills with Subscribe events that
+// do not correspond to leads, and anyone optimising a campaign against them
+// would be optimising for button clicks.
+//
+// PageView fires here; the Lead conversion is sent from lib/track.js on the
+// /sap-course form only.
 const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export function MetaPixelScript() {
@@ -28,7 +46,7 @@ export function MetaPixelScript() {
       id="meta-pixel"
       strategy="afterInteractive"
       dangerouslySetInnerHTML={{
-        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}');fbq('track','PageView');`,
+        __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('set','autoConfig',false,'${PIXEL_ID}');fbq('init','${PIXEL_ID}');fbq('track','PageView');`,
       }}
     />
   );
