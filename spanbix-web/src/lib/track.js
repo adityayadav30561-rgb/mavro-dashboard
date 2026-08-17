@@ -41,23 +41,23 @@ export const trackCall = (location) => track('call_click', { location });
 // Fired only on a confirmed lead. `value` lets you assign a conversion value in
 // GA4 / Google Ads if you want ROAS reporting later.
 //
-// Called from EVERY lead form: /sap-course (ads landing), /contact and
-// /enquire. Scoping it to the ads page alone made Meta blind to enquiries that
-// came through the main contact form, so the pixel never saw a Lead and Meta's
-// automatic event detection invented a `Subscribe` instead (Aug 2026).
+// Called from exactly ONE place: the /sap-course form. Ads run on that page
+// and nowhere else, so it is the only page whose submissions are a paid
+// conversion. /contact, /enquire and /campus-visit deliberately do NOT call
+// this — counting organic enquiries would dilute the signal both ad platforms
+// optimise against and overstate campaign performance.
 //
-// Both platforms attribute by click id (gclid / fbclid), so a lead arriving
-// with neither is recorded but is not credited to a campaign. Reporting every
-// real lead therefore gives the optimisers more signal without inflating
-// campaign performance.
+// History (Aug 2026): this was briefly wired into /contact and /enquire after
+// the ads team reported a missing Lead event, then reverted on the owner's
+// instruction. Worth knowing for next time — the `Subscribe` event they saw
+// was never ours. It comes from Meta's automatic event detection, which
+// invents a standard event when a form is submitted and the pixel sends none.
+// Turning that setting off in Events Manager is the fix for the phantom event;
+// adding call sites is not.
 //
 // ALWAYS call this AFTER the submit API resolves. Never on a click, a
 // validation failure, or the honeypot branch — those would be phantom
 // conversions that both ad platforms would then optimise towards.
-//
-// /campus-visit deliberately does NOT call this: it books an institutional
-// session with a college T&P cell, which is a different thing from an
-// individual enquiry and is not what the ad campaigns are buying.
 export const trackLead = (extra = {}) => {
   if (typeof window === 'undefined') return;
 

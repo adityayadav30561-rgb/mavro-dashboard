@@ -7,7 +7,6 @@ import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
-import { trackLead } from '@/lib/track';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
 import { COURSE_CHOICES, COURSE_REQUIRED_MESSAGE } from '@/lib/courseOptions';
@@ -104,10 +103,6 @@ export default function ContactForm() {
         sessionId: getOrCreateSession(),
         formId: 'spanbix-contact',
       });
-      // Conversion signal for Meta + Google Ads. Placed AFTER the await, so it
-      // only runs once the API has confirmed the lead was saved — never on a
-      // click, a validation error, a failed request, or the honeypot path above.
-      trackLead({ form: 'spanbix-contact', location: 'contact_page', interest: form.interest });
       setStatus('success');
       setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', education: '', message: '' });
       setConsent(false);

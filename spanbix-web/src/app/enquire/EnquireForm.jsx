@@ -7,7 +7,6 @@ import { SPANBIX_SITE } from '@/lib/spanbixSeo';
 import { getPublicWebsite, submitPublicLead } from '@/api/public';
 import { getOrCreateSession } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
-import { trackLead } from '@/lib/track';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
 import { COURSE_CHOICES, COURSE_REQUIRED_MESSAGE } from '@/lib/courseOptions';
@@ -112,9 +111,6 @@ export default function EnquireForm() {
         sessionId: getOrCreateSession(),
         formId: FORM_ID,
       });
-      // Conversion signal for Meta + Google Ads. After the await on purpose —
-      // see the note in ContactForm.
-      trackLead({ form: FORM_ID, location: 'enquire_page', interest: form.interest });
       setStatus('success');
       setForm({ name: '', email: '', phone: '', company: '', audience: 'Student', interest: '', education: '', message: '' });
       setConsent(false);
