@@ -3,11 +3,19 @@
 **Scope:** session-specific guidance for Claude Code when working on Mavro.
 **Read order:** this file → [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) → relevant subsystem doc.
 
+> **New machine, or no idea what this project is?** Read
+> **[HANDOVER.md](./HANDOVER.md)** first — how to get running, where every
+> credential lives, what is deployed where, how the SaiSatwik WordPress site is
+> published to and redesigned, how the Spanbix ad tracking is wired, and the
+> current state with open items. It also lists the local-dev traps that have
+> repeatedly wasted time.
+
 ---
 
 ## Session Start Protocol
 
 Before doing anything else, read in this order:
+0. [HANDOVER.md](./HANDOVER.md) — orientation, access, current state (skip only if already oriented)
 1. [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) — master operational memory
 2. [ARCHITECTURE.md](./ARCHITECTURE.md) — system shape
 3. [AGENTS.md](./AGENTS.md) — engineering standards
