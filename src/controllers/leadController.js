@@ -4,6 +4,7 @@ const AdminUser = require('../models/AdminUser');
 const { asyncHandler, ApiResponse, paginate } = require('../utils');
 const { getClientIP } = require('../middleware/spamProtection');
 const { deriveLeadChannel } = require('../utils/leadChannel');
+const { gradeLeadTemperature } = require('../utils/leadQuality');
 
 // ===================================
 // User-Agent → device classifier (shared with analyticsController logic)
@@ -138,6 +139,12 @@ const submitLead = asyncHandler(async (req, res) => {
     utmMedium: data.utmMedium,
     referrer: data.referrer || req.headers['referer'] || req.headers['referrer'] || '',
   });
+
+  // Grade the lead from its own qualifying answers, so the counselling team
+  // can sort by intent instead of reading every record. Only set when the form
+  // actually asked — organic forms leave it unset for a human to decide.
+  const graded = gradeLeadTemperature(data.customFields);
+  if (graded) data.temperature = graded;
 
   // Server-authoritative submission timestamp. Never trust a client clock for
   // this — a wrong device time would misfile the lead in every report.

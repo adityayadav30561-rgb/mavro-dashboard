@@ -10,6 +10,7 @@ import { getAttribution } from '@/lib/attribution';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
 import EnquiryDisclaimer from '@/components/spanbix/EnquiryDisclaimer';
+import { QUALIFIERS, QUALIFIER_REQUIRED_MESSAGE } from '@/lib/leadQualifiers';
 
 // Lead form for the SAP Ads landing page. Leads land under formId
 // `spanbix-sap-lp` so the admin LeadList can filter them apart from organic
@@ -23,7 +24,10 @@ const TRACKS = ['SAP FICO', 'SAP MM', 'SAP SD', 'SAP ABAP', 'Not decided yet'];
 
 export default function LpLeadForm({ location = 'hero', dark = false }) {
   const [websiteId, setWebsiteId] = useState(null);
-  const [form, setForm] = useState({ name: '', phone: '', email: '', interest: '' });
+  const [form, setForm] = useState({
+    name: '', phone: '', email: '', interest: '',
+    ...Object.fromEntries(QUALIFIERS.map((q) => [q.key, ''])),
+  });
   const [hp, setHp] = useState('');
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState('idle');
@@ -37,6 +41,11 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
   const phoneRef = useRef(null);
   const courseRef = useRef(null);
   const consentRef = useRef(null);
+  // One ref per qualifier so a blocked submit can jump to the unanswered one.
+  const intentRef = useRef(null);
+  const timelineRef = useRef(null);
+  const profileRef = useRef(null);
+  const qualifierRefs = { intent: intentRef, timeline: timelineRef, profile: profileRef };
 
   // Bring the offending field into view and focus it. Focus alone can leave the
   // control under the sticky header on mobile, so scroll first.
@@ -75,6 +84,13 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       focusField(courseRef);
       return;
     }
+    const unanswered = QUALIFIERS.find((q) => !form[q.key]);
+    if (unanswered) {
+      setError(QUALIFIER_REQUIRED_MESSAGE);
+      setStatus('error');
+      focusField(qualifierRefs[unanswered.key]);
+      return;
+    }
     if (!consent) {
       setError('Please agree to the Privacy Policy and consent to be contacted.');
       setStatus('error');
@@ -97,6 +113,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
         email: form.email.trim() || undefined,
         customFields: {
           interest: form.interest,
+          ...Object.fromEntries(QUALIFIERS.map((q) => [q.key, form[q.key]])),
           source: 'google-ads-sap-lp',
           consent: CONSENT_RECORD,
           ...getAttribution(),
@@ -108,9 +125,9 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       });
       // GA4 + Google Ads conversion signal. The backend emits the authoritative
       // form_submit on save, so we only push the marketing conversion here.
-      trackLead({ form: LP_FORM_ID, location, interest: form.interest });
+      trackLead({ form: LP_FORM_ID, location, interest: form.interest, lead_intent: form.intent, lead_timeline: form.timeline });
       setStatus('success');
-      setForm({ name: '', phone: '', email: '', interest: '' });
+      setForm({ name: '', phone: '', email: '', interest: '', ...Object.fromEntries(QUALIFIERS.map((q) => [q.key, ''])) });
       setConsent(false);
     } catch (err) {
       setError(err?.response?.data?.message || 'Submission failed. Please try again.');
@@ -145,51 +162,34 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       <LpField label="Phone *" type="tel" placeholder="+91 98XXXXXXXX" value={form.phone} onChange={update('phone')} dark={dark} required inputRef={phoneRef} />
       <LpField label="Email" type="email" placeholder="you@example.com" value={form.email} onChange={update('email')} dark={dark} />
 
-      {/* The whole block gets a tinted, outlined panel when the course is the
-          thing blocking submission. Chip-level colouring proved unreliable
-          here, and a panel on a plain div is unambiguous — this is the cue an
-          ads consultant missed when testing, which cost a day of "the pixel is
-          broken" investigation. */}
-      <div
-        ref={courseRef}
-        style={courseMissing ? {
-          padding: '10px 12px',
-          margin: '-10px -12px',
-          borderRadius: 10,
-          background: 'rgba(244,63,94,0.07)',
-          border: '1px solid rgba(244,63,94,0.45)',
-        } : undefined}
-      >
-        <div className="sx-mono" style={{ color: courseMissing ? '#dc2626' : labelColor, marginBottom: 8, fontSize: 11 }}>
-          WHICH COURSE? * {courseMissing && <span style={{ fontWeight: 700 }}>— PLEASE PICK ONE</span>}
-        </div>
-        <div className="flex flex-wrap" style={{ gap: 8 }}>
-          {TRACKS.map((t) => {
-            const active = form.interest === t;
-            const base = { borderRadius: 999, padding: '8px 14px', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 150ms ease', whiteSpace: 'nowrap' };
-            // Unselected chips turn red once the visitor tries to submit without
-            // choosing. NOTE: this must set the `border` SHORTHAND, not
-            // `borderColor` — a longhand borderColor was being overridden here
-            // and the red never actually rendered, which is how an ads
-            // consultant testing the form missed the field entirely. The ring
-            // is belt-and-braces: nothing else in the design system sets it.
-            const missing = courseMissing;
-            const ring = missing ? { boxShadow: '0 0 0 3px rgba(244,63,94,0.18)' } : {};
-            const style = dark
-              ? (active
-                  ? { ...base, background: 'var(--sx-citron)', color: 'var(--sx-navy)', border: '1px solid var(--sx-citron)' }
-                  : { ...base, background: 'rgba(255,255,255,0.07)', color: '#fff', border: missing ? '1px solid rgba(244,63,94,0.95)' : '1px solid rgba(255,255,255,0.24)', ...ring })
-              : (active
-                  ? { ...base, background: 'var(--sx-navy)', color: '#fff', border: '1px solid var(--sx-navy)' }
-                  : { ...base, background: '#fff', color: 'var(--sx-navy)', border: missing ? '1px solid rgba(244,63,94,0.9)' : '1px solid var(--sx-hairline)', ...ring });
-            return (
-              <button key={t} type="button" onClick={() => setForm((f) => ({ ...f, interest: t }))} style={style}>
-                {t}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <ChipGroup
+        groupRef={courseRef}
+        label="WHICH COURSE? *"
+        options={TRACKS}
+        value={form.interest}
+        onPick={(t) => setForm((f) => ({ ...f, interest: t }))}
+        missing={courseMissing}
+        dark={dark}
+        labelColor={labelColor}
+      />
+
+      {/* Qualifying questions. These separate a serious course enquiry from a
+          job seeker or a casual browser before the counselling team spends a
+          call finding out. Answers are stored verbatim on the lead and are
+          what the backend grades the lead from. */}
+      {QUALIFIERS.map((q) => (
+        <ChipGroup
+          key={q.key}
+          groupRef={qualifierRefs[q.key]}
+          label={q.label}
+          options={q.options}
+          value={form[q.key]}
+          onPick={(v) => setForm((f) => ({ ...f, [q.key]: v }))}
+          missing={status === 'error' && !form[q.key]}
+          dark={dark}
+          labelColor={labelColor}
+        />
+      ))}
 
       {status === 'error' && error && (
         <div
@@ -228,6 +228,54 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       </p>
       <EnquiryDisclaimer dark={dark} align="center" />
     </form>
+  );
+}
+
+// Single-select chip row. Used for the course and for every qualifier, so the
+// four groups cannot drift in behaviour or styling.
+//
+// The error state is a panel on the wrapper plus a ring on the chips. It must
+// NOT rely on a longhand `borderColor` — something in the cascade overrides it
+// here, so the red never rendered, which is how an ads consultant testing the
+// form missed a required field entirely and reported the pixel as broken.
+function ChipGroup({ groupRef, label, options, value, onPick, missing, dark, labelColor }) {
+  const base = {
+    borderRadius: 999, padding: '8px 14px', fontSize: 13, fontWeight: 600,
+    cursor: 'pointer', transition: 'all 150ms ease', whiteSpace: 'nowrap',
+  };
+  const ring = missing ? { boxShadow: '0 0 0 3px rgba(244,63,94,0.18)' } : {};
+  return (
+    <div
+      ref={groupRef}
+      style={missing ? {
+        padding: '10px 12px',
+        margin: '-10px -12px',
+        borderRadius: 10,
+        background: 'rgba(244,63,94,0.07)',
+        border: '1px solid rgba(244,63,94,0.45)',
+      } : undefined}
+    >
+      <div className="sx-mono" style={{ color: missing ? '#dc2626' : labelColor, marginBottom: 8, fontSize: 11 }}>
+        {label} {missing && <span style={{ fontWeight: 700 }}>— PLEASE PICK ONE</span>}
+      </div>
+      <div className="flex flex-wrap" style={{ gap: 8 }}>
+        {options.map((t) => {
+          const active = value === t;
+          const style = dark
+            ? (active
+                ? { ...base, background: 'var(--sx-citron)', color: 'var(--sx-navy)', border: '1px solid var(--sx-citron)' }
+                : { ...base, background: 'rgba(255,255,255,0.07)', color: '#fff', border: missing ? '1px solid rgba(244,63,94,0.95)' : '1px solid rgba(255,255,255,0.24)', ...ring })
+            : (active
+                ? { ...base, background: 'var(--sx-navy)', color: '#fff', border: '1px solid var(--sx-navy)' }
+                : { ...base, background: '#fff', color: 'var(--sx-navy)', border: missing ? '1px solid rgba(244,63,94,0.9)' : '1px solid var(--sx-hairline)', ...ring });
+          return (
+            <button key={t} type="button" onClick={() => onPick(t)} style={style}>
+              {t}
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
