@@ -476,6 +476,50 @@ Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
 - Client routing rules live in `client/src/lib/access.js`. That is **wayfinding, not security** — the API is the gate.
 - Accounts are created by `npm run create:leads-agents` (passwords generated and printed once, never stored in the repo). Restricted roles have no Settings page yet, so they cannot change their own password.
 
+### Ads form: conversion scope, disclaimer, qualifiers (Aug 17, 2026)
+
+- **`trackLead` has exactly ONE call site: the `/sap-course` form.** Ads run on
+  that page only, so it is the only page whose submissions are a paid
+  conversion. It was briefly wired into `/contact` and `/enquire` after the ads
+  team reported a missing Lead event, then reverted on instruction. Before
+  adding a call site, read the next bullet — the report was a misdiagnosis.
+- **A phantom `Subscribe` event in Meta is NOT ours.** Meta's *Automatic events*
+  setting (Events Manager → pixel → Settings → Event setup) invents a standard
+  event when a form is submitted and the pixel sends none. Turning it off is
+  the fix. Do NOT "fix" it by adding `fbq` call sites. Note also that
+  *Automatic website matching* is a different, useful setting — leave it on.
+- **`EnquiryDisclaimer` is legal copy — never paraphrase it.** Google Ads asked
+  for financial-services certification because SAP FICO / counselling /
+  placement copy reads as recruitment or advisory to a policy reviewer. The
+  text (supplied by the business, including the registered entity name) sits
+  under the submit button on `/sap-course`, `/contact` and `/enquire`, and is
+  server-rendered so a reviewer sees it without running scripts.
+  `/campus-visit` is excluded — it books an institutional session.
+- **Qualifier option strings are a data contract.** `leadQualifiers.js` (intent
+  / timeline / profile) sends answers verbatim into `customFields`, and
+  `src/utils/leadQuality.js` reads those exact strings to grade
+  `Lead.temperature` — job-seeker or just-exploring → cold, wants-details plus
+  immediate/7-day start → hot, else warm. Renaming an option silently regrades
+  every future lead to 'warm' and breaks comparison with leads already
+  collected. Change both files in the same commit; 8 unit cases cover the map.
+  Leads with no qualifying answers stay ungraded rather than graded on missing
+  data. The questions are on `/sap-course` only — the quality problem is paid
+  traffic, and the organic forms are already long.
+- **Required chip groups must not signal only with `borderColor`.** Something in
+  the cascade overrides that longhand on these chips, so the red never
+  rendered — which is why an ads consultant missed a required field, believed
+  the form had submitted, and reported the pixel as broken. `ChipGroup` uses a
+  panel on the wrapper, the `border` shorthand and a `boxShadow` ring, and a
+  blocked submit scrolls the offending group into view.
+
+### Local verification gotcha
+
+A stale `next start` holding port 3000 makes every restart fail with
+`EADDRINUSE` while still serving an OLD build — which reads exactly like "my
+change isn't applying". This cost real time twice. Kill by PID from
+`netstat -ano | grep :3000` rather than `pkill -f "next start"`, which does not
+match on Windows, and check the log for `EADDRINUSE` before doubting the code.
+
 ### Not built (deliberately)
 
 - **The SaiSatwik / Mavro services CRM was removed on Aug 11, 2026.** The page, the follow-up engine, the email log, the historical importer and `LEAD_TRACKING_PLAN.md` are all gone. That pipeline is managed in the owner's own Excel. Do not reintroduce lead-CRM features, follow-up sequencing or email logging without an explicit new ask.
