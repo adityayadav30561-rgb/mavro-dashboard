@@ -9,6 +9,7 @@ import { getOrCreateSession } from '@/lib/analytics';
 import { getAttribution } from '@/lib/attribution';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
+import EnquiryDisclaimer from '@/components/spanbix/EnquiryDisclaimer';
 import { COURSE_CHOICES, COURSE_REQUIRED_MESSAGE } from '@/lib/courseOptions';
 
 const COORDINATES = [
@@ -309,6 +310,8 @@ export default function ContactForm() {
                     )}
                   </button>
                 </div>
+
+                <EnquiryDisclaimer />
               </form>
             )}
             </div>

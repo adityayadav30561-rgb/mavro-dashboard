@@ -9,6 +9,7 @@ import { track, trackLead } from '@/lib/track';
 import { getAttribution } from '@/lib/attribution';
 import ConsentCheckbox, { CONSENT_RECORD } from '@/components/spanbix/ConsentCheckbox';
 import Honeypot from '@/components/spanbix/Honeypot';
+import EnquiryDisclaimer from '@/components/spanbix/EnquiryDisclaimer';
 
 // Lead form for the SAP Ads landing page. Leads land under formId
 // `spanbix-sap-lp` so the admin LeadList can filter them apart from organic
@@ -225,6 +226,7 @@ export default function LpLeadForm({ location = 'hero', dark = false }) {
       <p style={{ fontSize: 12, textAlign: 'center', color: dark ? 'rgba(255,255,255,0.5)' : 'var(--sx-ink-4)' }}>
         No spam. We call once, you decide.
       </p>
+      <EnquiryDisclaimer dark={dark} align="center" />
     </form>
   );
 }
