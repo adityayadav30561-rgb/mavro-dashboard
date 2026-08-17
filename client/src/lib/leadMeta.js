@@ -6,7 +6,6 @@
 //
 // Values mirror the server enums:
 //   channel      → src/utils/leadChannel.js
-//   temperature  → src/models/Lead.js
 //   mailStatus   → src/models/Lead.js
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -22,12 +21,6 @@ export const CHANNEL = {
   walk_in:        { label: 'Walk-in',       cls: 'bg-lime-50 text-lime-700 border-lime-200 dark:bg-lime-500/10 dark:text-lime-400 dark:border-lime-500/20' },
   manual:         { label: 'Manual',        cls: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700/40 dark:text-slate-300 dark:border-slate-600' },
   direct:         { label: 'Direct',        cls: 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-700/40 dark:text-slate-300 dark:border-slate-600' },
-};
-
-export const TEMPERATURE = {
-  hot:  { label: 'Hot',  cls: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20' },
-  warm: { label: 'Warm', cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20' },
-  cold: { label: 'Cold', cls: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20' },
 };
 
 export const MAIL_STATUS = {

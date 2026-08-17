@@ -495,16 +495,20 @@ Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
   under the submit button on `/sap-course`, `/contact` and `/enquire`, and is
   server-rendered so a reviewer sees it without running scripts.
   `/campus-visit` is excluded — it books an institutional session.
-- **Qualifier option strings are a data contract.** `leadQualifiers.js` (intent
-  / timeline / profile) sends answers verbatim into `customFields`, and
-  `src/utils/leadQuality.js` reads those exact strings to grade
-  `Lead.temperature` — job-seeker or just-exploring → cold, wants-details plus
-  immediate/7-day start → hot, else warm. Renaming an option silently regrades
-  every future lead to 'warm' and breaks comparison with leads already
-  collected. Change both files in the same commit; 8 unit cases cover the map.
-  Leads with no qualifying answers stay ungraded rather than graded on missing
-  data. The questions are on `/sap-course` only — the quality problem is paid
-  traffic, and the organic forms are already long.
+- **Qualifier answers are captured but NOT scored.** `leadQualifiers.js`
+  (intent / timeline / profile) sends answers verbatim into `customFields`,
+  where the admin lead modal renders them under Form Responses. An automatic
+  grade onto `Lead.temperature` was built and then **removed on 17 Aug 2026 at
+  the owner's request** — prioritising a lead is a human judgement, not
+  something to infer from a self-declared answer. Do not reintroduce lead
+  scoring without an explicit new ask. The questions are on `/sap-course`
+  only; the quality problem is paid traffic and the organic forms are already
+  long.
+- **There is no temperature/Temp concept in Lead Capture.** Column, Add-Lead
+  picker, the `TEMPERATURE` label map and `utils/leadQuality.js` are all gone,
+  and existing Spanbix leads had the field cleared. The `Lead.temperature`
+  schema field remains because the 36 imported SaiSatwik leads hold real
+  Hot/Cold values from that team's own spreadsheet — do not drop the field.
 - **Required chip groups must not signal only with `borderColor`.** Something in
   the cascade overrides that longhand on these chips, so the red never
   rendered — which is why an ads consultant missed a required field, believed

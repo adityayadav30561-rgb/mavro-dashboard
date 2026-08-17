@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Modal from '../ui/Modal';
 import toast from 'react-hot-toast';
 import { createLead } from '../../api/leads';
-import { MANUAL_CHANNELS, LEAD_TYPES, CHANNEL, TEMPERATURE } from '@/lib/leadMeta';
+import { MANUAL_CHANNELS, LEAD_TYPES, CHANNEL } from '@/lib/leadMeta';
 
 // Manual lead entry — LinkedIn, referrals, walk-ins, phone enquiries.
 //
@@ -12,7 +12,7 @@ import { MANUAL_CHANNELS, LEAD_TYPES, CHANNEL, TEMPERATURE } from '@/lib/leadMet
 // those are excluded from the follow-up sequence until someone confirms.
 const EMPTY = {
   name: '', email: '', phone: '', company: '', jobTitle: '', city: '',
-  channel: 'linkedin', leadType: 'corporate', temperature: 'warm',
+  channel: 'linkedin', leadType: 'corporate',
   mailStatus: 'not_sent', requirement: '', sourceUrl: '', estimatedValue: '',
 };
 
@@ -61,7 +61,7 @@ export default function AddLeadModal({ open, onClose, websites, onCreated }) {
           <Field label="City" value={form.city} onChange={set('city')} placeholder="Chandigarh" />
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <Select label="Website *" value={form.website || ''} onChange={set('website')}>
             <option value="">Select…</option>
             {(websites || []).map((w) => <option key={w._id} value={w._id}>{w.name}</option>)}
@@ -71,9 +71,6 @@ export default function AddLeadModal({ open, onClose, websites, onCreated }) {
           </Select>
           <Select label="Type" value={form.leadType} onChange={set('leadType')}>
             {LEAD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-          </Select>
-          <Select label="Temperature" value={form.temperature} onChange={set('temperature')}>
-            {Object.entries(TEMPERATURE).map(([v, t]) => <option key={v} value={v}>{t.label}</option>)}
           </Select>
         </div>
 

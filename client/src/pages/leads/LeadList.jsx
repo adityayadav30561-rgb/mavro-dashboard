@@ -6,7 +6,7 @@ import {
 } from '../../api/leads';
 import Chip from '../../components/leads/Chip';
 import AddLeadModal from '../../components/leads/AddLeadModal';
-import { CHANNEL, TEMPERATURE, fmtDateTime } from '@/lib/leadMeta';
+import { CHANNEL, fmtDateTime } from '@/lib/leadMeta';
 import { getWebsites } from '../../api/websites';
 import Badge from '../../components/ui/Badge';
 import PageHeader from '../../components/ui/PageHeader';
@@ -172,7 +172,6 @@ export default function LeadList() {
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Contact</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Company</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Source</th>
-                <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden sm:table-cell">Temp</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Status</th>
                 <th className="text-left px-5 py-3 font-semibold text-slate-600 dark:text-slate-400 hidden lg:table-cell">Submitted</th>
                 <th className="text-right px-5 py-3 font-semibold text-slate-600 dark:text-slate-400">Actions</th>
@@ -180,11 +179,11 @@ export default function LeadList() {
             </thead>
             <tbody className="divide-y">
               {loading ? (
-                <tr><td colSpan={7} className="px-5 py-16 text-center">
+                <tr><td colSpan={6} className="px-5 py-16 text-center">
                   <div className="w-6 h-6 border-3 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto" />
                 </td></tr>
               ) : leads.length === 0 ? (
-                <tr><td colSpan={7} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
+                <tr><td colSpan={6} className="px-5 py-16 text-center text-slate-500">No leads found</td></tr>
               ) : leads.map(lead => (
                 <tr key={lead._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-5 py-3.5">
@@ -193,7 +192,6 @@ export default function LeadList() {
                   </td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-600 dark:text-slate-400">{lead.company || '—'}</td>
                   <td className="px-5 py-3.5"><Chip map={CHANNEL} value={lead.channel} /></td>
-                  <td className="px-5 py-3.5 hidden sm:table-cell"><Chip map={TEMPERATURE} value={lead.temperature} /></td>
                   <td className="px-5 py-3.5"><Badge variant={lead.status}>{lead.status}</Badge></td>
                   <td className="px-5 py-3.5 hidden lg:table-cell text-slate-500 dark:text-slate-400">
                     <p className="whitespace-nowrap">{submittedDate(lead)}</p>

@@ -1,5 +1,5 @@
-// Small labelled chip used for channel / temperature / mail-status across the
-// Lead Capture screens. Unknown or unset values render a muted dash rather
+// Small labelled chip used for channel / mail-status across the Lead Capture
+// screens. Unknown or unset values render a muted dash rather
 // than guessing a label — several lead fields are legitimately empty on
 // records imported before they existed.
 export default function Chip({ map, value, fallback = '—' }) {
