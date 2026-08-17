@@ -41,11 +41,23 @@ export const trackCall = (location) => track('call_click', { location });
 // Fired only on a confirmed lead. `value` lets you assign a conversion value in
 // GA4 / Google Ads if you want ROAS reporting later.
 //
-// Called from exactly one place: the /sap-course ads landing form. That is what
-// scopes the conversion to paid traffic — the organic /contact and /enquire
-// forms deliberately do NOT call this, so neither the Google Ads conversion nor
-// the Meta Lead event counts them. Wiring it into another form changes what
-// both ad platforms optimise against, so do it on purpose, not by reflex.
+// Called from EVERY lead form: /sap-course (ads landing), /contact and
+// /enquire. Scoping it to the ads page alone made Meta blind to enquiries that
+// came through the main contact form, so the pixel never saw a Lead and Meta's
+// automatic event detection invented a `Subscribe` instead (Aug 2026).
+//
+// Both platforms attribute by click id (gclid / fbclid), so a lead arriving
+// with neither is recorded but is not credited to a campaign. Reporting every
+// real lead therefore gives the optimisers more signal without inflating
+// campaign performance.
+//
+// ALWAYS call this AFTER the submit API resolves. Never on a click, a
+// validation failure, or the honeypot branch — those would be phantom
+// conversions that both ad platforms would then optimise towards.
+//
+// /campus-visit deliberately does NOT call this: it books an institutional
+// session with a college T&P cell, which is a different thing from an
+// individual enquiry and is not what the ad campaigns are buying.
 export const trackLead = (extra = {}) => {
   if (typeof window === 'undefined') return;
 
