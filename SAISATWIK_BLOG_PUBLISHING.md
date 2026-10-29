@@ -600,7 +600,7 @@ module.exports = {
   // Optional WP publish date (site timezone is UTC; sent as date + date_gmt).
   // Use it to backdate or spread a batch one per day. Omit and re-runs keep
   // the post's existing date. A future date + --publish → WP schedules it.
-  date: '2026-10-13T10:00:00',
+  // date: '2026-10-13T10:00:00',
 
   // Article body. Semantic HTML. NO <h1> (WP renders title as h1).
   // Quick Answer h2 first. FAQ h2 last.

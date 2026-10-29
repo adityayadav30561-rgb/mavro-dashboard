@@ -117,7 +117,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Configuration transactions belong to the SAP team, not end users. These five open the profiles that shape how every project behaves.</p>
+<p>Configuration transactions belong to the SAP team, not end users. These five open the profiles that shape how every project behaves. The <a href="https://saisatwik.com/sap-ps-configuration-step-by-step/">SAP PS configuration guide</a> walks through them in order.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:table -->

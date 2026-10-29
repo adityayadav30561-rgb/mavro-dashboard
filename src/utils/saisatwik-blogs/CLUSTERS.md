@@ -97,6 +97,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Retro-linking log
 
+- **2026-10-29 (older-sibling retro pass)** — Tutorial #5423 now links to K13, K14, K17; CJ20N #5428 to K13, K14; K21 cheat sheet #5465 to K23 config. Re-pushed with `--publish` only; original dates unchanged.
 - **2026-10-29 (batch K12-K23)** — Published 12 spokes, backdated one per day 13-24 Oct 2026 via the new `date` field in the data module. Each links UP to hub #5418 + `/services/sap/` and backward to earlier spokes. Retro pass the same day: hub #5418 re-pushed with all 12 in Related Reading (date unchanged, 2026-07-16); forward links added in K12→K13/K20, K13→K14, K14→K20, K15→K16, K16→K17, K17→K18 and those six re-pushed. Outbound: sap.com S/4HANA, SAP Help Portal, SAP Learning, SAP Analytics Cloud, SAP News maintenance 2027, IFRS 15 / IAS 16 / IAS 23, GAO cost + schedule guides, PMI EVM standard, McKinsey (IT projects 45% over budget; construction 20% late / up to 80% over budget), Flyvbjerg megaprojects (arXiv). Stats quoted verbatim from browser-checked pages.
 - **2026-07-10 (hub)** — Established the SAP PS cluster. Hub #5418 links laterally to the SAP EPPM cluster (modules #5352, hub #5302, architecture #5409, S/4HANA #5371, best practices #5416) and SAP Platform hub #854. SAP PS is one of the five EPPM modules, so the two clusters cross-link tightly. Outbound: SAP.com (S/4HANA, Fiori), PMI Pulse.
 

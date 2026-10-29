@@ -90,7 +90,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>With the structure in place, open CJ40 and enter planned costs on the WBS elements. For a first pass, plan overall values per element. In real projects, cost planning gets more detailed: activity costing rolls labour and material estimates up from the network, and Easy Cost Planning offers a form-based alternative. For this tutorial, overall planning per WBS element is enough to see the mechanics.</p>
+<p>With the structure in place, open CJ40 and enter planned costs on the WBS elements. For a first pass, plan overall values per element. In real projects, cost planning gets more detailed: activity costing rolls labour and material estimates up from the network, and Easy Cost Planning offers a form-based alternative. For this tutorial, overall planning per WBS element is enough to see the mechanics. The <a href="https://saisatwik.com/sap-ps-project-cost-planning-guide/">SAP PS project cost planning guide</a> compares all four methods.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -102,7 +102,7 @@ module.exports = {
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>Planning says what the project should cost. Budgeting says what it is allowed to spend. Enter the approved budget per WBS element in CJ30, then release it in CJ32. If availability control is active in the budget profile, SAP PS now checks every posting against released budget and warns or blocks when spending approaches the limit.</p>
+<p>Planning says what the project should cost. Budgeting says what it is allowed to spend. Enter the approved budget per WBS element in CJ30, then release it in CJ32. If availability control is active in the budget profile, SAP PS now checks every posting against released budget and warns or blocks when spending approaches the limit. The guide to <a href="https://saisatwik.com/budgeting-and-availability-control-in-sap-ps/">budgeting and availability control in SAP PS</a> covers tolerance limits and the budget profile.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -144,7 +144,7 @@ module.exports = {
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>At period end, run settlement with CJ88. Settlement moves the costs collected on WBS elements to their final receivers: a fixed asset for capital projects, a cost center for expense projects, or profitability for customer projects. When settlement is complete and no more postings are expected, set the project status to TECO (technically complete) and later CLSD (closed). You have now run the full lifecycle every production SAP PS project follows.</p>
+<p>At period end, run <a href="https://saisatwik.com/sap-ps-settlement-explained/">settlement</a> with CJ88. Settlement moves the costs collected on WBS elements to their final receivers: a fixed asset for capital projects, a cost center for expense projects, or profitability for customer projects. When settlement is complete and no more postings are expected, set the project status to TECO (technically complete) and later CLSD (closed). You have now run the full lifecycle every production SAP PS project follows.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->

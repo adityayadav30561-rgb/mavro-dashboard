@@ -125,7 +125,7 @@ module.exports = {
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>Plenty of businesses insert a budgeting step before release: plan costs with CJ40, enter the budget with CJ30, release budget with CJ32, and only then release the project. The full sequence, with the budget transactions in context, is in the <a href="https://saisatwik.com/sap-ps-tutorial-for-beginners/">SAP PS tutorial for beginners</a>.</p>
+<p>Plenty of businesses insert a budgeting step before release: plan costs with CJ40, enter the budget with CJ30, release budget with CJ32, and only then release the project. The full sequence, with the budget transactions in context, is in the <a href="https://saisatwik.com/sap-ps-tutorial-for-beginners/">SAP PS tutorial for beginners</a>. Planning and budgeting each have their own guide: <a href="https://saisatwik.com/sap-ps-project-cost-planning-guide/">SAP PS cost planning</a> and <a href="https://saisatwik.com/budgeting-and-availability-control-in-sap-ps/">budgeting and availability control in SAP PS</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading -->
