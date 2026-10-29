@@ -180,6 +180,42 @@ module.exports = {
 <li><a href="https://saisatwik.com/how-to-create-a-project-in-sap-ps-cj20n/">How to create a project in SAP PS using CJ20N</a>. The Project Builder walkthrough, with the errors beginners hit.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-network-and-activities-explained/">SAP PS network and activities explained</a>. Activity types, relationships and scheduling.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-project-cost-planning-guide/">SAP PS project cost planning guide</a>. The four planning methods and when to use each.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/budgeting-and-availability-control-in-sap-ps/">Budgeting and availability control in SAP PS</a>. Budgets, tolerance limits and the budget profile.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/milestone-billing-in-sap-ps/">Milestone billing in SAP PS</a>. Invoicing customers when project milestones are reached.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/results-analysis-in-sap-ps-explained/">Results analysis in SAP PS explained</a>. Matching project revenue and margin to progress.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-settlement-explained/">SAP PS settlement explained</a>. Moving project costs to cost centers, assets and profitability.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-and-fico-integration/">SAP PS and FICO integration</a>. How projects post into finance and controlling.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-integration-with-mm-and-sd/">SAP PS integration with MM and SD</a>. Procurement, project stock and customer billing.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/earned-value-management-in-sap-ps/">Earned value management in SAP PS</a>. Progress analysis, CPI and SPI.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-transaction-codes-cheat-sheet/">SAP PS transaction codes cheat sheet</a>. The standard codes, grouped by project phase.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-in-s4hana-key-differences/">SAP PS in S/4HANA: key differences</a>. What changes when you migrate from ECC.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-configuration-step-by-step/">SAP PS configuration step by step</a>. The profiles that control every project.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/sap-eppm-modules-explained-ps-ppm-im-cpm-cats/">SAP EPPM modules explained: PS, PPM, IM, CPM and CATS</a>. Where SAP PS fits among the five modules.</li>
 <!-- /wp:list-item -->
 <!-- wp:list-item -->

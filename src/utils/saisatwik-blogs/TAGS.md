@@ -87,6 +87,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Comparison
 - Beginner Guide
 - Tutorial
+- Cheat Sheet
 
 ---
 

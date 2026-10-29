@@ -597,6 +597,11 @@ module.exports = {
   categories: ['SAP'],
   tags: ['SAP S/4HANA', 'ERP for manufacturing', 'SAP implementation cost', 'mid-market ERP'],
 
+  // Optional WP publish date (site timezone is UTC; sent as date + date_gmt).
+  // Use it to backdate or spread a batch one per day. Omit and re-runs keep
+  // the post's existing date. A future date + --publish → WP schedules it.
+  date: '2026-10-13T10:00:00',
+
   // Article body. Semantic HTML. NO <h1> (WP renders title as h1).
   // Quick Answer h2 first. FAQ h2 last.
   content: `
@@ -833,3 +838,5 @@ green-filled with the live URL; everything else reads Pending.
   (authority + internal links), then point them at Leads blogs + service pages.
   Priority 1 rows first. Next up after K04: either K05 (P2, finishes EPPM arc)
   or K08 (P1, opens the SAP PS cluster).
+- 2026-10-29: K12-K23 published (backdated 13-24 Oct 2026, #5447-#5469).
+  Next unpublished Knowledge row is K24.

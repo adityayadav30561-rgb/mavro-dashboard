@@ -130,6 +130,9 @@ async function main() {
     content: data.content,
     excerpt: data.excerpt || '',
     status: publish ? 'publish' : 'draft',
+    // Optional backdate/schedule. Site timezone is UTC, so date === date_gmt.
+    // Omitted → WordPress keeps the post's existing date (or uses "now").
+    ...(data.date ? { date: data.date, date_gmt: data.date } : {}),
     ...(categories.length ? { categories } : {}),
     ...(tags.length ? { tags } : {}),
   };

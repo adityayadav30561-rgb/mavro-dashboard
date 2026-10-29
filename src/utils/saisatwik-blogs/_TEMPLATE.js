@@ -26,6 +26,11 @@ module.exports = {
   // plugins pick it up as the default meta description). 150-160 chars.
   excerpt: 'REPLACE — one-sentence summary with the focus keyword.',
 
+  // Optional publish date (site timezone is UTC). Omit to keep the existing
+  // WordPress date on re-runs / use "now" on first publish. A future date
+  // with --publish schedules the post instead of publishing it.
+  // date: '2026-10-13T10:00:00',
+
   // Category + tag NAMES — resolved to IDs at publish time, created if they
   // don't exist yet. Check wp-admin for the existing category tree first.
   categories: ['SAP'],

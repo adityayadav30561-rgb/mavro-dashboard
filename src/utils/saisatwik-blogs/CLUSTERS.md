@@ -81,18 +81,28 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#5423** — `sap-ps-tutorial-for-beginners` (2026-07-18) — workbook K09, Priority 1; step-by-step lifecycle tutorial, 2 tables (tcodes + learning path), anchors UP to hub #5418, lateral to EPPM best practices + architecture + modules + S/4HANA
 - [x] **#5425** — `sap-ps-work-breakdown-structure-wbs-explained` (2026-07-18) — workbook K10, Priority 1; WBS deep dive, 2 tables (operative indicators + design rules), anchors UP to hub #5418 and tutorial #5423, lateral to EPPM best practices + architecture + modules; outbound PMI, SAP Help, sap.com
 - [x] **#5428** — `how-to-create-a-project-in-sap-ps-cj20n` (2026-07-18) — workbook K11, Priority 1; CJ20N Project Builder how-to, 5 steps + 6-row error/fix table + practitioner shortcuts, anchors UP to hub #5418, tutorial #5423, WBS #5425; outbound sap.com, SAP Help, SAP Learning
-- [ ] **K12** `sap-ps-network-and-activities-explained` — planned (P2)
-- [ ] **K13** `sap-ps-project-cost-planning-guide` — planned (P1)
-- [ ] **K14** `budgeting-and-availability-control-in-sap-ps` — planned (P2)
-- [ ] **K15-K27** milestone billing, results analysis, settlement, FICO/MM/SD integration, EVM, tcode cheat sheet, PS in S/4HANA, config, lifecycle, CN25, interview Qs, reporting
+- [x] **#5447** — `sap-ps-network-and-activities-explained` (2026-10-13, backdated) — workbook K12; activity types, relationships, header vs activity assignment
+- [x] **#5449** — `sap-ps-project-cost-planning-guide` (2026-10-14) — workbook K13; four planning methods table + 6-step cycle + planning profile
+- [x] **#5451** — `budgeting-and-availability-control-in-sap-ps` (2026-10-15) — workbook K14; budget lifecycle table, tolerance limits, budget profile (OPS9)
+- [x] **#5453** — `milestone-billing-in-sap-ps` (2026-10-16) — workbook K15; PS/SD objects table, 6-step setup, billing methods compared, IFRS 15
+- [x] **#5455** — `results-analysis-in-sap-ps-explained` (2026-10-17) — workbook K16; RA methods, values, period-end order, EBRR in S/4HANA
+- [x] **#5457** — `sap-ps-settlement-explained` (2026-10-18) — workbook K17; receivers table, settlement rules, AuC two-stage settlement, OKO7
+- [x] **#5459** — `sap-ps-and-fico-integration` (2026-10-19) — workbook K18; FICO building blocks, cost flows, period-end sequence, Universal Journal
+- [x] **#5461** — `sap-ps-integration-with-mm-and-sd` (2026-10-20) — workbook K19; event → MM/SD document table, project stock, assembly processing
+- [x] **#5463** — `earned-value-management-in-sap-ps` (2026-10-21) — workbook K20; PV/EV/AC/CPI/SPI table, measurement methods, CNE1/CNE2/CNE5
+- [x] **#5465** — `sap-ps-transaction-codes-cheat-sheet` (2026-10-22) — workbook K21; tcodes by phase (only standard, well-established codes) + system statuses
+- [x] **#5467** — `sap-ps-in-s4hana-key-differences` (2026-10-23) — workbook K22; ECC vs S/4HANA table, migration steps; bridges to SAP Platform cluster (#3174)
+- [x] **#5469** — `sap-ps-configuration-step-by-step` (2026-10-24) — workbook K23; 10-step config order + profile/tcode table
+- [ ] **K24-K27** lifecycle, CN25 progress tracking, interview Qs, reporting
 
 ### Retro-linking log
 
+- **2026-10-29 (batch K12-K23)** — Published 12 spokes, backdated one per day 13-24 Oct 2026 via the new `date` field in the data module. Each links UP to hub #5418 + `/services/sap/` and backward to earlier spokes. Retro pass the same day: hub #5418 re-pushed with all 12 in Related Reading (date unchanged, 2026-07-16); forward links added in K12→K13/K20, K13→K14, K14→K20, K15→K16, K16→K17, K17→K18 and those six re-pushed. Outbound: sap.com S/4HANA, SAP Help Portal, SAP Learning, SAP Analytics Cloud, SAP News maintenance 2027, IFRS 15 / IAS 16 / IAS 23, GAO cost + schedule guides, PMI EVM standard, McKinsey (IT projects 45% over budget; construction 20% late / up to 80% over budget), Flyvbjerg megaprojects (arXiv). Stats quoted verbatim from browser-checked pages.
 - **2026-07-10 (hub)** — Established the SAP PS cluster. Hub #5418 links laterally to the SAP EPPM cluster (modules #5352, hub #5302, architecture #5409, S/4HANA #5371, best practices #5416) and SAP Platform hub #854. SAP PS is one of the five EPPM modules, so the two clusters cross-link tightly. Outbound: SAP.com (S/4HANA, Fiori), PMI Pulse.
 
 ### Health
 
-- Cluster hub live + spokes #5423 (K09 tutorial), #5425 (K10 WBS), #5428 (K11 CJ20N); K12-K27 (mostly Priority 1) are the biggest remaining single-cluster content opportunity in the workbook. Deep, high-intent, low-competition SAP PS how-to queries.
+- Hub + 15 spokes (K09-K23) live; now the largest SaiSatwik cluster. K24-K27 remain. K21 (cheat sheet) and K23 (config) are natural internal-link targets for the remaining spokes.
 
 ---
 
