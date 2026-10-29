@@ -16,6 +16,7 @@ const MbrItem = require('../models/MbrItem');
 const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
 const ga4Service = require('./google/ga4Service');
 const mavroMbrService = require('./mavroMbrService');
+const mbrPagesService = require('./mbrPagesService');
 const gscService = require('./google/gscService');
 const { getSources, getHostScope } = require('./google/mbrSources');
 
@@ -280,13 +281,49 @@ async function collectBlogs(start, end) {
     return total;
   };
 
-  return blogs.map((b) => ({
+  const rows = blogs.map((b) => ({
     title: b.title,
     slug: b.slug,
     tenant: b.targetWebsite?.name || b.targetWebsite?.slug || '—',
     publishedAt: b.publishedAt,
     views: viewsForSlug(b.slug),
   }));
+
+  // WordPress-backed sources keep their blogs in WP, not the Blog collection —
+  // same live pull the /mbr Blogs view uses, so the download matches the screen.
+  const range = { startDate: start.toISOString().slice(0, 10), endDate: end.toISOString().slice(0, 10) };
+  for (const src of getSources().filter((s) => s.wordpressUrl)) {
+    let posts = [];
+    try { posts = (await mbrPagesService.getWordpressBlogs(src, range)) || []; }
+    catch (err) { console.error(`[mbrExport] WordPress blogs failed for ${src.key}:`, err.message); continue; }
+    if (!posts.length) continue;
+
+    // All-time views from our tracker. WP posts live at /<slug>/ (no /blog/
+    // prefix) and the tracker sends pathname + search, so strip the query.
+    const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pathRe = new RegExp(`^(${posts.map((p) => esc(p.path)).join('|')})(\\?|$)`);
+    const wpCounts = src.websiteSlug
+      ? await AnalyticsEvent.aggregate([
+        { $match: { websiteSlug: src.websiteSlug, eventType: { $in: ['page_view', 'blog_view'] }, page: pathRe } },
+        { $group: { _id: '$page', count: { $sum: 1 } } },
+      ])
+      : [];
+    const wpViews = new Map();
+    for (const c of wpCounts) {
+      const key = String(c._id).split('?')[0];
+      wpViews.set(key, (wpViews.get(key) || 0) + c.count);
+    }
+
+    posts.forEach((p) => rows.push({
+      title: p.title,
+      slug: p.path,
+      tenant: src.label,
+      publishedAt: p.publishedAt,
+      views: src.websiteSlug ? (wpViews.get(p.path) || 0) : '',
+    }));
+  }
+
+  return rows.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 }
 
 async function collectLeads(start, end) {
