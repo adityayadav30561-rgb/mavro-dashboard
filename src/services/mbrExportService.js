@@ -15,6 +15,7 @@ const AnalyticsEvent = require('../models/AnalyticsEvent');
 const MbrItem = require('../models/MbrItem');
 const { MBR_SECTIONS, sectionByKey } = require('../config/mbrSections');
 const ga4Service = require('./google/ga4Service');
+const mavroMbrService = require('./mavroMbrService');
 const gscService = require('./google/gscService');
 const { getSources, getHostScope } = require('./google/mbrSources');
 
@@ -115,22 +116,33 @@ function buildSourceSheet(wb, label, ga4, gsc, rangeLabel, periodLabels) {
     const ov = ga4.overview;
     const ovPrev = ov.previousFull || ov.previous;
     const ov2 = ov.previous2 || {};
-    addSectionBanner(ws, 'A. Audience & Engagement (GA4)', 7);
+    // Users / sessions / page views follow the /mbr page's source policy —
+    // the Notes column says which methodology each number used.
+    const audSrc = ga4.audienceSource?.current || 'ga4';
+    const ga4Rep = ga4.ga4Reported?.current || {};
+    const dayLabel = (d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+    const gapLabel = (ga4.mavroOutages || []).map((o) => `${dayLabel(o.from)}–${dayLabel(o.to)} (tracking outage)`).join(', ') || 'days before tracking';
+    const volNote = (k) => {
+      if (audSrc === 'ga4') return 'GA4';
+      const base = audSrc === 'blend' ? `Mavro analytics; GA4 for ${gapLabel}` : 'Mavro analytics';
+      return ga4Rep[k] != null ? `${base} · GA4 reported ${ga4Rep[k]}` : base;
+    };
+    addSectionBanner(ws, audSrc === 'ga4' ? 'A. Audience & Engagement (GA4)' : 'A. Audience & Engagement', 7);
     addHeaderRow(ws, ['Metric', L.current, L.previous, L.previous2, 'MoM Δ', 'MoM %', 'Notes']);
     const metrics = [
-      ['Total users', ov.current.users, ovPrev.users, ov2.users],
+      ['Total users', ov.current.users, ovPrev.users, ov2.users, undefined, volNote('users')],
       ['New users', ov.current.newUsers, ovPrev.newUsers, ov2.newUsers],
-      ['Sessions', ov.current.sessions, ovPrev.sessions, ov2.sessions],
+      ['Sessions', ov.current.sessions, ovPrev.sessions, ov2.sessions, undefined, volNote('sessions')],
       ['Engaged sessions', ov.current.engagedSessions, ovPrev.engagedSessions, ov2.engagedSessions],
       ['Engagement rate', `${Math.round(ov.current.engagementRate * 100)}%`, `${Math.round(ovPrev.engagementRate * 100)}%`, `${Math.round((ov2.engagementRate || 0) * 100)}%`, ov.current.engagementRate - ovPrev.engagementRate],
       ['Avg engagement / user', fmtDur(ov.current.avgEngagementSec), fmtDur(ovPrev.avgEngagementSec), fmtDur(ov2.avgEngagementSec), ov.current.avgEngagementSec - ovPrev.avgEngagementSec],
-      ['Page views', ov.current.pageViews, ovPrev.pageViews, ov2.pageViews],
+      ['Page views', ov.current.pageViews, ovPrev.pageViews, ov2.pageViews, undefined, volNote('pageViews')],
     ];
-    metrics.forEach(([name, cur, prev, prev2, rawDelta], i) => {
+    metrics.forEach(([name, cur, prev, prev2, rawDelta, note], i) => {
       const numeric = typeof cur === 'number';
       const delta = rawDelta !== undefined ? rawDelta : (numeric ? cur - prev : null);
       const pct = numeric ? pctOf(cur, prev) : null;
-      const r = addDataRow(ws, [name, cur, prev, prev2 ?? 0, delta == null ? '—' : (typeof delta === 'number' ? Math.round(delta * 100) / 100 : delta), fmtPct(pct), ''], { zebra: i % 2 === 1 });
+      const r = addDataRow(ws, [name, cur, prev, prev2 ?? 0, delta == null ? '—' : (typeof delta === 'number' ? Math.round(delta * 100) / 100 : delta), fmtPct(pct), note || ''], { zebra: i % 2 === 1 });
       deltaCellStyle(r.getCell(5), typeof delta === 'number' ? delta : null);
       deltaCellStyle(r.getCell(6), pct);
     });
@@ -169,10 +181,10 @@ function buildSourceSheet(wb, label, ga4, gsc, rangeLabel, periodLabels) {
       ws.addRow([]);
     }
 
-    addSectionBanner(ws, 'F. Top Pages (GA4, current period)', 7);
+    addSectionBanner(ws, ga4.pagesSource === 'mavro' ? 'F. Top Pages (Mavro analytics, current period)' : 'F. Top Pages (GA4, current period)', 7);
     addHeaderRow(ws, ['Page', 'Views', 'Users', 'Avg time', '', '', '']);
     ga4.topPages.slice(0, 15).forEach((p, i) =>
-      addDataRow(ws, [p.path, p.views, p.users, fmtDur(p.avgEngagementSec), '', '', ''], { zebra: i % 2 === 1 }));
+      addDataRow(ws, [p.path, p.views, p.users, p.avgEngagementSec == null ? '—' : fmtDur(p.avgEngagementSec), '', '', ''], { zebra: i % 2 === 1 }));
     ws.addRow([]);
 
     addSectionBanner(ws, 'G. Geography — Top Countries', 7);
@@ -312,6 +324,11 @@ async function buildWorkbook(ranges, period) {
     if (ga4Service.isConfigured(src.ga4PropertyId, src.credentialsEnv) && src.ga4PropertyId) {
       try { ga4 = await ga4Service.getMbrReport(ranges, src.ga4PropertyId, getHostScope(src), src.label, src.credentialsEnv); }
       catch (err) { console.error(`[mbrExport] GA4 failed for ${src.key}:`, err.message); }
+      // Same first-party overlay as the /mbr page, so the download matches the screen
+      if (ga4 && src.websiteSlug) {
+        try { ga4 = await mavroMbrService.applyOverlay(ga4, src.websiteSlug, ranges); }
+        catch (err) { console.warn(`[mbrExport] mavro overlay failed for ${src.key}:`, err.message); }
+      }
     }
     if (gscService.isConfigured(src.gscSiteUrl, src.credentialsEnv) && src.gscSiteUrl) {
       try { gsc = await gscService.getMbrReport(ranges, src.gscSiteUrl, src.credentialsEnv); }

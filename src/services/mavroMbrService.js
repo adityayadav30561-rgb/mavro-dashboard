@@ -20,18 +20,54 @@
  *               gaps (same model as analyticsService.getEngagement)
  *   pageViews = count of page_view events
  *
- * A window counts as COVERED only if tracking existed before the window
- * started (firstEventAt <= window.start). Partially-covered windows fall back
- * to GA4 — mixing a half-tracked month into an MoM series lies about growth.
+ * GAP DAYS: days in a window the tracker could not have recorded — before the
+ * install day, or inside a known outage (config/trackingOutages.js). A window
+ * with no gap days is pure Mavro; one with some is a 'blend' (GA4's daily rows
+ * fill the gap days, Mavro the rest); one that is all gap days is pure GA4.
+ * Our own events on outage days are ignored so a half-recorded day never
+ * stands in for a full one.
  */
 
 const AnalyticsEvent = require('../models/AnalyticsEvent');
+const { TRACKING_OUTAGES } = require('../config/trackingOutages');
 
 const BURST_GAP_MS = 30 * 60 * 1000;
 
 const toStart = (d) => new Date(`${d}T00:00:00.000Z`);
 const toEnd = (d) => new Date(`${d}T23:59:59.999Z`);
 const ga4Date = (d) => d.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+
+/** Outages overlapping a window, clipped to it. */
+function outagesIn(win) {
+  return TRACKING_OUTAGES
+    .filter((o) => o.from <= win.endDate && o.to >= win.startDate)
+    .map((o) => ({
+      ...o,
+      from: o.from < win.startDate ? win.startDate : o.from,
+      to: o.to > win.endDate ? win.endDate : o.to,
+    }));
+}
+
+/** Event filter for a window, minus outage days. */
+function windowMatch(websiteSlug, win, extra = {}) {
+  const match = { websiteSlug, timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) }, ...extra };
+  const outs = outagesIn(win);
+  if (outs.length) match.$nor = outs.map((o) => ({ timestamp: { $gte: toStart(o.from), $lte: toEnd(o.to) } }));
+  return match;
+}
+
+/** Gap days (YYYYMMDD) in a window + the window's day count. */
+function gapDaysIn(win, installDay) {
+  const outs = outagesIn(win);
+  const days = new Set();
+  let total = 0;
+  for (let d = toStart(win.startDate); d <= toEnd(win.endDate); d = new Date(d.getTime() + 86400000)) {
+    total += 1;
+    const iso = d.toISOString().slice(0, 10);
+    if (iso < installDay || outs.some((o) => iso >= o.from && iso <= o.to)) days.add(iso.replace(/-/g, ''));
+  }
+  return { days, total };
+}
 
 /** First event timestamp for a tenant — decides window coverage. */
 async function getFirstEventAt(websiteSlug) {
@@ -62,7 +98,7 @@ function countBursts(rows) {
 
 /** Audience volumes for one window. */
 async function windowOverview(websiteSlug, win) {
-  const match = { websiteSlug, timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) } };
+  const match = windowMatch(websiteSlug, win);
   const [rows, pageViews] = await Promise.all([
     AnalyticsEvent.find(match).select('sessionId timestamp').lean(),
     AnalyticsEvent.countDocuments({ ...match, eventType: 'page_view' }),
@@ -74,7 +110,7 @@ async function windowOverview(websiteSlug, win) {
 
 /** Daily trend for one window → GA4-shaped rows { date: YYYYMMDD, users, sessions, pageViews }. */
 async function windowTrend(websiteSlug, win) {
-  const match = { websiteSlug, timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) } };
+  const match = windowMatch(websiteSlug, win);
   const rows = await AnalyticsEvent.find(match).select('sessionId timestamp eventType').lean();
   // Bucket per UTC day, then burst-count sessions WITHIN each day — sessions
   // must not just mirror distinct users or the two chart lines overlap.
@@ -104,13 +140,7 @@ async function windowTrend(websiteSlug, win) {
 /** Top pages for one window → GA4-shaped rows { path, views, users, avgEngagementSec:null }. */
 async function windowTopPages(websiteSlug, win, limit = 15) {
   const rows = await AnalyticsEvent.aggregate([
-    {
-      $match: {
-        websiteSlug,
-        eventType: 'page_view',
-        timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) },
-      },
-    },
+    { $match: windowMatch(websiteSlug, win, { eventType: 'page_view' }) },
     {
       $group: {
         _id: '$page',
@@ -131,11 +161,9 @@ async function windowTopPages(websiteSlug, win, limit = 15) {
 
 /** Devices for one window → GA4-shaped rows { device, users, sessions }. */
 async function windowDevices(websiteSlug, win) {
-  const rows = await AnalyticsEvent.find({
-    websiteSlug,
-    timestamp: { $gte: toStart(win.startDate), $lte: toEnd(win.endDate) },
-    deviceType: { $nin: [null, 'bot', 'unknown'] },
-  }).select('sessionId timestamp deviceType').lean();
+  const rows = await AnalyticsEvent.find(
+    windowMatch(websiteSlug, win, { deviceType: { $nin: [null, 'bot', 'unknown'] } })
+  ).select('sessionId timestamp deviceType').lean();
   const byDevice = new Map();
   for (const r of rows) {
     if (!byDevice.has(r.deviceType)) byDevice.set(r.deviceType, []);
@@ -170,17 +198,19 @@ async function getOverlay(websiteSlug, ranges) {
   // 10:23, not midnight.
   const installDay = firstEventAt.toISOString().slice(0, 10);
   const coverage = {};
+  const gapDays = {};
   for (const [key, win] of Object.entries(windows)) {
-    if (installDay <= win.startDate) coverage[key] = 'full';
-    else if (installDay <= win.endDate) coverage[key] = 'partial';
+    const { days, total } = gapDaysIn(win, installDay);
+    gapDays[key] = days;
+    if (days.size === 0) coverage[key] = 'full';
+    else if (days.size < total) coverage[key] = 'partial';
     else coverage[key] = 'none';
   }
   const covered = {};
   for (const key of Object.keys(windows)) covered[key] = coverage[key] !== 'none';
-  // partialFrom drives the "(since 8 Jul)" caption + the GA4 blend for the
-  // pre-tracking stub of any straddling window (user decision 2026-07-17:
-  // blend applies to ALL windows, not just current).
-  const partialFrom = coverage.current === 'partial' ? firstEventAt : null;
+  // partialFrom drives the "(since 8 Jul)" caption — only when the current
+  // window straddles the install day, not when its gap is an outage.
+  const partialFrom = covered.current && installDay > windows.current.startDate ? firstEventAt : null;
 
   const overview = {};
   for (const [key, win] of Object.entries(windows)) {
@@ -199,6 +229,8 @@ async function getOverlay(websiteSlug, ranges) {
     partialFrom,
     coverage,
     covered,
+    gapDays,
+    outages: outagesIn(windows.current),
     overview,
     trend,
     trendCompare: { current: trend, previous: trendPrevFull, previous2: trendPrev2 },
@@ -207,4 +239,123 @@ async function getOverlay(websiteSlug, ranges) {
   };
 }
 
-module.exports = { getOverlay };
+/**
+ * Merge the first-party overlay into a GA4 MBR report (source policy Option
+ * A, 2026-07-10). Shared by the /mbr page and the Excel export so both show
+ * the same numbers.
+ *
+ * Volume metrics come from our AnalyticsEvent store per covered window; GA4
+ * stays for uncovered windows and for everything we don't capture (geo,
+ * channels, AI referrals, conversions). GA4's audience numbers are preserved
+ * in `ga4Reported` so the UI can show the gap — that delta is the ad-blocker /
+ * consent loss rate, worth seeing.
+ *
+ * @param {object} report  ga4Service.getMbrReport() output (not mutated)
+ * @returns {Promise<object>} the merged payload (the report itself when the
+ *   tenant has no tracking data)
+ */
+async function applyOverlay(report, websiteSlug, ranges) {
+  const overlay = await getOverlay(websiteSlug, ranges);
+  if (!overlay) return report;
+
+  const payload = {
+    ...report,
+    overview: { ...report.overview },
+    trendCompare: { ...report.trendCompare },
+  };
+  // Keep GA4's audience for the secondary line before overwriting
+  payload.ga4Reported = {
+    current: { ...report.overview.current },
+    previous: { ...report.overview.previous },
+    previousFull: { ...report.overview.previousFull },
+    previous2: { ...report.overview.previous2 },
+  };
+  payload.audienceSource = {};
+  for (const win of ['current', 'previous', 'previousFull', 'previous2']) {
+    const m = overlay.overview[win];
+    if (m) {
+      payload.overview[win] = {
+        ...payload.overview[win], // GA4-only fields survive (newUsers, engagement)
+        users: m.users,
+        sessions: m.sessions,
+        pageViews: m.pageViews,
+      };
+      payload.audienceSource[win] = 'mavro';
+    } else {
+      payload.audienceSource[win] = 'ga4';
+    }
+  }
+  if (overlay.trend) {
+    payload.trend = overlay.trend;
+    payload.trendSource = 'mavro';
+    payload.trendCompare = {
+      current: overlay.trendCompare.current || payload.trendCompare.current,
+      previous: overlay.trendCompare.previous || payload.trendCompare.previous,
+      previous2: overlay.trendCompare.previous2 || payload.trendCompare.previous2,
+    };
+    payload.trendCompareSource = {
+      current: overlay.trendCompare.current ? 'mavro' : 'ga4',
+      previous: overlay.trendCompare.previous ? 'mavro' : 'ga4',
+      previous2: overlay.trendCompare.previous2 ? 'mavro' : 'ga4',
+    };
+  } else {
+    payload.trendSource = 'ga4';
+  }
+  if (overlay.topPages) {
+    payload.topPages = overlay.topPages;
+    payload.pagesSource = 'mavro';
+  } else {
+    payload.pagesSource = 'ga4';
+  }
+  if (overlay.devices) {
+    payload.devices = overlay.devices;
+    payload.devicesSource = 'mavro';
+  } else {
+    payload.devicesSource = 'ga4';
+  }
+  payload.mavroFirstEventAt = overlay.firstEventAt;
+  payload.mavroPartialFrom = overlay.partialFrom || null;
+  payload.mavroOutages = overlay.outages;
+
+  // ── Blend (user decisions 2026-07-17, extended to outages 2026-10-29):
+  // any window with gap days stitches GA4's daily rows for those days with
+  // Mavro for the rest — totals never silently drop untracked days, and the
+  // trend chart never flatlines at zero across them. Fully-covered windows
+  // stay pure Mavro, fully-uncovered windows stay pure GA4.
+  const byRange = report.trendByRange || {};
+  const gapSum = (rows, k) => rows.reduce((acc, r) => acc + (Number(r[k]) || 0), 0);
+  for (const win of ['current', 'previous', 'previousFull', 'previous2']) {
+    if (overlay.coverage[win] !== 'partial') continue;
+    const gapRows = (byRange[win] || []).filter((r) => overlay.gapDays[win].has(r.date));
+    if (!gapRows.length) continue;
+    // Daily-user sums can double-count cross-day returners, but for the gap
+    // days it's the only GA4-daily signal available.
+    payload.overview[win] = {
+      ...payload.overview[win],
+      users: gapSum(gapRows, 'users') + (overlay.overview[win]?.users || 0),
+      sessions: gapSum(gapRows, 'sessions') + (overlay.overview[win]?.sessions || 0),
+      pageViews: gapSum(gapRows, 'pageViews') + (overlay.overview[win]?.pageViews || 0),
+    };
+    payload.audienceSource[win] = 'blend';
+  }
+  // Stitch the daily series the same way (GA4 rows on gap days, Mavro rows
+  // on the rest), kept in date order.
+  const stitch = (ga4Rows, mavroRows, gap) => ([
+    ...(ga4Rows || []).filter((r) => gap.has(r.date)),
+    ...(mavroRows || []).filter((r) => !gap.has(r.date)),
+  ].sort((a, b) => a.date.localeCompare(b.date)));
+  if (overlay.coverage.current === 'partial' && overlay.trend) {
+    payload.trend = stitch(byRange.current, overlay.trend, overlay.gapDays.current);
+    payload.trendSource = 'blend';
+  }
+  const compareWinFor = { current: 'current', previous: 'previousFull', previous2: 'previous2' };
+  for (const [cmpKey, winKey] of Object.entries(compareWinFor)) {
+    if (overlay.coverage[winKey] === 'partial' && overlay.trendCompare[cmpKey]) {
+      payload.trendCompare[cmpKey] = stitch(byRange[winKey], overlay.trendCompare[cmpKey], overlay.gapDays[winKey]);
+      payload.trendCompareSource[cmpKey] = 'blend';
+    }
+  }
+  return payload;
+}
+
+module.exports = { getOverlay, applyOverlay };

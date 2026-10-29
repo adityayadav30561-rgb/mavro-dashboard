@@ -156,119 +156,19 @@ const getGa4Report = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, `GA4 not configured for source "${source?.key || 'unknown'}" (MBR_SOURCES / GA4_PROPERTY_ID / GOOGLE_SERVICE_ACCOUNT_JSON)`, 503);
   }
   const ranges = resolveRanges(req.query);
-  const cacheKey = `ga4:v10:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
+  const cacheKey = `ga4:v11:${source.key}:${ranges.current.startDate}:${ranges.current.endDate}`;
 
   const cached = cacheGet(cacheKey);
   if (cached) return ApiResponse.success(res, { ...cached, cached: true });
 
   const report = await ga4Service.getMbrReport(ranges, source.ga4PropertyId, getHostScope(source), source.label, source.credentialsEnv);
-  const payload = { ranges, source: source.key, ...report };
+  let payload = { ranges, source: source.key, ...report };
 
-  // ── First-party overlay (source policy Option A, 2026-07-10) ─────────────
-  // For sources with the Mavro tracker installed (websiteSlug set), volume
-  // metrics come from our own AnalyticsEvent store per fully-covered window;
-  // GA4 stays for uncovered windows (fallback) and for everything we don't
-  // capture (geo, channels, AI referrals, conversions). GA4's audience
-  // numbers are preserved in `ga4Reported` so the UI can show the gap — that
-  // delta is the ad-blocker / consent loss rate, worth seeing.
+  // First-party overlay (source policy Option A) — shared with the Excel
+  // export so the page and the download never disagree.
   if (source.websiteSlug) {
     try {
-      const overlay = await mavroMbrService.getOverlay(source.websiteSlug, ranges);
-      if (overlay) {
-        // Keep GA4's audience for the secondary line before overwriting
-        payload.ga4Reported = {
-          current: { ...payload.overview.current },
-          previous: { ...payload.overview.previous },
-          previousFull: { ...payload.overview.previousFull },
-          previous2: { ...payload.overview.previous2 },
-        };
-        payload.audienceSource = {};
-        for (const win of ['current', 'previous', 'previousFull', 'previous2']) {
-          const m = overlay.overview[win];
-          if (m) {
-            payload.overview[win] = {
-              ...payload.overview[win], // GA4-only fields survive (newUsers, engagement)
-              users: m.users,
-              sessions: m.sessions,
-              pageViews: m.pageViews,
-            };
-            payload.audienceSource[win] = 'mavro';
-          } else {
-            payload.audienceSource[win] = 'ga4';
-          }
-        }
-        if (overlay.trend) {
-          payload.trend = overlay.trend;
-          payload.trendSource = 'mavro';
-          payload.trendCompare = {
-            current: overlay.trendCompare.current || payload.trendCompare.current,
-            previous: overlay.trendCompare.previous || payload.trendCompare.previous,
-            previous2: overlay.trendCompare.previous2 || payload.trendCompare.previous2,
-          };
-          payload.trendCompareSource = {
-            current: overlay.trendCompare.current ? 'mavro' : 'ga4',
-            previous: overlay.trendCompare.previous ? 'mavro' : 'ga4',
-            previous2: overlay.trendCompare.previous2 ? 'mavro' : 'ga4',
-          };
-        } else {
-          payload.trendSource = 'ga4';
-        }
-        if (overlay.topPages) {
-          payload.topPages = overlay.topPages;
-          payload.pagesSource = 'mavro';
-        } else {
-          payload.pagesSource = 'ga4';
-        }
-        if (overlay.devices) {
-          payload.devices = overlay.devices;
-          payload.devicesSource = 'mavro';
-        } else {
-          payload.devicesSource = 'ga4';
-        }
-        payload.mavroFirstEventAt = overlay.firstEventAt;
-        payload.mavroPartialFrom = overlay.partialFrom || null;
-
-        // ── Blend (user decisions 2026-07-17): ANY window that straddles
-        // the tracker install date stitches GA4 for the days BEFORE install
-        // with Mavro from install day on — totals never silently drop the
-        // pre-tracking days, and the trend chart never flatlines at zero
-        // before the install date. Fully-covered windows stay pure Mavro,
-        // fully-uncovered windows stay pure GA4.
-        const cut = overlay.installDay.replace(/-/g, '');
-        const byRange = report.trendByRange || {};
-        const preSum = (rows, k) => rows.reduce((acc, r) => acc + (Number(r[k]) || 0), 0);
-        for (const win of ['current', 'previous', 'previousFull', 'previous2']) {
-          if (overlay.coverage[win] !== 'partial') continue;
-          const preRows = (byRange[win] || []).filter((r) => r.date < cut);
-          if (!preRows.length) continue;
-          // Daily-user sums can double-count cross-day returners, but for
-          // the pre-tracking stub it's the only GA4-daily signal available.
-          payload.overview[win] = {
-            ...payload.overview[win],
-            users: preSum(preRows, 'users') + (overlay.overview[win]?.users || 0),
-            sessions: preSum(preRows, 'sessions') + (overlay.overview[win]?.sessions || 0),
-            pageViews: preSum(preRows, 'pageViews') + (overlay.overview[win]?.pageViews || 0),
-          };
-          payload.audienceSource[win] = 'blend';
-        }
-        // Stitch the daily series the same way (GA4 rows < install day,
-        // Mavro rows from install day on).
-        const stitch = (ga4Rows, mavroRows) => ([
-          ...(ga4Rows || []).filter((r) => r.date < cut),
-          ...(mavroRows || []).filter((r) => r.date >= cut),
-        ]);
-        if (overlay.coverage.current === 'partial' && overlay.trend) {
-          payload.trend = stitch(byRange.current, overlay.trend);
-          payload.trendSource = 'blend';
-        }
-        const compareWinFor = { current: 'current', previous: 'previousFull', previous2: 'previous2' };
-        for (const [cmpKey, winKey] of Object.entries(compareWinFor)) {
-          if (overlay.coverage[winKey] === 'partial' && overlay.trendCompare[cmpKey]) {
-            payload.trendCompare[cmpKey] = stitch(byRange[winKey], overlay.trendCompare[cmpKey]);
-            payload.trendCompareSource[cmpKey] = 'blend';
-          }
-        }
-      }
+      payload = { ranges, source: source.key, ...(await mavroMbrService.applyOverlay(report, source.websiteSlug, ranges)) };
     } catch (err) {
       // Overlay failure must never take down the GA4 report — fall through
       console.warn('[mbr] mavro overlay failed:', err.message);

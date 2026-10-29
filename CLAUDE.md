@@ -453,9 +453,11 @@ Full record: PROJECT_CONTEXT.md §Phase 12. Invariants:
 - **Windows are labelled, never silently mixed.** `audienceSource` / `trendSource` / `pagesSource` / `devicesSource` mark each window `mavro` | `ga4` | `blend`. A window that straddles the tracker install date BLENDS: GA4 daily rows before the install day + our rows from it. Fully-covered windows are pure Mavro; fully-uncovered are pure GA4.
 - **Coverage is judged by DAY, not timestamp.** A range starting on the install date counts as covered even though the first event landed mid-morning. `mavroPartialFrom` drives the "(since 8 Jul)" caption and disappears on its own once a whole month post-install exists.
 - **GA4's own audience numbers are preserved in `payload.ga4Reported`** and shown as the small secondary figure on the tiles. That gap is the ad-blocker / consent loss rate and is worth seeing — do not drop it.
-- **Sessions are burst-counted (30-min gap), never `distinct sessionId`.** Doing the latter in `windowTrend` / `windowDevices` made the Users and Sessions chart lines identical. Cache key is `ga4:v10:` — bump it on any shape change.
+- **Tracking outages are GA4-filled, by config.** `src/config/trackingOutages.js` lists verified outage date ranges (first: 17–29 Oct 2026, the Render suspension). Outage days are "gap days" exactly like pre-install days: GA4 daily rows fill them, our own events on them are ignored, the window is labelled `blend`, and `mavroOutages` drives the captions. Add a range only for a verified outage — never to nudge a number.
+- **The overlay merge lives in ONE place: `mavroMbrService.applyOverlay()`**, used by both `/api/mbr/ga4` and the Excel export, so the download always matches the screen (the export used to write raw GA4 audience numbers). Notes column in sheet A says which methodology each volume number used.
+- **Sessions are burst-counted (30-min gap), never `distinct sessionId`.** Doing the latter in `windowTrend` / `windowDevices` made the Users and Sessions chart lines identical. Cache key is `ga4:v11:` — bump it on any shape change.
 - **`MBR_SOURCES` entries need `websiteSlug`** for the overlay to apply. Set on Render as well as local `.env`.
-- The **MoM % column was removed** from the 3-month comparison table by request. MBR **Excel export still writes raw GA4 audience numbers** — known gap, not yet reconciled with the on-screen figures.
+- The **MoM % column was removed** from the 3-month comparison table by request. MBR **Excel export now uses the same overlay as the screen** (reconciled 29 Oct 2026).
 
 ### Brand
 

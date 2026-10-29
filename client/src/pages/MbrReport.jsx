@@ -608,8 +608,13 @@ export default function MbrReport() {
   const mavroSince = ga4?.mavroPartialFrom
     ? new Date(ga4.mavroPartialFrom).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
     : null;
+  // Outage days in the current window are GA4-filled (config/trackingOutages.js)
+  const outageLabel = (ga4?.mavroOutages || [])
+    .map((o) => [o.from, o.to].map((d) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })).join('–'))
+    .join(', ');
+  const blendNote = outageLabel ? `GA4 for ${outageLabel} (tracking outage)` : 'GA4 before tracking';
   const srcHint = (ga4Val) => (isBlend
-    ? `Analytics since ${mavroSince}, GA4 before · GA4: ${fmtNum(ga4Val)}`
+    ? `${mavroSince ? `Analytics since ${mavroSince}, GA4 before` : `Analytics + ${blendNote}`} · GA4: ${fmtNum(ga4Val)}`
     : isMavroAud
       ? `Analytics${mavroSince ? ` (since ${mavroSince})` : ''} · GA4: ${fmtNum(ga4Val)}`
       : audSrc ? 'via GA4' : undefined);
@@ -913,7 +918,7 @@ export default function MbrReport() {
 
           <div className="mt-3">
             <Card
-              caption={ga4?.trendSource === 'blend' ? 'Daily · Analytics + GA4 before tracking' : ga4?.trendSource === 'mavro' ? 'Daily · Analytics' : 'Daily'}
+              caption={ga4?.trendSource === 'blend' ? `Daily · Analytics + ${blendNote}` : ga4?.trendSource === 'mavro' ? 'Daily · Analytics' : 'Daily'}
               title={compare3 ? 'Users — 3-month overlay (by day of period)' : 'Users & Sessions'}
               icon={Activity}
             >
