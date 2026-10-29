@@ -218,8 +218,8 @@ When you are ready to deploy:
 
 - **Frontend (Spanbix):** **canonical `https://www.spanbix.com`**. Apex `spanbix.com` 301-redirects to www at the Cloudflare edge AND via `spanbix-web/src/proxy.js` (Next 16 Proxy; explicit `NextResponse.redirect(url, 301)` because `redirects()` only emits 307/308). Legacy `spanbix-web.vercel.app` still resolves as a preview alias and stays in the CORS allowlist.
 - **Stack:** Next.js 16 App Router (Turbopack) at `spanbix-web/`. SSR + ISR + on-demand revalidation; per-blog static generation; backend-proxied sitemap + robots; security headers including HSTS preload. The legacy Vite Spanbix bundle (entry HTML, App, pages, components, SEO lib, route base, public assets) was **fully deleted in Phase 6.7** (May 29, 2026); the `VITE_BUILD_TARGET` machinery is gone from `client/vite.config.js` and `client/package.json` only ships `dev` / `build` / `preview` scripts now.
-- **Backend:** `mavro-dashboard.onrender.com` (Express + Mongo Atlas).
-- **API origin (spanbix-web):** `NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com` (set in Vercel env).
+- **Backend:** `mavro-api.onrender.com` (Express + Mongo Atlas).
+- **API origin (spanbix-web):** `NEXT_PUBLIC_API_BASE_URL=https://mavro-api.onrender.com` (set in Vercel env).
 - **ISR revalidation:** Render env `SPANBIX_WEB_URL=https://www.spanbix.com` + matching `REVALIDATE_SECRET` on both ends. Backend POSTs `${SPANBIX_WEB_URL}/api/revalidate` fire-and-forget on every publish (`src/services/revalidateService.js`). The endpoint busts `/blog`, `/blog/<slug>`, `/sitemap.xml`, `/robots.txt`.
 - **CORS:** Render `CORS_ORIGIN` + the static baseline in `src/app.js` together cover `https://www.spanbix.com`, `https://spanbix.com`, `https://spanbix-web.vercel.app`, and the `spanbix-web-*.vercel.app` preview regex.
 - **Vercel project Domains setup:** `www.spanbix.com` is the PRIMARY. Apex `spanbix.com` must point DIRECTLY at the app — do NOT toggle "redirect to www.spanbix.com" in the Vercel Domains UI. If Vercel handles the redirect at the edge with 308, our explicit 301 in `proxy.js` never fires.
@@ -310,7 +310,7 @@ The standalone Next.js sub-app at `spanbix-web/` is what `www.spanbix.com` actua
 
 **Env vars (Production + Preview):**
 ```
-NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://mavro-api.onrender.com
 REVALIDATE_SECRET=<shared secret, also in Render env>
 
 # Analytics / Ads (Phase 7) — OPTIONAL, no-op when unset
@@ -435,7 +435,7 @@ NEXT_PUBLIC_GTM_ID = GTM-WW4R4C8P     # loads GTM; no-op if unset. Requires REDE
 - **CSP (`spanbix-web/next.config.mjs`)** must keep `https://*.doubleclick.net` + `https://www.googleadservices.com` in `connect-src` AND `frame-src`, plus `googletagmanager.com` in `script-src` — required for the Google Ads conversion ping (`ad.doubleclick.net/ccm/s/collect`) + GTM. Narrowing breaks Ads conversion recording.
 - **NEVER** paste a raw `gtag.js`/AW snippet into the site — GTM is the only loader (double-tagging double-counts).
 
-**Backend (Render) keep-warm — ✅ LIVE (July 2026):** a **cron-job.org** job pings `GET https://mavro-dashboard.onrender.com/api/health` every **10 minutes**, keeping the free-tier dyno awake (sleep threshold is 15 min of no inbound HTTP). Cold-start failures on form submits / sitemap fetches are prevented as long as the cron stays active. If the cron service ever lapses, symptoms return (~30–60s first response after idle) — fallbacks remain: upgrade to Starter ($7/mo, no sleep) or client warm-up ping + submit-retry. NOTE: the internal `scheduledPublishService` worker does NOT keep the dyno awake — Render sleep is triggered by absence of inbound HTTP, and internal timers don't count.
+**Backend (Render) keep-warm — ✅ LIVE (July 2026):** a **cron-job.org** job pings `GET https://mavro-api.onrender.com/api/health` every **10 minutes**, keeping the free-tier dyno awake (sleep threshold is 15 min of no inbound HTTP). Cold-start failures on form submits / sitemap fetches are prevented as long as the cron stays active. If the cron service ever lapses, symptoms return (~30–60s first response after idle) — fallbacks remain: upgrade to Starter ($7/mo, no sleep) or client warm-up ping + submit-retry. NOTE: the internal `scheduledPublishService` worker does NOT keep the dyno awake — Render sleep is triggered by absence of inbound HTTP, and internal timers don't count.
 
 ---
 

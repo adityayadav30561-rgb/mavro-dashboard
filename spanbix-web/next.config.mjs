@@ -21,10 +21,25 @@
 //   - Permissions-Policy: explicitly drops every interactive sensor Spanbix
 //     does not use.
 //
-// Connect-src includes the Render backend (contact form posts + future client
-// API calls) and Vercel's web-vitals endpoint. Add any new third-party origin
+// Connect-src includes the backend (contact form posts + future client API
+// calls) and Vercel's web-vitals endpoint. Add any new third-party origin
 // here before its first request — otherwise CSP will silently block it.
-const RENDER_BACKEND_ORIGIN = 'https://mavro-dashboard.onrender.com';
+//
+// The backend origin is derived from NEXT_PUBLIC_API_BASE_URL — the same var
+// apiBase.js reads — so moving the backend is one Vercel env change, not a
+// code edit. A mismatch here would let pages render while every form fetch
+// is CSP-blocked.
+function backendOrigin() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_BASE_URL).origin;
+  } catch {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('NEXT_PUBLIC_API_BASE_URL must be an absolute URL in production builds (CSP connect-src depends on it).');
+    }
+    return '';
+  }
+}
+const RENDER_BACKEND_ORIGIN = backendOrigin();
 
 const csp = [
   "default-src 'self'",

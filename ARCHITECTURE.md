@@ -776,7 +776,7 @@ Vercel Project: Admin Dashboard
      ▼
 Same client/vercel.json — sitemap proxies dead-weight on admin domain
 
-Backend on Render (mavro-dashboard.onrender.com)
+Backend on Render (mavro-api.onrender.com)
   └─ CORS allowlist in src/app.js must include every Vercel domain + custom domain
 ```
 

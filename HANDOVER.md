@@ -92,7 +92,7 @@ The user is seeded on first boot by `src/utils/seeder.js`.
 
 | Thing | Where | Notes |
 |---|---|---|
-| Backend API | Render — `mavro-dashboard.onrender.com` | Free tier sleeps; a cron-job.org ping keeps it warm |
+| Backend API | Render — `mavro-api.onrender.com` (Singapore, Node) | Free tier sleeps; a cron-job.org ping keeps it warm. Moved here 29 Oct 2026 from `mavro-dashboard.onrender.com` after the old account hit the free-hour limit and suspended. **Keep this Render account to this one service** — the 24/7 ping uses ~744 of the 750 free hours a month, so any second free service suspends both |
 | Admin dashboard | Vercel project, build `npm run build`, root `client/` | |
 | Spanbix site | Vercel project, build `npm run build`, root `spanbix-web/` | Custom domain www.spanbix.com |
 | SaiSatwik site | WordPress + Divi, self-hosted | Not in this repo; see §5 |

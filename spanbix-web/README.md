@@ -18,13 +18,13 @@ npm install
 npm run dev      # http://localhost:3000
 ```
 
-The backend can be local (`http://localhost:5000`) or the live Render host (`https://mavro-dashboard.onrender.com`) — whichever `NEXT_PUBLIC_API_BASE_URL` resolves to.
+The backend can be local (`http://localhost:5000`) or the live Render host (`https://mavro-api.onrender.com`) — whichever `NEXT_PUBLIC_API_BASE_URL` resolves to.
 
 ### Environment variables
 
 ```
 # spanbix-web/.env
-NEXT_PUBLIC_API_BASE_URL=https://mavro-dashboard.onrender.com
+NEXT_PUBLIC_API_BASE_URL=https://mavro-api.onrender.com
 REVALIDATE_SECRET=<shared with backend SPANBIX_WEB_URL/REVALIDATE_SECRET>
 ```
 
