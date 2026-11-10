@@ -76,6 +76,12 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Saudi Arabia
 - UAE
 - Dubai
+- Qatar
+- Kuwait
+- Oman
+- Bahrain
+- GCC
+- Middle East
 - Global
 
 ## Axis: Format
@@ -97,6 +103,8 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - `SAP EPPM` is canonical — never `EPPM` alone (loses the SAP anchor for AEO/GEO).
 - `Saudi Arabia` is canonical — never `KSA` or `Kingdom of Saudi Arabia` (Google clusters searches under "Saudi Arabia").
 - `UAE` and `Dubai` are both allowed but pick the more specific one (`Dubai`) when the post is city-scoped; use `UAE` only when the post spans the whole country.
+
+- `GCC` is the region-wide tag for posts spanning several Gulf states; `Middle East` only for posts that also cover Jordan or the wider region. Country tag always wins for single-country posts.
 
 ## Retired tags (do not re-use)
 

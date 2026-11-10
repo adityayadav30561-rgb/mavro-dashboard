@@ -64,6 +64,42 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ---
 
+## Cluster: GCC SAP Project Controls (Middle East lead engine)
+
+**Hub (pillar post):** `sap-eppm-implementation-partner-middle-east` (workbook L01)
+**Hub (service pages):** https://saisatwik.com/services/sap/eppm/ · /sap-eppm-consultants-in-saudi-arabia/ · /sap-eppm-consultants-in-dubai/ · /sap-eppm-consultants-in-qatar/ · /services/sap/eppm/saudi-arabia/
+**Intent:** lead (one page per country, per workbook Read Me)
+**Primary keyword:** SAP EPPM implementation partner Middle East
+**LSI / entities:** Saudi Vision 2030, Dubai D33, Qatar National Vision 2030, New Kuwait Vision 2035, Oman Vision 2040, Bahrain Economic Vision 2030, ZATCA e-invoicing, UAE corporate tax, Fawtara, Primavera P6, joint ventures, giga-projects
+**Buyer roles:** CFO, PMO Head, Project Controls Manager, IT Director
+**Industries:** Engineering and Construction, Oil and Gas, Utilities, Public Sector
+**Geographies:** Saudi Arabia, UAE, Qatar, Kuwait, Oman, Bahrain
+**Goal:** pull GCC countries into the GA4/GSC top-countries list (Singapore + India dominated as of Nov 2026).
+
+### Spokes
+
+- [ ] `sap-eppm-implementation-partner-middle-east` (2026-11-01) — **HUB**, L01
+- [ ] `sap-ps-implementation-uae` (2026-11-02) — L03
+- [ ] `sap-ps-for-construction-saudi-arabia` (2026-11-03) — L18
+- [ ] `sap-eppm-for-oil-and-gas-uae` (2026-11-04) — L19
+- [ ] `sap-eppm-public-sector-saudi-arabia` (2026-11-05) — L21
+- [ ] `sap-ps-implementation-qatar` (2026-11-06) — L09
+- [ ] `sap-ps-implementation-kuwait` (2026-11-07) — L12
+- [ ] `sap-eppm-implementation-oman` (2026-11-08) — L11
+- [ ] `sap-eppm-partner-bahrain` (2026-11-09) — L13
+- [ ] `project-controls-for-gulf-giga-projects` (2026-11-10) — K66 (knowledge bridge)
+- [ ] Next: L04 Dubai EPPM consulting, L06 Saudi EPPM partner, L07 Riyadh, L14/L15 Jordan, L16/L17 Singapore
+
+### Retro-linking log
+
+- **2026-11-10 (batch written)** — Hub links DOWN to all 9 spokes; every spoke links UP to hub + laterals. Retro-links added to EPPM hub #5302 (→ GCC hub, giga-projects), Saudi #5308 (→ KSA construction, KSA public sector, GCC hub), Dubai #5157 (→ UAE PS, UAE oil and gas). Posts carry FAQPage JSON-LD (runner now emits it). Publish pending: WP REST auth failed from the cloud session (Authorization header not reaching PHP); run `bash src/utils/publishSaisatwikGccBatch.sh` locally.
+
+### Health
+
+- Ticks become [x] with post IDs once published.
+
+---
+
 ## Cluster: SAP PS (Project System)
 
 **Hub (pillar post):** `what-is-sap-ps-project-system-beginner-guide` (#5418)

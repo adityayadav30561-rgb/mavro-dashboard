@@ -257,6 +257,18 @@ module.exports = {
 
 <!-- wp:list -->
 <ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-for-construction-saudi-arabia/">SAP PS for construction companies in Saudi Arabia</a>: budgets, subcontracts, milestone billing and ZATCA e-invoicing for contractors.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-public-sector-saudi-arabia/">SAP EPPM for government projects in Saudi Arabia</a>: portfolio scoring and capex control for ministries and authorities.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-implementation-partner-middle-east/">Choosing an SAP EPPM partner in the Middle East</a>: the eight criteria GCC enterprises use.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/what-is-sap-eppm-and-why-top-enterprises-are-switching-to-it/">What is SAP EPPM and why top enterprises are switching to it</a> — the definitional pillar; useful for stakeholders new to the module.</li>
 <!-- /wp:list-item -->
 

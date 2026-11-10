@@ -315,6 +315,14 @@ module.exports = {
 
 <!-- wp:list -->
 <ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-ps-implementation-uae/">SAP PS implementation in the UAE</a>: scope, timelines, corporate tax and e-invoicing for Dubai and Abu Dhabi.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-for-oil-and-gas-uae/">SAP EPPM for oil and gas in the UAE</a>: capex governance, turnarounds and joint-venture cost splits.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/what-is-sap-eppm-and-why-top-enterprises-are-switching-to-it/">What is SAP EPPM and why top enterprises are switching to it</a> — the definitional pillar covering scope, capabilities, and switching triggers.</li>
 <!-- /wp:list-item -->
 
