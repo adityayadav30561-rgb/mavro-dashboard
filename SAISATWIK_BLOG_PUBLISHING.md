@@ -618,9 +618,18 @@ module.exports = {
 };
 ```
 
+**Featured image (Nov 2026):** drop `covers/<slug>.(png|jpg|webp)` (1536x1024) and the
+runner uploads it, sets alt text (`coverAlt`, else title) and makes it the featured image.
+Content-hashed filenames make it idempotent. `--cover-only` attaches a cover without touching
+content/date/status. Prompts for every post: `covers/COVER_PROMPTS.md`.
+
+**FAQPage JSON-LD (Nov 2026):** AIOSEO emits BlogPosting but not FAQPage, so the runner appends
+a Custom HTML block with FAQPage schema built from the post's own `FAQs` h2/h3/p section.
+Opt out with `faqSchema: false`. **Block helper:** `_blocks.js → toBlocks(html)` turns plain
+h2/h3/p/ul/ol/table chunks (blank-line separated) into Gutenberg blocks.
+
 **Fields the runner does NOT send yet** (add via wp-admin after publish, or
 extend the runner if this becomes routine):
-- Featured image (upload once via wp-admin — the URL sticks across re-runs)
 - Yoast/Rank Math focus keyword (WP plugin field — set once)
 - Custom author (if not the publisher account)
 
@@ -840,3 +849,10 @@ green-filled with the live URL; everything else reads Pending.
   or K08 (P1, opens the SAP PS cluster).
 - 2026-10-29: K12-K23 published (backdated 13-24 Oct 2026, #5447-#5469).
   Next unpublished Knowledge row is K24.
+- 2026-11-10: GCC batch written (L01, L03, L09, L11, L12, L13, L18, L19, L21, K66), dated
+  1-10 Nov 2026. New cluster "GCC SAP Project Controls" in CLUSTERS.md. Publish with
+  `bash src/utils/publishSaisatwikGccBatch.sh`; mark workbook rows Published after it runs.
+- Crawler audit 2026-11-10: robots.txt only disallows /wp-admin/; GPTBot, OAI-SearchBot,
+  ChatGPT-User, PerplexityBot, ClaudeBot, Claude-SearchBot, Google-Extended, CCBot, Applebot,
+  Bytespider, meta-externalagent, Googlebot and bingbot all receive 200 through Cloudflare. No
+  X-Robots-Tag; meta robots is `max-image-preview:large`. No /llms.txt (404), optional.

@@ -31,21 +31,35 @@ const BASE = (process.env.SAISATWIK_WP_URL || 'https://saisatwik.com').replace(/
 const USER = process.env.SAISATWIK_WP_USER || '';
 const PASS = process.env.SAISATWIK_WP_APP_PASSWORD || '';
 
+// SAISATWIK_WP_PROXY_AUTH=1 → credentials are injected by an egress proxy
+// (cloud sessions). Send no auth headers of our own: a placeholder in
+// X-WP-Authorization would be mapped onto HTTP_AUTHORIZATION by .htaccess and
+// override the real header.
+const PROXY_AUTH = process.env.SAISATWIK_WP_PROXY_AUTH === '1';
 const AUTH = 'Basic ' + Buffer.from(`${USER}:${PASS}`).toString('base64');
-
-async function wp(pathname, { method = 'GET', body } = {}) {
-  const res = await fetch(`${BASE}/wp-json/wp/v2${pathname}`, {
-    method,
-    headers: {
+const AUTH_HEADERS = PROXY_AUTH
+  ? {}
+  : {
       Authorization: AUTH,
       // The LiteSpeed host strips `Authorization` before PHP sees it; the
       // .htaccess carries a SetEnvIf that maps this header back onto
       // HTTP_AUTHORIZATION, which WordPress reads. Belt and braces.
       'X-WP-Authorization': AUTH,
+    };
+
+const COVER_DIR = path.join(__dirname, 'saisatwik-blogs', 'covers');
+const COVER_TYPES = { '.webp': 'image/webp', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png' };
+
+async function wp(pathname, { method = 'GET', body, raw, headers = {} } = {}) {
+  const res = await fetch(`${BASE}/wp-json/wp/v2${pathname}`, {
+    method,
+    headers: {
+      ...AUTH_HEADERS,
       'User-Agent': 'MavroPublisher/1.0',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...headers,
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: raw || (body ? JSON.stringify(body) : undefined),
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -74,16 +88,101 @@ async function resolveTerms(taxonomy, names) {
   return ids;
 }
 
+/**
+ * FAQPage JSON-LD from the post's own FAQ section (the h2 starting "FAQs"
+ * followed by h3 question / p answer pairs). AIOSEO on saisatwik.com emits
+ * BlogPosting but not FAQPage, so the post carries it in a Custom HTML block.
+ * One source: the visible FAQ. Returns '' when there is no FAQ section.
+ */
+function faqJsonLd(content) {
+  const start = content.search(/<h2[^>]*>\s*FAQs?\b/i);
+  if (start < 0) return '';
+  const section = content.slice(start);
+  const strip = (h) =>
+    h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+  const pairs = [];
+  const re = /<h3[^>]*>([\s\S]*?)<\/h3>[\s\S]*?<p>([\s\S]*?)<\/p>/g;
+  let m;
+  while ((m = re.exec(section))) pairs.push({ q: strip(m[1]), a: strip(m[2]) });
+  if (!pairs.length) return '';
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: pairs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  };
+  return (
+    '\n\n<!-- wp:html -->\n<script type="application/ld+json">' +
+    JSON.stringify(ld).replace(/</g, '\\u003c') +
+    '</script>\n<!-- /wp:html -->'
+  );
+}
+
+/** Find covers/<slug>.(webp|jpg|jpeg|png), or null. */
+function findCover(slug) {
+  for (const ext of Object.keys(COVER_TYPES)) {
+    const f = path.join(COVER_DIR, `${slug}${ext}`);
+    if (fs.existsSync(f)) return f;
+  }
+  return null;
+}
+
+/**
+ * Upload the cover and set it as the featured image. Idempotent: the
+ * uploaded filename carries a content hash, so an unchanged file whose
+ * upload is already the featured image is skipped.
+ */
+async function attachCover(post, data, slug) {
+  const file = findCover(slug);
+  if (!file) return;
+  const buf = fs.readFileSync(file);
+  const ext = path.extname(file).toLowerCase();
+  const hash = require('crypto').createHash('sha1').update(buf).digest('hex').slice(0, 8);
+  const name = `${slug}-cover-${hash}${ext}`;
+  const alt = data.coverAlt || data.title;
+
+  if (post.featured_media) {
+    try {
+      const cur = await wp(`/media/${post.featured_media}?_fields=source_url`);
+      if ((cur.source_url || '').includes(`${slug}-cover-${hash}`)) {
+        console.log('   Cover:  unchanged, already attached');
+        return;
+      }
+    } catch (_) { /* missing media → re-upload */ }
+  }
+
+  const media = await wp('/media', {
+    method: 'POST',
+    raw: buf,
+    headers: {
+      'Content-Type': COVER_TYPES[ext],
+      'Content-Disposition': `attachment; filename="${name}"`,
+    },
+  });
+  await wp(`/media/${media.id}`, {
+    method: 'POST',
+    body: { alt_text: alt, title: data.title, caption: '', post: post.id },
+  });
+  await wp(`/posts/${post.id}`, { method: 'POST', body: { featured_media: media.id } });
+  console.log(`   Cover:  uploaded #${media.id} → ${media.source_url}`);
+}
+
 async function main() {
   const args = process.argv.slice(2).filter((a) => a !== '--');
   const publish = args.includes('--publish');
+  // --cover-only: attach/refresh the featured image without touching the
+  // post's content, date or status.
+  const coverOnly = args.includes('--cover-only');
   const slug = args.find((a) => !a.startsWith('--'));
 
   if (!slug) {
     console.error('Usage: npm run create:saisatwik-blog -- <slug> [--publish]');
     process.exit(1);
   }
-  if (!USER || !PASS) {
+  if (!PROXY_AUTH && (!USER || !PASS)) {
     console.error('❌ SAISATWIK_WP_USER / SAISATWIK_WP_APP_PASSWORD missing in .env');
     process.exit(1);
   }
@@ -119,6 +218,21 @@ async function main() {
     process.exit(1);
   }
 
+  const postSlug = data.slug || slug;
+  if (coverOnly) {
+    const found = await wp(`/posts?slug=${encodeURIComponent(postSlug)}&status=any&per_page=1`);
+    if (!found.length) {
+      console.error(`❌ No post with slug "${postSlug}" to attach a cover to`);
+      process.exit(1);
+    }
+    if (!findCover(slug)) {
+      console.error(`❌ No cover at src/utils/saisatwik-blogs/covers/${slug}.(webp|jpg|png)`);
+      process.exit(1);
+    }
+    await attachCover(found[0], data, slug);
+    return;
+  }
+
   // 2. Resolve categories / tags
   const categories = await resolveTerms('categories', data.categories);
   const tags = await resolveTerms('tags', data.tags);
@@ -127,7 +241,7 @@ async function main() {
   const wanted = {
     title: data.title,
     slug: data.slug || slug,
-    content: data.content,
+    content: data.content + (data.faqSchema === false ? '' : faqJsonLd(data.content)),
     excerpt: data.excerpt || '',
     status: publish ? 'publish' : 'draft',
     // Optional backdate/schedule. Site timezone is UTC, so date === date_gmt.
@@ -146,6 +260,8 @@ async function main() {
     post = await wp('/posts', { method: 'POST', body: wanted });
     console.log(`✨ Created post #${post.id}`);
   }
+
+  await attachCover(post, data, slug);
 
   console.log(`   Status: ${post.status.toUpperCase()}`);
   console.log(`   Edit:   ${BASE}/wp-admin/post.php?post=${post.id}&action=edit`);

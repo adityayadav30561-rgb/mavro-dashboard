@@ -298,6 +298,14 @@ module.exports = {
 
 <!-- wp:list -->
 <ul class="wp-block-list"><!-- wp:list-item -->
+<li><a href="https://saisatwik.com/sap-eppm-implementation-partner-middle-east/">How to choose an SAP EPPM implementation partner in the Middle East</a>: the GCC buyer scorecard, with country guides for Saudi Arabia, the UAE, Qatar, Kuwait, Oman and Bahrain.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li><a href="https://saisatwik.com/project-controls-for-gulf-giga-projects/">Project controls for Gulf giga-projects</a>: how SAP PS and Primavera P6 split cost and schedule on megaprojects.</li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
 <li><a href="https://saisatwik.com/why-enterprises-are-investing-in-sap-eppm-enterprise-portfolio-and-project-management-in-2026/">Why enterprises are investing in SAP EPPM in 2026</a> — the current 2026 investment thesis, with a Dubai-market lens.</li>
 <!-- /wp:list-item -->
 
