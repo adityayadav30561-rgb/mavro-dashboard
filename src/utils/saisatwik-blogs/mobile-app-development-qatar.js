@@ -59,7 +59,7 @@ module.exports = {
 
 <h2>How long does mobile app development in Qatar take?</h2>
 
-<p>The base ranges come from SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Hospitality apps add time for property-system and point-of-sale integration.</p>
+<p>The estimates below are planning ranges built on the tiers in SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Property-system and point-of-sale integration account for most of the extra time in hospitality work.</p>
 
 <table><caption>Typical timelines for a Qatar hospitality app</caption><thead><tr><th>App scope</th><th>Typical duration</th></tr></thead><tbody><tr><td>Restaurant ordering and table booking</td><td>2 to 3 months</td></tr><tr><td>Single-hotel guest app with booking and services</td><td>3 to 5 months</td></tr><tr><td>Multi-property app with loyalty and digital keys</td><td>5 to 8 months</td></tr></tbody></table>
 

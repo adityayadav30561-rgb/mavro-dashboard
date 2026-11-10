@@ -57,7 +57,7 @@ module.exports = {
 
 <h2>How long does e-commerce app development in Kuwait take?</h2>
 
-<p>The base ranges come from SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Payment onboarding with the bank or gateway often runs in parallel and can set the launch date.</p>
+<p>The estimates below are planning ranges built on the tiers in SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Payment onboarding with the bank or gateway often runs in parallel and can set the launch date.</p>
 
 <table><caption>Typical timelines for a Kuwait e-commerce app</caption><thead><tr><th>App scope</th><th>Typical duration</th></tr></thead><tbody><tr><td>Catalogue app on an existing web store</td><td>6 to 10 weeks</td></tr><tr><td>Full shopping app with KNET, slots and tracking</td><td>2 to 4 months</td></tr><tr><td>Multi-brand app with loyalty and ERP sync</td><td>4 to 6 months</td></tr></tbody></table>
 

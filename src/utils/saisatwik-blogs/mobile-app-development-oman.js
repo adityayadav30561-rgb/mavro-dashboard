@@ -55,7 +55,7 @@ module.exports = {
 
 <h2>How long does mobile app development in Oman take?</h2>
 
-<p>Base ranges come from SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Government apps add review cycles for Arabic content, accessibility and security.</p>
+<p>The estimates below are planning ranges built on the tiers in SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Government apps add review cycles for Arabic content, accessibility and security.</p>
 
 <table><caption>Typical timelines for an Oman mobile app</caption><thead><tr><th>App scope</th><th>Typical duration</th></tr></thead><tbody><tr><td>Tourism guide with offline content</td><td>2 to 3 months</td></tr><tr><td>Tour booking app with payments</td><td>3 to 5 months</td></tr><tr><td>Government service app with integrations</td><td>4 to 8 months, phased</td></tr></tbody></table>
 

@@ -62,7 +62,7 @@ module.exports = {
 
 <h2>How long does fintech app development in Bahrain take?</h2>
 
-<p>Fintech apps sit at the top of the ranges in SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>. Compliance reviews and security testing add time that consumer apps do not need.</p>
+<p>Fintech apps sit at the top of the tiers in SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a>, and often beyond them. The estimates below are planning ranges, because compliance reviews and security testing add time that consumer apps do not need.</p>
 
 <table><caption>Typical timelines for a Bahrain fintech app</caption><thead><tr><th>App scope</th><th>Typical duration</th></tr></thead><tbody><tr><td>Sandbox MVP with onboarding and one payment flow</td><td>3 to 5 months</td></tr><tr><td>Wallet or payments app with full security testing</td><td>5 to 8 months</td></tr><tr><td>Licensed product with admin, reporting and integrations</td><td>8 months or more, phased</td></tr></tbody></table>
 

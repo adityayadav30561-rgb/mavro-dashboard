@@ -59,7 +59,7 @@ module.exports = {
 
 <p>Apps that issue invoices have one more check. The <a href="https://www.zatca.gov.sa/en/E-Invoicing/Pages/default.aspx" target="_blank" rel="noopener">ZATCA e-invoicing (Fatoorah) rules</a> decide how invoices from the back end are generated and reported.</p>
 
-<h2>How long does mobile app development in Saudi Arabia take?</h2>
+<h2>How long does it take to build a Saudi mobile app?</h2>
 
 <p>SaiSatwik's published <a href="https://saisatwik.com/mobile-app-development-cost-in-india/">mobile app development cost and timeline guide</a> gives the base ranges. Saudi projects add time for Arabic content review, payment onboarding and any Nafath approval.</p>
 
