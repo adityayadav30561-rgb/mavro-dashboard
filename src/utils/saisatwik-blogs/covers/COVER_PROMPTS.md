@@ -370,3 +370,129 @@ Icon cards row, one label each: "Coding Mask", "Status Profile", "Network Profil
 Footer strip text: "Configure once, behave correctly on every project".
 All text spelled exactly as given. No other text.
 ```
+
+---
+
+# GCC Mobile App Development batch (Nov 2026)
+
+**Style note for this batch:** use the shared style above, but describe the company as "a B2B IT services and mobile app development company", replace "SAP blue" with **app blue #1F6FEB** for the key phrase, and do not write "SAP" anywhere. Phone screens may show Arabic and English UI, but keep on-screen app text minimal. If the model cannot render real Arabic, show abstract UI blocks instead of fake Arabic.
+
+## 31. `mobile-app-development-company-gcc`  · NEW (GCC mobile batch, hub)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: gold #C9A227.
+Headline (two lines): "How to Choose a Mobile App Development Company in the GCC" with "Mobile App Development" in app blue.
+Subtitle: "An 8-point scorecard for Gulf businesses".
+Hero visual on the right: two smartphones, one with a right-to-left layout and one left-to-right, in front of a soft Gulf skyline montage at dusk.
+Icon cards row, one label each: "Arabic RTL", "Data Laws", "Local Payments", "National ID", "Support".
+Footer strip text: "Pick the partner before you pick the price".
+All text spelled exactly as given. No other text.
+```
+
+## 32. `mobile-app-development-dubai`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: teal #0F9D8A.
+Headline (two lines): "Mobile App Development in Dubai" with "Mobile App Development" in app blue.
+Subtitle: "A UAE buyer's guide".
+Hero visual on the right: a smartphone showing a retail shopping app, floating in front of the Dubai skyline with Burj Khalifa at blue hour.
+Icon cards row, one label each: "UAE PASS", "Bilingual", "Apple Pay", "UAE Hosting", "Retail".
+Footer strip text: "Built for UAE users and UAE rules".
+All text spelled exactly as given. No other text.
+```
+
+## 33. `mobile-app-development-saudi-arabia`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: green #1E8E3E.
+Headline (two lines): "Mobile App Development in Saudi Arabia" with "Mobile App Development" in app blue.
+Subtitle: "From PDPL to launch".
+Hero visual on the right: a smartphone showing a healthcare appointment app with a doctor video-call tile, in front of the Riyadh skyline with Kingdom Centre.
+Icon cards row, one label each: "PDPL", "Nafath", "mada", "Health Data", "Arabic First".
+Footer strip text: "Designed for the Kingdom from the first screen".
+All text spelled exactly as given. No other text.
+```
+
+## 34. `mobile-app-development-qatar`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: maroon #8A1538.
+Headline (two lines): "Mobile App Development in Qatar" with "Mobile App Development" in app blue.
+Subtitle: "For hotels, restaurants and tour operators".
+Hero visual on the right: a smartphone showing a hotel booking and room-service app, in front of the Doha West Bay skyline at night.
+Icon cards row, one label each: "Direct Booking", "Mobile Check-in", "Room Service", "Loyalty", "PDPPL".
+Footer strip text: "Own the guest relationship".
+All text spelled exactly as given. No other text.
+```
+
+## 35. `ecommerce-app-development-kuwait`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: orange #F97316.
+Headline (two lines): "E-commerce App Development in Kuwait" with "E-commerce App" in app blue.
+Subtitle: "From KNET checkout to doorstep delivery".
+Hero visual on the right: a smartphone showing a shopping cart and checkout screen, with delivery boxes and Kuwait Towers in the background.
+Icon cards row, one label each: "KNET", "Apple Pay", "Delivery Slots", "Order Tracking", "Loyalty".
+Footer strip text: "A storefront your customers carry everywhere".
+All text spelled exactly as given. No other text.
+```
+
+## 36. `fintech-app-development-bahrain`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: red #C8102E.
+Headline (two lines): "Fintech App Development in Bahrain" with "Fintech App" in app blue.
+Subtitle: "Building for the CBB regulatory sandbox".
+Hero visual on the right: a smartphone showing a digital wallet balance with a shield and padlock, in front of the Bahrain World Trade Center towers.
+Icon cards row, one label each: "Sandbox", "eKYC", "BENEFIT", "Security", "PDPL".
+Footer strip text: "Test with real users, then scale".
+All text spelled exactly as given. No other text.
+```
+
+## 37. `mobile-app-development-oman`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: burgundy #9B1B30.
+Headline (two lines): "Mobile App Development in Oman" with "Mobile App Development" in app blue.
+Subtitle: "Government services and tourism".
+Hero visual on the right: a smartphone showing an offline map of a wadi route, with Muscat's coastline and the Hajar mountains behind.
+Icon cards row, one label each: "Vision 2040", "Offline Maps", "Accessibility", "Bilingual", "PDPL".
+Footer strip text: "Apps that work from Muscat to the mountains".
+All text spelled exactly as given. No other text.
+```
+
+## 38. `arabic-rtl-mobile-app-development`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: purple #6B3FA0.
+Headline (two lines): "Arabic RTL Mobile App Development" with "Arabic RTL" in app blue.
+Subtitle: "What to mirror, and what to leave alone".
+Hero visual on the right: the same app screen shown twice side by side, one mirrored right-to-left and one left-to-right, with a curved arrow between them.
+Icon cards row, one label each: "Flutter", "React Native", "iOS", "Android", "Testing".
+Footer strip text: "Design both directions from the first wireframe".
+All text spelled exactly as given. No other text.
+```
+
+## 39. `mobile-app-data-protection-laws-gcc`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: dark green #0B6E4F.
+Headline (two lines): "Mobile App Data Protection Laws in the GCC" with "Data Protection Laws" in app blue.
+Subtitle: "Six countries compared".
+Hero visual on the right: a smartphone with a large padlock on screen, surrounded by six small shield badges in a ring.
+Icon cards row, one label each: "Consent", "User Rights", "Security", "Transfers", "Breach Response".
+Footer strip text: "Design to the strictest rule, then build once".
+All text spelled exactly as given. No other text.
+```
+
+## 40. `mobile-app-payment-gateways-gcc`  · NEW (GCC mobile batch)
+
+```
+Create a 1536x1024 landscape blog cover in the shared style above, adjusted per the batch style note. Accent colour: amber #F59E0B.
+Headline (two lines): "Payment Gateways for Mobile Apps in the GCC" with "Payment Gateways" in app blue.
+Subtitle: "National debit networks, wallets and BNPL".
+Hero visual on the right: a smartphone showing a checkout screen, with floating generic payment cards, a contactless wallet symbol and a secure lock.
+Icon cards row, one label each: "Debit Networks", "Apple Pay", "BNPL", "Tokenisation", "Webhooks".
+Footer strip text: "Never touch the card number".
+All text spelled exactly as given. No other text.
+```

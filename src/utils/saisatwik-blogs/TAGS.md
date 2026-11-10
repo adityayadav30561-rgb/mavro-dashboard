@@ -26,6 +26,10 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Oracle Cloud ERP
 - PeopleSoft
 - Microsoft Dynamics 365
+- Flutter
+- React Native
+- Kotlin
+- Payment Gateways
 
 ## Axis: Service Line
 
@@ -41,6 +45,8 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Staff Augmentation
 - Cloud Migration
 - Tax Compliance
+- Data Protection Compliance
+- Arabic Localization
 
 ## Axis: Industry
 
@@ -55,6 +61,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.4 + §7.6 for the discipline.
 - Utilities
 - IT and Telecom
 - Public Sector
+- Hospitality
 
 ## Axis: Role
 

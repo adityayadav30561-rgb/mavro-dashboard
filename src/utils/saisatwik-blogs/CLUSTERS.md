@@ -78,21 +78,58 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Spokes
 
-- [ ] `sap-eppm-implementation-partner-middle-east` (2026-11-01) — **HUB**, L01
-- [ ] `sap-ps-implementation-uae` (2026-11-02) — L03
-- [ ] `sap-ps-for-construction-saudi-arabia` (2026-11-03) — L18
-- [ ] `sap-eppm-for-oil-and-gas-uae` (2026-11-04) — L19
-- [ ] `sap-eppm-public-sector-saudi-arabia` (2026-11-05) — L21
-- [ ] `sap-ps-implementation-qatar` (2026-11-06) — L09
-- [ ] `sap-ps-implementation-kuwait` (2026-11-07) — L12
-- [ ] `sap-eppm-implementation-oman` (2026-11-08) — L11
-- [ ] `sap-eppm-partner-bahrain` (2026-11-09) — L13
-- [ ] `project-controls-for-gulf-giga-projects` (2026-11-10) — K66 (knowledge bridge)
+- [x] **#5481** — `sap-eppm-implementation-partner-middle-east` (2026-11-01) — **HUB**, L01
+- [x] **#5483** — `sap-ps-implementation-uae` (2026-11-02) — L03
+- [x] **#5484** — `sap-ps-for-construction-saudi-arabia` (2026-11-03) — L18
+- [x] **#5485** — `sap-eppm-for-oil-and-gas-uae` (2026-11-04) — L19
+- [x] **#5486** — `sap-eppm-public-sector-saudi-arabia` (2026-11-05) — L21
+- [x] **#5487** — `sap-ps-implementation-qatar` (2026-11-06) — L09
+- [x] **#5488** — `sap-ps-implementation-kuwait` (2026-11-07) — L12
+- [x] **#5489** — `sap-eppm-implementation-oman` (2026-11-08) — L11
+- [x] **#5490** — `sap-eppm-partner-bahrain` (2026-11-09) — L13
+- [ ] **#5491** — `project-controls-for-gulf-giga-projects` (2026-11-10 09:00 UTC, scheduled) — K66 (knowledge bridge)
 - [ ] Next: L04 Dubai EPPM consulting, L06 Saudi EPPM partner, L07 Riyadh, L14/L15 Jordan, L16/L17 Singapore
 
 ### Retro-linking log
 
 - **2026-11-10 (batch written)** — Hub links DOWN to all 9 spokes; every spoke links UP to hub + laterals. Retro-links added to EPPM hub #5302 (→ GCC hub, giga-projects), Saudi #5308 (→ KSA construction, KSA public sector, GCC hub), Dubai #5157 (→ UAE PS, UAE oil and gas). Posts carry FAQPage JSON-LD (runner now emits it). Publish pending: WP REST auth failed from the cloud session (Authorization header not reaching PHP); run `bash src/utils/publishSaisatwikGccBatch.sh` locally.
+- **2026-11-10 (published)** — Batch published from the local machine (auth worked; the .htaccess rule was intact, the cloud session's credentials were the problem). 9 spokes live, K66 scheduled for 09:00 UTC. The 3 retro-linked posts re-pushed live.
+
+### Health
+
+- Ticks become [x] with post IDs once published.
+
+---
+
+## Cluster: GCC Mobile App Development (Middle East lead engine, software line)
+
+**Hub (pillar post):** `mobile-app-development-company-gcc`
+**Hub (service page):** https://saisatwik.com/software-development/mobile-app-development/
+**Intent:** lead (country spokes, each framed by a different vertical) + traffic (RTL, data laws, payments)
+**Primary keyword:** mobile app development company in the GCC
+**LSI / entities:** Flutter, React Native, Kotlin, Swift, .NET MAUI, Arabic RTL, UAE PASS, Nafath, UAE PDPL (Decree-Law 45/2021), Saudi PDPL (SDAIA), Qatar PDPPL (Law 13/2016), Bahrain PDPL (Law 30/2018), Oman PDPL (Royal Decree 6/2022), CITRA, CBB sandbox, mada, KNET, BENEFIT, NAPS, Apple Pay, Tabby, Tamara
+**Buyer roles:** CTO, Founder, Head of Digital, Product Owner
+**Industries:** Retail, Healthcare, Hospitality, BFSI, Public Sector
+**Geographies:** UAE, Saudi Arabia, Qatar, Kuwait, Bahrain, Oman
+**Claim boundary:** SaiSatwik facts only from the mobile service page (stacks, app types, industries, 50+ experts / 5+ years / 100+ customers). No GCC client claims, no AED/SAR price brackets — timelines cite the published India cost guide.
+
+### Spokes
+
+- [ ] `mobile-app-development-company-gcc` — **HUB** (partner scorecard)
+- [ ] `mobile-app-development-dubai` — UAE, retail + UAE PASS
+- [ ] `mobile-app-development-saudi-arabia` — healthcare + PDPL + Nafath
+- [ ] `mobile-app-development-qatar` — hospitality + PDPPL
+- [ ] `ecommerce-app-development-kuwait` — e-commerce + KNET
+- [ ] `fintech-app-development-bahrain` — BFSI + CBB sandbox
+- [ ] `mobile-app-development-oman` — public sector + tourism
+- [ ] `arabic-rtl-mobile-app-development` — traffic, technical
+- [ ] `mobile-app-data-protection-laws-gcc` — traffic, six-country comparison
+- [ ] `mobile-app-payment-gateways-gcc` — traffic, payment rails
+
+### Retro-linking log
+
+- **2026-11-10 (batch written)** — Hub links DOWN to all 9 spokes; every spoke links UP to hub + service page + laterals. Spokes link OUT to older live posts (#mobile-app-development-cost-in-india, enterprise-mobile-app-development, progressive-web-apps-vs-native-apps, top-mobile-application-development-platforms).
+- **PENDING** — retro-links FROM those 4 older App Development posts to the GCC hub. They have no local data files; do NOT create files for them just to add links (the runner upserts by slug and would overwrite live content). Add the links only after importing their exact current content into data files (never in the WP editor).
 
 ### Health
 
