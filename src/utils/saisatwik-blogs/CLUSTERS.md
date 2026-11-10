@@ -87,7 +87,7 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 - [x] **#5488** — `sap-ps-implementation-kuwait` (2026-11-07) — L12
 - [x] **#5489** — `sap-eppm-implementation-oman` (2026-11-08) — L11
 - [x] **#5490** — `sap-eppm-partner-bahrain` (2026-11-09) — L13
-- [ ] **#5491** — `project-controls-for-gulf-giga-projects` (2026-11-10 09:00 UTC, scheduled) — K66 (knowledge bridge)
+- [x] **#5491** — `project-controls-for-gulf-giga-projects` (2026-11-10) — K66 (knowledge bridge)
 - [ ] Next: L04 Dubai EPPM consulting, L06 Saudi EPPM partner, L07 Riyadh, L14/L15 Jordan, L16/L17 Singapore
 
 ### Retro-linking log
@@ -115,16 +115,16 @@ See `SAISATWIK_BLOG_PUBLISHING.md` §7.5 for the discipline.
 
 ### Spokes
 
-- [ ] `mobile-app-development-company-gcc` — **HUB** (partner scorecard)
-- [ ] `mobile-app-development-dubai` — UAE, retail + UAE PASS
-- [ ] `mobile-app-development-saudi-arabia` — healthcare + PDPL + Nafath
-- [ ] `mobile-app-development-qatar` — hospitality + PDPPL
-- [ ] `ecommerce-app-development-kuwait` — e-commerce + KNET
-- [ ] `fintech-app-development-bahrain` — BFSI + CBB sandbox
-- [ ] `mobile-app-development-oman` — public sector + tourism
-- [ ] `arabic-rtl-mobile-app-development` — traffic, technical
-- [ ] `mobile-app-data-protection-laws-gcc` — traffic, six-country comparison
-- [ ] `mobile-app-payment-gateways-gcc` — traffic, payment rails
+- [x] **#5495** — `mobile-app-development-company-gcc` (2026-11-10) — **HUB** (partner scorecard)
+- [x] **#5496** — `mobile-app-development-dubai` (2026-11-10) — UAE, retail + UAE PASS
+- [x] **#5497** — `mobile-app-development-saudi-arabia` (2026-11-10) — healthcare + PDPL + Nafath
+- [x] **#5498** — `mobile-app-development-qatar` (2026-11-10) — hospitality + PDPPL
+- [x] **#5499** — `ecommerce-app-development-kuwait` (2026-11-10) — e-commerce + KNET
+- [x] **#5500** — `fintech-app-development-bahrain` (2026-11-10) — BFSI + CBB sandbox
+- [x] **#5501** — `mobile-app-development-oman` (2026-11-10) — public sector + tourism
+- [x] **#5502** — `arabic-rtl-mobile-app-development` (2026-11-10) — traffic, technical
+- [x] **#5503** — `mobile-app-data-protection-laws-gcc` (2026-11-10) — traffic, six-country comparison
+- [x] **#5504** — `mobile-app-payment-gateways-gcc` (2026-11-10) — traffic, payment rails
 
 ### Retro-linking log
 
