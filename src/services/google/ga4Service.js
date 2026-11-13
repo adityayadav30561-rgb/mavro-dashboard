@@ -36,15 +36,17 @@ const TRACKED_EVENTS = [
 async function batchRunReports(requests, propertyId, credsEnv) {
   const pid = propertyId || defaultPropertyId();
   const url = `https://analyticsdata.googleapis.com/v1beta/properties/${pid}:batchRunReports`;
-  // API allows max 5 reports per batch call. Chunks run in parallel (3 calls,
-  // well under GA4's concurrent-request limit) so the slowest chunk — not the
-  // sum — bounds the response time, keeping failures inside the client timeout.
-  const chunks = [];
-  for (let i = 0; i < requests.length; i += 5) chunks.push(requests.slice(i, i + 5));
-  const results = await Promise.all(
-    chunks.map((chunk) => googleApiFetch(url, { method: 'POST', body: { requests: chunk }, credsEnv }))
-  );
-  return results.flatMap((res) => res.reports || []);
+  // API allows max 5 reports per batch call. Chunks run SEQUENTIALLY: GA4 caps
+  // concurrent requests per property (10), and when Google is slow, parallel
+  // chunks hold those slots and turn into 429s. Healthy chunks take 1–3 s; the
+  // 9 s per-call cap keeps 3 chunks inside the admin's 30 s client timeout.
+  const out = [];
+  for (let i = 0; i < requests.length; i += 5) {
+    const chunk = requests.slice(i, i + 5);
+    const res = await googleApiFetch(url, { method: 'POST', body: { requests: chunk }, credsEnv, timeoutMs: 9000 });
+    out.push(...(res.reports || []));
+  }
+  return out;
 }
 
 /** Flatten a GA4 report into [{ <dimName>: value, ..., <metricName>: number }] */

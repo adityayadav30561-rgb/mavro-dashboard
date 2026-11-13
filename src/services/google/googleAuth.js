@@ -122,17 +122,22 @@ const apiName = (url) =>
 
 /** Turn a Google error body (JSON or an HTML error page) into one short line. */
 function describeGoogleError(status, text, name) {
-  if (status === 429) return `${name} quota exhausted (429) — Google resets it within the hour; try again later.`;
+  let googleMsg = '';
+  try { googleMsg = JSON.parse(text)?.error?.message || ''; } catch { /* HTML error page */ }
+  googleMsg = googleMsg.slice(0, 200);
+  if (status === 429) {
+    // GA4 has several 429 quotas (tokens/hour, tokens/day, concurrent
+    // requests, server errors/hour). Show Google's own reason — the
+    // concurrent one fires when Google is slow, not because usage is high.
+    return `${name} is rate-limiting requests (429)${googleMsg ? `: ${googleMsg}` : ''} — retry in a few minutes.`;
+  }
   if (status >= 500) return `${name} is failing on Google's side (HTTP ${status}). Nothing to fix here — retry later.`;
-  try {
-    const msg = JSON.parse(text)?.error?.message;
-    if (msg) return `${name} error (HTTP ${status}): ${msg}`;
-  } catch { /* not JSON */ }
+  if (googleMsg) return `${name} error (HTTP ${status}): ${googleMsg}`;
   return `${name} error (HTTP ${status}): ${String(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)}`;
 }
 
 /** Authenticated JSON fetch against a Google API. Throws on non-2xx or timeout. */
-async function googleApiFetch(url, { method = 'GET', body, credsEnv } = {}) {
+async function googleApiFetch(url, { method = 'GET', body, credsEnv, timeoutMs = GOOGLE_TIMEOUT_MS } = {}) {
   const token = await getAccessToken(credsEnv);
   const name = apiName(url);
   let res;
@@ -144,13 +149,13 @@ async function googleApiFetch(url, { method = 'GET', body, credsEnv } = {}) {
         ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
-      signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (e) {
     const timedOut = e.name === 'TimeoutError' || e.name === 'AbortError';
     const err = new Error(
       timedOut
-        ? `${name} did not respond within ${GOOGLE_TIMEOUT_MS / 1000}s (Google-side slowness) — retry later.`
+        ? `${name} did not respond within ${timeoutMs / 1000}s (Google-side slowness) — retry later.`
         : `${name} request failed: ${e.message}`
     );
     err.status = timedOut ? 504 : 502;
