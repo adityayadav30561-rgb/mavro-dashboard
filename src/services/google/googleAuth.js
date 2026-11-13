@@ -95,6 +95,7 @@ async function getAccessToken(credsEnv) {
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
       assertion: `${header}.${claims}.${signature}`,
     }),
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!res.ok) {
@@ -111,21 +112,54 @@ async function getAccessToken(credsEnv) {
   return fresh.accessToken;
 }
 
-/** Authenticated JSON fetch against a Google API. Throws on non-2xx. */
+// Healthy Google reads finish in 1–3 s. Cap each call well under the admin
+// client's 30 s axios timeout so a Google-side stall surfaces as a readable
+// error on the card instead of "timeout of 30000ms exceeded".
+const GOOGLE_TIMEOUT_MS = 20000;
+
+const apiName = (url) =>
+  url.includes('analyticsdata') ? 'Google Analytics (GA4)' : url.includes('searchconsole') || url.includes('webmasters') ? 'Search Console' : 'Google API';
+
+/** Turn a Google error body (JSON or an HTML error page) into one short line. */
+function describeGoogleError(status, text, name) {
+  if (status === 429) return `${name} quota exhausted (429) — Google resets it within the hour; try again later.`;
+  if (status >= 500) return `${name} is failing on Google's side (HTTP ${status}). Nothing to fix here — retry later.`;
+  try {
+    const msg = JSON.parse(text)?.error?.message;
+    if (msg) return `${name} error (HTTP ${status}): ${msg}`;
+  } catch { /* not JSON */ }
+  return `${name} error (HTTP ${status}): ${String(text).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200)}`;
+}
+
+/** Authenticated JSON fetch against a Google API. Throws on non-2xx or timeout. */
 async function googleApiFetch(url, { method = 'GET', body, credsEnv } = {}) {
   const token = await getAccessToken(credsEnv);
-  const res = await fetch(url, {
-    method,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  const name = apiName(url);
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      signal: AbortSignal.timeout(GOOGLE_TIMEOUT_MS),
+    });
+  } catch (e) {
+    const timedOut = e.name === 'TimeoutError' || e.name === 'AbortError';
+    const err = new Error(
+      timedOut
+        ? `${name} did not respond within ${GOOGLE_TIMEOUT_MS / 1000}s (Google-side slowness) — retry later.`
+        : `${name} request failed: ${e.message}`
+    );
+    err.status = timedOut ? 504 : 502;
+    throw err;
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    const err = new Error(`Google API ${method} ${url} failed (${res.status}): ${text.slice(0, 500)}`);
+    const err = new Error(describeGoogleError(res.status, text, name));
     err.status = res.status;
     throw err;
   }
